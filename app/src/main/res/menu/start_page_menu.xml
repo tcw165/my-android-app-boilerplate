@@ -6,14 +6,26 @@
     <!-- Search Widget -->
     <item
         android:id="@+id/menu_search"
-        android:title="@string/search"
+        android:title="@string/menu_search"
         app:actionViewClass="android.support.v7.widget.SearchView"
         app:showAsAction="ifRoom"
         app:srcCompat="@drawable/icon_search"/>
 
-    <!-- Ingredient Selection -->
+    <!-- Next -->
     <item
         android:id="@+id/menu_next"
-        android:title="@string/next"
+        android:title="@string/menu_next"
         app:showAsAction="ifRoom"/>
+
+    <!-- Group -->
+    <group android:id="@+id/menu_group">
+        <item android:id="@+id/menu_settings"
+              android:title="@string/menu_settings" />
+        <item android:id="@+id/menu_help_and_feedback"
+              android:title="@string/menu_help_and_feedback" />
+    </group>
+
+    <!--<item-->
+        <!--android:id="@+id/menu_settings"-->
+        <!--android:title="@string/settings"/>-->
 </menu>

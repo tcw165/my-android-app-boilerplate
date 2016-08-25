@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest package="com.my.boilerplate"
           xmlns:android="http://schemas.android.com/apk/res/android">
 
@@ -11,8 +12,9 @@
         android:supportsRtl="false"
         android:theme="@style/AppTheme">
 
+        <!-- Splash Screen -->
         <activity
-            android:name="com.my.boilerplate.SplashScreenActivity"
+            android:name=".SplashScreenActivity"
             android:theme="@style/SplashScreenTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -20,9 +22,24 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
+        <!-- Start Page -->
         <activity
-            android:name="com.my.boilerplate.StartPageActivity"
+            android:name=".StartPageActivity"
             android:theme="@style/AppTheme">
         </activity>
+
+        <!-- Settings -->
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/menu_settings"
+            android:theme="@style/AppTheme">
+        </activity>
+
+        <!-- Fabric Crashlytics -->
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="7a93d58e91c332d945504f74acaf1d5190579e80" />
     </application>
+
 </manifest>

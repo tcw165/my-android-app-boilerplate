@@ -20,6 +20,7 @@
 
 package com.my.boilerplate;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -28,6 +29,7 @@ import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.ListView;
 
 import com.my.boilerplate.json.JsonWhatever;
@@ -35,13 +37,6 @@ import com.my.boilerplate.rx.SimpleSubscriber;
 import com.my.boilerplate.util.ViewUtil;
 import com.my.boilerplate.util.WebApiUtil;
 import com.my.boilerplate.view.IProgressBarView;
-
-import java.util.concurrent.TimeUnit;
-
-import rx.Observable;
-import rx.Observer;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 public class StartPageActivity
     extends AppCompatActivity
@@ -111,6 +106,17 @@ public class StartPageActivity
                     Log.d("xyz", String.format("onNext: %s", data.total));
                 }
             });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_settings:
+                startActivity(new Intent(this, SettingsActivity.class));
+                return true;
+            default:
+                return false;
+        }
     }
 
     @Override
