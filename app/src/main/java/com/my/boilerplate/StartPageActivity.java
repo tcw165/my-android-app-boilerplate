@@ -80,6 +80,7 @@ public class StartPageActivity
             // Request data.
             .concatWith(WebApiUtil
                             .with(this)
+                            .showProgressBar(this)
                             .getJsonWhatever())
             // Only handle the non-NULL stream.
             .filter(new Func1<Object, Boolean>() {
@@ -100,7 +101,8 @@ public class StartPageActivity
                                        Log.i(TAG, "Permissions are not granted.");
                                    }
                                } else if (o instanceof JsonWhatever) {
-                                   Log.i(TAG, "Get JsonWhatever data.");
+                                   JsonWhatever data = (JsonWhatever) o;
+                                   Log.i(TAG, String.format("Get JsonWhatever data = %s", data.toString()));
                                }
                            }
                        },
@@ -157,7 +159,7 @@ public class StartPageActivity
     public void showProgressBar() {
         ViewUtil
             .with(this)
-            .setCancelable(true)
+            .setProgressBarCancelable(false)
             .showProgressBar(getString(R.string.loading));
     }
 

@@ -33,6 +33,11 @@ public class ViewUtil {
     private final WeakReference<Context> mContext;
     private final WeakReference<ProgressDialog> mProgress;
 
+    /**
+     * Because view stuff follows the lifecycle of the {@code Activity}. You are
+     * asked to pass the {@code Context} to the static method to generate the
+     * *util* instance related to the given context for you.
+     */
     public static ViewUtil with(Context context) {
         if (!sInstancePool.containsKey(context)) {
             sInstancePool.put(context, new ViewUtil(context));
@@ -51,6 +56,10 @@ public class ViewUtil {
     ///////////////////////////////////////////////////////////////////////////
     // Public Methods /////////////////////////////////////////////////////////
 
+    /**
+     * Show the progress bar when something is processing.
+     * By default, it's cancelable.
+     */
     public void showProgressBar(String message) {
         if (mProgress.get() == null) return;
 
@@ -58,13 +67,19 @@ public class ViewUtil {
         mProgress.get().show();
     }
 
+    /**
+     * Hide the progress bar when some process is done.
+     */
     public void hideProgressBar() {
         if (mProgress.get() == null) return;
 
         mProgress.get().hide();
     }
 
-    public ViewUtil setCancelable(final boolean b) {
+    /**
+     * Indicate the progress bar is cancelable.
+     */
+    public ViewUtil setProgressBarCancelable(final boolean b) {
         if (mProgress.get() != null) {
             mProgress.get().setCancelable(b);
         }
