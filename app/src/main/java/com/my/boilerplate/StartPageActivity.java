@@ -20,6 +20,7 @@
 
 package com.my.boilerplate;
 
+import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
@@ -34,13 +35,19 @@ import android.widget.ListView;
 
 import com.my.boilerplate.json.JsonWhatever;
 import com.my.boilerplate.rx.SimpleSubscriber;
+import com.my.boilerplate.util.PermUtil;
 import com.my.boilerplate.util.ViewUtil;
 import com.my.boilerplate.util.WebApiUtil;
 import com.my.boilerplate.view.IProgressBarView;
 
+import rx.functions.Action0;
+import rx.functions.Action1;
+
 public class StartPageActivity
     extends AppCompatActivity
     implements IProgressBarView {
+
+    private final static String TAG = StartPageActivity.class.getSimpleName();
 
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
@@ -97,15 +104,39 @@ public class StartPageActivity
     protected void onResume() {
         super.onResume();
 
-        WebApiUtil
+//        // Loade something.
+//        WebApiUtil
+//            .with(this)
+//            .getJsonWhatever()
+//            .subscribe(new SimpleSubscriber<JsonWhatever>() {
+//                @Override
+//                public void onNext(JsonWhatever data) {
+//                    Log.d("xyz", String.format("onNext: %s", data.total));
+//                }
+//            });
+
+        // Ask certain permissions.
+        PermUtil
             .with(this)
-            .getJsonWhatever()
-            .subscribe(new SimpleSubscriber<JsonWhatever>() {
-                @Override
-                public void onNext(JsonWhatever data) {
-                    Log.d("xyz", String.format("onNext: %s", data.total));
-                }
-            });
+            .request(Manifest.permission.CAMERA)
+            .subscribe(new Action1<Boolean>() {
+                           @Override
+                           public void call(Boolean granted) {
+                               Log.i(TAG, "Permission result " + granted);
+                           }
+                       },
+                       new Action1<Throwable>() {
+                           @Override
+                           public void call(Throwable t) {
+                               Log.e(TAG, "onError", t);
+                           }
+                       },
+                       new Action0() {
+                           @Override
+                           public void call() {
+                               Log.i(TAG, "OnComplete");
+                           }
+                       });
     }
 
     @Override
