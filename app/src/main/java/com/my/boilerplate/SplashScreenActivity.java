@@ -36,7 +36,10 @@ public class SplashScreenActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Init Fabric crashlytics.
         Fabric.with(this, new Crashlytics());
+
         setContentView(R.layout.activity_splash_screen);
     }
 
