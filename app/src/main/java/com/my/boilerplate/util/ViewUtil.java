@@ -20,20 +20,13 @@
 
 package com.my.boilerplate.util;
 
-import android.Manifest;
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.pm.PackageManager;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 
 import java.lang.ref.WeakReference;
 import java.util.WeakHashMap;
 
 public class ViewUtil {
-
-    public static final int MY_PERMISSIONS_ACCESS_FINE_LOCATION = 0;
 
     private static final WeakHashMap<Context, ViewUtil> sInstancePool = new WeakHashMap<>();
 
@@ -50,6 +43,14 @@ public class ViewUtil {
 
     ///////////////////////////////////////////////////////////////////////////
 
+    ViewUtil(final Context context) {
+        mContext = new WeakReference<>(context);
+        mProgress = new WeakReference<>(new ProgressDialog(mContext.get()));
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Public Methods /////////////////////////////////////////////////////////
+
     public void showProgressBar(String message) {
         if (mProgress.get() == null) return;
 
@@ -63,47 +64,13 @@ public class ViewUtil {
         mProgress.get().hide();
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-
-    public void checkPermission() {
-        Activity thisActivity = (Activity) mContext.get();
-        int permissionCheck = ContextCompat.checkSelfPermission(
-            thisActivity,
-            Manifest.permission.ACCESS_FINE_LOCATION);
-
-        if (permissionCheck == PackageManager.PERMISSION_GRANTED) return;
-
-        // Should we show an explanation?
-        if (ActivityCompat.shouldShowRequestPermissionRationale(
-            thisActivity,
-            Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-            // Show an expanation to the user *asynchronously* -- don't block
-            // this thread waiting for the user's response! After the user
-            // sees the explanation, try again to request the permission.
-
-        } else {
-
-            // No explanation needed, we can request the permission.
-
-            ActivityCompat.requestPermissions(
-                thisActivity,
-                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                MY_PERMISSIONS_ACCESS_FINE_LOCATION);
-
-            // MY_PERMISSIONS_ACCESS_FINE_LOCATION is an
-            // app-defined int constant. The callback method gets the
-            // result of the request.
+    public ViewUtil setCancelable(final boolean b) {
+        if (mProgress.get() != null) {
+            mProgress.get().setCancelable(b);
         }
+        return this;
     }
 
     ///////////////////////////////////////////////////////////////////////////
     // Protected / Private Methods ////////////////////////////////////////////
-
-    private ViewUtil(final Context context) {
-        mContext = new WeakReference<>(context);
-
-        mProgress = new WeakReference<>(new ProgressDialog(mContext.get()));
-        mProgress.get().setCancelable(false);
-    }
 }

@@ -123,6 +123,7 @@ public class StartPageActivity
     public void showProgressBar() {
         ViewUtil
             .with(this)
+            .setCancelable(true)
             .showProgressBar(getString(R.string.loading));
     }
 
