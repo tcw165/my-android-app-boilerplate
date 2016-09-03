@@ -28,6 +28,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -49,7 +50,7 @@ public class PermissionActivity extends AppCompatActivity {
 
     private void handleIntent(Intent intent) {
         List<String> perms = Arrays.asList(intent.getStringArrayExtra("permissions"));
-        List<String> yetGrantedPerms = Collections.emptyList();
+        List<String> yetGrantedPerms = new ArrayList<>();
 
         // Figure out what permissions are not granted.
         for (String perm : perms) {
@@ -74,7 +75,11 @@ public class PermissionActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
-        RxPermissions.getInstance(this).onRequestPermissionsResult(requestCode, permissions, grantResults);
+        PermUtil
+            .with(this)
+            .onRequestPermissionsResult(requestCode,
+                                        permissions,
+                                        grantResults);
         finish();
     }
 }
