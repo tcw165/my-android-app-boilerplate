@@ -34,14 +34,14 @@ import android.view.MenuItem;
 import android.widget.ListView;
 
 import com.my.boilerplate.json.JsonWhatever;
-import com.my.boilerplate.rx.SimpleSubscriber;
 import com.my.boilerplate.util.PermUtil;
 import com.my.boilerplate.util.ViewUtil;
 import com.my.boilerplate.util.WebApiUtil;
 import com.my.boilerplate.view.IProgressBarView;
 
-import rx.functions.Action0;
+import rx.Observable;
 import rx.functions.Action1;
+import rx.functions.Func1;
 
 public class StartPageActivity
     extends AppCompatActivity
@@ -68,6 +68,48 @@ public class StartPageActivity
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
 //        mDrawerList.setAdapter(new ArrayAdapter<String>());
         // Set the drawer toggle as the DrawerListener
+
+        // Example: Chain multiple observables.
+        Observable
+            .just(null)
+            // Ask for permission.
+            .concatWith(PermUtil
+                            .with(this)
+                            .request(Manifest.permission.CAMERA,
+                                     Manifest.permission.WRITE_EXTERNAL_STORAGE))
+            // Request data.
+            .concatWith(WebApiUtil
+                            .with(this)
+                            .getJsonWhatever())
+            // Only handle the non-NULL stream.
+            .filter(new Func1<Object, Boolean>() {
+                @Override
+                public Boolean call(Object o) {
+                    return o != null;
+                }
+            })
+            .subscribe(new Action1<Object>() {
+                           @Override
+                           public void call(Object o) {
+                               if (o == null) {
+                                   Log.i(TAG, "null");
+                               } else if (o instanceof Boolean) {
+                                   if ((Boolean) o) {
+                                       Log.i(TAG, "Permissions are granted.");
+                                   } else {
+                                       Log.i(TAG, "Permissions are not granted.");
+                                   }
+                               } else if (o instanceof JsonWhatever) {
+                                   Log.i(TAG, "Get JsonWhatever data.");
+                               }
+                           }
+                       },
+                       new Action1<Throwable>() {
+                           @Override
+                           public void call(Throwable t) {
+                               Log.e(TAG, "onError", t);
+                           }
+                       });
     }
 
     @Override
@@ -98,45 +140,6 @@ public class StartPageActivity
 //        }
 
         return true;
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-//        // Loade something.
-//        WebApiUtil
-//            .with(this)
-//            .getJsonWhatever()
-//            .subscribe(new SimpleSubscriber<JsonWhatever>() {
-//                @Override
-//                public void onNext(JsonWhatever data) {
-//                    Log.d("xyz", String.format("onNext: %s", data.total));
-//                }
-//            });
-
-        // Ask certain permissions.
-        PermUtil
-            .with(this)
-            .request(Manifest.permission.CAMERA)
-            .subscribe(new Action1<Boolean>() {
-                           @Override
-                           public void call(Boolean granted) {
-                               Log.i(TAG, "Permission result " + granted);
-                           }
-                       },
-                       new Action1<Throwable>() {
-                           @Override
-                           public void call(Throwable t) {
-                               Log.e(TAG, "onError", t);
-                           }
-                       },
-                       new Action0() {
-                           @Override
-                           public void call() {
-                               Log.i(TAG, "OnComplete");
-                           }
-                       });
     }
 
     @Override
