@@ -28,6 +28,5 @@ import rx.Observable;
 public interface IWhateverApiService {
 
     @GET("/category_ingredients")
-//    @GET("/data")
     Observable<JsonWhatever> getJsonWhatever();
 }
