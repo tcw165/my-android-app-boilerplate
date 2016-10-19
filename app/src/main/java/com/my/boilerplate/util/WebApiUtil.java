@@ -22,6 +22,7 @@ package com.my.boilerplate.util;
 
 import android.app.Activity;
 import android.content.Context;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.my.boilerplate.json.JsonWhatever;
@@ -75,7 +76,7 @@ public class WebApiUtil {
     protected final Retrofit mServiceFactory;
     protected final IWhateverApiService mWhateverApiServ;
 
-    protected final Transformer<Object, Object> mDefaultRxBehavior;
+    protected Transformer<Object, Object> mDefaultRxBehavior;
 
     WebApiUtil(final Context context) {
         mHttpClient = new OkHttpClient.Builder()
@@ -107,51 +108,16 @@ public class WebApiUtil {
 
         mContext = context;
         mWhateverApiServ = mServiceFactory.create(IWhateverApiService.class);
-
-        // The reusable behavior.
-        mDefaultRxBehavior = new Transformer<Object, Object>() {
-            @Override
-            public Observable<Object> call(Observable<Object> ob) {
-                return ob.subscribeOn(Schedulers.io())
-                         // When start.
-                         .doOnSubscribe(new Action0() {
-                             @Override
-                             public void call() {
-                                 Log.i(TAG, "API call starts.");
-                                 showProgressBar();
-                             }
-                         })
-                         // When error happens.
-                         .observeOn(AndroidSchedulers.mainThread())
-                         .doOnError(new Action1<Throwable>() {
-                             @Override
-                             public void call(Throwable t) {
-                                 Log.e(TAG, String.format("API call error: %s", t));
-                                 hideProgressBar();
-                             }
-                         })
-                         // When end.
-                         .observeOn(AndroidSchedulers.mainThread())
-                         .doOnCompleted(new Action0() {
-                             @Override
-                             public void call() {
-                                 Log.i(TAG, "API call ends.");
-                                 hideProgressBar();
-                             }
-                         })
-                         .observeOn(AndroidSchedulers.mainThread());
-            }
-        };
     }
 
     /**
      * Show the progress bar when processing.
      */
-    public WebApiUtil showProgressBar(final Activity activity) {
-        if (activity.isFinishing() ||
-            !(activity instanceof IProgressBarView)) return this;
+    public WebApiUtil showProgressBar(final IProgressBarView view) {
+        if (view instanceof Activity &&
+            ((Activity) view).isFinishing()) return this;
 
-        mProgressView = new WeakReference<>((IProgressBarView) activity);
+        mProgressView = new WeakReference<>(view);
 
         return this;
     }
@@ -170,19 +136,57 @@ public class WebApiUtil {
     // Protected / protected Methods //////////////////////////////////////////
 
     protected void showProgressBar() {
-        if (mProgressView.get() == null) return;
+        if (mProgressView == null || mProgressView.get() == null) return;
 
         mProgressView.get().showProgressBar();
     }
 
     protected void hideProgressBar() {
-        if (mProgressView.get() == null) return;
+        if (mProgressView == null || mProgressView.get() == null) return;
 
         mProgressView.get().hideProgressBar();
     }
 
     @SuppressWarnings("unchecked")
     protected <T> Transformer<T, T> applyDefaultBehavior() {
+        // The reusable behavior.
+        if (mDefaultRxBehavior == null) {
+            mDefaultRxBehavior = new Transformer<Object, Object>() {
+                @Override
+                public Observable<Object> call(Observable<Object> ob) {
+                    return ob.subscribeOn(Schedulers.io())
+                             // When start.
+                             .observeOn(AndroidSchedulers.mainThread())
+                             .doOnSubscribe(new Action0() {
+                                 @Override
+                                 public void call() {
+                                     Log.i(TAG, "API call starts.");
+                                     showProgressBar();
+                                 }
+                             })
+                             // When error happens.
+                             .observeOn(AndroidSchedulers.mainThread())
+                             .doOnError(new Action1<Throwable>() {
+                                 @Override
+                                 public void call(Throwable t) {
+                                     Log.e(TAG, String.format("API call error: %s", t));
+                                     hideProgressBar();
+                                 }
+                             })
+                             // When end.
+                             .observeOn(AndroidSchedulers.mainThread())
+                             .doOnCompleted(new Action0() {
+                                 @Override
+                                 public void call() {
+                                     Log.i(TAG, "API call ends.");
+                                     hideProgressBar();
+                                 }
+                             })
+                             .observeOn(AndroidSchedulers.mainThread());
+                }
+            };
+        }
+
         return (Transformer<T, T>) mDefaultRxBehavior;
     }
 }

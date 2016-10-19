@@ -14,7 +14,12 @@
         android:icon="@mipmap/icon_launcher"
         android:label="@string/app_name"
         android:supportsRtl="false"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppThemeNoToolbar">
+
+        <!-- Fabric Crashlytics -->
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="7a93d58e91c332d945504f74acaf1d5190579e80"/>
 
         <!-- Splash Screen -->
         <activity
@@ -29,8 +34,7 @@
 
         <!-- Start Page -->
         <activity
-            android:name=".StartPageActivity"
-            android:theme="@style/AppTheme">
+            android:name=".StartPageActivity">
         </activity>
 
         <!-- Settings -->
@@ -46,11 +50,5 @@
             android:launchMode="singleTop"
             android:theme="@style/InvisibleTheme">
         </activity>
-
-        <!-- Fabric Crashlytics -->
-        <meta-data
-            android:name="io.fabric.ApiKey"
-            android:value="7a93d58e91c332d945504f74acaf1d5190579e80"/>
     </application>
-
 </manifest>

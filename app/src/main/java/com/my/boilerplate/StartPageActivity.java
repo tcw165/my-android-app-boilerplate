@@ -27,10 +27,12 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.my.boilerplate.json.JsonWhatever;
@@ -57,17 +59,14 @@ public class StartPageActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start_page);
 
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setHomeButtonEnabled(true);
-//            actionBar.setHomeAsUpIndicator(R.drawable.icon_drawer);
+        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+//            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//            getSupportActionBar().setHomeButtonEnabled(true);
+//            getSupportActionBar().setHomeAsUpIndicator(R.drawable.icon_drawer);
+//            getSupportActionBar().setHomeAsUpIndicator(null);
         }
-
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mDrawerList = (ListView) findViewById(R.id.left_drawer);
-//        mDrawerList.setAdapter(new ArrayAdapter<String>());
-        // Set the drawer toggle as the DrawerListener
 
         // Example: Chain multiple observables.
         Observable
@@ -114,35 +113,19 @@ public class StartPageActivity
                        });
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the options menu from XML
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.start_page_menu, menu);
-
-        // Get the SearchView and set the searchable configuration
-//        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
-        // Assumes current activity is the searchable activity
-//        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        searchView.setIconifiedByDefault(true); // Do not iconify the widget; expand it by default
-
-//        MenuItem myIngradientsItem = menu.findItem(R.id.menu_find_recipes);
-//        if (myIngradientsItem != null) {
-//            View myIngradientsView = MenuItemCompat.getActionView(myIngradientsItem);
-//            View btnMyIngradients = myIngradientsView.findViewById(R.id.btn_my_ingredients);
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        // Inflate the options menu from XML
+//        MenuInflater inflater = getMenuInflater();
+//        inflater.inflate(R.menu.start_page_menu, menu);
 //
-//            btnMyIngradients.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View view) {
-//                    startActivity(new Intent(StartPageActivity.this,
-//                                             RecipeListActivity.class));
-//                }
-//            });
-//        }
-
-        return true;
-    }
+//        // Get the SearchView and set the searchable configuration
+//        SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
+//        // Assumes current activity is the searchable activity
+//        searchView.setIconifiedByDefault(true); // Do not iconify the widget; expand it by default
+//
+//        return true;
+//    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
