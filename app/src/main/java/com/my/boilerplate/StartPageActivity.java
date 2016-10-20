@@ -23,6 +23,7 @@ package com.my.boilerplate;
 import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -32,6 +33,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -62,13 +65,90 @@ public class StartPageActivity
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayShowTitleEnabled(false);
-//            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 //            getSupportActionBar().setHomeButtonEnabled(true);
 //            getSupportActionBar().setHomeAsUpIndicator(R.drawable.icon_drawer);
 //            getSupportActionBar().setHomeAsUpIndicator(null);
         }
 
-        // Example: Chain multiple observables.
+        findViewById(R.id.menu_drawer).setOnClickListener(onClickMenuDrawer());
+
+//        // Example: Chain multiple observables.
+//        doHttpRequests();
+    }
+
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        // Inflate the options menu from XML
+//        MenuInflater inflater = getMenuInflater();
+//        inflater.inflate(R.menu.start_page_menu, menu);
+//
+//        // Get the SearchView and set the searchable configuration
+//        SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
+//        // Assumes current activity is the searchable activity
+//        searchView.setIconifiedByDefault(true); // Do not iconify the widget; expand it by default
+//
+//        return true;
+//    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_settings:
+                startActivity(new Intent(this, SettingsActivity.class));
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    @Override
+    public void showProgressBar() {
+        ViewUtil
+            .with(this)
+            .setProgressBarCancelable(false)
+            .showProgressBar(getString(R.string.loading));
+    }
+
+    @Override
+    public void hideProgressBar() {
+        ViewUtil
+            .with(this)
+            .hideProgressBar();
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Protected / Private Methods ////////////////////////////////////////////
+
+    protected OnClickListener onClickMenuDrawer() {
+        final String tag = "dialog";
+
+        return new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Fragment fragment = getSupportFragmentManager().findFragmentByTag(tag);
+
+                if (fragment == null) {
+                    fragment = new UpDownDrawerFragment();
+
+                    getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.dialog, fragment, tag)
+                        .addToBackStack(null)
+                        .commit();
+                } else if (!fragment.isRemoving()) {
+                    if (fragment instanceof UpDownDrawerFragment) {
+                        ((UpDownDrawerFragment) fragment).animateExiting();
+                    } else {
+                        getSupportFragmentManager()
+                            .popBackStack();
+                    }
+                }
+            }
+        };
+    }
+
+    protected void doHttpRequests() {
         Observable
             .just(null)
             // Ask for permission.
@@ -111,45 +191,5 @@ public class StartPageActivity
                                Log.e(TAG, "onError", t);
                            }
                        });
-    }
-
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        // Inflate the options menu from XML
-//        MenuInflater inflater = getMenuInflater();
-//        inflater.inflate(R.menu.start_page_menu, menu);
-//
-//        // Get the SearchView and set the searchable configuration
-//        SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
-//        // Assumes current activity is the searchable activity
-//        searchView.setIconifiedByDefault(true); // Do not iconify the widget; expand it by default
-//
-//        return true;
-//    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_settings:
-                startActivity(new Intent(this, SettingsActivity.class));
-                return true;
-            default:
-                return false;
-        }
-    }
-
-    @Override
-    public void showProgressBar() {
-        ViewUtil
-            .with(this)
-            .setProgressBarCancelable(false)
-            .showProgressBar(getString(R.string.loading));
-    }
-
-    @Override
-    public void hideProgressBar() {
-        ViewUtil
-            .with(this)
-            .hideProgressBar();
     }
 }

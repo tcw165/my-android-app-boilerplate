@@ -24,7 +24,7 @@ android {
 }
 
 repositories {
-    maven {url "https://maven.fabric.io/public"}
+    maven { url "https://maven.fabric.io/public" }
 }
 
 dependencies {
@@ -33,10 +33,13 @@ dependencies {
 
     compile fileTree(dir: "libs", include: ["*.jar"])
 
-    compile "com.android.support:design:${SUPPORT_LIB_VER}"
-    compile "com.android.support:cardview-v7:${SUPPORT_LIB_VER}"
-    compile "com.android.support:recyclerview-v7:${SUPPORT_LIB_VER}"
     compile "com.android.support:appcompat-v7:${SUPPORT_LIB_VER}"
+    compile "com.android.support:design:${SUPPORT_LIB_VER}"
+    compile "com.android.support:support-vector-drawable:${SUPPORT_LIB_VER}"
+    compile "com.android.support:recyclerview-v7:${SUPPORT_LIB_VER}"
+    compile "com.android.support:percent:${SUPPORT_LIB_VER}"
+    compile "com.android.support:cardview-v7:${SUPPORT_LIB_VER}"
+    compile "com.android.support:gridlayout-v7:${SUPPORT_LIB_VER}"
 
     // Rx-Android.
     compile "io.reactivex:rxandroid:1.2.1"
@@ -57,6 +60,9 @@ dependencies {
     compile('com.crashlytics.sdk.android:crashlytics:2.6.2@aar') {
         transitive = true;
     }
+
+    // Blur effect library.
+    compile 'jp.wasabeef:blurry:2.0.3'
 
     testCompile "junit:junit:4.12"
 }
