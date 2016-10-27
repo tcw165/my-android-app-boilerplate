@@ -158,8 +158,8 @@ public class StartPageActivity
 //                int scrapWidth = (int) ((float) mCollageEditor.getWidth() / 3.f);
                 ScrapView scrap = new ScrapView(StartPageActivity.this);
 
-//                scrap.setTranslationX(0);
-//                scrap.setTranslationY(0);
+                scrap.setTranslationX(100);
+                scrap.setTranslationY(100);
 //                scrap.setScaleX(0.33f);
 //                scrap.setScaleY(0.33f);
                 scrap.setAspectRatio(scrapRatio);

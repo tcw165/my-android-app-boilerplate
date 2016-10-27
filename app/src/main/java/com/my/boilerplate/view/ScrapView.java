@@ -46,8 +46,6 @@ public class ScrapView extends FrameLayout {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-
-        Log.d("xyz", String.format("current matrix=%s", getMatrix()));
     }
 
     public void setAspectRatio(float ratio) {

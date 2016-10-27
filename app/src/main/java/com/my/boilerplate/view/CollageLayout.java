@@ -10,18 +10,34 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
-
-import rx.subscriptions.CompositeSubscription;
-
 public class CollageLayout extends ScrapView {
+
+    private static final String TAG = CollageLayout.class.getSimpleName();
 
     public static final float DEFAULT_CHILD_WIDTH_PERCENT = 1.f / 3.f;
 
-    protected DragGestureDetector mDragDetector;
-
-    protected CompositeSubscription mSubscriptions;
+    /**
+     * For making one view consume the events at a time.
+     */
+    protected View mTouchingView;
+    /**
+     * The starting matrix of a gesture session.
+     */
+    protected Matrix mStartMatrix = new Matrix();
+    /**
+     * For passing the event in the root coordinate to the children gesture
+     * detectors.
+     */
+    protected MotionEvent mRootTouchEvent;
+    /**
+     * Shared matrix values for the matrix calculation in callbacks like
+     * {@code onDraw}, {@code onTouch}, ...etc.
+     */
+    protected float[] mSharedMatrixVals = new float[9];
+    /**
+     * The shared dragging gesture detector for the children view.
+     */
+    protected DragGestureDetector mChildrenDragDetector;
 
     // FIXME: Remove following debug codes.
     protected Paint mDebugPaint;
@@ -36,7 +52,7 @@ public class CollageLayout extends ScrapView {
         super(context, attrs);
 
         // TODO: Init the detector acoording to the attributes.
-        mDragDetector = new DragGestureDetector();
+        mChildrenDragDetector = new DragGestureDetector();
 
         setOnHierarchyChangeListener(onHierarchyChange());
     }
@@ -57,15 +73,14 @@ public class CollageLayout extends ScrapView {
 //        }
 //    }
 
-//    @Override
-//    public boolean onInterceptTouchEvent(MotionEvent ev) {
-//        return super.onInterceptTouchEvent(ev);
-//    }
-//
-//    @Override
-//    public boolean onTouchEvent(MotionEvent event) {
-//        return super.onTouchEvent(event);
-//    }
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        // It's called before calling its children onTouch callbacks. And we
+        // need to pass the event in the root coordinate to the gesture detectors
+        // later in the onTouch callback.
+        mRootTouchEvent = ev;
+        return false;
+    }
 
     ///////////////////////////////////////////////////////////////////////////
     // Protected / Private Methods ////////////////////////////////////////////
@@ -90,42 +105,62 @@ public class CollageLayout extends ScrapView {
 
     @Override
     protected void onDraw(Canvas canvas) {
-//        super.onDraw(canvas);
+        // DO NOTHING.
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    // Clazz //////////////////////////////////////////////////////////////////
-
-    protected AtomicReference<View> mTouchingView = new AtomicReference<>();
-    protected Matrix mTransformMatrix = new Matrix();
-
+    /**
+     * The gesture dispatcher which is responsible for determining what gesture
+     * to use and how to apply the transformation to the view.
+     */
     protected OnTouchListener mTouchDispatcher = new OnTouchListener() {
         @Override
         public boolean onTouch(View v,
                                MotionEvent event) {
-            if (!(v instanceof ScrapView)) return false;
-
             boolean isHandled = false;
             int action = MotionEventCompat.getActionMasked(event);
+            Matrix transformMatrix = null;
 
             switch (action) {
+                // Only one view can handle the event at a time; the other views
+                // won't receive the event during the gesture session.
                 case MotionEvent.ACTION_DOWN:
-                    mTouchingView.set(v);
+                    if (mTouchingView == null) {
+                        mTouchingView = v;
 
-                    mDragDetector.startSession(v, event);
+                        // The container saves the starting transformation.
+                        mStartMatrix.set(v.getMatrix());
+                        // FIXME: The root determine the starting transformation
+                        // and pass to the gesture detectors.
+                        mChildrenDragDetector.startSession(v, event, mRootTouchEvent);
+
+                        // It's necessary to notify the caller the event is
+                        // handled by this view.
+                        isHandled = true;
+                    }
                     break;
+                case MotionEvent.ACTION_CANCEL:
                 case MotionEvent.ACTION_UP:
-                    mTouchingView.set(null);
-
-                    mDragDetector.stopSession(v, event);
+                    mTouchingView = null;
+                    mChildrenDragDetector.stopSession();
                     break;
                 default:
-                    if (v.equals(mTouchingView.get())) {
-//                        mDragDetector.getGestureMatrix();
-                    }
+                    transformMatrix = mChildrenDragDetector.getTransformMatrix(v, event, mRootTouchEvent);
             }
 
-            // TODO: Apply the matrix to the view.
+            // TODO: Add snap-to-grid, snap-to-rotation, ... or more.
+            // Apply the affine matrix to the view.
+            if (transformMatrix != null) {
+                mStartMatrix.getValues(mSharedMatrixVals);
+                float startTx = mSharedMatrixVals[Matrix.MTRANS_X];
+                float startTy = mSharedMatrixVals[Matrix.MTRANS_Y];
+
+                transformMatrix.getValues(mSharedMatrixVals);
+                v.setTranslationX(startTx + mSharedMatrixVals[Matrix.MTRANS_X]);
+                v.setTranslationY(startTy + mSharedMatrixVals[Matrix.MTRANS_Y]);
+                v.postInvalidate();
+
+                isHandled = true;
+            }
 
             return isHandled;
         }
@@ -144,28 +179,4 @@ public class CollageLayout extends ScrapView {
             }
         };
     }
-
-//    private class LayersHierarchyChange implements OnHierarchyChangeListener {
-//
-//        @Override
-//        public void onChildViewAdded(View parent, View child) {
-//            mIsDrawingCacheDirty = true;
-//
-//            if (child instanceof MosaicView) {
-//                // Update the filters flag so that this container will update the
-//                // cached effects.
-//                mFiltersFlag |= MOSAIC_FILTER;
-//
-//                // Make children subscribe to the effect.
-//                ((MosaicView) child).subscribeToMosaic(mMosaicSubject);
-//
-//                invalidFilters();
-//            }
-//        }
-//
-//        @Override
-//        public void onChildViewRemoved(View parent, View child) {
-//
-//        }
-//    }
 }
