@@ -21,28 +21,23 @@
 package com.my.boilerplate;
 
 import android.Manifest;
-import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import android.widget.Toast;
 
 import com.my.boilerplate.json.JsonWhatever;
 import com.my.boilerplate.util.PermUtil;
 import com.my.boilerplate.util.ViewUtil;
 import com.my.boilerplate.util.WebApiUtil;
+import com.my.boilerplate.view.CollageLayout;
 import com.my.boilerplate.view.IProgressBarView;
+import com.my.boilerplate.view.ScrapView;
 
 import rx.Observable;
 import rx.functions.Action1;
@@ -54,8 +49,7 @@ public class StartPageActivity
 
     private final static String TAG = StartPageActivity.class.getSimpleName();
 
-    private DrawerLayout mDrawerLayout;
-    private ListView mDrawerList;
+    private CollageLayout mCollageEditor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +65,14 @@ public class StartPageActivity
 //            getSupportActionBar().setHomeAsUpIndicator(null);
         }
 
+        // Up-down menu.
         findViewById(R.id.menu_drawer).setOnClickListener(onClickMenuDrawer());
+        // Arrow buttons.
+        findViewById(R.id.menu_arrow_left).setOnClickListener(onClickAddScrap(ScrapView.ASPECT_RATIO_SQUARE));
+        findViewById(R.id.menu_arrow_right).setOnClickListener(onClickAddScrap(ScrapView.ASPECT_RATIO_GOLD_RECT));
+
+        // The collage editor.
+        mCollageEditor = (CollageLayout) findViewById(R.id.collage_editor);
 
 //        // Example: Chain multiple observables.
 //        doHttpRequests();
@@ -90,17 +91,17 @@ public class StartPageActivity
 //
 //        return true;
 //    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_settings:
-                startActivity(new Intent(this, SettingsActivity.class));
-                return true;
-            default:
-                return false;
-        }
-    }
+//
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        switch (item.getItemId()) {
+//            case R.id.menu_settings:
+//                startActivity(new Intent(this, SettingsActivity.class));
+//                return true;
+//            default:
+//                return false;
+//        }
+//    }
 
     @Override
     public void showProgressBar() {
@@ -144,6 +145,33 @@ public class StartPageActivity
                             .popBackStack();
                     }
                 }
+            }
+        };
+    }
+
+    protected OnClickListener onClickAddScrap(float ratio) {
+        final float scrapRatio = ratio;
+
+        return new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                int scrapWidth = (int) ((float) mCollageEditor.getWidth() / 3.f);
+                ScrapView scrap = new ScrapView(StartPageActivity.this);
+
+//                scrap.setTranslationX(0);
+//                scrap.setTranslationY(0);
+//                scrap.setScaleX(0.33f);
+//                scrap.setScaleY(0.33f);
+                scrap.setAspectRatio(scrapRatio);
+                scrap.setBackgroundColor(Color.rgb((int) ((double) 0xFF * Math.random()),
+                                                   (int) ((double) 0xFF * Math.random()),
+                                                   (int) ((double) 0xFF * Math.random())));
+
+                mCollageEditor.addView(scrap);
+
+                Toast.makeText(StartPageActivity.this,
+                               String.format("Make a scrap (aspect ratio is %f)", scrapRatio),
+                               Toast.LENGTH_SHORT);
             }
         };
     }
