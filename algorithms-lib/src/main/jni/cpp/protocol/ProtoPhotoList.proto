@@ -1,0 +1,14 @@
+syntax = "proto2";
+package com.my.algorithm.proto;
+
+option optimize_for = LITE_RUNTIME;
+//option cc_enable_arenas = false;
+
+//// For Java.
+//option java_outer_classname = "ProtoPhotoList";
+
+import "protocol/ProtoPhoto.proto";
+
+message MsgPhotoList {
+    repeated MsgPhoto items = 1;
+}
