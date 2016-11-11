@@ -1,0 +1,44 @@
+# General
+releases/
+bin/
+gen/
+build/
+
+# Mac
+*.DS_Store
+
+# CMake
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+*.cmake
+Makefile
+install_manifest.txt
+*UnitTest*
+
+# Microsoft Visual Code
+.vscode
+
+# Android Studio & Java
+*.class
+*.classpath
+*.dex
+*.eml
+*.iml
+*.project
+*.swp
+*.settings
+local.properties
+.idea/
+.gradle/
+.metadata
+
+# Proto-generated Files
+**/*.pb.h
+**/*.pb.cc
+
+# Generated Library.
+lib*.a
+lib*.so
+lib*.dylib
+lib*.dll

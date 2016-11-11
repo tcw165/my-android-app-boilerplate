@@ -61,6 +61,9 @@ dependencies {
         transitive = true;
     }
 
+    // My algorithm-lib for generating the grids.
+//    compile project(':algorithms-lib')
+
     // Blur effect library.
     compile 'jp.wasabeef:blurry:2.0.3'
 

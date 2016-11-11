@@ -1,0 +1,17 @@
+syntax = "proto2";
+package com.my.algorithm.proto;
+
+option optimize_for = LITE_RUNTIME;
+//option cc_enable_arenas = false;
+
+//// For Java.
+//option java_outer_classname = "ProtoRectSlot";
+
+message MsgRectSlot {
+    required float x = 1;
+    required float y = 2;
+    required float width = 3;
+    required float height = 4;
+
+    required uint64 relatedPhotoId = 5;
+}
