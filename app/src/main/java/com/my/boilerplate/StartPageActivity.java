@@ -37,6 +37,7 @@ import com.my.boilerplate.util.ViewUtil;
 import com.my.boilerplate.util.WebApiUtil;
 import com.my.boilerplate.view.CollageLayout;
 import com.my.boilerplate.view.DropDownMenuView;
+import com.my.boilerplate.view.INavMenu;
 import com.my.boilerplate.view.IProgressBarView;
 import com.my.boilerplate.view.ScrapView;
 
@@ -50,6 +51,7 @@ public class StartPageActivity
 
     private final static String TAG = StartPageActivity.class.getSimpleName();
 
+    private Toolbar mToolbar;
     private CollageLayout mCollageEditor;
     private DropDownMenuView mDrawerMenu;
 
@@ -58,17 +60,18 @@ public class StartPageActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start_page);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
         // Up-down menu.
         mDrawerMenu = (DropDownMenuView) findViewById(R.id.drawer_menu);
+        mDrawerMenu.setOnMenuStateChangeListener(onMenuStateChange());
 
-        // The collage editor.
-        mCollageEditor = (CollageLayout) findViewById(R.id.collage_editor);
+//        // The collage editor.
+//        mCollageEditor = (CollageLayout) findViewById(R.id.collage_editor);
 
 //        // Example: Chain multiple observables.
 //        doHttpRequests();
@@ -103,21 +106,6 @@ public class StartPageActivity
     ///////////////////////////////////////////////////////////////////////////
     // Protected / Private Methods ////////////////////////////////////////////
 
-    protected OnClickListener onClickNavigationIcon() {
-        return new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mDrawerMenu == null) return;
-
-                if (mDrawerMenu.isShowing()) {
-                    mDrawerMenu.hideWithAnimation();
-                } else {
-                    mDrawerMenu.showWithAnimation();
-                }
-            }
-        };
-    }
-
     private void toggleDrawerMenu() {
         if (mDrawerMenu == null) return;
 
@@ -126,6 +114,20 @@ public class StartPageActivity
         } else {
             mDrawerMenu.showWithAnimation();
         }
+    }
+
+    private INavMenu.OnMenuStateChange onMenuStateChange() {
+        return new INavMenu.OnMenuStateChange() {
+            @Override
+            public void onShowMenu() {
+                mToolbar.setNavigationIcon(R.drawable.ic_close);
+            }
+
+            @Override
+            public void onHideMenu() {
+                mToolbar.setNavigationIcon(R.drawable.ic_list_black_24px);
+            }
+        };
     }
 
     protected OnClickListener onClickAddScrap(float ratio) {
