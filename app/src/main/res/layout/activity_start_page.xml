@@ -8,9 +8,14 @@
     android:orientation="vertical"
     tools:context="com.my.boilerplate.StartPageActivity">
 
-    <include
+    <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
-        layout="@layout/toolbar_arrow_left_right"/>
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        app:navigationIcon="@drawable/ic_list_black_24px"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        app:titleTextColor="?attr/colorAccent"/>
 
     <FrameLayout
         android:id="@+id/frame"
@@ -22,12 +27,12 @@
             android:id="@+id/collage_editor"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#FFFFFF"
-            android:layout_gravity="center"/>
+            android:layout_gravity="center"
+            android:background="#FFFFFF"/>
 
-        <!-- Dialog layer -->
-        <FrameLayout
-            android:id="@+id/dialog"
+        <!-- The menu -->
+        <com.my.boilerplate.view.DropDownMenuView
+            android:id="@+id/drawer_menu"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
     </FrameLayout>
