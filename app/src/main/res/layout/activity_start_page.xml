@@ -23,12 +23,16 @@
         android:layout_height="match_parent"
         android:background="#E5E5E5">
 
-        <com.my.boilerplate.view.CollageLayout
-            android:id="@+id/collage_editor"
+        <!--<com.my.boilerplate.view.CollageLayout-->
+            <!--android:id="@+id/collage_editor"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:layout_gravity="center"-->
+            <!--android:background="#FFFFFF"/>-->
+        <ListView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:background="#FFFFFF"/>
+            android:entries="@array/start_menu_entries"/>
 
         <!-- The menu -->
         <com.my.boilerplate.view.DropDownMenuView
