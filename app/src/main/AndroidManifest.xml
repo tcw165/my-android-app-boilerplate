@@ -14,7 +14,7 @@
         android:icon="@mipmap/icon_launcher"
         android:label="@string/app_name"
         android:supportsRtl="false"
-        android:theme="@style/AppThemeNoToolbar">
+        android:theme="@style/AppTheme.CustomToolbar">
 
         <!-- Fabric Crashlytics -->
         <meta-data
@@ -34,7 +34,8 @@
 
         <!-- Start Page -->
         <activity
-            android:name=".StartPageActivity">
+            android:name=".StartPageActivity"
+            android:theme="@style/AppTheme.CustomToolbar">
         </activity>
 
         <!-- Settings -->

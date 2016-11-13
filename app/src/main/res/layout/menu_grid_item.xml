@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.percent.PercentRelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_border_rect"
+    android:clickable="true"
+    android:foreground="?attr/selectableItemBackgroundBorderless"
+    android:orientation="vertical"
+    tools:layout_gravity="center"
+    tools:layout_height="120dp"
+    tools:layout_width="120dp">
+
+    <ImageView
+        android:id="@+id/icon"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:scaleType="centerInside"
+        app:layout_marginTopPercent="21%"
+        app:srcCompat="@drawable/ic_settings"/>
+
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:maxLines="2"
+        android:maxWidth="68dp"
+        android:text="@string/settings"
+        android:textColor="?attr/colorAccent"
+        android:textSize="12sp"
+        app:layout_marginTopPercent="64%"/>
+</android.support.percent.PercentRelativeLayout>

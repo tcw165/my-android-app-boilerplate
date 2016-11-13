@@ -23,10 +23,10 @@ package com.my.boilerplate;
 import android.Manifest;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Toast;
@@ -36,6 +36,7 @@ import com.my.boilerplate.util.PermUtil;
 import com.my.boilerplate.util.ViewUtil;
 import com.my.boilerplate.util.WebApiUtil;
 import com.my.boilerplate.view.CollageLayout;
+import com.my.boilerplate.view.DropDownMenuView;
 import com.my.boilerplate.view.IProgressBarView;
 import com.my.boilerplate.view.ScrapView;
 
@@ -50,26 +51,21 @@ public class StartPageActivity
     private final static String TAG = StartPageActivity.class.getSimpleName();
 
     private CollageLayout mCollageEditor;
+    private DropDownMenuView mDrawerMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start_page);
 
-        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayShowTitleEnabled(false);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-//            getSupportActionBar().setHomeButtonEnabled(true);
-//            getSupportActionBar().setHomeAsUpIndicator(R.drawable.icon_drawer);
-//            getSupportActionBar().setHomeAsUpIndicator(null);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
         // Up-down menu.
-        findViewById(R.id.menu_drawer).setOnClickListener(onClickMenuDrawer());
-        // Arrow buttons.
-        findViewById(R.id.menu_arrow_left).setOnClickListener(onClickAddScrap(ScrapView.ASPECT_RATIO_SQUARE));
-        findViewById(R.id.menu_arrow_right).setOnClickListener(onClickAddScrap(ScrapView.ASPECT_RATIO_GOLD_RECT));
+        mDrawerMenu = (DropDownMenuView) findViewById(R.id.drawer_menu);
 
         // The collage editor.
         mCollageEditor = (CollageLayout) findViewById(R.id.collage_editor);
@@ -78,30 +74,16 @@ public class StartPageActivity
 //        doHttpRequests();
     }
 
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        // Inflate the options menu from XML
-//        MenuInflater inflater = getMenuInflater();
-//        inflater.inflate(R.menu.start_page_menu, menu);
-//
-//        // Get the SearchView and set the searchable configuration
-//        SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
-//        // Assumes current activity is the searchable activity
-//        searchView.setIconifiedByDefault(true); // Do not iconify the widget; expand it by default
-//
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        switch (item.getItemId()) {
-//            case R.id.menu_settings:
-//                startActivity(new Intent(this, SettingsActivity.class));
-//                return true;
-//            default:
-//                return false;
-//        }
-//    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                toggleDrawerMenu();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
     @Override
     public void showProgressBar() {
@@ -121,32 +103,29 @@ public class StartPageActivity
     ///////////////////////////////////////////////////////////////////////////
     // Protected / Private Methods ////////////////////////////////////////////
 
-    protected OnClickListener onClickMenuDrawer() {
-        final String tag = "dialog";
-
+    protected OnClickListener onClickNavigationIcon() {
         return new OnClickListener() {
             @Override
             public void onClick(View view) {
-                Fragment fragment = getSupportFragmentManager().findFragmentByTag(tag);
+                if (mDrawerMenu == null) return;
 
-                if (fragment == null) {
-                    fragment = new UpDownDrawerFragment();
-
-                    getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.dialog, fragment, tag)
-                        .addToBackStack(null)
-                        .commit();
-                } else if (!fragment.isRemoving()) {
-                    if (fragment instanceof UpDownDrawerFragment) {
-                        ((UpDownDrawerFragment) fragment).animateExiting();
-                    } else {
-                        getSupportFragmentManager()
-                            .popBackStack();
-                    }
+                if (mDrawerMenu.isShowing()) {
+                    mDrawerMenu.hideWithAnimation();
+                } else {
+                    mDrawerMenu.showWithAnimation();
                 }
             }
         };
+    }
+
+    private void toggleDrawerMenu() {
+        if (mDrawerMenu == null) return;
+
+        if (mDrawerMenu.isShowing()) {
+            mDrawerMenu.hideWithAnimation();
+        } else {
+            mDrawerMenu.showWithAnimation();
+        }
     }
 
     protected OnClickListener onClickAddScrap(float ratio) {

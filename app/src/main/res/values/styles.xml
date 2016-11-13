@@ -17,7 +17,7 @@
     </style>
 
     <!-- Main App Theme without Tool Bar -->
-    <style name="AppThemeNoToolbar" parent="AppTheme">
+    <style name="AppTheme.CustomToolbar" parent="AppTheme">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>

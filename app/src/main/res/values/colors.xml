@@ -8,4 +8,6 @@
 
     <color name="bg_start_page">#D8D8D8</color>
     <color name="bg_start_page_drawer">#D8D8D8</color>
+
+    <color name="bg_transparent_black">#E6333333</color>
 </resources>
