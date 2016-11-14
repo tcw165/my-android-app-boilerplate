@@ -45,6 +45,17 @@
             android:theme="@style/AppTheme">
         </activity>
 
+        <activity
+            android:name=".CollageEditorActivity"
+            android:label="@string/collage_editor"
+            android:theme="@style/AppTheme.CustomToolbar">
+        </activity>
+        <activity
+            android:name=".DrawerSampleActivity"
+            android:label="@string/drawer_sample"
+            android:theme="@style/AppTheme.CustomToolbar">
+        </activity>
+
         <!-- Permission Shadow Activity -->
         <activity
             android:name=".util.PermissionActivity"

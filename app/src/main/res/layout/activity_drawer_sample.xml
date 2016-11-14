@@ -14,27 +14,19 @@
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
         android:elevation="4dp"
-        app:navigationIcon="@drawable/ic_list_black_24px"
+        app:navigationIcon="@drawable/ic_close"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:titleTextColor="?attr/colorAccent"/>
 
     <FrameLayout
-        android:id="@+id/frame"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#E5E5E5">
+        android:layout_height="match_parent">
 
-        <!--<com.my.boilerplate.view.CollageLayout-->
-        <!--android:id="@+id/collage_editor"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:layout_gravity="center"-->
-        <!--android:background="#FFFFFF"/>-->
         <ListView
             android:id="@+id/start_menu"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:entries="@array/start_menu_entries"/>
+            android:entries="@array/drawer_sample_entries"/>
 
         <!-- The menu -->
         <com.my.boilerplate.view.DropDownMenuView
