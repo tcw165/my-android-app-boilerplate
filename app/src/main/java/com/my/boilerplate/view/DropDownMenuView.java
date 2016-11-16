@@ -23,8 +23,6 @@ package com.my.boilerplate.view;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Context;
-import android.support.annotation.DrawableRes;
-import android.support.annotation.StringRes;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
@@ -34,14 +32,13 @@ import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.my.boilerplate.R;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@CoordinatorLayout.DefaultBehavior(DropDownMenuView.DefaultBehavior.class)
+@CoordinatorLayout.DefaultBehavior(DropDownMenuView.DrawerBehavior.class)
 public class DropDownMenuView extends FrameLayout implements INavMenu {
 
     protected boolean mIsShowing;
@@ -52,6 +49,12 @@ public class DropDownMenuView extends FrameLayout implements INavMenu {
     protected View mMenu;
     protected List<SquaredMenuItemView> mMenuItems;
     protected ImageView mBackground;
+
+    /**
+     * This is drop-down menu, it consumes the unconsumed dy from the anchor
+     * view. It also animates the anchor view.
+     */
+    protected View mAnchorView;
 
     protected OnMenuStateChange mOnMenuStateChangeListener;
 
@@ -107,16 +110,25 @@ public class DropDownMenuView extends FrameLayout implements INavMenu {
             mAnimatorSet.cancel();
         }
 
+        // The duration is proportional to the translationY.
+        float ty = ViewCompat.getTranslationY(mMenu);
+        int BASE_DURATION = 300;
+        int duration = (int) ((float) BASE_DURATION * Math.abs(ty) / getScrollTargetHeight());
+
         ObjectAnimator menuFgAnim = ObjectAnimator.ofFloat(mMenu, "translationY", 0.f);
-        menuFgAnim.setDuration(300);
+        menuFgAnim.setDuration(duration);
         menuFgAnim.setInterpolator(new AccelerateDecelerateInterpolator());
 
         ObjectAnimator menuBgAnim = ObjectAnimator.ofFloat(mBackground, "alpha", 1.f);
-        menuBgAnim.setDuration(300);
+        menuBgAnim.setDuration(BASE_DURATION);
         menuBgAnim.setInterpolator(new AccelerateDecelerateInterpolator());
 
+        ObjectAnimator anchorViewAnim = ObjectAnimator.ofFloat(mAnchorView, "translationY", 0.f);
+        anchorViewAnim.setDuration(BASE_DURATION);
+        anchorViewAnim.setInterpolator(new AccelerateDecelerateInterpolator());
+
         mAnimatorSet = new AnimatorSet();
-        mAnimatorSet.playTogether(menuFgAnim, menuBgAnim);
+        mAnimatorSet.playTogether(menuFgAnim, menuBgAnim, anchorViewAnim);
         mAnimatorSet.start();
     }
 
@@ -137,17 +149,30 @@ public class DropDownMenuView extends FrameLayout implements INavMenu {
             mAnimatorSet.cancel();
         }
 
+        // The duration is proportional to the translationY.
+        float ty = ViewCompat.getTranslationY(mMenu);
+        int BASE_DURATION = 200;
+        int duration = (int) ((float) BASE_DURATION * (getScrollTargetHeight() + 0.5 * ty) / getScrollTargetHeight());
+
         ObjectAnimator menuFgAnim = ObjectAnimator.ofFloat(mMenu, "translationY", -mMenuHeight);
-        menuFgAnim.setDuration(200);
+        menuFgAnim.setDuration(duration);
         menuFgAnim.setInterpolator(new AccelerateDecelerateInterpolator());
 
         ObjectAnimator menuBgAnim = ObjectAnimator.ofFloat(mBackground, "alpha", 0.f);
-        menuBgAnim.setDuration(200);
+        menuBgAnim.setDuration(BASE_DURATION);
         menuBgAnim.setInterpolator(new AccelerateDecelerateInterpolator());
 
+        ObjectAnimator anchorViewAnim = ObjectAnimator.ofFloat(mAnchorView, "translationY", 0.f);
+        anchorViewAnim.setDuration(duration);
+        anchorViewAnim.setInterpolator(new AccelerateDecelerateInterpolator());
+
         mAnimatorSet = new AnimatorSet();
-        mAnimatorSet.playTogether(menuFgAnim, menuBgAnim);
+        mAnimatorSet.playTogether(menuFgAnim, menuBgAnim, anchorViewAnim);
         mAnimatorSet.start();
+    }
+
+    void setAnchorView(View anchorView) {
+        mAnchorView = anchorView;
     }
 
     /**
@@ -165,6 +190,7 @@ public class DropDownMenuView extends FrameLayout implements INavMenu {
         float ty = constraintTranslationY(mMenu.getTranslationY() - deltaTy);
 
         ViewCompat.setTranslationY(mMenu, ty);
+        ViewCompat.setTranslationY(mAnchorView, getScrollTargetHeight() + ty);
     }
 
     float constraintTranslationY(float ty) {
@@ -246,15 +272,6 @@ public class DropDownMenuView extends FrameLayout implements INavMenu {
         mMenuItems.add((SquaredMenuItemView) mMenu.findViewById(R.id.menu_6));
     }
 
-    protected void setupIconAndCaption(View view, @DrawableRes int icon, @StringRes int str) {
-        if (icon != 0) {
-            ((ImageView) view.findViewById(R.id.icon)).setImageResource(icon);
-        }
-        if (str != 0) {
-            ((TextView) view.findViewById(R.id.name)).setText(str);
-        }
-    }
-
     protected OnClickListener onClickBackground() {
         return new OnClickListener() {
             @Override
@@ -290,28 +307,20 @@ public class DropDownMenuView extends FrameLayout implements INavMenu {
      * receiving a scroll-down event; will show up if the anchor view is
      * receiving a scroll-up event.
      */
-    public static class DefaultBehavior
+    public static class DrawerBehavior
         extends CoordinatorLayout.Behavior<DropDownMenuView> {
 
         /**
          * Show the banner when ty < SHOW_THRESHOLD * height.
          */
-        protected static final float SHOW_THRESHOLD = 0.35f;
-        /**
-         * Hide the banner when ty > HIDE_THRESHOLD * height.
-         */
-        protected static final float HIDE_THRESHOLD = 0.1f;
-
-        protected View mTargetChildViewFg;
-        protected View mTargetChildViewBg;
+        protected static final float SHOW_THRESHOLD = 0.5f;
 
         protected float mCachedDeltaY = 0;
-        protected ObjectAnimator mAnimator;
 
-        public DefaultBehavior() {
+        public DrawerBehavior() {
         }
 
-        public DefaultBehavior(Context context, AttributeSet attrs) {
+        public DrawerBehavior(Context context, AttributeSet attrs) {
             super(context, attrs);
         }
 
@@ -330,7 +339,7 @@ public class DropDownMenuView extends FrameLayout implements INavMenu {
         @Override
         public void onNestedScroll(CoordinatorLayout parent,
                                    DropDownMenuView child,
-                                   View target,
+                                   View anchorView,
                                    int dxConsumed,
                                    int dyConsumed,
                                    int dxUnconsumed,
@@ -347,23 +356,17 @@ public class DropDownMenuView extends FrameLayout implements INavMenu {
         @Override
         public void onStopNestedScroll(CoordinatorLayout parent,
                                        DropDownMenuView child,
-                                       View target) {
+                                       View anchorView) {
             // Check if the translation is over a threshold, hide it or show it.
             float ty = Math.abs(child.getScrollTargetView().getTranslationY());
             Log.d("xyz", String.format("stop the nested scroll, ty=%f", ty));
             float height = child.getScrollTargetHeight();
             if (mCachedDeltaY > 0) {
-                // When the anchor view is scrolling down.
-                if (ty > HIDE_THRESHOLD * height) {
-                    // Hide it.
-                    child.hideWithAnimation();
-                } else {
-                    // Show it.
-                    child.showWithAnimation();
-                }
+                // When the anchor view is scrolling down, hide it.
+                child.hideWithAnimation();
             } else if (mCachedDeltaY < 0) {
                 // When the anchor view is scrolling up.
-                if ((height - ty) > SHOW_THRESHOLD * height) {
+                if ((height - ty) / height > SHOW_THRESHOLD) {
                     // Show it.
                     child.showWithAnimation();
                 } else {
@@ -379,12 +382,18 @@ public class DropDownMenuView extends FrameLayout implements INavMenu {
         @Override
         public boolean layoutDependsOn(CoordinatorLayout parent,
                                        DropDownMenuView child,
-                                       View dependency) {
+                                       View anchorView) {
             CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) child.getLayoutParams();
 
             // Check the anchor attribute.
-            return params != null &&
-                   dependency.getId() == params.getAnchorId();
+            if (params != null &&
+                anchorView.getId() == params.getAnchorId()) {
+                // Set the anchor view.
+                child.setAnchorView(anchorView);
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 }
