@@ -251,12 +251,6 @@ public class DropDownMenuView extends FrameLayout implements INavMenu {
         // The menu height is determined when the onLayout() is called.
         mMenu.addOnLayoutChangeListener(onMenuLayoutChange());
         mBackground = (ImageView) findViewById(R.id.menu_background);
-        mBackground.setOnDragListener(new OnDragListener() {
-            @Override
-            public boolean onDrag(View v, DragEvent event) {
-                return false;
-            }
-        });
         mBackground.setOnClickListener(onClickBackground());
         // This is necessary because setting the onClick listener will enable
         // it.
@@ -315,8 +309,6 @@ public class DropDownMenuView extends FrameLayout implements INavMenu {
          */
         protected static final float SHOW_THRESHOLD = 0.5f;
 
-        protected float mCachedDeltaY = 0;
-
         public DrawerBehavior() {
         }
 
@@ -361,22 +353,14 @@ public class DropDownMenuView extends FrameLayout implements INavMenu {
             float ty = Math.abs(child.getScrollTargetView().getTranslationY());
             Log.d("xyz", String.format("stop the nested scroll, ty=%f", ty));
             float height = child.getScrollTargetHeight();
-            if (mCachedDeltaY > 0) {
-                // When the anchor view is scrolling down, hide it.
+            // When the anchor view is scrolling up.
+            if ((height - ty) / height > SHOW_THRESHOLD) {
+                // Show it.
+                child.showWithAnimation();
+            } else {
+                // Hide it.
                 child.hideWithAnimation();
-            } else if (mCachedDeltaY < 0) {
-                // When the anchor view is scrolling up.
-                if ((height - ty) / height > SHOW_THRESHOLD) {
-                    // Show it.
-                    child.showWithAnimation();
-                } else {
-                    // Hide it.
-                    child.hideWithAnimation();
-                }
             }
-
-            // Clear the cached value.
-            mCachedDeltaY = 0f;
         }
 
         @Override
