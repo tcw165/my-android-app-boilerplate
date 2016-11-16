@@ -18,20 +18,20 @@
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:titleTextColor="?attr/colorAccent"/>
 
-    <FrameLayout
+    <android.support.design.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ListView
+        <include
             android:id="@+id/start_menu"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:entries="@array/drawer_sample_entries"/>
+            layout="@layout/list_placeholder"/>
 
         <!-- The menu -->
         <com.my.boilerplate.view.DropDownMenuView
             android:id="@+id/drawer_menu"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-    </FrameLayout>
+            android:layout_height="match_parent"
+            app:layout_anchor="@id/start_menu"
+            app:layout_anchorGravity="top|center_horizontal"/>
+    </android.support.design.widget.CoordinatorLayout>
 </LinearLayout>

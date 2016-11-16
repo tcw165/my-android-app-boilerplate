@@ -26,6 +26,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Toast;
 
 import com.my.boilerplate.view.DropDownMenuView;
 import com.my.boilerplate.view.INavMenu;
@@ -49,6 +52,7 @@ public class DrawerSampleActivity extends AppCompatActivity {
 
         mDrawerMenu = (DropDownMenuView) findViewById(R.id.drawer_menu);
         mDrawerMenu.setOnMenuStateChangeListener(onMenuStateChange());
+        mDrawerMenu.setOnClickMenuItemListener(onClickMenuItem());
     }
 
     @Override
@@ -103,6 +107,18 @@ public class DrawerSampleActivity extends AppCompatActivity {
             @Override
             public void onHideMenu() {
                 // DO NOTHING.
+            }
+        };
+    }
+
+    private OnClickListener onClickMenuItem() {
+        return new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(DrawerSampleActivity.this,
+                               R.string.settings,
+                               Toast.LENGTH_SHORT)
+                     .show();
             }
         };
     }
