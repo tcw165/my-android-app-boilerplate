@@ -21,6 +21,7 @@
 package com.my.boilerplate;
 
 import android.Manifest;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -29,6 +30,9 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.my.boilerplate.json.JsonWhatever;
@@ -53,11 +57,13 @@ public class StartPageActivity
 
     private Toolbar mToolbar;
     private CollageLayout mCollageEditor;
+    private ListView mStartMenu;
     private DropDownMenuView mDrawerMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_start_page);
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -65,6 +71,10 @@ public class StartPageActivity
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
+
+        // List menu.
+        mStartMenu = (ListView) findViewById(R.id.start_menu);
+        mStartMenu.setOnItemClickListener(onClickStartMenuItem());
 
         // Up-down menu.
         mDrawerMenu = (DropDownMenuView) findViewById(R.id.drawer_menu);
@@ -126,6 +136,29 @@ public class StartPageActivity
             @Override
             public void onHideMenu() {
                 mToolbar.setNavigationIcon(R.drawable.ic_list_black_24px);
+            }
+        };
+    }
+
+    private OnItemClickListener onClickStartMenuItem() {
+        return new OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent,
+                                    View view,
+                                    int position,
+                                    long id) {
+                switch (position) {
+                    case 0:
+                        startActivity(new Intent(StartPageActivity.this,
+                                                 CollageEditorActivity.class));
+                        break;
+                    case 1:
+                        startActivity(new Intent(StartPageActivity.this,
+                                                 DrawerSampleActivity.class));
+                        break;
+                    default:
+                        // DO NOTHING.
+                }
             }
         };
     }

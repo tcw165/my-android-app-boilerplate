@@ -1,19 +1,59 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- General -->
     <string name="app_name" tools:ignore="MissingTranslation">My Boilerplate</string>
+    <string name="loading" tools:ignore="MissingTranslation">Loading</string>
+
+    <string name="settings">Settings</string>
     <string name="menu_search" tools:ignore="MissingTranslation">Search</string>
     <string name="menu_next" tools:ignore="MissingTranslation">Next</string>
-    <string name="loading" tools:ignore="MissingTranslation">Loading</string>
-    <string name="settings">Settings</string>
     <string name="menu_settings">Settings</string>
     <string name="menu_help_and_feedback"><![CDATA[Help & Feedback]]></string>
+    <string name="collage_editor">Collage Editor</string>
 
     <!-- The navigation list in the start page -->
     <string-array name="start_menu_entries">
         <item>Sample of the collage editor</item>
+        <item>Sample of using CoordinateLayout and Behavior</item>
+        <item>Sample of using RecyclerView</item>
         <item>Sample of using RxJava</item>
         <item>Sample of using OkHttp</item>
     </string-array>
 
+    <!-- The list in the drawer-sample page -->
+    <string-array name="drawer_sample_entries">
+        <item>Test</item>
+        <item>Test</item>
+        <item>Test</item>
+        <item>Test</item>
+        <item>Test</item>
+        <item>Test</item>
+        <item>Test</item>
+        <item>Test</item>
+        <item>Test</item>
+        <item>Test</item>
+        <item>Test</item>
+        <item>Test</item>
+        <item>Test</item>
+        <item>Test</item>
+        <item>Test</item>
+        <item>Test</item>
+        <item>Test</item>
+        <item>Test</item>
+        <item>Test</item>
+        <item>Test</item>
+        <item>Test</item>
+        <item>Test</item>
+        <item>Test</item>
+        <item>Test</item>
+        <item>Test</item>
+        <item>Test</item>
+        <item>Test</item>
+        <item>Test</item>
+        <item>Test</item>
+    </string-array>
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="menu_drawer">Menu</string>
+    <string name="drawer_sample">Drawer Sample</string>
 </resources>
