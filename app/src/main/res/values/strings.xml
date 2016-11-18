@@ -1,59 +1,38 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- General -->
+    <!-- general -->
     <string name="app_name" tools:ignore="MissingTranslation">My Boilerplate</string>
     <string name="loading" tools:ignore="MissingTranslation">Loading</string>
+    <string name="receive_notification" tools:ignore="MissingTranslation">Receive a notification</string>
+    <string name="number_1">1</string>
+    <string name="number_2">2</string>
 
-    <string name="settings">Settings</string>
+    <!-- activity title -->
+    <string name="title_collage_editor_sample" tools:ignore="MissingTranslation">Collage Editor</string>
+    <string name="title_drawer_sample" tools:ignore="MissingTranslation">Drawer Sample</string>
+    <string name="title_notification_sample" tools:ignore="MissingTranslation">Notification Sample</string>
+    <string name="title_notification_result_sample" tools:ignore="MissingTranslation">Notification Result Sample</string>
+
+    <!-- menu item captions -->
+    <string name="menu_drawer">Menu</string>
     <string name="menu_search" tools:ignore="MissingTranslation">Search</string>
     <string name="menu_next" tools:ignore="MissingTranslation">Next</string>
-    <string name="menu_settings">Settings</string>
-    <string name="menu_help_and_feedback"><![CDATA[Help & Feedback]]></string>
-    <string name="collage_editor">Collage Editor</string>
+    <string name="menu_settings" tools:ignore="MissingTranslation">Settings</string>
+    <string name="menu_help_and_feedback" tools:ignore="MissingTranslation"><![CDATA[Help & Feedback]]></string>
 
-    <!-- The navigation list in the start page -->
+    <!-- The menu in the start page -->
     <string-array name="start_menu_entries">
-        <item>Sample of the collage editor</item>
-        <item>Sample of using CoordinateLayout and Behavior</item>
-        <item>Sample of using RecyclerView</item>
-        <item>Sample of using RxJava</item>
-        <item>Sample of using OkHttp</item>
+        <item>Sample of CollageEditor</item>
+        <item>Sample of CoordinateLayout and Behavior</item>
+        <item>Sample of RecyclerView</item>
+        <item>Sample of notification</item>
+        <item>Sample of RxJava</item>
+        <item>Sample of OkHttp</item>
     </string-array>
 
-    <!-- The list in the drawer-sample page -->
-    <string-array name="drawer_sample_entries">
-        <item>Test</item>
-        <item>Test</item>
-        <item>Test</item>
-        <item>Test</item>
-        <item>Test</item>
-        <item>Test</item>
-        <item>Test</item>
-        <item>Test</item>
-        <item>Test</item>
-        <item>Test</item>
-        <item>Test</item>
-        <item>Test</item>
-        <item>Test</item>
-        <item>Test</item>
-        <item>Test</item>
-        <item>Test</item>
-        <item>Test</item>
-        <item>Test</item>
-        <item>Test</item>
-        <item>Test</item>
-        <item>Test</item>
-        <item>Test</item>
-        <item>Test</item>
-        <item>Test</item>
-        <item>Test</item>
-        <item>Test</item>
-        <item>Test</item>
-        <item>Test</item>
-        <item>Test</item>
+    <!-- The menu in the notification page -->
+    <string-array name="notification_menu_entries">
+        <item>Create a simple notification.</item>
+        <item>Create a notification directing to an Activity with back stack to the start page.</item>
+        <item>Create a notification directing to an transient Activity which cannot be found in the recent list.</item>
     </string-array>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="menu_drawer">Menu</string>
-    <string name="drawer_sample">Drawer Sample</string>
 </resources>

@@ -47,7 +47,6 @@ public class DropDownMenuView extends FrameLayout implements INavMenu {
     protected int mMenuBgColor;
     protected int mDownArrowBgColor;
     protected float mMenuHeight;
-    protected float mDownArrowHeight;
     protected AnimatorSet mAnimatorSet;
 
     protected View mMenu;
@@ -245,7 +244,7 @@ public class DropDownMenuView extends FrameLayout implements INavMenu {
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.DropDownMenuView);
 
         try {
-            mMenuBgColor = a.getColor(R.styleable.DropDownMenuView_menuBackgroundColor, Color.TRANSPARENT);
+            mMenuBgColor = a.getColor(R.styleable.DropDownMenuView_menuBackgroundColor, Color.WHITE);
             mDownArrowBgColor = a.getColor(R.styleable.DropDownMenuView_downArrowBackgroundColor, Color.TRANSPARENT);
         } finally {
             a.recycle();
@@ -267,7 +266,6 @@ public class DropDownMenuView extends FrameLayout implements INavMenu {
         mDownArrowContainer.setBackgroundColor(mDownArrowBgColor);
         mDownArrowStart = findViewById(R.id.down_arrow_start);
         mDownArrowEnd = findViewById(R.id.down_arrow_end);
-        mDownArrowHeight = mDownArrowContainer.getLayoutParams().height;
 
         mOverlayBackground = (ImageView) findViewById(R.id.menu_overlay_background);
         mOverlayBackground.setOnClickListener(onClickBackground());

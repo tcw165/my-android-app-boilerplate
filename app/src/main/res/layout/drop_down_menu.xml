@@ -20,7 +20,8 @@
         android:id="@+id/menu_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:background="@android:color/transparent">
 
         <!-- The menu items -->
         <android.support.v7.widget.GridLayout
@@ -39,7 +40,7 @@
                 android:layout_height="0dp"
                 android:background="@drawable/bg_border_rect"
                 android:foreground="?attr/selectableItemBackgroundBorderless"
-                app:caption="@string/settings"
+                app:caption="@string/menu_settings"
                 app:iconSrcCompat="@drawable/ic_settings"
                 app:layout_columnWeight="1"
                 app:layout_rowWeight="1"/>
@@ -50,7 +51,7 @@
                 android:layout_height="0dp"
                 android:background="@drawable/bg_border_rect"
                 android:foreground="?attr/selectableItemBackgroundBorderless"
-                app:caption="@string/settings"
+                app:caption="@string/menu_settings"
                 app:iconSrcCompat="@drawable/ic_settings"
                 app:layout_columnWeight="1"
                 app:layout_rowWeight="1"/>
@@ -61,7 +62,7 @@
                 android:layout_height="0dp"
                 android:background="@drawable/bg_border_rect"
                 android:foreground="?attr/selectableItemBackgroundBorderless"
-                app:caption="@string/settings"
+                app:caption="@string/menu_settings"
                 app:iconSrcCompat="@drawable/ic_settings"
                 app:layout_columnWeight="1"
                 app:layout_rowWeight="1"/>
@@ -72,7 +73,7 @@
                 android:layout_height="0dp"
                 android:background="@drawable/bg_border_rect"
                 android:foreground="?attr/selectableItemBackgroundBorderless"
-                app:caption="@string/settings"
+                app:caption="@string/menu_settings"
                 app:iconSrcCompat="@drawable/ic_settings"
                 app:layout_columnWeight="1"
                 app:layout_rowWeight="1"/>
@@ -83,7 +84,7 @@
                 android:layout_height="0dp"
                 android:background="@drawable/bg_border_rect"
                 android:foreground="?attr/selectableItemBackgroundBorderless"
-                app:caption="@string/settings"
+                app:caption="@string/menu_settings"
                 app:iconSrcCompat="@drawable/ic_settings"
                 app:layout_columnWeight="1"
                 app:layout_rowWeight="1"/>
@@ -94,7 +95,7 @@
                 android:layout_height="0dp"
                 android:background="@drawable/bg_border_rect"
                 android:foreground="?attr/selectableItemBackgroundBorderless"
-                app:caption="@string/settings"
+                app:caption="@string/menu_settings"
                 app:iconSrcCompat="@drawable/ic_settings"
                 app:layout_columnWeight="1"
                 app:layout_rowWeight="1"/>
@@ -104,20 +105,23 @@
         <FrameLayout
             android:id="@+id/down_arrow_container"
             android:layout_width="match_parent"
-            android:layout_height="36dp"
-            tools:background="@android:color/white">
+            android:layout_height="wrap_content"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp">
 
             <ImageView
                 android:id="@+id/down_arrow_start"
                 android:layout_width="match_parent"
-                android:layout_height="36dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
                 android:tint="@android:color/darker_gray"
                 app:srcCompat="@drawable/ic_down_arrow"/>
 
             <ImageView
                 android:id="@+id/down_arrow_end"
                 android:layout_width="match_parent"
-                android:layout_height="36dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
                 android:alpha="0"
                 app:srcCompat="@drawable/ic_down_arrow"/>
         </FrameLayout>

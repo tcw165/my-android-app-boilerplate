@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.my.boilerplate.StartActivity">
+    tools:context="com.my.boilerplate.NotificationSampleActivity">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
@@ -18,22 +18,9 @@
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:titleTextColor="?attr/colorAccent"/>
 
-    <android.support.design.widget.CoordinatorLayout
+    <ListView
+        android:id="@+id/menu"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <include
-            android:id="@+id/menu"
-            layout="@layout/list_placeholder"/>
-
-        <!-- The menu -->
-        <com.my.boilerplate.view.DropDownMenuView
-            android:id="@+id/drawer_menu"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:downArrowBackgroundColor="@android:color/transparent"
-            app:layout_anchor="@id/menu"
-            app:layout_anchorGravity="top|center_horizontal"
-            app:menuBackgroundColor="#FFFFFF"/>
-    </android.support.design.widget.CoordinatorLayout>
+        android:layout_height="match_parent"
+        android:entries="@array/notification_menu_entries"/>
 </LinearLayout>

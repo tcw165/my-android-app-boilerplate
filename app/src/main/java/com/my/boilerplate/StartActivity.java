@@ -49,11 +49,11 @@ import rx.Observable;
 import rx.functions.Action1;
 import rx.functions.Func1;
 
-public class StartPageActivity
+public class StartActivity
     extends AppCompatActivity
     implements IProgressBarView {
 
-    private final static String TAG = StartPageActivity.class.getSimpleName();
+    private final static String TAG = StartActivity.class.getSimpleName();
 
     private Toolbar mToolbar;
     private CollageLayout mCollageEditor;
@@ -64,7 +64,7 @@ public class StartPageActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_start_page);
+        setContentView(R.layout.activity_start);
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
@@ -73,7 +73,7 @@ public class StartPageActivity
         }
 
         // List menu.
-        mStartMenu = (ListView) findViewById(R.id.start_menu);
+        mStartMenu = (ListView) findViewById(R.id.menu);
         mStartMenu.setOnItemClickListener(onClickStartMenuItem());
 
         // Up-down menu.
@@ -149,12 +149,16 @@ public class StartPageActivity
                                     long id) {
                 switch (position) {
                     case 0:
-                        startActivity(new Intent(StartPageActivity.this,
+                        startActivity(new Intent(StartActivity.this,
                                                  CollageEditorActivity.class));
                         break;
                     case 1:
-                        startActivity(new Intent(StartPageActivity.this,
+                        startActivity(new Intent(StartActivity.this,
                                                  DrawerSampleActivity.class));
+                        break;
+                    case 3:
+                        startActivity(new Intent(StartActivity.this,
+                                                 NotificationSampleActivity.class));
                         break;
                     default:
                         // DO NOTHING.
@@ -170,7 +174,7 @@ public class StartPageActivity
             @Override
             public void onClick(View view) {
 //                int scrapWidth = (int) ((float) mCollageEditor.getWidth() / 3.f);
-                ScrapView scrap = new ScrapView(StartPageActivity.this);
+                ScrapView scrap = new ScrapView(StartActivity.this);
 
                 scrap.setTranslationX(100);
                 scrap.setTranslationY(100);
@@ -183,7 +187,7 @@ public class StartPageActivity
 
                 mCollageEditor.addView(scrap);
 
-                Toast.makeText(StartPageActivity.this,
+                Toast.makeText(StartActivity.this,
                                String.format("Make a scrap (aspect ratio is %f)", scrapRatio),
                                Toast.LENGTH_SHORT);
             }

@@ -4,7 +4,6 @@
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
@@ -27,33 +26,54 @@
             android:theme="@style/SplashScreenTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
 
         <!-- Start Page -->
         <activity
-            android:name=".StartPageActivity"
+            android:name=".StartActivity"
             android:theme="@style/AppTheme.CustomToolbar">
         </activity>
 
-        <!-- Settings -->
+        <!-- Other pages -->
         <activity
             android:name=".SettingsActivity"
             android:label="@string/menu_settings"
             android:theme="@style/AppTheme">
         </activity>
-
         <activity
             android:name=".CollageEditorActivity"
-            android:label="@string/collage_editor"
+            android:label="@string/title_collage_editor_sample"
             android:theme="@style/AppTheme.CustomToolbar">
         </activity>
         <activity
             android:name=".DrawerSampleActivity"
-            android:label="@string/drawer_sample"
+            android:label="@string/title_drawer_sample"
             android:theme="@style/AppTheme.CustomToolbar">
+        </activity>
+        <activity
+            android:name=".NotificationSampleActivity"
+            android:label="@string/title_notification_sample"
+            android:theme="@style/AppTheme.CustomToolbar">
+        </activity>
+        <!-- Notification result activity with back stack -->
+        <activity
+            android:name=".NotificationResultSampleActivity1"
+            android:label="@string/title_notification_result_sample"
+            android:parentActivityName=".StartActivity">
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".StartActivity"/>
+        </activity>
+        <!-- Transient notification result activity -->
+        <activity
+            android:name=".NotificationResultSampleActivity2"
+            android:label="@string/title_notification_result_sample"
+            android:launchMode="singleTask"
+            android:taskAffinity=""
+            android:excludeFromRecents="true">
         </activity>
 
         <!-- Permission Shadow Activity -->
@@ -63,4 +83,5 @@
             android:theme="@style/InvisibleTheme">
         </activity>
     </application>
+
 </manifest>

@@ -54,7 +54,7 @@ public class SplashScreenActivity extends AppCompatActivity {
             .subscribe(new Action1<Boolean>() {
                 @Override
                 public void call(Boolean aBoolean) {
-                    startActivity(new Intent(SplashScreenActivity.this, StartPageActivity.class));
+                    startActivity(new Intent(SplashScreenActivity.this, StartActivity.class));
                     finish();
                 }
             });
