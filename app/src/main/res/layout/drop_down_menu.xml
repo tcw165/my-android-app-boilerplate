@@ -8,99 +8,118 @@
 
     <!-- The background -->
     <ImageView
-        android:id="@+id/menu_background"
+        android:id="@+id/menu_overlay_background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:alpha="0"
+        android:clickable="true"
         app:srcCompat="@color/bg_transparent_black"
         tools:alpha="1"/>
 
-    <!-- The menu items -->
-    <android.support.v7.widget.GridLayout
-        android:id="@+id/menu"
+    <LinearLayout
+        android:id="@+id/menu_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:clickable="true"
-        app:columnCount="3"
-        app:orientation="horizontal"
-        app:rowCount="2">
+        android:orientation="vertical">
 
-        <com.my.boilerplate.view.SquaredMenuItemView
-            android:id="@+id/menu_1"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:background="@drawable/bg_border_rect"
+        <!-- The menu items -->
+        <android.support.v7.widget.GridLayout
+            android:id="@+id/menu_body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:clickable="true"
-            android:foreground="?attr/selectableItemBackgroundBorderless"
-            android:orientation="vertical"
-            app:caption="@string/settings"
-            app:iconSrcCompat="@drawable/ic_settings"
-            app:layout_columnWeight="1"
-            app:layout_rowWeight="1"/>
+            app:columnCount="3"
+            app:orientation="horizontal"
+            app:rowCount="2"
+            tools:background="@android:color/white">
 
-        <com.my.boilerplate.view.SquaredMenuItemView
-            android:id="@+id/menu_2"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:background="@drawable/bg_border_rect"
-            android:clickable="true"
-            android:foreground="?attr/selectableItemBackgroundBorderless"
-            android:orientation="vertical"
-            app:caption="@string/settings"
-            app:iconSrcCompat="@drawable/ic_settings"
-            app:layout_columnWeight="1"
-            app:layout_rowWeight="1"/>
+            <com.my.boilerplate.view.SquaredMenuItemView
+                android:id="@+id/menu_1"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@drawable/bg_border_rect"
+                android:foreground="?attr/selectableItemBackgroundBorderless"
+                app:caption="@string/settings"
+                app:iconSrcCompat="@drawable/ic_settings"
+                app:layout_columnWeight="1"
+                app:layout_rowWeight="1"/>
 
-        <com.my.boilerplate.view.SquaredMenuItemView
-            android:id="@+id/menu_3"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:background="@drawable/bg_border_rect"
-            android:clickable="true"
-            android:foreground="?attr/selectableItemBackgroundBorderless"
-            android:orientation="vertical"
-            app:caption="@string/settings"
-            app:iconSrcCompat="@drawable/ic_settings"
-            app:layout_columnWeight="1"
-            app:layout_rowWeight="1"/>
+            <com.my.boilerplate.view.SquaredMenuItemView
+                android:id="@+id/menu_2"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@drawable/bg_border_rect"
+                android:foreground="?attr/selectableItemBackgroundBorderless"
+                app:caption="@string/settings"
+                app:iconSrcCompat="@drawable/ic_settings"
+                app:layout_columnWeight="1"
+                app:layout_rowWeight="1"/>
 
-        <com.my.boilerplate.view.SquaredMenuItemView
-            android:id="@+id/menu_4"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:background="@drawable/bg_border_rect"
-            android:clickable="true"
-            android:foreground="?attr/selectableItemBackgroundBorderless"
-            android:orientation="vertical"
-            app:caption="@string/settings"
-            app:iconSrcCompat="@drawable/ic_settings"
-            app:layout_columnWeight="1"
-            app:layout_rowWeight="1"/>
+            <com.my.boilerplate.view.SquaredMenuItemView
+                android:id="@+id/menu_3"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@drawable/bg_border_rect"
+                android:foreground="?attr/selectableItemBackgroundBorderless"
+                app:caption="@string/settings"
+                app:iconSrcCompat="@drawable/ic_settings"
+                app:layout_columnWeight="1"
+                app:layout_rowWeight="1"/>
 
-        <com.my.boilerplate.view.SquaredMenuItemView
-            android:id="@+id/menu_5"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:background="@drawable/bg_border_rect"
-            android:clickable="true"
-            android:foreground="?attr/selectableItemBackgroundBorderless"
-            android:orientation="vertical"
-            app:caption="@string/settings"
-            app:iconSrcCompat="@drawable/ic_settings"
-            app:layout_columnWeight="1"
-            app:layout_rowWeight="1"/>
+            <com.my.boilerplate.view.SquaredMenuItemView
+                android:id="@+id/menu_4"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@drawable/bg_border_rect"
+                android:foreground="?attr/selectableItemBackgroundBorderless"
+                app:caption="@string/settings"
+                app:iconSrcCompat="@drawable/ic_settings"
+                app:layout_columnWeight="1"
+                app:layout_rowWeight="1"/>
 
-        <com.my.boilerplate.view.SquaredMenuItemView
-            android:id="@+id/menu_6"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:background="@drawable/bg_border_rect"
-            android:clickable="true"
-            android:foreground="?attr/selectableItemBackgroundBorderless"
-            android:orientation="vertical"
-            app:caption="@string/settings"
-            app:iconSrcCompat="@drawable/ic_settings"
-            app:layout_columnWeight="1"
-            app:layout_rowWeight="1"/>
-    </android.support.v7.widget.GridLayout>
+            <com.my.boilerplate.view.SquaredMenuItemView
+                android:id="@+id/menu_5"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@drawable/bg_border_rect"
+                android:foreground="?attr/selectableItemBackgroundBorderless"
+                app:caption="@string/settings"
+                app:iconSrcCompat="@drawable/ic_settings"
+                app:layout_columnWeight="1"
+                app:layout_rowWeight="1"/>
+
+            <com.my.boilerplate.view.SquaredMenuItemView
+                android:id="@+id/menu_6"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@drawable/bg_border_rect"
+                android:foreground="?attr/selectableItemBackgroundBorderless"
+                app:caption="@string/settings"
+                app:iconSrcCompat="@drawable/ic_settings"
+                app:layout_columnWeight="1"
+                app:layout_rowWeight="1"/>
+        </android.support.v7.widget.GridLayout>
+
+        <!-- The down arrow -->
+        <FrameLayout
+            android:id="@+id/down_arrow_container"
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            tools:background="@android:color/white">
+
+            <ImageView
+                android:id="@+id/down_arrow_start"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:tint="@android:color/darker_gray"
+                app:srcCompat="@drawable/ic_down_arrow"/>
+
+            <ImageView
+                android:id="@+id/down_arrow_end"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:alpha="0"
+                app:srcCompat="@drawable/ic_down_arrow"/>
+        </FrameLayout>
+    </LinearLayout>
 </merge>

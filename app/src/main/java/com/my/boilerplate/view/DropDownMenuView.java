@@ -23,11 +23,12 @@ package com.my.boilerplate.view;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.DragEvent;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.FrameLayout;
@@ -43,12 +44,18 @@ public class DropDownMenuView extends FrameLayout implements INavMenu {
 
     protected boolean mIsShowing;
 
+    protected int mMenuBgColor;
+    protected int mDownArrowBgColor;
     protected float mMenuHeight;
+    protected float mDownArrowHeight;
     protected AnimatorSet mAnimatorSet;
 
     protected View mMenu;
     protected List<SquaredMenuItemView> mMenuItems;
-    protected ImageView mBackground;
+    protected ImageView mOverlayBackground;
+    protected View mDownArrowContainer;
+    protected View mDownArrowStart;
+    protected View mDownArrowEnd;
 
     /**
      * This is drop-down menu, it consumes the unconsumed dy from the anchor
@@ -99,7 +106,7 @@ public class DropDownMenuView extends FrameLayout implements INavMenu {
         // Update the status.
         mIsShowing = true;
         mMenu.setClickable(true);
-        mBackground.setClickable(true);
+        mOverlayBackground.setClickable(true);
 
         // Notify the listener.
         if (mOnMenuStateChangeListener != null) {
@@ -119,16 +126,21 @@ public class DropDownMenuView extends FrameLayout implements INavMenu {
         menuFgAnim.setDuration(duration);
         menuFgAnim.setInterpolator(new AccelerateDecelerateInterpolator());
 
-        ObjectAnimator menuBgAnim = ObjectAnimator.ofFloat(mBackground, "alpha", 1.f);
+        ObjectAnimator downArrowAnim = ObjectAnimator.ofFloat(mDownArrowContainer, "alpha", 0.f);
+        downArrowAnim.setDuration(duration);
+        downArrowAnim.setInterpolator(new AccelerateDecelerateInterpolator());
+
+        ObjectAnimator menuBgAnim = ObjectAnimator.ofFloat(mOverlayBackground, "alpha", 1.f);
         menuBgAnim.setDuration(BASE_DURATION);
         menuBgAnim.setInterpolator(new AccelerateDecelerateInterpolator());
 
+        // Animate the anchor view.
         ObjectAnimator anchorViewAnim = ObjectAnimator.ofFloat(mAnchorView, "translationY", 0.f);
         anchorViewAnim.setDuration(BASE_DURATION);
         anchorViewAnim.setInterpolator(new AccelerateDecelerateInterpolator());
 
         mAnimatorSet = new AnimatorSet();
-        mAnimatorSet.playTogether(menuFgAnim, menuBgAnim, anchorViewAnim);
+        mAnimatorSet.playTogether(menuFgAnim, downArrowAnim, menuBgAnim, anchorViewAnim);
         mAnimatorSet.start();
     }
 
@@ -138,7 +150,7 @@ public class DropDownMenuView extends FrameLayout implements INavMenu {
         // Update the status.
         mIsShowing = false;
         mMenu.setClickable(false);
-        mBackground.setClickable(false);
+        mOverlayBackground.setClickable(false);
 
         // Notify the listener.
         if (mOnMenuStateChangeListener != null) {
@@ -158,16 +170,21 @@ public class DropDownMenuView extends FrameLayout implements INavMenu {
         menuFgAnim.setDuration(duration);
         menuFgAnim.setInterpolator(new AccelerateDecelerateInterpolator());
 
-        ObjectAnimator menuBgAnim = ObjectAnimator.ofFloat(mBackground, "alpha", 0.f);
+        ObjectAnimator downArrowAnim = ObjectAnimator.ofFloat(mDownArrowContainer, "alpha", 0.f);
+        downArrowAnim.setDuration(duration);
+        downArrowAnim.setInterpolator(new AccelerateDecelerateInterpolator());
+
+        ObjectAnimator menuBgAnim = ObjectAnimator.ofFloat(mOverlayBackground, "alpha", 0.f);
         menuBgAnim.setDuration(BASE_DURATION);
         menuBgAnim.setInterpolator(new AccelerateDecelerateInterpolator());
 
+        // Animate the anchor view.
         ObjectAnimator anchorViewAnim = ObjectAnimator.ofFloat(mAnchorView, "translationY", 0.f);
         anchorViewAnim.setDuration(duration);
         anchorViewAnim.setInterpolator(new AccelerateDecelerateInterpolator());
 
         mAnimatorSet = new AnimatorSet();
-        mAnimatorSet.playTogether(menuFgAnim, menuBgAnim, anchorViewAnim);
+        mAnimatorSet.playTogether(menuFgAnim, downArrowAnim, menuBgAnim, anchorViewAnim);
         mAnimatorSet.start();
     }
 
@@ -188,9 +205,14 @@ public class DropDownMenuView extends FrameLayout implements INavMenu {
 
         // Constrain the value.
         float ty = constraintTranslationY(mMenu.getTranslationY() - deltaTy);
+        float appearingHeight = getScrollTargetHeight() + ty;
 
         ViewCompat.setTranslationY(mMenu, ty);
-        ViewCompat.setTranslationY(mAnchorView, getScrollTargetHeight() + ty);
+        // Force to show the down-arrow container.
+        ViewCompat.setAlpha(mDownArrowContainer, 1.f);
+        ViewCompat.setAlpha(mDownArrowEnd, appearingHeight / getScrollTargetHeight());
+        // Animate the anchor view.
+        ViewCompat.setTranslationY(mAnchorView, appearingHeight);
     }
 
     float constraintTranslationY(float ty) {
@@ -220,25 +242,14 @@ public class DropDownMenuView extends FrameLayout implements INavMenu {
     // Protected / Private Methods ////////////////////////////////////////////
 
     protected void initAttrs(Context context, AttributeSet attrs) {
-//        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ArrowNavToolbar);
-//
-//        try {
-//            switch (a.getInt(R.styleable.ArrowNavToolbar_titleGravity, 0)) {
-//                case 0:
-//                    mTitleGravity = Gravity.CENTER;
-//                    break;
-//                case 1:
-//                    mTitleGravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
-//                    break;
-//                case 2:
-//                    mTitleGravity = Gravity.CENTER_VERTICAL | Gravity.RIGHT;
-//                    break;
-//                default:
-//                    throw new IllegalArgumentException("Unsupported titleGravity value.");
-//            }
-//        } finally {
-//            a.recycle();
-//        }
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.DropDownMenuView);
+
+        try {
+            mMenuBgColor = a.getColor(R.styleable.DropDownMenuView_menuBackgroundColor, Color.TRANSPARENT);
+            mDownArrowBgColor = a.getColor(R.styleable.DropDownMenuView_downArrowBackgroundColor, Color.TRANSPARENT);
+        } finally {
+            a.recycle();
+        }
     }
 
     protected void initView(Context context) {
@@ -247,14 +258,22 @@ public class DropDownMenuView extends FrameLayout implements INavMenu {
 
         mIsShowing = false;
 
-        mMenu = findViewById(R.id.menu);
+        mMenu = findViewById(R.id.menu_container);
+        mMenu.findViewById(R.id.menu_body).setBackgroundColor(mMenuBgColor);
         // The menu height is determined when the onLayout() is called.
         mMenu.addOnLayoutChangeListener(onMenuLayoutChange());
-        mBackground = (ImageView) findViewById(R.id.menu_background);
-        mBackground.setOnClickListener(onClickBackground());
+
+        mDownArrowContainer = findViewById(R.id.down_arrow_container);
+        mDownArrowContainer.setBackgroundColor(mDownArrowBgColor);
+        mDownArrowStart = findViewById(R.id.down_arrow_start);
+        mDownArrowEnd = findViewById(R.id.down_arrow_end);
+        mDownArrowHeight = mDownArrowContainer.getLayoutParams().height;
+
+        mOverlayBackground = (ImageView) findViewById(R.id.menu_overlay_background);
+        mOverlayBackground.setOnClickListener(onClickBackground());
         // This is necessary because setting the onClick listener will enable
         // it.
-        mBackground.setClickable(false);
+        mOverlayBackground.setClickable(false);
 
         // Setup the menu items.
         mMenuItems = new ArrayList<>();
@@ -338,11 +357,10 @@ public class DropDownMenuView extends FrameLayout implements INavMenu {
                                    int dyUnconsumed) {
             Log.d("xyz", String.format("dyConsumed=%d, dyUnconsumed=%d", dyConsumed, dyUnconsumed));
             if (dyConsumed > 0) {
-                mCachedDeltaY = dyConsumed;
+                child.scroll(dyConsumed);
             } else {
-                mCachedDeltaY = dyUnconsumed;
+                child.scroll(dyUnconsumed);
             }
-            child.scroll(mCachedDeltaY);
         }
 
         @Override

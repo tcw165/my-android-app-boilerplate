@@ -31,7 +31,9 @@
             android:id="@+id/drawer_menu"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            app:downArrowBackgroundColor="#FFFFFF"
             app:layout_anchor="@id/start_menu"
-            app:layout_anchorGravity="top|center_horizontal"/>
+            app:layout_anchorGravity="top|center_horizontal"
+            app:menuBackgroundColor="#FFFFFF"/>
     </android.support.design.widget.CoordinatorLayout>
 </LinearLayout>
