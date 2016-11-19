@@ -83,5 +83,4 @@
             android:theme="@style/InvisibleTheme">
         </activity>
     </application>
-
 </manifest>

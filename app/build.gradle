@@ -1,13 +1,15 @@
 apply plugin: "com.android.application"
 // Fabric crashlytics.
 apply plugin: "io.fabric"
+// Google Services (e.g. Firebase).
+apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion 24
-    buildToolsVersion "24.0.1"
+    buildToolsVersion "24.0.2"
 
     defaultConfig {
-        applicationId "com.my.myboilerplate"
+        applicationId "com.my.boilerplate"
         minSdkVersion 15
         targetSdkVersion 24
         versionCode 1
