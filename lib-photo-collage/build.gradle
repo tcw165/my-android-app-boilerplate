@@ -20,7 +20,7 @@ model {
         ndk {
             platformVersion = 15
             // The name of the native library recognized by JNI.
-            moduleName "algorithms-lib"
+            moduleName "photo-collage"
             // The compiler options, including the the root path and common
             // header files path.
             cppFlags.addAll(["-frtti",
