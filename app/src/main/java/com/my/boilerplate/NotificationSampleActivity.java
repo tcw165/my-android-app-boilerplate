@@ -8,11 +8,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.widget.Toolbar;
+import android.util.Pair;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
+
+import com.my.boilerplate.view.SampleMenuAdapter;
 
 public class NotificationSampleActivity extends AppCompatActivity {
 
@@ -32,6 +35,7 @@ public class NotificationSampleActivity extends AppCompatActivity {
         }
 
         mMenu = (ListView) findViewById(R.id.menu);
+        mMenu.setAdapter(onSampleMenuCreate());
         mMenu.setOnItemClickListener(onClickMenuItem());
     }
 
@@ -51,11 +55,33 @@ public class NotificationSampleActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        finish();
     }
 
     ///////////////////////////////////////////////////////////////////////////
     // Protected / Private Methods ////////////////////////////////////////////
+
+//    <string-array name="notification_menu_entries">
+//    <item>Create a simple notification.</item>
+//    <item>Create a notification directing to an Activity with back stack to the start page.</item>
+//    <item>Create a notification directing to an transient Activity which cannot be found in the recent list.</item>
+//    </string-array>
+
+    @SuppressWarnings({"unchecked"})
+    protected SampleMenuAdapter onSampleMenuCreate() {
+        return new SampleMenuAdapter(
+            this,
+            new Pair[] {
+                new Pair<>("A simple notification",
+                           "The simplest notification that don't respond to " +
+                           "the click."),
+                new Pair<>("A notification redirecting to an Activity",
+                           "The notification that lead you to the Activity " +
+                           "with back stack to the StartActivity."),
+                new Pair<>("A notification redirecting to a new Task",
+                           "The notification that lead you to a new Task " +
+                           "along with an Activity.")
+            });
+    }
 
     protected OnItemClickListener onClickMenuItem() {
         return new OnItemClickListener() {

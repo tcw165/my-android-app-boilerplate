@@ -1,4 +1,4 @@
-// Copyright (c) 2016 boyw165
+// Copyright (c) 2016-present boyw165
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,27 +20,39 @@
 
 package com.my.boilerplate;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Pair;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ListView;
 
-public class NotificationResultSampleActivity1 extends AppCompatActivity {
+import com.my.boilerplate.view.SampleMenuAdapter;
 
-    private Toolbar mToolbar;
+public class ServiceSampleActivity extends AppCompatActivity {
+
+    protected Toolbar mToolbar;
+    protected ListView mMenu;
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_notification_result_sample_1);
+        setContentView(R.layout.activity_services_sample);
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
+
+        mMenu = (ListView) findViewById(R.id.menu);
+        mMenu.setAdapter(onSampleMenuCreate());
+        mMenu.setOnItemClickListener(onClickMenuItem());
     }
 
     @Override
@@ -59,5 +71,35 @@ public class NotificationResultSampleActivity1 extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Protected / Private Methods ////////////////////////////////////////////
+
+    @SuppressWarnings({"unchecked"})
+    protected SampleMenuAdapter onSampleMenuCreate() {
+        return new SampleMenuAdapter(
+            this,
+            new Pair[] {
+                new Pair<>("Launch an immortal Service",
+                           "Let's see how long could the service last.")
+            });
+    }
+
+    protected OnItemClickListener onClickMenuItem() {
+        return new OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent,
+                                    View view,
+                                    int position,
+                                    long id) {
+                switch (position) {
+                    case 0:
+                        startService(new Intent(ServiceSampleActivity.this,
+                                                ImmortalService.class));
+                        break;
+                }
+            }
+        };
     }
 }

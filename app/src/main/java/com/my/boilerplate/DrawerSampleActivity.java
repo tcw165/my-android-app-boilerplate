@@ -80,8 +80,11 @@ public class DrawerSampleActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        finish();
+        if (mDrawerMenu != null && mDrawerMenu.isShowing()) {
+            mDrawerMenu.hideWithAnimation();
+        } else {
+            super.onBackPressed();
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////

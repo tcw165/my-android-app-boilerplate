@@ -11,6 +11,7 @@
     <string name="title_drawer_sample" tools:ignore="MissingTranslation">Drawer Sample</string>
     <string name="title_notification_sample" tools:ignore="MissingTranslation">Notification Sample</string>
     <string name="title_notification_result_sample" tools:ignore="MissingTranslation">Notification Result Sample</string>
+    <string name="title_service_sample" tools:ignore="MissingTranslation">Services Sample</string>
 
     <!-- menu item captions -->
     <string name="menu_drawer">Menu</string>
@@ -18,21 +19,4 @@
     <string name="menu_next" tools:ignore="MissingTranslation">Next</string>
     <string name="menu_settings" tools:ignore="MissingTranslation">Settings</string>
     <string name="menu_help_and_feedback" tools:ignore="MissingTranslation"><![CDATA[Help & Feedback]]></string>
-
-    <!-- The menu in the start page -->
-    <string-array name="start_menu_entries">
-        <item>Sample of CollageEditor</item>
-        <item>Sample of CoordinateLayout and Behavior</item>
-        <item>Sample of RecyclerView</item>
-        <item>Sample of notification</item>
-        <item>Sample of RxJava</item>
-        <item>Sample of OkHttp</item>
-    </string-array>
-
-    <!-- The menu in the notification page -->
-    <string-array name="notification_menu_entries">
-        <item>Create a simple notification.</item>
-        <item>Create a notification directing to an Activity with back stack to the start page.</item>
-        <item>Create a notification directing to an transient Activity which cannot be found in the recent list.</item>
-    </string-array>
 </resources>

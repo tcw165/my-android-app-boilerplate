@@ -34,12 +34,6 @@
             android:id="@+id/menu"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:entries="@array/start_menu_entries"/>
-
-        <!-- The menu -->
-        <com.my.boilerplate.view.DropDownMenuView
-            android:id="@+id/drawer_menu"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:descendantFocusability="beforeDescendants"/>
     </FrameLayout>
 </LinearLayout>

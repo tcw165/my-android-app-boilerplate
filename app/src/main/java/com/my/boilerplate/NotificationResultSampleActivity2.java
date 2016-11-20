@@ -59,6 +59,5 @@ public class NotificationResultSampleActivity2 extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        finish();
     }
 }
