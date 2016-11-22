@@ -91,10 +91,32 @@
 
         <!-- Services //////////////////////////////////////////////////////-->
 
+        <!-- Firebase -->
+        <service
+            android:name=".MyFirebaseInstanceIdService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".MyFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
         <service
             android:name=".ImmortalService"
             android:enabled="true"
-            android:exported="true">
+            android:exported="false">
+        </service>
+
+        <service
+            android:name=".LongOperationService"
+            android:enabled="true"
+            android:exported="false">
         </service>
 
         <!-- ContentProviders //////////////////////////////////////////////-->

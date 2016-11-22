@@ -134,24 +134,42 @@ public class StartActivity
         return new SampleMenuAdapter(
             this,
             new Pair[] {
+                // item 0.
                 new Pair<>("CollageEditor",
                            "A view-based collage editor (on-going)."),
+                // item 1.
                 new Pair<>("CoordinatorLayout and Behavior",
                            "Use the CoordinatorLayout and Behavior to imitate " +
                            "the drag-and-drop drawer menu in the vertical way. " +
                            "I use \"imitate\" here is because I think the best " +
                            "solution is to customize a ViewGroup."),
+                // item 2.
                 new Pair<>("RecyclerView",
                            "Add/Remove/Reposition the items in the RecyclerView " +
                            "with animation. (on-going)"),
+                // item 3.
                 new Pair<>("Notification",
                            "Fire notifications and lead the user to the Activity " +
                            "in the current task or in a new task."),
-                new Pair<>("Service",
-                           "Use the service to copy/save a big file in the background " +
-                           "and notify the binding Activity the processing status."),
+                // item 4.
+                new Pair<>("Services",
+                           "Use the service to do a long operation in the background " +
+                           "and notify the binding Activity the processing status.\n" +
+                           "The service might be still alive when the task is moved " +
+                           "to the background."),
+                // item 5.
+                new Pair<>("DownloadManager",
+                           "(constructing)"),
+                // item 6.
+                new Pair<>("AlertManager",
+                           "(constructing)"),
+                // item 7.
+                new Pair<>("BroadcastReceiver",
+                           "(constructing)"),
+                // item 8.
                 new Pair<>("RxJava",
                            "(constructing)."),
+                // item 9.
                 new Pair<>("OkHttp",
                            "(constructing)."),
             });
@@ -174,6 +192,8 @@ public class StartActivity
                         startActivity(new Intent(StartActivity.this,
                                                  DrawerSampleActivity.class)
                                           .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                        break;
+                    case 2:
                         break;
                     case 3:
                         startActivity(new Intent(StartActivity.this,

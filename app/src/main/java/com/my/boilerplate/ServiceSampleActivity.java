@@ -82,7 +82,11 @@ public class ServiceSampleActivity extends AppCompatActivity {
             this,
             new Pair[] {
                 new Pair<>("Launch an immortal Service",
-                           "Let's see how long could the service last.")
+                           "Let's see how long could the service last and " +
+                           "see what the Services lifecycle is like."),
+                new Pair<>("Launch a long operation Service",
+                           "It will show the progress when it's processing " +
+                           "the long operation and terminate itself when done.")
             });
     }
 
@@ -97,6 +101,10 @@ public class ServiceSampleActivity extends AppCompatActivity {
                     case 0:
                         startService(new Intent(ServiceSampleActivity.this,
                                                 ImmortalService.class));
+                        break;
+                    case 1:
+                        startService(new Intent(ServiceSampleActivity.this,
+                                                LongOperationService.class));
                         break;
                 }
             }
