@@ -15,12 +15,14 @@
     <!-- Icon -->
     <ImageView
         android:id="@+id/icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_centerHorizontal="true"
-        android:scaleType="centerInside"
+        android:scaleType="fitCenter"
+        app:layout_heightPercent="33%"
         app:layout_marginTopPercent="21%"
-        app:srcCompat="@drawable/ic_settings"/>
+        app:layout_widthPercent="100%"
+        app:srcCompat="@drawable/ic_list_black_24px"/>
 
     <!-- Notification badge -->
     <FrameLayout
@@ -46,12 +48,13 @@
         fontPath="fonts/Avenir-Roman.otf"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@id/icon"
+        android:layout_marginTop="12dp"
         android:gravity="center"
         android:maxLines="2"
         android:maxWidth="68dp"
         android:text="@string/menu_settings"
         android:textColor="@android:color/black"
         android:textSize="12sp"
-        app:layout_marginTopPercent="64%"
         tools:ignore="MissingPrefix"/>
 </merge>

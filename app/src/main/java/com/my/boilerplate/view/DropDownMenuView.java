@@ -244,7 +244,7 @@ public class DropDownMenuView extends FrameLayout implements INavMenu {
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.DropDownMenuView);
 
         try {
-            mMenuBgColor = a.getColor(R.styleable.DropDownMenuView_menuBackgroundColor, Color.WHITE);
+            mMenuBgColor = a.getColor(R.styleable.DropDownMenuView_menuBackgroundColor, Color.TRANSPARENT);
             mDownArrowBgColor = a.getColor(R.styleable.DropDownMenuView_downArrowBackgroundColor, Color.TRANSPARENT);
         } finally {
             a.recycle();

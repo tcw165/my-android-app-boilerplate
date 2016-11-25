@@ -20,8 +20,8 @@
         android:id="@+id/menu_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@android:color/transparent">
+        android:background="@android:color/transparent"
+        android:orientation="vertical">
 
         <!-- The menu items -->
         <android.support.v7.widget.GridLayout
@@ -41,7 +41,7 @@
                 android:background="@drawable/bg_border_rect"
                 android:foreground="?attr/selectableItemBackgroundBorderless"
                 app:caption="@string/menu_settings"
-                app:iconSrcCompat="@drawable/ic_settings"
+                app:iconSrcCompat="@drawable/icon_menu_explore_n"
                 app:layout_columnWeight="1"
                 app:layout_rowWeight="1"/>
 
@@ -106,8 +106,8 @@
             android:id="@+id/down_arrow_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="6dp"
-            android:paddingBottom="6dp">
+            android:paddingBottom="6dp"
+            android:paddingTop="6dp">
 
             <ImageView
                 android:id="@+id/down_arrow_start"
