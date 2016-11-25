@@ -136,7 +136,9 @@ public class ServiceSampleActivity
                            "the long operation and terminate itself when " +
                            "done. The DialogFragment will be present when " +
                            "the task is under processing and be hidden " +
-                           "when the task is completed.")
+                           "when the task is completed.\n" +
+                           "Bug: The activity should be in the foreground " +
+                           "in case it misses to receive the complete notification.")
             });
     }
 
