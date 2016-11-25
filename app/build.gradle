@@ -1,13 +1,15 @@
 apply plugin: "com.android.application"
 // Fabric crashlytics.
 apply plugin: "io.fabric"
+// Google Services (e.g. Firebase).
+apply plugin: "com.google.gms.google-services"
 
 android {
     compileSdkVersion 24
-    buildToolsVersion "24.0.1"
+    buildToolsVersion "24.0.2"
 
     defaultConfig {
-        applicationId "com.my.myboilerplate"
+        applicationId "com.my.boilerplate"
         minSdkVersion 15
         targetSdkVersion 24
         versionCode 1
@@ -54,18 +56,21 @@ dependencies {
     compile "com.squareup.retrofit2:converter-gson:${RETROFIT_VER}"
 
     // Rx-Binding.
-    compile 'com.jakewharton.rxbinding:rxbinding:0.4.0'
+    compile "com.jakewharton.rxbinding:rxbinding:0.4.0"
 
     // Fabric crashlytics.
-    compile('com.crashlytics.sdk.android:crashlytics:2.6.2@aar') {
+    compile("com.crashlytics.sdk.android:crashlytics:2.6.2@aar") {
         transitive = true;
     }
 
-    // My algorithm-lib for generating the grids.
-//    compile project(':algorithms-lib')
+    // Google Firebase.
+    compile "com.google.firebase:firebase-core:9.8.0"
+    compile "com.google.firebase:firebase-messaging:9.8.0"
+    compile "com.google.firebase:firebase-invites:9.8.0"
+    compile "com.google.firebase:firebase-crash:9.8.0"
 
-    // Blur effect library.
-    compile 'jp.wasabeef:blurry:2.0.3'
+    // My algorithm-lib for generating the grids.
+//    compile project(":algorithms-lib")
 
     testCompile "junit:junit:4.12"
 }

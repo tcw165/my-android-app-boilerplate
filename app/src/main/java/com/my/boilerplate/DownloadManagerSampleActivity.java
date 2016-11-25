@@ -1,4 +1,4 @@
-// Copyright (c) 2016 boyw165
+// Copyright (c) 2016-present boyw165
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,29 +20,29 @@
 
 package com.my.boilerplate;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
+import android.util.Pair;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Toast;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ListView;
 
-import com.my.boilerplate.view.DropDownMenuView;
-import com.my.boilerplate.view.INavMenu;
+import com.my.boilerplate.view.SampleMenuAdapter;
 
-public class DrawerSampleActivity extends AppCompatActivity {
+public class DownloadManagerSampleActivity extends AppCompatActivity {
 
-    private Toolbar mToolbar;
-    private DropDownMenuView mDrawerMenu;
+    protected Toolbar mToolbar;
+    protected ListView mMenu;
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_drawer_sample);
+        setContentView(R.layout.activity_download_manager_sample);
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
@@ -50,16 +50,9 @@ public class DrawerSampleActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        mDrawerMenu = (DropDownMenuView) findViewById(R.id.drawer_menu);
-        mDrawerMenu.setOnMenuStateChangeListener(onMenuStateChange());
-        mDrawerMenu.setOnClickMenuItemListener(onClickMenuItem());
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.drawer_sample_menu, menu);
-
-        return super.onCreateOptionsMenu(menu);
+        mMenu = (ListView) findViewById(R.id.menu);
+        mMenu.setAdapter(onSampleMenuCreate());
+        mMenu.setOnItemClickListener(onClickMenuItem());
     }
 
     @Override
@@ -70,9 +63,6 @@ public class DrawerSampleActivity extends AppCompatActivity {
             case android.R.id.home:
                 onBackPressed();
                 break;
-            case R.id.menu_drawer:
-                toggleDrawerMenu();
-                break;
         }
 
         return true;
@@ -80,48 +70,41 @@ public class DrawerSampleActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (mDrawerMenu != null && mDrawerMenu.isShowing()) {
-            mDrawerMenu.hideWithAnimation();
-        } else {
-            super.onBackPressed();
-        }
+        super.onBackPressed();
     }
 
     ///////////////////////////////////////////////////////////////////////////
     // Protected / Private Methods ////////////////////////////////////////////
 
-    private void toggleDrawerMenu() {
-        if (mDrawerMenu == null) return;
-
-        if (mDrawerMenu.isShowing()) {
-            mDrawerMenu.hideWithAnimation();
-        } else {
-            mDrawerMenu.showWithAnimation();
-        }
+    @SuppressWarnings({"unchecked"})
+    protected SampleMenuAdapter onSampleMenuCreate() {
+        return new SampleMenuAdapter(
+            this,
+            new Pair[] {
+                new Pair<>("Download a large file ",
+                           "The downloading is still alive when the app is in " +
+                           "the background and there's also a progress bar in " +
+                           "the activity. Everything should be synchronized.")
+            });
     }
 
-    private INavMenu.OnMenuStateChange onMenuStateChange() {
-        return new INavMenu.OnMenuStateChange() {
+    protected OnItemClickListener onClickMenuItem() {
+        return new OnItemClickListener() {
             @Override
-            public void onShowMenu() {
-                // DO NOTHING.
-            }
-
-            @Override
-            public void onHideMenu() {
-                // DO NOTHING.
-            }
-        };
-    }
-
-    private OnClickListener onClickMenuItem() {
-        return new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(DrawerSampleActivity.this,
-                               R.string.menu_settings,
-                               Toast.LENGTH_SHORT)
-                     .show();
+            public void onItemClick(AdapterView<?> parent,
+                                    View view,
+                                    int position,
+                                    long id) {
+                switch (position) {
+                    case 0:
+                        startService(new Intent(DownloadManagerSampleActivity.this,
+                                                ImmortalService.class));
+                        break;
+                    case 1:
+                        startService(new Intent(DownloadManagerSampleActivity.this,
+                                                LongOperationService.class));
+                        break;
+                }
             }
         };
     }

@@ -1,1 +1,1 @@
-include ':app', ':algorithms-lib'
+include ':app', ':lib-photo-collage'

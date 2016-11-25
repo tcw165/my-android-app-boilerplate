@@ -4,7 +4,6 @@
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
@@ -34,11 +33,10 @@
 
         <!-- Start Page -->
         <activity
-            android:name=".StartPageActivity"
-            android:theme="@style/AppTheme.CustomToolbar">
+            android:name=".StartActivity">
         </activity>
 
-        <!-- Settings -->
+        <!-- Other pages -->
         <activity
             android:name=".SettingsActivity"
             android:label="@string/menu_settings"
@@ -47,13 +45,46 @@
 
         <activity
             android:name=".CollageEditorActivity"
-            android:label="@string/collage_editor"
-            android:theme="@style/AppTheme.CustomToolbar">
+            android:label="@string/title_collage_editor_sample">
         </activity>
+
         <activity
             android:name=".DrawerSampleActivity"
-            android:label="@string/drawer_sample"
-            android:theme="@style/AppTheme.CustomToolbar">
+            android:label="@string/title_drawer_sample">
+        </activity>
+
+        <activity
+            android:name=".NotificationSampleActivity"
+            android:label="@string/title_notification_sample">
+        </activity>
+        <!-- Notification result activity with back stack -->
+        <activity
+            android:name=".NotificationResultSampleActivity1"
+            android:label="@string/title_notification_result_sample"
+            android:parentActivityName=".StartActivity">
+
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".StartActivity"/>
+        </activity>
+        <!-- Transient notification result activity -->
+        <activity
+            android:name=".NotificationResultSampleActivity2"
+            android:excludeFromRecents="true"
+            android:label="@string/title_notification_result_sample"
+            android:launchMode="singleTask"
+            android:taskAffinity="">
+        </activity>
+
+        <activity
+            android:name=".ServiceSampleActivity"
+            android:label="@string/title_service_sample">
+        </activity>
+
+        <activity
+            android:name=".DownloadManagerSampleActivity"
+            android:label="@string/title_download_manager_sample">
         </activity>
 
         <!-- Permission Shadow Activity -->
@@ -62,5 +93,38 @@
             android:launchMode="singleTop"
             android:theme="@style/InvisibleTheme">
         </activity>
+
+        <!-- Services //////////////////////////////////////////////////////-->
+
+        <!-- Firebase -->
+        <service
+            android:name=".MyFirebaseInstanceIdService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".MyFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".ImmortalService"
+            android:enabled="true"
+            android:exported="false">
+        </service>
+
+        <service
+            android:name=".LongOperationService"
+            android:enabled="true"
+            android:exported="false">
+        </service>
+
+        <!-- ContentProviders //////////////////////////////////////////////-->
+
     </application>
 </manifest>

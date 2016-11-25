@@ -1,4 +1,4 @@
-// Copyright (c) 2016-present boyw165
+// Copyright (c) 2016 boyw165
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,43 +20,44 @@
 
 package com.my.boilerplate;
 
-import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 
-import com.crashlytics.android.Crashlytics;
-import io.fabric.sdk.android.Fabric;
-import java.util.concurrent.TimeUnit;
+public class NotificationResultSampleActivity2 extends AppCompatActivity {
 
-import rx.Observable;
-import rx.functions.Action1;
-
-public class SplashScreenActivity extends AppCompatActivity {
+    private Toolbar mToolbar;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Init Fabric crashlytics.
-        Fabric.with(this, new Crashlytics());
+        setContentView(R.layout.activity_notification_result_sample_2);
 
-        setContentView(R.layout.activity_splash_screen);
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    public boolean onOptionsItemSelected(MenuItem item) {
+        super.onOptionsItemSelected(item);
 
-        // Do nothing but wait 3 seconds and luanch the start page.
-        Observable
-            .just(true)
-            .delay(500, TimeUnit.MILLISECONDS)
-            .subscribe(new Action1<Boolean>() {
-                @Override
-                public void call(Boolean aBoolean) {
-                    startActivity(new Intent(SplashScreenActivity.this, StartActivity.class));
-                    finish();
-                }
-            });
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                break;
+        }
+
+        return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
     }
 }

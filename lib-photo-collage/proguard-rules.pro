@@ -16,4 +16,4 @@
 #   public *;
 #}
 
--keep class com.cardinalblue.algorithm.** { *; }
+-keep class com.my.algorithm.** { *; }

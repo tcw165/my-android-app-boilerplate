@@ -77,11 +77,31 @@ public class ViewUtil {
     }
 
     /**
+     * Hide the progress bar when some process is done.
+     */
+    public void updateProgress(int progress) {
+        if (mProgress.get() == null) return;
+
+        mProgress.get().setProgress(progress);
+    }
+
+    /**
      * Indicate the progress bar is cancelable.
      */
     public ViewUtil setProgressBarCancelable(final boolean b) {
         if (mProgress.get() != null) {
             mProgress.get().setCancelable(b);
+        }
+        return this;
+    }
+
+    /**
+     * Indicate the style of progress bar.
+     */
+    public ViewUtil showAsProgressBar(final boolean b) {
+        if (mProgress.get() != null && b) {
+            mProgress.get().setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            mProgress.get().setIndeterminate(false);
         }
         return this;
     }
