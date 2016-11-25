@@ -82,11 +82,21 @@ public class LongOperationService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         try {
+            // Broadcast that a long operation is starting.
+            sendBroadcast(
+                new Intent(LongOperationReceiver.ACTION_START));
+
             for (int i = 0; i < 100; ++i) {
                 Log.d("xyz", String.format("%s::progress=%d", TAG, i));
 
+                // Update the progress in the notification.
                 mNotibuilder.setProgress(100, i, false);
                 mNotiMangr.notify(NOTIFICATION_ID, mNotibuilder.build());
+
+                // Broadcast the progress.
+                sendBroadcast(
+                    new Intent(LongOperationReceiver.ACTION_UPDATE_PROGRESS)
+                        .putExtra(LongOperationReceiver.DATA_PROGRESS, i));
 
                 Thread.sleep(100);
             }
@@ -103,6 +113,10 @@ public class LongOperationService extends IntentService {
                         PendingIntent.FLAG_UPDATE_CURRENT))
                 .setAutoCancel(true);
             mNotiMangr.notify(NOTIFICATION_ID, mNotibuilder.build());
+
+            // Broadcast the complete.
+            sendBroadcast(
+                new Intent(LongOperationReceiver.ACTION_COMPLETE));
         } catch (InterruptedException e) {
             Log.d("xyz", String.format("%s::onInterrupt", TAG));
             // Restore interrupt status.

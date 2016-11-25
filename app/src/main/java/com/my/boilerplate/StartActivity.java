@@ -108,6 +108,11 @@ public class StartActivity
             .hideProgressBar();
     }
 
+    @Override
+    public void updateProgress(int progress) {
+        showProgressBar();
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // Protected / Private Methods ////////////////////////////////////////////
 
@@ -167,7 +172,7 @@ public class StartActivity
                 new Pair<>("BroadcastReceiver",
                            "(constructing)"),
                 // item 8.
-                new Pair<>("RxJava",
+                new Pair<>("RxJava-2",
                            "(constructing)."),
                 // item 9.
                 new Pair<>("OkHttp",
@@ -203,6 +208,11 @@ public class StartActivity
                     case 4:
                         startActivity(new Intent(StartActivity.this,
                                                  ServiceSampleActivity.class)
+                                          .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                        break;
+                    case 5:
+                        startActivity(new Intent(StartActivity.this,
+                                                 DownloadManagerSampleActivity.class)
                                           .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                         break;
                     default:

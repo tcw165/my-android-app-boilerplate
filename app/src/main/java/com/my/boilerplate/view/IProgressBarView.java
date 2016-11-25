@@ -35,4 +35,9 @@ public interface IProgressBarView {
      * Hide the progress bar.
      */
     void hideProgressBar();
+
+    /**
+     * Update the progress.
+     */
+    void updateProgress(int progress);
 }

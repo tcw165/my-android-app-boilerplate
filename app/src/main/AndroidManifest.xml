@@ -82,6 +82,11 @@
             android:label="@string/title_service_sample">
         </activity>
 
+        <activity
+            android:name=".DownloadManagerSampleActivity"
+            android:label="@string/title_download_manager_sample">
+        </activity>
+
         <!-- Permission Shadow Activity -->
         <activity
             android:name=".util.PermissionActivity"

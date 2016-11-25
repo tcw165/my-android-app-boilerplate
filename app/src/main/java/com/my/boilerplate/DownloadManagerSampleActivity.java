@@ -31,25 +31,18 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
-import com.my.boilerplate.util.ViewUtil;
-import com.my.boilerplate.view.IProgressBarView;
-import com.my.boilerplate.LongOperationReceiver.ILongOperation;
 import com.my.boilerplate.view.SampleMenuAdapter;
 
-public class ServiceSampleActivity
-    extends AppCompatActivity
-    implements IProgressBarView {
+public class DownloadManagerSampleActivity extends AppCompatActivity {
 
     protected Toolbar mToolbar;
     protected ListView mMenu;
-
-    protected LongOperationReceiver mLongOperationReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_services_sample);
+        setContentView(R.layout.activity_download_manager_sample);
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
@@ -60,23 +53,6 @@ public class ServiceSampleActivity
         mMenu = (ListView) findViewById(R.id.menu);
         mMenu.setAdapter(onSampleMenuCreate());
         mMenu.setOnItemClickListener(onClickMenuItem());
-
-        mLongOperationReceiver = new LongOperationReceiver(onReceiveLongOperation());
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        registerReceiver(mLongOperationReceiver,
-                         LongOperationReceiver.createIntentFilter());
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        unregisterReceiver(mLongOperationReceiver);
     }
 
     @Override
@@ -97,29 +73,6 @@ public class ServiceSampleActivity
         super.onBackPressed();
     }
 
-    @Override
-    public void showProgressBar() {
-        ViewUtil
-            .with(this)
-            .showAsProgressBar(true)
-            .setProgressBarCancelable(false)
-            .showProgressBar(getResources().getString(R.string.loading));
-    }
-
-    @Override
-    public void hideProgressBar() {
-        ViewUtil
-            .with(this)
-            .hideProgressBar();
-    }
-
-    @Override
-    public void updateProgress(int progress) {
-        ViewUtil
-            .with(this)
-            .updateProgress(progress);
-    }
-
     ///////////////////////////////////////////////////////////////////////////
     // Protected / Private Methods ////////////////////////////////////////////
 
@@ -128,15 +81,10 @@ public class ServiceSampleActivity
         return new SampleMenuAdapter(
             this,
             new Pair[] {
-                new Pair<>("Launch an immortal Service",
-                           "Let's see how long could the service last and " +
-                           "see what the Services lifecycle is like."),
-                new Pair<>("Launch a long operation Service",
-                           "It will show the progress when it's processing " +
-                           "the long operation and terminate itself when " +
-                           "done. The DialogFragment will be present when " +
-                           "the task is under processing and be hidden " +
-                           "when the task is completed.")
+                new Pair<>("Download a large file ",
+                           "The downloading is still alive when the app is in " +
+                           "the background and there's also a progress bar in " +
+                           "the activity. Everything should be synchronized.")
             });
     }
 
@@ -149,43 +97,14 @@ public class ServiceSampleActivity
                                     long id) {
                 switch (position) {
                     case 0:
-                        startService(new Intent(ServiceSampleActivity.this,
+                        startService(new Intent(DownloadManagerSampleActivity.this,
                                                 ImmortalService.class));
                         break;
                     case 1:
-                        startService(new Intent(ServiceSampleActivity.this,
+                        startService(new Intent(DownloadManagerSampleActivity.this,
                                                 LongOperationService.class));
                         break;
                 }
-            }
-        };
-    }
-
-    protected ILongOperation onReceiveLongOperation() {
-        return new ILongOperation() {
-            @Override
-            public void onProgressStart() {
-                showProgressBar();
-            }
-
-            @Override
-            public void onProgressPause() {
-                // DO NOTHING.
-            }
-
-            @Override
-            public void onProgressCancel() {
-                // DO NOTHING.
-            }
-
-            @Override
-            public void onProgressComplete() {
-                hideProgressBar();
-            }
-
-            @Override
-            public void onProgressUpdate(int progress) {
-                updateProgress(progress);
             }
         };
     }
