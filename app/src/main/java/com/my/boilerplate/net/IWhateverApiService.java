@@ -22,8 +22,8 @@ package com.my.boilerplate.net;
 
 import com.my.boilerplate.json.JsonWhatever;
 
+import io.reactivex.Observable;
 import retrofit2.http.GET;
-import rx.Observable;
 
 public interface IWhateverApiService {
 

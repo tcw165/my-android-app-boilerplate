@@ -26,10 +26,10 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.crashlytics.android.Crashlytics;
 import io.fabric.sdk.android.Fabric;
-import java.util.concurrent.TimeUnit;
+import io.reactivex.Observable;
+import io.reactivex.functions.Consumer;
 
-import rx.Observable;
-import rx.functions.Action1;
+import java.util.concurrent.TimeUnit;
 
 public class SplashScreenActivity extends AppCompatActivity {
 
@@ -51,9 +51,9 @@ public class SplashScreenActivity extends AppCompatActivity {
         Observable
             .just(true)
             .delay(500, TimeUnit.MILLISECONDS)
-            .subscribe(new Action1<Boolean>() {
+            .subscribe(new Consumer<Boolean>() {
                 @Override
-                public void call(Boolean aBoolean) {
+                public void accept(Boolean ignored) throws Exception {
                     startActivity(new Intent(SplashScreenActivity.this, StartActivity.class));
                     finish();
                 }

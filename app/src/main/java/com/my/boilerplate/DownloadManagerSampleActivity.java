@@ -20,10 +20,18 @@
 
 package com.my.boilerplate;
 
+import android.*;
+import android.Manifest;
+import android.app.DownloadManager;
+import android.content.Context;
 import android.content.Intent;
+import android.icu.text.LocaleDisplayNames;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.util.Pair;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,11 +40,18 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
 import com.my.boilerplate.view.SampleMenuAdapter;
+import com.tbruyelle.rxpermissions2.RxPermissions;
+
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableObserver;
 
 public class DownloadManagerSampleActivity extends AppCompatActivity {
 
     protected Toolbar mToolbar;
     protected ListView mMenu;
+
+    protected DownloadManager mDownloadManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +68,9 @@ public class DownloadManagerSampleActivity extends AppCompatActivity {
         mMenu = (ListView) findViewById(R.id.menu);
         mMenu.setAdapter(onSampleMenuCreate());
         mMenu.setOnItemClickListener(onClickMenuItem());
+
+        // Init the download manager.
+        mDownloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
     }
 
     @Override
@@ -80,7 +98,7 @@ public class DownloadManagerSampleActivity extends AppCompatActivity {
     protected SampleMenuAdapter onSampleMenuCreate() {
         return new SampleMenuAdapter(
             this,
-            new Pair[] {
+            new Pair[]{
                 new Pair<>("Download a large file ",
                            "The downloading is still alive when the app is in " +
                            "the background and there's also a progress bar in " +
@@ -97,15 +115,48 @@ public class DownloadManagerSampleActivity extends AppCompatActivity {
                                     long id) {
                 switch (position) {
                     case 0:
-                        startService(new Intent(DownloadManagerSampleActivity.this,
-                                                ImmortalService.class));
-                        break;
-                    case 1:
-                        startService(new Intent(DownloadManagerSampleActivity.this,
-                                                LongOperationService.class));
+                        startDownloading();
                         break;
                 }
             }
         };
+    }
+
+    protected void startDownloading() {
+        // FIXME: Might crash on API<21.
+        // Ask for writing storage permission.
+        RxPermissions
+            .getInstance(this)
+            .request(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            .subscribe(new DisposableObserver<Boolean>() {
+                @Override
+                public void onNext(Boolean granted) {
+                    if (!granted) return;
+
+                    Uri uri = Uri.parse("http://eoimages.gsfc.nasa.gov/images/imagerecords" +
+                                        "/84000/84214/bluemarble_2014090_xlrg.jpg");
+
+                    mDownloadManager.enqueue(
+                        new DownloadManager.Request(uri)
+                            .setTitle("Download the BLOB.")
+                            .setDescription("The BLOB is an image of very large size.")
+                            // Save the file into a public directory.
+                            .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,
+                                                               "com.my.boilerplate")
+                            // Set the network types.
+                            .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI |
+                                                    DownloadManager.Request.NETWORK_MOBILE));
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    Log.d("xyz", String.format("Grant perms error: %s", e));
+                }
+
+                @Override
+                public void onComplete() {
+                    // DO NOTHING.
+                }
+            });
     }
 }
