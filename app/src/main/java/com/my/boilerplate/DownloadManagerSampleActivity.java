@@ -74,6 +74,18 @@ public class DownloadManagerSampleActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        // TODO: Register to the downloading broadcast receiver.
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // TODO: Register to the downloading broadcast receiver.
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         super.onOptionsItemSelected(item);
 
