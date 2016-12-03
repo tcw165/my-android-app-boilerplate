@@ -26,7 +26,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.util.Pair;
 import android.view.MenuItem;
 import android.view.View;
@@ -36,24 +35,17 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.my.boilerplate.json.JsonWhatever;
-import com.my.boilerplate.util.PermUtil;
 import com.my.boilerplate.util.ViewUtil;
-import com.my.boilerplate.util.WebApiUtil;
 import com.my.boilerplate.view.INavMenu;
 import com.my.boilerplate.view.IProgressBarView;
 import com.my.boilerplate.view.SampleMenuAdapter;
 import com.my.boilerplate.view.ScrapView;
 
-import rx.Observable;
-import rx.functions.Action1;
-import rx.functions.Func1;
-
 public class StartActivity
     extends AppCompatActivity
     implements IProgressBarView {
 
-    private final static String TAG = StartActivity.class.getSimpleName();
+    private final static String TAG = StartActivity.class.getCanonicalName();
 
     private Toolbar mToolbar;
     private ListView mStartMenu;
@@ -164,7 +156,7 @@ public class StartActivity
                            "to the background."),
                 // item 5.
                 new Pair<>("DownloadManager",
-                           "(constructing)"),
+                           "Use DownloadManager (a system service) to download files."),
                 // item 6.
                 new Pair<>("AlertManager",
                            "(constructing)"),
@@ -249,48 +241,48 @@ public class StartActivity
         };
     }
 
-    protected void doHttpRequests() {
-        Observable
-            .just(null)
-            // Ask for permission.
-            .concatWith(PermUtil
-                            .with(this)
-                            .request(Manifest.permission.CAMERA,
-                                     Manifest.permission.WRITE_EXTERNAL_STORAGE))
-            // Request data.
-            .concatWith(WebApiUtil
-                            .with(this)
-                            .showProgressBar(this)
-                            .getJsonWhatever())
-            // Only handle the non-NULL stream.
-            .filter(new Func1<Object, Boolean>() {
-                @Override
-                public Boolean call(Object o) {
-                    return o != null;
-                }
-            })
-            .subscribe(new Action1<Object>() {
-                           @Override
-                           public void call(Object o) {
-                               if (o == null) {
-                                   Log.i(TAG, "null");
-                               } else if (o instanceof Boolean) {
-                                   if ((Boolean) o) {
-                                       Log.i(TAG, "Permissions are granted.");
-                                   } else {
-                                       Log.i(TAG, "Permissions are not granted.");
-                                   }
-                               } else if (o instanceof JsonWhatever) {
-                                   JsonWhatever data = (JsonWhatever) o;
-                                   Log.i(TAG, String.format("Get JsonWhatever data = %s", data.toString()));
-                               }
-                           }
-                       },
-                       new Action1<Throwable>() {
-                           @Override
-                           public void call(Throwable t) {
-                               Log.e(TAG, "onError", t);
-                           }
-                       });
-    }
+//    protected void doHttpRequests() {
+//        Observable
+//            .just(null)
+//            // Ask for permission.
+//            .concatWith(PermUtil
+//                            .with(this)
+//                            .request(Manifest.permission.CAMERA,
+//                                     Manifest.permission.WRITE_EXTERNAL_STORAGE))
+//            // Request data.
+//            .concatWith(WebApiUtil
+//                            .with(this)
+//                            .showProgressBar(this)
+//                            .getJsonWhatever())
+//            // Only handle the non-NULL stream.
+//            .filter(new Func1<Object, Boolean>() {
+//                @Override
+//                public Boolean call(Object o) {
+//                    return o != null;
+//                }
+//            })
+//            .subscribe(new Action1<Object>() {
+//                           @Override
+//                           public void call(Object o) {
+//                               if (o == null) {
+//                                   Log.i(TAG, "null");
+//                               } else if (o instanceof Boolean) {
+//                                   if ((Boolean) o) {
+//                                       Log.i(TAG, "Permissions are granted.");
+//                                   } else {
+//                                       Log.i(TAG, "Permissions are not granted.");
+//                                   }
+//                               } else if (o instanceof JsonWhatever) {
+//                                   JsonWhatever data = (JsonWhatever) o;
+//                                   Log.i(TAG, String.format("Get JsonWhatever data = %s", data.toString()));
+//                               }
+//                           }
+//                       },
+//                       new Action1<Throwable>() {
+//                           @Override
+//                           public void call(Throwable t) {
+//                               Log.e(TAG, "onError", t);
+//                           }
+//                       });
+//    }
 }

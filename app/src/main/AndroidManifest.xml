@@ -87,16 +87,16 @@
             android:label="@string/title_download_manager_sample">
         </activity>
 
-        <!-- Permission Shadow Activity -->
-        <activity
-            android:name=".util.PermissionActivity"
-            android:launchMode="singleTop"
-            android:theme="@style/InvisibleTheme">
-        </activity>
+        <!-- Sample Shadow Activity (for e.g. RxPermissions) -->
+        <!--<activity-->
+            <!--android:name=".util.PermissionActivity"-->
+            <!--android:launchMode="singleTop"-->
+            <!--android:theme="@style/InvisibleTheme">-->
+        <!--</activity>-->
 
         <!-- Services //////////////////////////////////////////////////////-->
 
-        <!-- Firebase -->
+        <!-- Google Firebase -->
         <service
             android:name=".MyFirebaseInstanceIdService"
             android:exported="false">
