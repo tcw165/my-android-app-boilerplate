@@ -143,9 +143,12 @@ public class SvgUtil {
     }
 
     /**
-     * The basic concept is totally the same with the
-     * {@code ifRayCrossesPathSegmentByEvenOdd}. Further more, this algorithm
-     * takes the winding direction into account too.
+     * It is basically the same with the {@code ifRayCrossesPathSegmentByEvenOdd}.
+     * Further more, this algorithm takes the winding direction into account too.
+     * If the number of the path segments that crosses ray is non zero and the
+     * winding counter is zero, the testing point is on the outside of the closed
+     * path; If the winding counter is zero, the testing point is on the inside
+     * of the closed path.
      * <br/>
      * <pre>
      *
@@ -197,12 +200,12 @@ public class SvgUtil {
      * https://en.wikipedia.org/wiki/Nonzero-rule
      *
      * @return 0 = no cross;
-     * +1 = cross in clockwise winding direction;
-     * -1 = cross in counter-clockwise winding direction.
+     *         +1 = cross in clockwise winding direction;
+     *         -1 = cross in counter-clockwise winding direction.
      */
-    private static int ifRayCrossesPathSegmentByNonZero(PointF rayStartPt,
-                                                        PointF pathPt1,
-                                                        PointF pathPt2) {
+    public static int ifRayCrossesPathSegmentByNonZero(PointF rayStartPt,
+                                                       PointF pathPt1,
+                                                       PointF pathPt2) {
         if (pathPt1.equals(pathPt2)) return 0;
 
         // +1 = clockwise.
@@ -215,19 +218,21 @@ public class SvgUtil {
             // Clockwise:         x2 > x1;
             // Counter-clockwise: x2 < x1;
             windingCounter = (int) Math.signum(pathPt1.x - pathPt2.x);
-        } else if ((pathPt1.y >= rayStartPt.y) != (pathPt2.y >= rayStartPt.y)) {
-            // It's not a horizontal line and the testing y is in the range
+        } else if ((pathPt1.y >= rayStartPt.y) != (pathPt2.y >= rayStartPt.y) &&
+                   rayStartPt.x <= Math.max(pathPt1.x, pathPt2.x)) {
+            // 1) It's not a horizontal line and the testing y is in the range
             // of the path segment.
-            if (rayStartPt.x <= Math.max(pathPt1.x, pathPt2.x)) {
-                // The ray always doesn't crosses with the path segment if the
-                // starting x is larger than the minimum x value of the path
-                // segment.
-                // Clockwise:         y2 > y1;
-                // Counter-clockwise: y2 < y1;
-                float pathSlope = (pathPt2.y - pathPt1.y) / (pathPt2.x - pathPt1.x);
-                if (rayStartPt.x <= (rayStartPt.y - pathPt1.y) / pathSlope + pathPt1.x) {
-                    windingCounter = (int) Math.signum(pathPt2.y - pathPt1.y);
-                }
+            // 2) The ray always doesn't crosses with the path segment if the
+            // starting x is larger than the minimum x value of the path
+            // segment.
+            //
+            // If the ray crosses the path segment, we calculate the winding
+            // counter.
+            // Clockwise         = y2 > y1;
+            // Counter-clockwise = y2 < y1;
+            float pathSlope = (pathPt2.y - pathPt1.y) / (pathPt2.x - pathPt1.x);
+            if (rayStartPt.x <= (rayStartPt.y - pathPt1.y) / pathSlope + pathPt1.x) {
+                windingCounter = (int) Math.signum(pathPt2.y - pathPt1.y);
             }
         }
 

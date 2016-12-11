@@ -13,6 +13,7 @@
     <string name="title_notification_result_sample" tools:ignore="MissingTranslation">Notification Result Sample</string>
     <string name="title_service_sample" tools:ignore="MissingTranslation">Services Sample</string>
     <string name="title_download_manager_sample">DownloadManager Sample</string>
+    <string name="title_file_provider_sample">FileProvider Sample</string>
 
     <!-- menu item captions -->
     <string name="menu_drawer">Menu</string>

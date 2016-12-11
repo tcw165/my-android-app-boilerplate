@@ -8,7 +8,12 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true"/>
+
     <application
+        android:name=".MyApplication"
         android:allowBackup="true"
         android:icon="@mipmap/icon_launcher"
         android:label="@string/app_name"
@@ -87,11 +92,16 @@
             android:label="@string/title_download_manager_sample">
         </activity>
 
+        <activity
+            android:name=".FileProviderActivity"
+            android:label="@string/title_file_provider_sample">
+        </activity>
+
         <!-- Sample Shadow Activity (for e.g. RxPermissions) -->
         <!--<activity-->
-            <!--android:name=".util.PermissionActivity"-->
-            <!--android:launchMode="singleTop"-->
-            <!--android:theme="@style/InvisibleTheme">-->
+        <!--android:name=".util.PermissionActivity"-->
+        <!--android:launchMode="singleTop"-->
+        <!--android:theme="@style/InvisibleTheme">-->
         <!--</activity>-->
 
         <!-- Services //////////////////////////////////////////////////////-->
@@ -101,14 +111,14 @@
             android:name=".MyFirebaseInstanceIdService"
             android:exported="false">
             <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
             </intent-filter>
         </service>
         <service
             android:name=".MyFirebaseMessagingService"
             android:exported="false">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
             </intent-filter>
         </service>
 
@@ -126,5 +136,15 @@
 
         <!-- ContentProviders //////////////////////////////////////////////-->
 
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="com.my.boilerplate"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/paths">
+            </meta-data>
+        </provider>
     </application>
 </manifest>
