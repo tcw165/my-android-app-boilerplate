@@ -1,0 +1,9 @@
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Reference -->
+    <!-- https://developer.android.com/reference/android/support/v4/content/FileProvider.html -->
+
+    <!--<files-path name="name" path="path"/>-->
+    <!--<cache-path name="name" path="path" />-->
+
+    <external-path name="pictures" path="Pictures/" />
+</paths>

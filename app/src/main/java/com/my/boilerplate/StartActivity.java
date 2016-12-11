@@ -158,15 +158,18 @@ public class StartActivity
                 new Pair<>("DownloadManager",
                            "Use DownloadManager (a system service) to download files."),
                 // item 6.
+                new Pair<>("FileProvider",
+                           "Share file URI through FileProvider."),
+                // item 7.
                 new Pair<>("AlertManager",
                            "(constructing)"),
-                // item 7.
+                // item 8.
                 new Pair<>("BroadcastReceiver",
                            "(constructing)"),
-                // item 8.
+                // item 9.
                 new Pair<>("RxJava-2",
                            "(constructing)."),
-                // item 9.
+                // item 10.
                 new Pair<>("OkHttp",
                            "(constructing)."),
             });
@@ -205,6 +208,11 @@ public class StartActivity
                     case 5:
                         startActivity(new Intent(StartActivity.this,
                                                  DownloadManagerSampleActivity.class)
+                                          .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                        break;
+                    case 6:
+                        startActivity(new Intent(StartActivity.this,
+                                                 FileProviderActivity.class)
                                           .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                         break;
                     default:
