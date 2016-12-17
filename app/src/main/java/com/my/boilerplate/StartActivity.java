@@ -135,11 +135,10 @@ public class StartActivity
                 new Pair<>("CollageEditor",
                            "A view-based collage editor (on-going)."),
                 // item 1.
-                new Pair<>("CoordinatorLayout and Behavior",
-                           "Use the CoordinatorLayout and Behavior to imitate " +
-                           "the drag-and-drop drawer menu in the vertical way. " +
-                           "I use \"imitate\" here is because I think the best " +
-                           "solution is to customize a ViewGroup."),
+                new Pair<>("Drawer Experiments",
+                           "The experiments using different ways to create a custom " +
+                           "drawer liked view that the user could fling to open or " +
+                           "close it."),
                 // item 2.
                 new Pair<>("RecyclerView",
                            "Add/Remove/Reposition the items in the RecyclerView " +

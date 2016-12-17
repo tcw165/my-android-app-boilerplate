@@ -36,6 +36,13 @@ import java.lang.ref.WeakReference;
 
 public class SampleMenuAdapter extends ArrayAdapter<Pair<String, String>> {
 
+    /**
+     * A common adapter for displaying the sample menu.
+     *
+     * @param context   Usually is an Activity, so that the it could get the
+     *                  resource with correct theme.
+     * @param items     Array containing pairs of title and caption.
+     */
     public SampleMenuAdapter(Context context,
                              Pair<String, String>[] items) {
         super(context, 0, items);
