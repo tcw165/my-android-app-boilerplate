@@ -3,10 +3,9 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <!-- Drawer icon -->
     <item
-        android:id="@+id/menu_drawer"
+        android:id="@+id/menu_toggle_drawer"
         android:icon="@drawable/ic_list_black_24px"
-        android:title="@string/menu_drawer"
+        android:title="@string/menu_toggle_drawer"
         app:showAsAction="ifRoom"/>
 </menu>

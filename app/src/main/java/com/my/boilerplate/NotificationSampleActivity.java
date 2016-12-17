@@ -60,12 +60,6 @@ public class NotificationSampleActivity extends AppCompatActivity {
     ///////////////////////////////////////////////////////////////////////////
     // Protected / Private Methods ////////////////////////////////////////////
 
-//    <string-array name="notification_menu_entries">
-//    <item>Create a simple notification.</item>
-//    <item>Create a notification directing to an Activity with back stack to the start page.</item>
-//    <item>Create a notification directing to an transient Activity which cannot be found in the recent list.</item>
-//    </string-array>
-
     @SuppressWarnings({"unchecked"})
     protected SampleMenuAdapter onSampleMenuCreate() {
         return new SampleMenuAdapter(

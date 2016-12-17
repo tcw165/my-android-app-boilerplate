@@ -18,22 +18,9 @@
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:titleTextColor="?attr/colorAccent"/>
 
-    <android.support.design.widget.CoordinatorLayout
+    <!-- The placeholder -->
+    <FrameLayout
+        android:id="@+id/frame"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <include
-            android:id="@+id/menu"
-            layout="@layout/list_placeholder"/>
-
-        <!-- The menu -->
-        <com.my.boilerplate.view.DropDownMenuView
-            android:id="@+id/drawer_menu"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:downArrowBackgroundColor="@android:color/transparent"
-            app:layout_anchor="@id/menu"
-            app:layout_anchorGravity="top|center_horizontal"
-            app:menuBackgroundColor="#FFFFFF"/>
-    </android.support.design.widget.CoordinatorLayout>
+        android:layout_height="match_parent"/>
 </LinearLayout>

@@ -16,9 +16,12 @@
     <string name="title_file_provider_sample">FileProvider Sample</string>
 
     <!-- menu item captions -->
-    <string name="menu_drawer">Menu</string>
+    <string name="menu_toggle_drawer">Menu</string>
     <string name="menu_search" tools:ignore="MissingTranslation">Search</string>
     <string name="menu_next" tools:ignore="MissingTranslation">Next</string>
     <string name="menu_settings" tools:ignore="MissingTranslation">Settings</string>
     <string name="menu_help_and_feedback" tools:ignore="MissingTranslation"><![CDATA[Help & Feedback]]></string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
