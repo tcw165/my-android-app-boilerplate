@@ -12,15 +12,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.my.boilerplate.view.DropDownMenuView;
 import com.my.boilerplate.view.INavMenu;
 
-public class CoordinatorLayoutExampleFragment extends Fragment {
+public class DrawerOfCustomViewGroupSampleFragment extends Fragment {
 
     private Toolbar mToolbar;
-    private DropDownMenuView mDrawerMenu;
+//    private DropDownMenuView mDrawerMenu;
 
-    public CoordinatorLayoutExampleFragment() {
+    public DrawerOfCustomViewGroupSampleFragment() {
         // Required empty public constructor
     }
 
@@ -29,13 +28,13 @@ public class CoordinatorLayoutExampleFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View layout = inflater.inflate(R.layout.fragment_coordinator_layout_sample,
+        View layout = inflater.inflate(R.layout.fragment_drawer_of_custom_viewgroup_sample,
                                        container,
                                        false);
 
-        mDrawerMenu = (DropDownMenuView) layout.findViewById(R.id.drawer_menu);
-        mDrawerMenu.setOnMenuStateChangeListener(onMenuStateChange());
-        mDrawerMenu.setOnClickMenuItemListener(onClickMenuItem());
+//        mDrawerMenu = (DropDownMenuView) layout.findViewById(R.id.drawer_menu);
+//        mDrawerMenu.setOnMenuStateChangeListener(onMenuStateChange());
+//        mDrawerMenu.setOnClickMenuItemListener(onClickMenuItem());
 
         // Set back icon of the toolbar.
         mToolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
@@ -76,13 +75,13 @@ public class CoordinatorLayoutExampleFragment extends Fragment {
     // Protected / Private Methods ////////////////////////////////////////////
 
     private void toggleDrawerMenu() {
-        if (mDrawerMenu == null) return;
-
-        if (mDrawerMenu.isShowing()) {
-            mDrawerMenu.hideWithAnimation();
-        } else {
-            mDrawerMenu.showWithAnimation();
-        }
+//        if (mDrawerMenu == null) return;
+//
+//        if (mDrawerMenu.isShowing()) {
+//            mDrawerMenu.hideWithAnimation();
+//        } else {
+//            mDrawerMenu.showWithAnimation();
+//        }
     }
 
     private INavMenu.OnMenuStateChange onMenuStateChange() {

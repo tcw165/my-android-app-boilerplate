@@ -1,3 +1,23 @@
+// Copyright (c) 2016-present boyw165
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+//    The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+//    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+
 package com.my.boilerplate.view;
 
 import android.content.Context;
@@ -7,6 +27,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -16,6 +37,12 @@ public class CollageLayout extends ScrapView {
 
     public static final float DEFAULT_CHILD_WIDTH_PERCENT = 1.f / 3.f;
 
+    public static final int NONE_MODE = 0;
+    public static final int DRAG_MODE = 1;
+    public static final int PINCH_MODE = 2;
+    public static final int MAGIC_DOT_MODE = 3;
+
+    protected int mGestureMode;
     /**
      * For making one view consume the events at a time.
      */
@@ -38,6 +65,7 @@ public class CollageLayout extends ScrapView {
      * The shared dragging gesture detector for the children view.
      */
     protected DragGestureDetector mChildrenDragDetector;
+    protected PinchGestureDetector mChildrenPinchGestureDetector;
 
     // FIXME: Remove following debug codes.
     protected Paint mDebugPaint;
@@ -53,6 +81,7 @@ public class CollageLayout extends ScrapView {
 
         // TODO: Init the detector acoording to the attributes.
         mChildrenDragDetector = new DragGestureDetector();
+        mChildrenPinchGestureDetector = new PinchGestureDetector();
 
         setOnHierarchyChangeListener(onHierarchyChange());
     }
@@ -127,24 +156,34 @@ public class CollageLayout extends ScrapView {
                     if (mTouchingView == null) {
                         mTouchingView = v;
 
-                        // The container saves the starting transformation.
-                        mStartMatrix.set(v.getMatrix());
-                        // FIXME: The root determine the starting transformation
-                        // and pass to the gesture detectors.
-                        mChildrenDragDetector.startSession(v, event, mRootTouchEvent);
+                        setGestureMode(DRAG_MODE, v, event, mRootTouchEvent);
 
                         // It's necessary to notify the caller the event is
                         // handled by this view.
                         isHandled = true;
                     }
                     break;
+                case MotionEvent.ACTION_POINTER_DOWN:
+                    Log.d("xyz", String.format("pointer down %d", event.getPointerCount()));
+                    if (event.getPointerCount() > 1) {
+                        setGestureMode(PINCH_MODE, v, event, mRootTouchEvent);
+                    }
+                    break;
+                case MotionEvent.ACTION_POINTER_UP:
+                    Log.d("xyz", String.format("pointer up %d", event.getPointerCount()));
+                    int realPointerCount = event.getPointerCount() - 1;
+                    if (realPointerCount == 1) {
+                        setGestureMode(DRAG_MODE, v, event, mRootTouchEvent);
+                    }
+                    break;
                 case MotionEvent.ACTION_CANCEL:
                 case MotionEvent.ACTION_UP:
                     mTouchingView = null;
-                    mChildrenDragDetector.stopSession();
+                    setGestureMode(NONE_MODE, v, event, mRootTouchEvent);
                     break;
+                case MotionEvent.ACTION_MOVE:
                 default:
-                    transformMatrix = mChildrenDragDetector.getTransformMatrix(v, event, mRootTouchEvent);
+                    transformMatrix = getGestureTransformMatrix(v, event, mRootTouchEvent);
             }
 
             // TODO: Add snap-to-grid, snap-to-rotation, ... or more.
@@ -165,6 +204,59 @@ public class CollageLayout extends ScrapView {
             return isHandled;
         }
     };
+
+    protected void setGestureMode(int mode,
+                                  View v,
+                                  MotionEvent viewEvent,
+                                  MotionEvent rootEvent) {
+        mGestureMode = mode;
+
+        mChildrenDragDetector.stopSession();
+        mChildrenPinchGestureDetector.stopSession();
+
+        switch (mode) {
+            case DRAG_MODE:
+                // The container saves the starting transformation.
+                mStartMatrix.set(v.getMatrix());
+
+                if (mChildrenDragDetector != null) {
+                    mChildrenDragDetector.startSession(v, viewEvent, rootEvent);
+                }
+                break;
+            case PINCH_MODE:
+                // The container saves the starting transformation.
+                mStartMatrix.set(v.getMatrix());
+
+                if (mChildrenPinchGestureDetector != null) {
+                    mChildrenPinchGestureDetector.startSession(v, viewEvent, rootEvent);
+                }
+                break;
+            case MAGIC_DOT_MODE:
+                break;
+        }
+    }
+
+    protected Matrix getGestureTransformMatrix(View v,
+                                               MotionEvent viewEvent,
+                                               MotionEvent rootEvent) {
+        switch (mGestureMode) {
+            case DRAG_MODE:
+                // The container saves the starting transformation.
+                if (mChildrenDragDetector != null) {
+                    return mChildrenDragDetector.getTransformMatrix(v, viewEvent, rootEvent);
+                }
+            case PINCH_MODE:
+                // The container saves the starting transformation.
+                // The container saves the starting transformation.
+                if (mChildrenPinchGestureDetector != null) {
+                    return mChildrenPinchGestureDetector.getTransformMatrix(v, viewEvent, rootEvent);
+                }
+            case MAGIC_DOT_MODE:
+            default:
+                return null;
+        }
+
+    }
 
     protected OnHierarchyChangeListener onHierarchyChange() {
         return new OnHierarchyChangeListener() {

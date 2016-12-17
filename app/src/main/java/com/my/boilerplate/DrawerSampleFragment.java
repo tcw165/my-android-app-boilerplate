@@ -79,11 +79,17 @@ public class DrawerSampleFragment extends Fragment {
                         getActivity()
                             .getSupportFragmentManager()
                             .beginTransaction()
-                            .replace(R.id.frame, new CoordinatorLayoutExampleFragment())
+                            .replace(R.id.frame, new DrawerOfCoordinatorLayoutSampleFragment())
                             .addToBackStack(null)
                             .commit();
                         break;
                     case 1:
+                        getActivity()
+                            .getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.frame, new DrawerOfCustomViewGroupSampleFragment())
+                            .addToBackStack(null)
+                            .commit();
                         break;
                 }
             }
