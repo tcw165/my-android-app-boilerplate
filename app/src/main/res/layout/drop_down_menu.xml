@@ -41,7 +41,7 @@
                 android:background="@drawable/bg_border_rect"
                 android:foreground="?attr/selectableItemBackgroundBorderless"
                 app:caption="@string/menu_settings"
-                app:iconSrcCompat="@drawable/icon_menu_explore_n"
+                app:iconSrcCompat="@drawable/ic_settings"
                 app:layout_columnWeight="1"
                 app:layout_rowWeight="1"/>
 
