@@ -8,15 +8,16 @@
 
     <include
         android:id="@+id/menu"
-        layout="@layout/list_placeholder"/>
+        layout="@layout/list_placeholder"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
     <!-- The menu -->
-    <com.my.boilerplate.view.DropDownMenuView
+    <!-- TODO: Handle the z-index in the ViewGroup -->
+    <ImageView
         android:id="@+id/drawer_menu"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:downArrowBackgroundColor="@android:color/transparent"
-        app:layout_anchor="@id/menu"
-        app:layout_anchorGravity="top|center_horizontal"
-        app:menuBackgroundColor="#FFFFFF"/>
+        android:layout_height="240dp"
+        app:isDrawerView="true"
+        app:srcCompat="@drawable/ic_settings"/>
 </com.my.boilerplate.view.DropDownMenuLayout>
