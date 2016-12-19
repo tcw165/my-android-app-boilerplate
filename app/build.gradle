@@ -6,7 +6,7 @@ apply plugin: "com.google.gms.google-services"
 
 android {
     compileSdkVersion 24
-    buildToolsVersion "24.0.2"
+    buildToolsVersion "24.0.3"
 
     defaultConfig {
         applicationId "com.my.boilerplate"

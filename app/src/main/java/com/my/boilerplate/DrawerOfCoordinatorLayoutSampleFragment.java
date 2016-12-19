@@ -40,6 +40,7 @@ public class DrawerOfCoordinatorLayoutSampleFragment extends Fragment {
         // Set back icon of the toolbar.
         mToolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
         mToolbar.setNavigationIcon(R.drawable.ic_back);
+        mToolbar.setTitle("Sample of CoordinatorLayout");
 
         // It wants to contribute the menu option.
         setHasOptionsMenu(true);

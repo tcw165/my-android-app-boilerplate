@@ -37,6 +37,7 @@ public class DrawerSampleFragment extends Fragment {
         menu.setOnItemClickListener(onClickMenuItem());
 
         mToolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
+        mToolbar.setTitle(getString(R.string.title_drawer_sample));
 
         return layout;
     }
