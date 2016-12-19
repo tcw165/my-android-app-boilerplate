@@ -142,21 +142,30 @@ public class DropDownMenuLayout extends ViewGroup {
                     lp.height);
 
                 child.measure(drawerWidthSpec, drawerHeightSpec);
-            } else if (child instanceof ScrollingView) {
+            } else {
                 // Content views get measured at exactly the layout's size.
-                final int contentWidthSpec = MeasureSpec.makeMeasureSpec(
-                    widthSize - lp.leftMargin - lp.rightMargin,
-                    MeasureSpec.EXACTLY);
-                final int contentHeightSpec = MeasureSpec.makeMeasureSpec(
-                    heightSize - lp.topMargin - lp.bottomMargin,
-                    MeasureSpec.EXACTLY);
+//                final int contentWidthSpec = MeasureSpec.makeMeasureSpec(
+//                    widthSize - lp.leftMargin - lp.rightMargin,
+//                    MeasureSpec.EXACTLY);
+//                final int contentHeightSpec = MeasureSpec.makeMeasureSpec(
+//                    heightSize - lp.topMargin - lp.bottomMargin,
+//                    MeasureSpec.EXACTLY);
+                final int contentWidthSpec = getChildMeasureSpec(
+                    widthMeasureSpec,
+                    lp.leftMargin + lp.rightMargin,
+                    lp.width);
+                final int contentHeightSpec = getChildMeasureSpec(
+                    heightMeasureSpec,
+                    lp.topMargin + lp.bottomMargin,
+                    lp.height);
 
                 child.measure(contentWidthSpec, contentHeightSpec);
-            } else {
-                throw new IllegalStateException(
-                    "Child " + child + " at " + i + "is not either a drawer " +
-                    "view nor a ScrollingView view.");
             }
+//            else {
+//                throw new IllegalStateException(
+//                    "Child " + child + " at " + i + "is not either a drawer " +
+//                    "view nor a ScrollingView view.");
+//            }
         }
     }
 
@@ -209,17 +218,20 @@ public class DropDownMenuLayout extends ViewGroup {
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
 //        return super.onInterceptTouchEvent(ev);
-        Log.d("xyz", "onInterceptTouchEvent");
         final boolean ifInterceptForDrag = mDragHelper.shouldInterceptTouchEvent(event);
         final int action = MotionEventCompat.getActionMasked(event);
 
         switch (action) {
             case MotionEvent.ACTION_DOWN:
+                Log.d("xyz", "parent::onInterceptTouchEvent(ACTION_DOWN)");
                 break;
             case MotionEvent.ACTION_MOVE:
+                boolean ifCross = mDragHelper.checkTouchSlop(ViewDragHelper.DIRECTION_VERTICAL);
+                Log.d("xyz", String.format("parent::onInterceptTouchEvent(ACTION_MOVE), ifCross=%s", ifCross));
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
+                Log.d("xyz", "parent::onInterceptTouchEvent(ACTION_UP)");
                 break;
         }
 
@@ -231,6 +243,20 @@ public class DropDownMenuLayout extends ViewGroup {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         mDragHelper.processTouchEvent(event);
+
+        final int action = MotionEventCompat.getActionMasked(event);
+        switch (action) {
+            case MotionEvent.ACTION_DOWN:
+                Log.d("xyz", "parent::onTouchEvent(ACTION_DOWN)");
+                break;
+            case MotionEvent.ACTION_MOVE:
+                Log.d("xyz", "parent::onTouchEvent(ACTION_MOVE)");
+                break;
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                Log.d("xyz", "parent::onTouchEvent(ACTION_UP)");
+                break;
+        }
 
         // Note: Be careful of using this layout in a nested view hierarchy.
         // Because it always return true, the parent's onTouchEvent will never
@@ -251,7 +277,6 @@ public class DropDownMenuLayout extends ViewGroup {
         return p instanceof LayoutParams;
     }
 
-
     private Callback onCreateDragHelperCallback() {
         return new Callback() {
             @Override
@@ -264,6 +289,21 @@ public class DropDownMenuLayout extends ViewGroup {
             @Override
             public void onViewDragStateChanged(int state) {
                 super.onViewDragStateChanged(state);
+            }
+
+            @Override
+            public int clampViewPositionHorizontal(View child,
+                                                   int left,
+                                                   int dx) {
+                int paddingLeft = getPaddingLeft();
+                int paddingRight = getPaddingRight();
+
+                return Math.min(Math.max(paddingLeft, left + dx), paddingRight);
+            }
+
+            @Override
+            public int getViewHorizontalDragRange(View child) {
+                return getWidth();
             }
         };
     }
