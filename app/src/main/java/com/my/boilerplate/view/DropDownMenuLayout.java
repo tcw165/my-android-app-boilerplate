@@ -21,16 +21,46 @@
 package com.my.boilerplate.view;
 
 import android.content.Context;
+import android.content.res.TypedArray;
+import android.os.Build;
+import android.support.v4.view.MotionEventCompat;
+import android.support.v4.view.ScrollingView;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ViewDragHelper;
 import android.support.v4.widget.ViewDragHelper.Callback;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.my.boilerplate.R;
+
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+
+/**
+ * The layout supporting a drop-down child view with drawer liked fling gesture.
+ */
 public class DropDownMenuLayout extends ViewGroup {
 
-    protected ViewDragHelper mTopDragger;
+    /**
+     * Whether the drawer shadow comes from setting elevation on the drawer.
+     */
+    private static final boolean SET_DRAWER_SHADOW_FROM_ELEVATION = Build.VERSION.SDK_INT >= 21;
+    /**
+     * Minimum drawer margin in DP.
+     */
+    private static final int MIN_DRAWER_MARGIN = 64;
+    /**
+     * Drawer elevation in DP.
+     */
+    private static final int DRAWER_ELEVATION = 10;
+
+    private float mDrawerElevation;
+
+    private View mDrawerView;
+
+    private ViewDragHelper mDragHelper;
 
     public DropDownMenuLayout(Context context) {
         this(context, null);
@@ -40,50 +70,281 @@ public class DropDownMenuLayout extends ViewGroup {
                               AttributeSet attrs) {
         super(context, attrs);
 
-        mTopDragger = ViewDragHelper.create(this, mTopCallback);
-        mTopDragger.setEdgeTrackingEnabled(ViewDragHelper.EDGE_TOP);
+        final float density = getResources().getDisplayMetrics().density;
+
+        mDrawerElevation = DRAWER_ELEVATION * density;
     }
 
     @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+    protected void onFinishInflate() {
+        super.onFinishInflate();
+
+        mDragHelper = ViewDragHelper.create(this, 1.f, onCreateDragHelperCallback());
+        mDragHelper.setEdgeTrackingEnabled(ViewDragHelper.EDGE_TOP);
+    }
+
+    @Override
+    public LayoutParams generateLayoutParams(AttributeSet attrs) {
+        return new LayoutParams(getContext(), attrs);
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec,
+                             int heightMeasureSpec) {
+        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+        int widthSize = MeasureSpec.getSize(widthMeasureSpec);
+        int heightSize = MeasureSpec.getSize(heightMeasureSpec);
+
+        if (widthMode != MeasureSpec.EXACTLY || heightMode != MeasureSpec.EXACTLY) {
+            throw new IllegalArgumentException(
+                "DropDownMenuLayout must be measured with MeasureSpec.EXACTLY.");
+        }
+
+        setMeasuredDimension(widthSize, heightSize);
+
+        final int childCount = getChildCount();
+        if (childCount != 2) {
+            throw new IllegalStateException(
+                "DropDownMenuLayout should always have two children views " +
+                "where one is a drawer view with \"isDrawerView=true\" " +
+                "LayoutParams and the other is a content view implementing " +
+                "ScrollingView interface.");
+        }
+
+        for (int i = 0; i < childCount; i++) {
+            final View child = getChildAt(i);
+
+            if (child.getVisibility() == GONE) {
+                continue;
+            }
+
+            final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+
+            if (isDrawerView(child)) {
+                mDrawerView = child;
+
+                // TODO: Figure out why setting the view elevation is handled
+                // TODO: in the onMeasure function.
+                if (SET_DRAWER_SHADOW_FROM_ELEVATION) {
+                    if (ViewCompat.getElevation(child) != mDrawerElevation) {
+                        ViewCompat.setElevation(child, mDrawerElevation);
+                    }
+                }
+
+                final int drawerWidthSpec = getChildMeasureSpec(
+                    widthMeasureSpec,
+                    lp.leftMargin + lp.rightMargin,
+                    lp.width);
+                final int drawerHeightSpec = getChildMeasureSpec(
+                    heightMeasureSpec,
+                    lp.topMargin + lp.bottomMargin,
+                    lp.height);
+
+                child.measure(drawerWidthSpec, drawerHeightSpec);
+            } else {
+                // Content views get measured at exactly the layout's size.
+//                final int contentWidthSpec = MeasureSpec.makeMeasureSpec(
+//                    widthSize - lp.leftMargin - lp.rightMargin,
+//                    MeasureSpec.EXACTLY);
+//                final int contentHeightSpec = MeasureSpec.makeMeasureSpec(
+//                    heightSize - lp.topMargin - lp.bottomMargin,
+//                    MeasureSpec.EXACTLY);
+                final int contentWidthSpec = getChildMeasureSpec(
+                    widthMeasureSpec,
+                    lp.leftMargin + lp.rightMargin,
+                    lp.width);
+                final int contentHeightSpec = getChildMeasureSpec(
+                    heightMeasureSpec,
+                    lp.topMargin + lp.bottomMargin,
+                    lp.height);
+
+                child.measure(contentWidthSpec, contentHeightSpec);
+            }
+//            else {
+//                throw new IllegalStateException(
+//                    "Child " + child + " at " + i + "is not either a drawer " +
+//                    "view nor a ScrollingView view.");
+//            }
+        }
     }
 
     @Override
     protected void onLayout(boolean changed,
-                            int l,
-                            int t,
-                            int r,
-                            int b) {
+                            int left,
+                            int top,
+                            int right,
+                            int bottom) {
+        final int childCount = getChildCount();
 
+        for (int i = 0; i < childCount; i++) {
+            final View child = getChildAt(i);
+
+            if (child.getVisibility() == GONE) {
+                continue;
+            }
+
+            final int childWidth = child.getMeasuredWidth();
+            final int childHeight = child.getMeasuredHeight();
+            final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+
+            if (isDrawerView(child)) {
+                child.layout(lp.leftMargin,
+                             -childHeight,
+                             lp.rightMargin + childWidth,
+                             0);
+            } else {
+                child.layout(lp.leftMargin,
+                             lp.topMargin,
+                             lp.leftMargin + childWidth,
+                             lp.topMargin + childHeight);
+            }
+        }
     }
 
     @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
-        return super.onInterceptTouchEvent(ev);
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+
+        mDrawerView = null;
+    }
+
+    /**
+     * It uses {@code mDragHelper} to determine whether to intercept the touch
+     * event.
+     * <br/>
+     * See {@code onCreateDragHelperCallback}.
+     */
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent event) {
+//        return super.onInterceptTouchEvent(ev);
+        final boolean ifInterceptForDrag = mDragHelper.shouldInterceptTouchEvent(event);
+        final int action = MotionEventCompat.getActionMasked(event);
+
+        switch (action) {
+            case MotionEvent.ACTION_DOWN:
+                Log.d("xyz", "parent::onInterceptTouchEvent(ACTION_DOWN)");
+                break;
+            case MotionEvent.ACTION_MOVE:
+                boolean ifCross = mDragHelper.checkTouchSlop(ViewDragHelper.DIRECTION_VERTICAL);
+                Log.d("xyz", String.format("parent::onInterceptTouchEvent(ACTION_MOVE), ifCross=%s", ifCross));
+                break;
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                Log.d("xyz", "parent::onInterceptTouchEvent(ACTION_UP)");
+                break;
+        }
+
+        Log.d("xyz", String.format("ifInterceptForDrag: %s", ifInterceptForDrag));
+
+        return ifInterceptForDrag;
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        return super.onTouchEvent(event);
+        mDragHelper.processTouchEvent(event);
+
+        final int action = MotionEventCompat.getActionMasked(event);
+        switch (action) {
+            case MotionEvent.ACTION_DOWN:
+                Log.d("xyz", "parent::onTouchEvent(ACTION_DOWN)");
+                break;
+            case MotionEvent.ACTION_MOVE:
+                Log.d("xyz", "parent::onTouchEvent(ACTION_MOVE)");
+                break;
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                Log.d("xyz", "parent::onTouchEvent(ACTION_UP)");
+                break;
+        }
+
+        // Note: Be careful of using this layout in a nested view hierarchy.
+        // Because it always return true, the parent's onTouchEvent will never
+        // be called.
+        return true;
     }
 
     ///////////////////////////////////////////////////////////////////////////
     // Protected / Private Methods ////////////////////////////////////////////
 
-    protected final Callback mTopCallback = new Callback() {
-        @Override
-        public boolean tryCaptureView(View child,
-                                      int pointerId) {
-            return false;
-        }
-    };
-
-    protected boolean isContentView(View child) {
-        return false;
+    @Override
+    protected LayoutParams generateDefaultLayoutParams() {
+        return new LayoutParams(MATCH_PARENT, MATCH_PARENT);
     }
 
-    protected boolean isDrawerView(View child) {
-        return false;
+    @Override
+    protected boolean checkLayoutParams(ViewGroup.LayoutParams p) {
+        return p instanceof LayoutParams;
+    }
+
+    private Callback onCreateDragHelperCallback() {
+        return new Callback() {
+            @Override
+            public boolean tryCaptureView(View child,
+                                          int pointerId) {
+                Log.d("xyz", String.format("tryCaptureView(%s)", child));
+                return true;
+            }
+
+            @Override
+            public void onViewDragStateChanged(int state) {
+                super.onViewDragStateChanged(state);
+            }
+
+            @Override
+            public int clampViewPositionHorizontal(View child,
+                                                   int left,
+                                                   int dx) {
+                int paddingLeft = getPaddingLeft();
+                int paddingRight = getPaddingRight();
+
+                return Math.min(Math.max(paddingLeft, left + dx), paddingRight);
+            }
+
+            @Override
+            public int getViewHorizontalDragRange(View child) {
+                return getWidth();
+            }
+        };
+    }
+
+    private boolean isDrawerView(View child) {
+        LayoutParams params = (LayoutParams) child.getLayoutParams();
+        return params.isDrawer;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Clazz //////////////////////////////////////////////////////////////////
+
+    public static class LayoutParams extends ViewGroup.MarginLayoutParams {
+
+        private static final int FLAG_IS_CLOSED = 0x0;
+        private static final int FLAG_IS_OPENED = 0x1;
+        private static final int FLAG_IS_OPENING = 0x2;
+        private static final int FLAG_IS_CLOSING = 0x4;
+        /**
+         * The state of the drawer view.
+         */
+        private int openState;
+        /**
+         * Child view with "isDrawerView=true" would be a drawer view.
+         */
+        private boolean isDrawer;
+
+        public LayoutParams(Context c, AttributeSet attrs) {
+            super(c, attrs);
+
+            final TypedArray array = c.obtainStyledAttributes(attrs, R.styleable.DropDownMenuLayout);
+            try {
+                openState = FLAG_IS_CLOSED;
+                isDrawer = array.getBoolean(R.styleable.DropDownMenuLayout_isDrawerView, false);
+            } finally {
+                array.recycle();
+            }
+        }
+
+        public LayoutParams(int width, int height) {
+            super(width, height);
+        }
     }
 }

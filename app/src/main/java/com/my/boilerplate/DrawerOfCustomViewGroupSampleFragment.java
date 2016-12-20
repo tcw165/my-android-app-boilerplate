@@ -39,6 +39,7 @@ public class DrawerOfCustomViewGroupSampleFragment extends Fragment {
         // Set back icon of the toolbar.
         mToolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
         mToolbar.setNavigationIcon(R.drawable.ic_back);
+        mToolbar.setTitle("Sample of custom ViewGroup");
 
         // It wants to contribute the menu option.
         setHasOptionsMenu(true);
