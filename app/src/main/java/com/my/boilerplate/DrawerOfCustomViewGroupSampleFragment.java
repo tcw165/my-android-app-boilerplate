@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -12,12 +13,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.my.boilerplate.view.DropDownMenuLayout;
 import com.my.boilerplate.view.INavMenu;
 
 public class DrawerOfCustomViewGroupSampleFragment extends Fragment {
 
     private Toolbar mToolbar;
-//    private DropDownMenuView mDrawerMenu;
+    private DropDownMenuLayout mDrawerLayout;
 
     public DrawerOfCustomViewGroupSampleFragment() {
         // Required empty public constructor
@@ -32,9 +34,8 @@ public class DrawerOfCustomViewGroupSampleFragment extends Fragment {
                                        container,
                                        false);
 
-//        mDrawerMenu = (DropDownMenuView) layout.findViewById(R.id.drawer_menu);
-//        mDrawerMenu.setOnMenuStateChangeListener(onMenuStateChange());
-//        mDrawerMenu.setOnClickMenuItemListener(onClickMenuItem());
+        mDrawerLayout = (DropDownMenuLayout) layout;
+        mDrawerLayout.setOnMenuStateChangeListener(onMenuStateChange());
 
         // Set back icon of the toolbar.
         mToolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
@@ -76,25 +77,25 @@ public class DrawerOfCustomViewGroupSampleFragment extends Fragment {
     // Protected / Private Methods ////////////////////////////////////////////
 
     private void toggleDrawerMenu() {
-//        if (mDrawerMenu == null) return;
-//
-//        if (mDrawerMenu.isShowing()) {
-//            mDrawerMenu.hideWithAnimation();
-//        } else {
-//            mDrawerMenu.showWithAnimation();
-//        }
+        if (mDrawerLayout == null) return;
+
+        if (mDrawerLayout.isDrawerOpened()) {
+            mDrawerLayout.closeDrawer();
+        } else {
+            mDrawerLayout.openDrawer();
+        }
     }
 
     private INavMenu.OnMenuStateChange onMenuStateChange() {
         return new INavMenu.OnMenuStateChange() {
             @Override
             public void onShowMenu() {
-                // DO NOTHING.
+                Log.d("xyz", "DrawerOfCustomViewGroupSampleFragment#onShowMenu");
             }
 
             @Override
             public void onHideMenu() {
-                // DO NOTHING.
+                Log.d("xyz", "DrawerOfCustomViewGroupSampleFragment#onHideMenu");
             }
         };
     }

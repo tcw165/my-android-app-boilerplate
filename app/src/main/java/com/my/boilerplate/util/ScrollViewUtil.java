@@ -65,11 +65,12 @@ public class ScrollViewUtil {
 
             // TODO: Complete it.
             if (dy > 0) {
-                Log.d("xyz", String.format("  ifOverScrollingVertically for NestedScrollView, getScrollY()=%d", scrollView.getScrollY()));
+//                Log.d("xyz", String.format("  ifOverScrollingVertically for NestedScrollView, getScrollY()=%d", scrollView.getScrollY()));
                 // Slide the thumb down to scroll up the list.
 //                return scrollView.getFirstVisiblePosition() * firstChild.getHeight() - firstChild.getTop();
                 return scrollView.getScrollY() == 0;
             } else {
+//                Log.d("xyz", "  ifOverScrollingVertically for NestedScrollView if dy < 0 is always false");
                 // Slide the thumb up to scroll down the list.
                 return false;
             }
