@@ -22,19 +22,20 @@ package com.my.boilerplate.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Matrix;
 import android.os.Build;
 import android.support.v4.view.MotionEventCompat;
-import android.support.v4.view.ScrollingView;
 import android.support.v4.view.ViewCompat;
-import android.support.v4.widget.ViewDragHelper;
 import android.support.v4.widget.ViewDragHelper.Callback;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 
 import com.my.boilerplate.R;
+import com.my.boilerplate.util.ScrollViewUtil;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
@@ -43,24 +44,49 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
  */
 public class DropDownMenuLayout extends ViewGroup {
 
-    /**
-     * Whether the drawer shadow comes from setting elevation on the drawer.
-     */
     private static final boolean SET_DRAWER_SHADOW_FROM_ELEVATION = Build.VERSION.SDK_INT >= 21;
+
     /**
      * Minimum drawer margin in DP.
      */
     private static final int MIN_DRAWER_MARGIN = 64;
+
     /**
      * Drawer elevation in DP.
      */
     private static final int DRAWER_ELEVATION = 10;
 
     private float mDrawerElevation;
+    /**
+     * Distance to travel before a drag may begin.
+     */
+    private int mTouchSlop;
 
+    private static final int STATE_DRAWER_CLOSED = 0x0;
+    private static final int STATE_DRAWER_OPENED = 0x1;
+    private static final int STATE_DRAWER_OPENING = 0x2;
+    private static final int STATE_DRAWER_CLOSING = 0x3;
+
+    private int mDrawerState = STATE_DRAWER_CLOSED;
+
+    private float mTouchInitY;
+    private float mTouchCurrentY;
+
+    private Matrix mChildInverseMatrix;
+    private float[] mChildTouchPoint;
+
+    /**
+     * The view with isDrawer=true LayoutParams.
+     * <br/>
+     * See {@link LayoutParams#isDrawer}.
+     */
     private View mDrawerView;
+    /**
+     * The view is being dragging.
+     */
+    private View mTouchingChild;
 
-    private ViewDragHelper mDragHelper;
+//    private ViewDragHelper mDragHelper;
 
     public DropDownMenuLayout(Context context) {
         this(context, null);
@@ -71,16 +97,30 @@ public class DropDownMenuLayout extends ViewGroup {
         super(context, attrs);
 
         final float density = getResources().getDisplayMetrics().density;
+        final ViewConfiguration vc = ViewConfiguration.get(context);
 
         mDrawerElevation = DRAWER_ELEVATION * density;
+        mTouchSlop = vc.getScaledTouchSlop();
     }
 
     @Override
-    protected void onFinishInflate() {
-        super.onFinishInflate();
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
 
-        mDragHelper = ViewDragHelper.create(this, 1.f, onCreateDragHelperCallback());
-        mDragHelper.setEdgeTrackingEnabled(ViewDragHelper.EDGE_TOP);
+        mChildTouchPoint = new float[2];
+        mChildInverseMatrix = new Matrix();
+
+//        mDragHelper = ViewDragHelper.create(this, 1.f, onCreateDragHelperCallback());
+//        mDragHelper.setEdgeTrackingEnabled(ViewDragHelper.EDGE_TOP);
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+
+        mChildTouchPoint = null;
+        mChildInverseMatrix = null;
+        mDrawerView = null;
     }
 
     @Override
@@ -108,8 +148,7 @@ public class DropDownMenuLayout extends ViewGroup {
             throw new IllegalStateException(
                 "DropDownMenuLayout should always have two children views " +
                 "where one is a drawer view with \"isDrawerView=true\" " +
-                "LayoutParams and the other is a content view implementing " +
-                "ScrollingView interface.");
+                "LayoutParams and the other is a content view.");
         }
 
         for (int i = 0; i < childCount; i++) {
@@ -132,10 +171,13 @@ public class DropDownMenuLayout extends ViewGroup {
                     }
                 }
 
-                final int drawerWidthSpec = getChildMeasureSpec(
-                    widthMeasureSpec,
-                    lp.leftMargin + lp.rightMargin,
-                    lp.width);
+//                final int drawerWidthSpec = getChildMeasureSpec(
+//                    widthMeasureSpec,
+//                    lp.leftMargin + lp.rightMargin,
+//                    lp.width);
+                final int drawerWidthSpec = MeasureSpec.makeMeasureSpec(
+                    widthSize - lp.leftMargin - lp.rightMargin,
+                    MeasureSpec.EXACTLY);
                 final int drawerHeightSpec = getChildMeasureSpec(
                     heightMeasureSpec,
                     lp.topMargin + lp.bottomMargin,
@@ -144,20 +186,20 @@ public class DropDownMenuLayout extends ViewGroup {
                 child.measure(drawerWidthSpec, drawerHeightSpec);
             } else {
                 // Content views get measured at exactly the layout's size.
-//                final int contentWidthSpec = MeasureSpec.makeMeasureSpec(
-//                    widthSize - lp.leftMargin - lp.rightMargin,
-//                    MeasureSpec.EXACTLY);
-//                final int contentHeightSpec = MeasureSpec.makeMeasureSpec(
-//                    heightSize - lp.topMargin - lp.bottomMargin,
-//                    MeasureSpec.EXACTLY);
-                final int contentWidthSpec = getChildMeasureSpec(
-                    widthMeasureSpec,
-                    lp.leftMargin + lp.rightMargin,
-                    lp.width);
-                final int contentHeightSpec = getChildMeasureSpec(
-                    heightMeasureSpec,
-                    lp.topMargin + lp.bottomMargin,
-                    lp.height);
+                final int contentWidthSpec = MeasureSpec.makeMeasureSpec(
+                    widthSize - lp.leftMargin - lp.rightMargin,
+                    MeasureSpec.EXACTLY);
+                final int contentHeightSpec = MeasureSpec.makeMeasureSpec(
+                    heightSize - lp.topMargin - lp.bottomMargin,
+                    MeasureSpec.EXACTLY);
+//                final int contentWidthSpec = getChildMeasureSpec(
+//                    widthMeasureSpec,
+//                    lp.leftMargin + lp.rightMargin,
+//                    lp.width);
+//                final int contentHeightSpec = getChildMeasureSpec(
+//                    heightMeasureSpec,
+//                    lp.topMargin + lp.bottomMargin,
+//                    lp.height);
 
                 child.measure(contentWidthSpec, contentHeightSpec);
             }
@@ -202,59 +244,115 @@ public class DropDownMenuLayout extends ViewGroup {
         }
     }
 
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-
-        mDrawerView = null;
-    }
-
     /**
-     * It uses {@code mDragHelper} to determine whether to intercept the touch
-     * event.
-     * <br/>
-     * See {@code onCreateDragHelperCallback}.
+     * It is responsible for detecting whether the touching view is being over
+     * scrolled. If so, it will coordinate the positions of the child views.
+     * If not, do it the same way as {@link ViewGroup}.
      */
     @Override
-    public boolean onInterceptTouchEvent(MotionEvent event) {
-//        return super.onInterceptTouchEvent(ev);
-        final boolean ifInterceptForDrag = mDragHelper.shouldInterceptTouchEvent(event);
-        final int action = MotionEventCompat.getActionMasked(event);
-
-        switch (action) {
-            case MotionEvent.ACTION_DOWN:
-                Log.d("xyz", "parent::onInterceptTouchEvent(ACTION_DOWN)");
-                break;
-            case MotionEvent.ACTION_MOVE:
-                boolean ifCross = mDragHelper.checkTouchSlop(ViewDragHelper.DIRECTION_VERTICAL);
-                Log.d("xyz", String.format("parent::onInterceptTouchEvent(ACTION_MOVE), ifCross=%s", ifCross));
-                break;
-            case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_CANCEL:
-                Log.d("xyz", "parent::onInterceptTouchEvent(ACTION_UP)");
-                break;
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        if (mDrawerView == null) {
+            return super.dispatchTouchEvent(event);
         }
 
-        Log.d("xyz", String.format("ifInterceptForDrag: %s", ifInterceptForDrag));
+        final int action = MotionEventCompat.getActionMasked(event);
 
-        return ifInterceptForDrag;
+        // The layout would be interested in that the touched list view is
+        // scrolling out.
+        if (action == MotionEvent.ACTION_DOWN) {
+            mTouchInitY = event.getY();
+            mTouchCurrentY = event.getY();
+            Log.d("xyz", "dispatchTouchEvent(ACTION_DOWN)");
+        } else if (action == MotionEvent.ACTION_MOVE) {
+            final float dy = event.getY() - mTouchCurrentY;
+            final float offsetY = event.getY() - mTouchInitY;
+            final boolean ifCross = ifCrossDragSlop(offsetY);
+            Log.d("xyz", String.format("dispatchTouchEvent(ACTION_MOVE), ifCross=%s", ifCross));
+
+            if (ifCross) {
+                final View touchingChild = findTopChildUnder(event.getX(), event.getY());
+
+                if (mDrawerState == STATE_DRAWER_CLOSED) {
+                    if (ScrollViewUtil.ifOverScrollingVertically(touchingChild, dy)) {
+                        Log.d("xyz", String.format("dispatchTouchEvent(ACTION_MOVE), over scrolling, dy=%f", dy));
+                        mDrawerState = STATE_DRAWER_OPENING;
+
+                        // FIXME: Because the layout will handle the dragging later,
+                        // FIXME: dispatch ACTION_CANCEL to all the child views.
+                        cancelTouchingChildren(event);
+
+                        // We cheat the event so that mTouchInitY will be updated
+                        // for calculating the translationY correctly.
+                        event.setAction(MotionEvent.ACTION_DOWN);
+                    }
+                } else if (mDrawerState == STATE_DRAWER_OPENED) {
+
+                }
+            }
+
+            mTouchCurrentY = event.getY();
+        } else if (action == MotionEvent.ACTION_UP ||
+                   action == MotionEvent.ACTION_CANCEL) {
+            Log.d("xyz", "dispatchTouchEvent(ACTION_UP|ACTION_CANCEL)");
+            mTouchInitY = 0;
+            mTouchCurrentY = 0;
+        }
+
+        if (mDrawerState == STATE_DRAWER_OPENING ||
+            mDrawerState == STATE_DRAWER_CLOSING) {
+            return onTouchEvent(event);
+        } else {
+            return super.dispatchTouchEvent(event);
+        }
     }
+
+//    @Override
+//    public boolean onInterceptTouchEvent(MotionEvent event) {
+//        final int action = MotionEventCompat.getActionMasked(event);
+//        switch (action) {
+//            case MotionEvent.ACTION_DOWN:
+//                break;
+//            case MotionEvent.ACTION_MOVE:
+//                break;
+//            case MotionEvent.ACTION_UP:
+//            case MotionEvent.ACTION_CANCEL:
+//                break;
+//        }
+//
+//        return mTouchingChild != null &&
+//               mDrawerState == STATE_DRAWER_OPENING ||
+//               mDrawerState == STATE_DRAWER_CLOSING;
+//    }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        mDragHelper.processTouchEvent(event);
-
         final int action = MotionEventCompat.getActionMasked(event);
         switch (action) {
             case MotionEvent.ACTION_DOWN:
-                Log.d("xyz", "parent::onTouchEvent(ACTION_DOWN)");
+                Log.d("xyz", "onTouchEvent(ACTION_DOWN)");
+                mTouchingChild = findTopChildUnder(event.getX(), event.getY());
+                mTouchInitY = event.getY();
                 break;
             case MotionEvent.ACTION_MOVE:
-                Log.d("xyz", "parent::onTouchEvent(ACTION_MOVE)");
+                Log.d("xyz", "onTouchEvent(ACTION_MOVE)");
+                if (mDrawerState == STATE_DRAWER_OPENING) {
+                    final float ty = Math.min(Math.max(0, event.getY() - mTouchInitY),
+                                              mDrawerView.getHeight());
+                    ViewCompat.setTranslationY(mDrawerView, ty);
+                    ViewCompat.setTranslationY(mTouchingChild, ty);
+                }
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
-                Log.d("xyz", "parent::onTouchEvent(ACTION_UP)");
+                Log.d("xyz", "onTouchEvent(ACTION_UP)");
+
+                ViewCompat.setTranslationY(mDrawerView, 0);
+                ViewCompat.setTranslationY(mTouchingChild, 0);
+                // TODO: Smooth to open or close the drawer and udpate the correct
+                // TODO: state.
+                mDrawerState = STATE_DRAWER_CLOSED;
+
+                mTouchingChild = null;
                 break;
         }
 
@@ -262,6 +360,16 @@ public class DropDownMenuLayout extends ViewGroup {
         // Because it always return true, the parent's onTouchEvent will never
         // be called.
         return true;
+    }
+
+    @Override
+    public void requestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+        super.requestDisallowInterceptTouchEvent(disallowIntercept);
+
+        // Ignore the disabling and pass to its parent.
+        if (getParent() != null) {
+            getParent().requestDisallowInterceptTouchEvent(disallowIntercept);
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -277,40 +385,99 @@ public class DropDownMenuLayout extends ViewGroup {
         return p instanceof LayoutParams;
     }
 
-    private Callback onCreateDragHelperCallback() {
-        return new Callback() {
-            @Override
-            public boolean tryCaptureView(View child,
-                                          int pointerId) {
-                Log.d("xyz", String.format("tryCaptureView(%s)", child));
-                return true;
-            }
-
-            @Override
-            public void onViewDragStateChanged(int state) {
-                super.onViewDragStateChanged(state);
-            }
-
-            @Override
-            public int clampViewPositionHorizontal(View child,
-                                                   int left,
-                                                   int dx) {
-                int paddingLeft = getPaddingLeft();
-                int paddingRight = getPaddingRight();
-
-                return Math.min(Math.max(paddingLeft, left + dx), paddingRight);
-            }
-
-            @Override
-            public int getViewHorizontalDragRange(View child) {
-                return getWidth();
-            }
-        };
-    }
+//    private Callback onCreateDragHelperCallback() {
+//        return new Callback() {
+//            @Override
+//            public boolean tryCaptureView(View child,
+//                                          int pointerId) {
+//                Log.d("xyz", String.format("tryCaptureView(%s)", child));
+//                // Drawer view must be present.
+//                if (mDrawerView == null) return false;
+//
+//                return false;
+//            }
+//
+//            @Override
+//            public int clampViewPositionVertical(View child,
+//                                                 int top,
+//                                                 int dy) {
+//                if (mDragHelper.getCapturedView() == mDrawerView) {
+//                    // Dragging the drawer.
+//                    return 0;
+//                } else {
+//                    // Dragging the content.
+//                    if (mDrawerState == STATE_DRAWER_OPENING) {
+//                        int topBound = getPaddingTop();
+//                        int bottomBound = getHeight() - getPaddingBottom();
+//                        int drawerHeight = mDrawerView.getHeight();
+//
+//                        return Math.min(Math.max(topBound, top), bottomBound);
+//                    } else {
+//                        return 0;
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public int getViewVerticalDragRange(View child) {
+//                return getWidth();
+//            }
+//
+//            @Override
+//            public void onViewDragStateChanged(int state) {
+//                super.onViewDragStateChanged(state);
+//            }
+//        };
+//    }
 
     private boolean isDrawerView(View child) {
         LayoutParams params = (LayoutParams) child.getLayoutParams();
         return params.isDrawer;
+    }
+
+    private boolean ifCrossDragSlop(float dy) {
+        return Math.abs(dy) > mTouchSlop;
+    }
+
+    /**
+     * Find the topmost child under the given point within the parent view's
+     * coordinate system. The child order is determined using
+     * {@link Callback#getOrderedChildIndex(int)}.
+     *
+     * @param y Y position to test in the parent's coordinate system
+     * @return The topmost child view under (x, y) or null if none found.
+     */
+    private View findTopChildUnder(float x, float y) {
+        View foundChild = null;
+        final int childCount = getChildCount();
+
+        for (int i = childCount - 1; i >= 0; i--) {
+            final View child = getChildAt(i);
+
+            // Transform the touch point to the child's coordinate system.
+            mChildTouchPoint[0] = x;
+            mChildTouchPoint[1] = y;
+            child.getMatrix().invert(mChildInverseMatrix);
+            mChildInverseMatrix.mapPoints(mChildTouchPoint);
+
+            final float childX = mChildTouchPoint[0];
+            final float childY = mChildTouchPoint[1];
+            if (childX >= child.getLeft() && childX <= child.getRight() &&
+                childY >= child.getTop() && childY < child.getBottom()) {
+                foundChild = child;
+                break;
+            }
+        }
+
+        return foundChild;
+    }
+
+    private void cancelTouchingChildren(MotionEvent event) {
+        final MotionEvent canceledEvent = MotionEvent.obtain(event);
+
+        canceledEvent.setAction(MotionEvent.ACTION_CANCEL);
+        super.dispatchTouchEvent(canceledEvent);
+        canceledEvent.recycle();
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -319,15 +486,19 @@ public class DropDownMenuLayout extends ViewGroup {
     public static class LayoutParams extends ViewGroup.MarginLayoutParams {
 
         private static final int FLAG_IS_CLOSED = 0x0;
-        private static final int FLAG_IS_OPENED = 0x1;
-        private static final int FLAG_IS_OPENING = 0x2;
-        private static final int FLAG_IS_CLOSING = 0x4;
+
         /**
          * The state of the drawer view.
          */
         private int openState;
         /**
-         * Child view with "isDrawerView=true" would be a drawer view.
+         * Child view with "isDrawerView=true" attribute would be a drawer view.
+         * <pre>
+         *     <DropDownMenuLayout ...>
+         *         <FrameLayout ...
+         *             app:isDrawerView="true"/>
+         *     <DropDownMenuLayout/>
+         * </pre>
          */
         private boolean isDrawer;
 
