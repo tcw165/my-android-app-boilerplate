@@ -16,6 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="256dp"
             android:layout_margin="15dp"
+            android:clickable="true"
             android:elevation="4dp"
             android:foreground="?attr/selectableItemBackgroundBorderless">
 
@@ -30,6 +31,7 @@
             android:layout_width="match_parent"
             android:layout_height="256dp"
             android:layout_margin="15dp"
+            android:clickable="true"
             android:elevation="4dp"
             android:foreground="?attr/selectableItemBackgroundBorderless">
 
@@ -44,6 +46,7 @@
             android:layout_width="match_parent"
             android:layout_height="256dp"
             android:layout_margin="15dp"
+            android:clickable="true"
             android:elevation="4dp"
             android:foreground="?attr/selectableItemBackgroundBorderless">
 
@@ -58,6 +61,7 @@
             android:layout_width="match_parent"
             android:layout_height="256dp"
             android:layout_margin="15dp"
+            android:clickable="true"
             android:elevation="4dp"
             android:foreground="?attr/selectableItemBackgroundBorderless">
 
@@ -72,6 +76,7 @@
             android:layout_width="match_parent"
             android:layout_height="256dp"
             android:layout_margin="15dp"
+            android:clickable="true"
             android:elevation="4dp"
             android:foreground="?attr/selectableItemBackgroundBorderless">
 
@@ -86,6 +91,7 @@
             android:layout_width="match_parent"
             android:layout_height="256dp"
             android:layout_margin="15dp"
+            android:clickable="true"
             android:elevation="4dp"
             android:foreground="?attr/selectableItemBackgroundBorderless">
 
@@ -100,6 +106,7 @@
             android:layout_width="match_parent"
             android:layout_height="256dp"
             android:layout_margin="15dp"
+            android:clickable="true"
             android:elevation="4dp"
             android:foreground="?attr/selectableItemBackgroundBorderless">
 
