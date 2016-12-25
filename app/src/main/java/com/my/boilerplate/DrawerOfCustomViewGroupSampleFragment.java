@@ -58,11 +58,6 @@ public class DrawerOfCustomViewGroupSampleFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case android.R.id.home:
-                getActivity()
-                    .getSupportFragmentManager()
-                    .popBackStack();
-                break;
             case R.id.menu_toggle_drawer:
                 toggleDrawerMenu();
                 break;
@@ -71,6 +66,15 @@ public class DrawerOfCustomViewGroupSampleFragment extends Fragment {
         }
 
         return true;
+    }
+
+    public boolean onBackPressed() {
+        if (mDrawerLayout.isDrawerOpened()) {
+            mDrawerLayout.closeDrawer();
+            return true;
+        } else {
+            return false;
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////

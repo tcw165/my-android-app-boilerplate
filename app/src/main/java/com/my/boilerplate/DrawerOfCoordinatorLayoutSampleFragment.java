@@ -58,11 +58,6 @@ public class DrawerOfCoordinatorLayoutSampleFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case android.R.id.home:
-                getActivity()
-                    .getSupportFragmentManager()
-                    .popBackStack();
-                break;
             case R.id.menu_toggle_drawer:
                 toggleDrawerMenu();
                 break;
@@ -71,6 +66,15 @@ public class DrawerOfCoordinatorLayoutSampleFragment extends Fragment {
         }
 
         return true;
+    }
+
+    public boolean onBackPressed() {
+        if (mDrawerMenu.isShowing()) {
+            mDrawerMenu.hideWithAnimation();
+            return true;
+        } else {
+            return false;
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////

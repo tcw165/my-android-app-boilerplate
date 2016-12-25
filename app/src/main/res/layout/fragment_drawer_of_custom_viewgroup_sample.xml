@@ -11,20 +11,9 @@
         layout="@layout/list_placeholder"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
-    <!--<ImageView-->
-        <!--android:layout_width="250dp"-->
-        <!--android:layout_height="250dp"-->
-        <!--android:scaleType="centerInside"-->
-        <!--app:srcCompat="@drawable/img_android_robot"/>-->
 
     <!-- The menu -->
     <!-- TODO: Handle the z-index in the ViewGroup -->
-    <!--<ImageView-->
-        <!--android:id="@+id/drawer_menu"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="240dp"-->
-        <!--app:isDrawerView="true"-->
-        <!--app:srcCompat="@drawable/ic_settings"/>-->
     <LinearLayout
         android:id="@+id/drawer_menu"
         android:layout_width="match_parent"
@@ -112,28 +101,28 @@
         </android.support.v7.widget.GridLayout>
 
         <!-- The down arrow -->
-        <FrameLayout
-            android:id="@+id/down_arrow_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingBottom="6dp"
-            android:paddingTop="6dp">
+        <!--<FrameLayout-->
+            <!--android:id="@+id/down_arrow_container"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:paddingBottom="6dp"-->
+            <!--android:paddingTop="6dp">-->
 
-            <ImageView
-                android:id="@+id/down_arrow_start"
-                android:layout_width="match_parent"
-                android:layout_height="24dp"
-                android:layout_gravity="center"
-                android:tint="@android:color/darker_gray"
-                app:srcCompat="@drawable/ic_down_arrow"/>
+            <!--<ImageView-->
+                <!--android:id="@+id/down_arrow_start"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="24dp"-->
+                <!--android:layout_gravity="center"-->
+                <!--android:tint="@android:color/darker_gray"-->
+                <!--app:srcCompat="@drawable/ic_down_arrow"/>-->
 
-            <ImageView
-                android:id="@+id/down_arrow_end"
-                android:layout_width="match_parent"
-                android:layout_height="24dp"
-                android:layout_gravity="center"
-                android:alpha="0"
-                app:srcCompat="@drawable/ic_down_arrow"/>
-        </FrameLayout>
+            <!--<ImageView-->
+                <!--android:id="@+id/down_arrow_end"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="24dp"-->
+                <!--android:layout_gravity="center"-->
+                <!--android:alpha="0"-->
+                <!--app:srcCompat="@drawable/ic_down_arrow"/>-->
+        <!--</FrameLayout>-->
     </LinearLayout>
 </com.my.boilerplate.view.DropDownMenuLayout>

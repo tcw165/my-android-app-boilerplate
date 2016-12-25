@@ -22,9 +22,14 @@ package com.my.boilerplate.view;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.os.Build;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
@@ -48,33 +53,28 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 public class DropDownMenuLayout extends ViewGroup
     implements INavMenu {
 
-    private static final boolean SET_DRAWER_SHADOW_FROM_ELEVATION = Build.VERSION.SDK_INT >= 21;
-    private static final float ANIMATION_DURATION_OPEN = 300.f;
-    private static final float ANIMATION_DURATION_CLOSE = 250.f;
-
     /**
      * Minimum drawer margin in DP.
      */
-    private static final int MIN_DRAWER_MARGIN = 64;
+    private static final int MIN_DRAWER_MARGIN_IN_DP = 64;
 
     /**
      * Drawer elevation in DP.
      */
-    private static final int DRAWER_ELEVATION = 10;
-
+    private static final int DRAWER_ELEVATION_IN_DP = 10;
+    private static final boolean SET_DRAWER_SHADOW_FROM_ELEVATION = Build.VERSION.SDK_INT >= 21;
     private float mDrawerElevation;
-    /**
-     * Distance to travel before a drag may begin.
-     */
-    private int mTouchSlop;
 
     private static final int STATE_DRAWER_CLOSED = 0x0;
     private static final int STATE_DRAWER_OPENED = 0x1;
     private static final int STATE_DRAWER_OPENING = 0x2;
     private static final int STATE_DRAWER_CLOSING = 0x3;
-
     private int mDrawerState = STATE_DRAWER_CLOSED;
 
+    /**
+     * Distance to travel before a drag may begin.
+     */
+    private int mTouchSlop;
     private float mTouchInitY;
     private float mTouchCurrentY;
 
@@ -87,14 +87,23 @@ public class DropDownMenuLayout extends ViewGroup
      * See {@link LayoutParams#isDrawer}.
      */
     private View mDrawerView;
+    private View mContentView;
     /**
      * The view is being dragging.
      */
     private View mTouchingChild;
     /**
+     * The black translucent cover.
+     */
+    private Paint mCoveredFadePaint;
+    private Rect mCoveredFadeRect;
+    private static final int COVER_FADE_PAINT_ALPHA = (int) (0.75 * 0xFF);
+    /**
      * Animator for the drawer animation.
      */
     private AnimatorSet mAnimatorSet;
+    private static final float ANIMATION_DURATION_OPEN = 300.f;
+    private static final float ANIMATION_DURATION_CLOSE = 250.f;
 
     private OnMenuStateChange mMenuStateListener;
 
@@ -109,8 +118,11 @@ public class DropDownMenuLayout extends ViewGroup
         final float density = getResources().getDisplayMetrics().density;
         final ViewConfiguration vc = ViewConfiguration.get(context);
 
-        mDrawerElevation = DRAWER_ELEVATION * density;
+        mDrawerElevation = DRAWER_ELEVATION_IN_DP * density;
         mTouchSlop = vc.getScaledTouchSlop();
+        mCoveredFadePaint = new Paint();
+        mCoveredFadePaint.setColor(Color.BLACK);
+        mCoveredFadeRect = new Rect();
     }
 
     @Override
@@ -192,6 +204,8 @@ public class DropDownMenuLayout extends ViewGroup
 
                 child.measure(drawerWidthSpec, drawerHeightSpec);
             } else {
+                mContentView = child;
+
                 // Content views get measured at exactly the layout's size.
                 final int contentWidthSpec = MeasureSpec.makeMeasureSpec(
                     widthSize - lp.leftMargin - lp.rightMargin,
@@ -224,8 +238,12 @@ public class DropDownMenuLayout extends ViewGroup
                             int top,
                             int right,
                             int bottom) {
-        final int childCount = getChildCount();
+        mCoveredFadeRect.set(getLeft(),
+                             getTop(),
+                             getRight(),
+                             getBottom());
 
+        final int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
             final View child = getChildAt(i);
 
@@ -372,14 +390,15 @@ public class DropDownMenuLayout extends ViewGroup
                 if (mDrawerState == STATE_DRAWER_OPENING) {
                     // Coordinate the positions of drawer and content views when
                     // the drawer state is under opening.
-                    if (mTouchingChild != mDrawerView) {
+                    if (mTouchingChild == mContentView) {
                         final float offsetY = event.getY() - mTouchInitY;
                         final float ty = Math.min(
                             Math.max(0, offsetY),
                             mDrawerView.getHeight());
                         ViewCompat.setTranslationY(mDrawerView, ty);
-                        ViewCompat.setTranslationY(mTouchingChild, ty);
+                        ViewCompat.setTranslationY(mContentView, ty);
                         Log.d("xyz", String.format("    onTouchEvent(ACTION_MOVE), opening drawer, ty=%f", ty));
+                        invalidate();
                     }
                 } else if (mDrawerState == STATE_DRAWER_CLOSING) {
                     final View touchingChild = findTopChildUnder(event.getX(), event.getY());
@@ -400,6 +419,7 @@ public class DropDownMenuLayout extends ViewGroup
                             mDrawerView.getHeight());
                         ViewCompat.setTranslationY(mDrawerView, ty);
                         Log.d("xyz", String.format("    onTouchEvent(ACTION_MOVE), closing drawer, ty=%f", ty));
+                        invalidate();
                     }
                 }
 
@@ -425,16 +445,6 @@ public class DropDownMenuLayout extends ViewGroup
         // be called.
         return true;
     }
-
-//    @Override
-//    public void requestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-//        super.requestDisallowInterceptTouchEvent(disallowIntercept);
-//
-//        // Ignore the disabling and pass to its parent.
-//        if (getParent() != null) {
-//            getParent().requestDisallowInterceptTouchEvent(disallowIntercept);
-//        }
-//    }
 
     @Override
     public void setOnMenuStateChangeListener(OnMenuStateChange listener) {
@@ -464,16 +474,17 @@ public class DropDownMenuLayout extends ViewGroup
         ObjectAnimator anim1 = ObjectAnimator.ofFloat(mDrawerView, "translationY", mDrawerView.getHeight());
         anim1.setDuration(duration1);
         anim1.setInterpolator(new AccelerateDecelerateInterpolator());
+        anim1.addUpdateListener(onAnimatingDrawer());
 
         // TODO: Animation the translucent overlay.
 
-        if (mTouchingChild != null && mTouchingChild != mDrawerView) {
-            final float ty3 = mTouchingChild.getTranslationY();
+        if (mTouchingChild != null && mTouchingChild == mContentView) {
+            final float ty3 = mContentView.getTranslationY();
             final int duration3 = (int) Math.max(
-                ANIMATION_DURATION_OPEN * ty3 / mTouchingChild.getHeight(),
+                ANIMATION_DURATION_OPEN * ty3 / mContentView.getHeight(),
                 ANIMATION_DURATION_OPEN / 2.f);
 
-            ObjectAnimator anim3 = ObjectAnimator.ofFloat(mTouchingChild, "translationY", 0);
+            ObjectAnimator anim3 = ObjectAnimator.ofFloat(mContentView, "translationY", 0);
             anim3.setDuration(duration3);
             anim3.setInterpolator(new AccelerateDecelerateInterpolator());
 
@@ -509,16 +520,17 @@ public class DropDownMenuLayout extends ViewGroup
         ObjectAnimator anim1 = ObjectAnimator.ofFloat(mDrawerView, "translationY", 0);
         anim1.setDuration(duration1);
         anim1.setInterpolator(new AccelerateDecelerateInterpolator());
+        anim1.addUpdateListener(onAnimatingDrawer());
 
         // TODO: Animation the translucent overlay.
 
-        if (mTouchingChild != null && mTouchingChild != mDrawerView) {
-            final float ty3 = mTouchingChild.getTranslationY();
+        if (mTouchingChild != null && mTouchingChild == mContentView) {
+            final float ty3 = mContentView.getTranslationY();
             final int duration3 = (int) Math.max(
-                ANIMATION_DURATION_CLOSE * ty3 / mTouchingChild.getHeight(),
+                ANIMATION_DURATION_CLOSE * ty3 / mContentView.getHeight(),
                 ANIMATION_DURATION_CLOSE / 2.f);
 
-            ObjectAnimator anim3 = ObjectAnimator.ofFloat(mTouchingChild, "translationY", 0);
+            ObjectAnimator anim3 = ObjectAnimator.ofFloat(mContentView, "translationY", 0);
             anim3.setDuration(duration3);
             anim3.setInterpolator(new AccelerateDecelerateInterpolator());
 
@@ -536,10 +548,6 @@ public class DropDownMenuLayout extends ViewGroup
         }
     }
 
-    public void cancel() {
-
-    }
-
     ///////////////////////////////////////////////////////////////////////////
     // Protected / Private Methods ////////////////////////////////////////////
 
@@ -551,6 +559,44 @@ public class DropDownMenuLayout extends ViewGroup
     @Override
     protected boolean checkLayoutParams(ViewGroup.LayoutParams p) {
         return p instanceof LayoutParams;
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+    }
+
+    @Override
+    protected boolean drawChild(Canvas canvas,
+                                View child,
+                                long drawingTime) {
+        if (child == mContentView) {
+            // The content view.
+            boolean result = super.drawChild(canvas, child, drawingTime);
+
+            // Draw the cover  paint.
+//            if (mDrawerState != STATE_DRAWER_OPENING) {
+                final int h = mDrawerView.getHeight();
+                final float ty = mDrawerView.getTranslationY();
+                final int alpha = (int) Math.max(0, COVER_FADE_PAINT_ALPHA * ty / h);
+                mCoveredFadeRect.top = getTop() + (int) (ty);
+                mCoveredFadePaint.setAlpha(alpha);
+                canvas.drawRect(mCoveredFadeRect, mCoveredFadePaint);
+//            }
+
+            return result;
+        } else {
+            return super.drawChild(canvas, child, drawingTime);
+        }
+    }
+
+    private ValueAnimator.AnimatorUpdateListener onAnimatingDrawer () {
+        return new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                invalidate();
+            }
+        };
     }
 
     private boolean isDrawerView(View child) {
