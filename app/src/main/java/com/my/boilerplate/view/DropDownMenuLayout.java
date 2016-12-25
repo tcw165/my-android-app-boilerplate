@@ -261,71 +261,81 @@ public class DropDownMenuLayout extends ViewGroup
             return super.dispatchTouchEvent(event);
         }
 
-        final int action = MotionEventCompat.getActionMasked(event);
-
         // The layout would be interested in that the touched list view is
         // scrolling out.
-        if (action == MotionEvent.ACTION_DOWN) {
-            mTouchInitY = event.getY();
-            mTouchCurrentY = event.getY();
-            Log.d("xyz", "dispatchTouchEvent(ACTION_DOWN)");
-        } else if (action == MotionEvent.ACTION_MOVE) {
-            final float dy = event.getY() - mTouchCurrentY;
-            final float offsetY = event.getY() - mTouchInitY;
-            final boolean ifCross = ifCrossDragSlop(offsetY);
-            Log.d("xyz", String.format("dispatchTouchEvent(ACTION_MOVE), ifCross=%s", ifCross));
+        final View touchingChild = findTopChildUnder(event.getX(), event.getY());
+        final int action = MotionEventCompat.getActionMasked(event);
+        switch (action) {
+            case MotionEvent.ACTION_DOWN: {
+                mTouchInitY = event.getY();
+                mTouchCurrentY = event.getY();
+                Log.d("xyz", "dispatchTouchEvent(ACTION_DOWN)");
 
-            if (ifCross) {
-                final View touchingChild = findTopChildUnder(event.getX(), event.getY());
-                // Will be set to true at the moment that this ViewGroup will
-                // take over the touch event from its child view.
-                boolean shouldIntercept = false;
-
-                if (mDrawerState == STATE_DRAWER_CLOSED) {
-                    // If sliding thumb down till the content view is being over
-                    // scrolled, intercept the touch event.
-                    if (ScrollViewUtil.ifOverScrollingVertically(touchingChild, dy)) {
-                        mDrawerState = STATE_DRAWER_OPENING;
-                        shouldIntercept = true;
-                    }
-                } else if (mDrawerState == STATE_DRAWER_OPENING) {
-                    // If sliding thumb up till the drawer is completely hidden,
-                    // return the touch event to the child view.
-                    if (dy < 0 && mDrawerView.getTranslationY() == 0.f) {
-                        Log.d("xyz", "  [*] Scrolling up will return touch event to the child view");
-                        mDrawerState = STATE_DRAWER_CLOSED;
-
-                        // Cancel the intercepting.
-                        cancelSelfTouchEvent(event);
-
-                        // Must cheat the action so that the child view knows
-                        // to start a new touch handling session.
-                        event.setAction(MotionEvent.ACTION_DOWN);
-                    }
-                } else if (mDrawerState == STATE_DRAWER_OPENED) {
-                    if (touchingChild == mDrawerView) {
-                        mDrawerState = STATE_DRAWER_CLOSING;
-                        shouldIntercept = true;
-                    }
+                if (mDrawerState == STATE_DRAWER_OPENED &&
+                    touchingChild != mDrawerView) {
+                    // Touching the black translucent overlay.
+                    mDrawerState = STATE_DRAWER_CLOSING;
                 }
+                break;
+            }
+            case MotionEvent.ACTION_MOVE: {
+                Log.d("xyz", "dispatchTouchEvent(ACTION_MOVE)");
+                final float dy = event.getY() - mTouchCurrentY;
+                final float offsetY = event.getY() - mTouchInitY;
+                final boolean isDragging = ifCrossDragSlop(offsetY);
+                if (!isDragging) break;
 
-                if (shouldIntercept) {
+                if (mDrawerState == STATE_DRAWER_OPENED) {
+                    // Dragging on the drawer.
+                    Log.d("xyz", "dispatchTouchEvent(ACTION_MOVE), closing drawer");
+                    mDrawerState = STATE_DRAWER_CLOSING;
+
                     // Because the layout will handle the dragging later,
                     // dispatch ACTION_CANCEL to all the child views.
                     cancelChildrenTouchEvent(event);
+                } else {
+                    if (dy > 0 &&
+                        ScrollViewUtil.ifOverScrollingVertically(touchingChild, dy)) {
+                        if (mDrawerState == STATE_DRAWER_CLOSED) {
+                            // If sliding thumb down till the content view is being
+                            // over scrolled, intercept the touch event.
+                            mDrawerState = STATE_DRAWER_OPENING;
 
-                    // We cheat the event so that mTouchInitY will be updated
-                    // for calculating the translationY correctly.
-                    event.setAction(MotionEvent.ACTION_DOWN);
+                            Log.d("xyz", "dispatchTouchEvent(ACTION_MOVE), should intercept");
+
+                            // Because the layout will handle the dragging later,
+                            // dispatch ACTION_CANCEL to all the child views.
+                            cancelChildrenTouchEvent(event);
+                        }
+                    } else if (dy < 0 &&
+                               mDrawerView.getTranslationY() == 0.f) {
+                        if (mDrawerState == STATE_DRAWER_OPENING) {
+                            // If sliding thumb up till the drawer is completely
+                            // hidden, return the touch event to the child view.
+                            Log.d("xyz",
+                                  "dispatchTouchEvent(ACTION_MOVE), *** Scrolling up will return touch event to the child view");
+                            mDrawerState = STATE_DRAWER_CLOSED;
+
+                            // Cancel the intercepting.
+                            cancelSelfTouchEvent(event);
+
+                            // Must cheat the action so that the child view knows
+                            // to start a new touch handling session.
+                            event.setAction(MotionEvent.ACTION_DOWN);
+                        }
+                    }
                 }
-            }
 
-            mTouchCurrentY = event.getY();
-        } else if (action == MotionEvent.ACTION_UP ||
-                   action == MotionEvent.ACTION_CANCEL) {
-            Log.d("xyz", "dispatchTouchEvent(ACTION_UP|ACTION_CANCEL)");
-            mTouchInitY = 0;
-            mTouchCurrentY = 0;
+                mTouchCurrentY = event.getY();
+                break;
+            }
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL: {
+                Log.d("xyz", "dispatchTouchEvent(ACTION_UP|ACTION_CANCEL)");
+                mTouchInitY = 0;
+                mTouchCurrentY = 0;
+                break;
+            }
         }
 
         if (mDrawerState == STATE_DRAWER_OPENING ||
@@ -336,24 +346,6 @@ public class DropDownMenuLayout extends ViewGroup
         }
     }
 
-//    @Override
-//    public boolean onInterceptTouchEvent(MotionEvent event) {
-//        final int action = MotionEventCompat.getActionMasked(event);
-//        switch (action) {
-//            case MotionEvent.ACTION_DOWN:
-//                break;
-//            case MotionEvent.ACTION_MOVE:
-//                break;
-//            case MotionEvent.ACTION_UP:
-//            case MotionEvent.ACTION_CANCEL:
-//                break;
-//        }
-//
-//        return mTouchingChild != null &&
-//               mDrawerState == STATE_DRAWER_OPENING ||
-//               mDrawerState == STATE_DRAWER_CLOSING;
-//    }
-
     /**
      * Responsible for coordinating the position of the drawer and the content
      * view.
@@ -361,15 +353,16 @@ public class DropDownMenuLayout extends ViewGroup
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         final int action = MotionEventCompat.getActionMasked(event);
+
         switch (action) {
-            case MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_DOWN: {
                 Log.d("xyz", "  onTouchEvent(ACTION_DOWN)");
-                mTouchingChild = findTopChildUnder(event.getX(), event.getY());
                 mTouchInitY = event.getY();
+                mTouchingChild = findTopChildUnder(event.getX(), event.getY());
                 break;
-            case MotionEvent.ACTION_MOVE:
-                final float offsetY = event.getY() - mTouchInitY;
-                Log.d("xyz", String.format("  onTouchEvent(ACTION_MOVE), offsetY=%f", offsetY));
+            }
+            case MotionEvent.ACTION_MOVE: {
+                Log.d("xyz", "  onTouchEvent(ACTION_MOVE)");
 
                 if (mAnimatorSet != null) {
                     mAnimatorSet.cancel();
@@ -377,22 +370,43 @@ public class DropDownMenuLayout extends ViewGroup
                 }
 
                 if (mDrawerState == STATE_DRAWER_OPENING) {
-                    final float ty = Math.min(
-                        Math.max(0, offsetY),
-                        mDrawerView.getHeight());
-                    ViewCompat.setTranslationY(mDrawerView, ty);
-                    ViewCompat.setTranslationY(mTouchingChild, ty);
+                    // Coordinate the positions of drawer and content views when
+                    // the drawer state is under opening.
+                    if (mTouchingChild != mDrawerView) {
+                        final float offsetY = event.getY() - mTouchInitY;
+                        final float ty = Math.min(
+                            Math.max(0, offsetY),
+                            mDrawerView.getHeight());
+                        ViewCompat.setTranslationY(mDrawerView, ty);
+                        ViewCompat.setTranslationY(mTouchingChild, ty);
+                        Log.d("xyz", String.format("    onTouchEvent(ACTION_MOVE), opening drawer, ty=%f", ty));
+                    }
                 } else if (mDrawerState == STATE_DRAWER_CLOSING) {
-                    final float ty = Math.min(
-                        Math.max(0, mDrawerView.getHeight() + offsetY),
-                        mDrawerView.getHeight());
-                    Log.d("xyz", String.format("    onTouchEvent(ACTION_MOVE), ty=%f", ty));
-                    ViewCompat.setTranslationY(mDrawerView, ty);
-                }
-                break;
-            case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_CANCEL:
+                    final View touchingChild = findTopChildUnder(event.getX(), event.getY());
+                    if (touchingChild == mDrawerView &&
+                        mTouchingChild != mDrawerView) {
+                        // If it is dragging the drawer but it was not previously,
+                        // update the initial touch-y.
+                        mTouchInitY = event.getY();
+                        mTouchingChild = touchingChild;
+                    }
 
+                    // Coordinate the position of drawer only when the drawer
+                    // state is under closing.
+                    if (mTouchingChild == mDrawerView) {
+                        final float offsetY = event.getY() - mTouchInitY;
+                        final float ty = Math.min(
+                            Math.max(0, mDrawerView.getHeight() + offsetY),
+                            mDrawerView.getHeight());
+                        ViewCompat.setTranslationY(mDrawerView, ty);
+                        Log.d("xyz", String.format("    onTouchEvent(ACTION_MOVE), closing drawer, ty=%f", ty));
+                    }
+                }
+
+                break;
+            }
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL: {
                 if (ifOpenDrawer()) {
                     Log.d("xyz", "  onTouchEvent(ACTION_UP|ACTION_CANCEL), open drawer");
                     openDrawer();
@@ -400,9 +414,10 @@ public class DropDownMenuLayout extends ViewGroup
                     Log.d("xyz", "  onTouchEvent(ACTION_UP|ACTION_CANCEL), close drawer");
                     closeDrawer();
                 }
-
+                Log.d("xyz", "\n");
                 mTouchingChild = null;
                 break;
+            }
         }
 
         // Note: Be careful of using this layout in a nested view hierarchy.
@@ -441,8 +456,10 @@ public class DropDownMenuLayout extends ViewGroup
 
         // The duration is proportional to the translationY.
         final float ty1 = ViewCompat.getTranslationY(mDrawerView);
-        final int duration1 = (int) (ANIMATION_DURATION_OPEN * (mDrawerView.getHeight() - Math.abs(ty1)) /
-                                    mDrawerView.getHeight());
+        final int duration1 = (int) Math.max(
+            ANIMATION_DURATION_OPEN *
+            (mDrawerView.getHeight() - Math.abs(ty1)) / mDrawerView.getHeight(),
+            ANIMATION_DURATION_OPEN / 2.f);
 
         ObjectAnimator anim1 = ObjectAnimator.ofFloat(mDrawerView, "translationY", mDrawerView.getHeight());
         anim1.setDuration(duration1);
@@ -452,7 +469,9 @@ public class DropDownMenuLayout extends ViewGroup
 
         if (mTouchingChild != null && mTouchingChild != mDrawerView) {
             final float ty3 = mTouchingChild.getTranslationY();
-            final int duration3 = (int) (ANIMATION_DURATION_OPEN * ty3) / mTouchingChild.getHeight();
+            final int duration3 = (int) Math.max(
+                ANIMATION_DURATION_OPEN * ty3 / mTouchingChild.getHeight(),
+                ANIMATION_DURATION_OPEN / 2.f);
 
             ObjectAnimator anim3 = ObjectAnimator.ofFloat(mTouchingChild, "translationY", 0);
             anim3.setDuration(duration3);
@@ -483,7 +502,9 @@ public class DropDownMenuLayout extends ViewGroup
 
         // The duration is proportional to the translationY.
         final float ty1 = ViewCompat.getTranslationY(mDrawerView);
-        final int duration1 = (int) (ANIMATION_DURATION_CLOSE * Math.abs(ty1) / mDrawerView.getHeight());
+        final int duration1 = (int) Math.max(
+            ANIMATION_DURATION_CLOSE * Math.abs(ty1) / mDrawerView.getHeight(),
+            ANIMATION_DURATION_CLOSE / 2.f);
 
         ObjectAnimator anim1 = ObjectAnimator.ofFloat(mDrawerView, "translationY", 0);
         anim1.setDuration(duration1);
@@ -493,7 +514,9 @@ public class DropDownMenuLayout extends ViewGroup
 
         if (mTouchingChild != null && mTouchingChild != mDrawerView) {
             final float ty3 = mTouchingChild.getTranslationY();
-            final int duration3 = (int) (ANIMATION_DURATION_OPEN * ty3) / mTouchingChild.getHeight();
+            final int duration3 = (int) Math.max(
+                ANIMATION_DURATION_CLOSE * ty3 / mTouchingChild.getHeight(),
+                ANIMATION_DURATION_CLOSE / 2.f);
 
             ObjectAnimator anim3 = ObjectAnimator.ofFloat(mTouchingChild, "translationY", 0);
             anim3.setDuration(duration3);
@@ -581,27 +604,41 @@ public class DropDownMenuLayout extends ViewGroup
     }
 
     private void cancelChildrenTouchEvent(MotionEvent event) {
+        Log.d("xyz", "    cancelChildrenTouchEvent()");
         final MotionEvent canceledEvent = MotionEvent.obtain(event);
 
         canceledEvent.setAction(MotionEvent.ACTION_CANCEL);
         super.dispatchTouchEvent(canceledEvent);
         canceledEvent.recycle();
+
+        // We cheat the event so that mTouchInitY will be
+        // updated for calculating the translationY correctly.
+        event.setAction(MotionEvent.ACTION_DOWN);
     }
 
     private boolean ifOpenDrawer() {
-        if (mDrawerState == STATE_DRAWER_OPENING) {
-            final float threshold = 0.35f * mDrawerView.getHeight();
+        if (mDrawerView == null) return false;
 
-            return mDrawerView != null &&
-                   ViewCompat.getTranslationY(mDrawerView) > threshold;
-        } else if (mDrawerState == STATE_DRAWER_CLOSING) {
-            final float threshold = 0.8f * mDrawerView.getHeight();
+        switch (mDrawerState) {
+            case STATE_DRAWER_OPENING: {
+                final float threshold = 0.35f * mDrawerView.getHeight();
 
-            return mDrawerView != null &&
-                   ViewCompat.getTranslationY(mDrawerView) > threshold;
-        } else {
-            return false;
+                return mDrawerView != null &&
+                       ViewCompat.getTranslationY(mDrawerView) > threshold;
+            }
+            case STATE_DRAWER_CLOSING: {
+                if (mTouchingChild == mDrawerView) {
+                    final float threshold = 0.8f * mDrawerView.getHeight();
+
+                    return mDrawerView != null &&
+                           ViewCompat.getTranslationY(mDrawerView) > threshold;
+                } else {
+                    return false;
+                }
+            }
         }
+
+        return false;
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -609,12 +646,6 @@ public class DropDownMenuLayout extends ViewGroup
 
     public static class LayoutParams extends ViewGroup.MarginLayoutParams {
 
-        private static final int FLAG_IS_CLOSED = 0x0;
-
-        /**
-         * The state of the drawer view.
-         */
-        private int openState;
         /**
          * Child view with "isDrawerView=true" attribute would be a drawer view.
          * <pre>
@@ -631,7 +662,6 @@ public class DropDownMenuLayout extends ViewGroup
 
             final TypedArray array = c.obtainStyledAttributes(attrs, R.styleable.DropDownMenuLayout);
             try {
-                openState = FLAG_IS_CLOSED;
                 isDrawer = array.getBoolean(R.styleable.DropDownMenuLayout_isDrawerView, false);
             } finally {
                 array.recycle();
