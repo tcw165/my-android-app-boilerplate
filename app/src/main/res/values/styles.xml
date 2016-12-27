@@ -1,5 +1,6 @@
 <resources>
 
+    <!-- Splash screen theme -->
     <style name="SplashScreenTheme" parent="AppTheme">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
@@ -9,20 +10,20 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <!-- Main App Theme with Tool Bar -->
+    <!-- common Activity theme with tool bar -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <!-- Main App Theme without Tool Bar -->
+    <!-- common Activity theme without tool bar -->
     <style name="AppTheme.CustomToolbar" parent="AppTheme">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
 
-    <!-- Shadow/Invisible Theme -->
+    <!-- Shadow/Invisible Activity theme -->
     <style name="InvisibleTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
@@ -31,6 +32,7 @@
         <item name="android:backgroundDimEnabled">false</item>
     </style>
 
+    <!-- Common toolbar theme -->
     <style name="ToolBarTheme" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
     </style>
 
