@@ -11,12 +11,11 @@
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        android:elevation="4dp"
+        android:layout_height="@dimen/toolbar_height"
+        android:background="@color/colorPrimary"
         app:navigationIcon="@drawable/ic_close"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-        app:titleTextColor="?attr/colorAccent"/>
+        app:titleTextColor="@color/colorAccent"/>
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -34,7 +33,7 @@
                 android:layout_gravity="bottom"
                 android:gravity="center"
                 android:text="@string/title_notification_result_sample"
-                android:textColor="?attr/colorAccent"
+                android:textColor="@color/colorAccent"
                 android:textSize="20sp"
                 app:layout_heightPercent="50%"/>
 
@@ -44,7 +43,7 @@
                 android:layout_gravity="bottom"
                 android:gravity="center"
                 android:text="@string/number_1"
-                android:textColor="?attr/colorAccent"
+                android:textColor="@color/colorAccent"
                 android:textSize="100sp"/>
         </LinearLayout>
     </FrameLayout>
