@@ -43,7 +43,7 @@ import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 
 import com.my.boilerplate.R;
-import com.my.boilerplate.util.ScrollViewUtil;
+import com.my.boilerplate.util.ScrollableViewUtil;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
@@ -313,7 +313,7 @@ public class DropDownMenuLayout extends ViewGroup
                     cancelChildrenTouchEvent(event);
                 } else {
                     if (dy > 0 &&
-                        ScrollViewUtil.ifOverScrollingVertically(touchingChild, dy)) {
+                        ScrollableViewUtil.ifOverScrollingVertically(touchingChild, dy)) {
                         if (mDrawerState == STATE_DRAWER_CLOSED) {
                             // If sliding thumb down till the content view is being
                             // over scrolled, intercept the touch event.
