@@ -14,7 +14,7 @@
     </style>
 
     <!-- Splash screen theme -->
-    <style name="SplashScreenTheme" parent="AppTheme">
+    <style name="AppTheme.SplashScreen" parent="AppTheme">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
@@ -24,7 +24,7 @@
     </style>
 
     <!-- Shadow/Invisible Activity theme -->
-    <style name="InvisibleTheme" parent="Theme.AppCompat.NoActionBar">
+    <style name="AppTheme.Invisible" parent="Theme.AppCompat.NoActionBar">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowContentOverlay">@null</item>
@@ -33,9 +33,9 @@
     </style>
 
     <!-- Common toolbar theme -->
-    <style name="ToolBarTheme" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+    <style name="ThemeOverlay.ToolBar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
     </style>
 
-    <style name="ToolBarPopupTheme" parent="ThemeOverlay.AppCompat.Light">
+    <style name="ThemeOverlay.ToolBarPopup" parent="ThemeOverlay.AppCompat.Light">
     </style>
 </resources>

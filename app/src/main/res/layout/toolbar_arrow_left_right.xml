@@ -7,7 +7,7 @@
     android:layout_height="@dimen/toolbar_height"
     android:layout_alignParentTop="true"
     android:background="@color/colorPrimary"
-    android:theme="@style/ToolBarTheme"
+    android:theme="@style/ThemeOverlay.ToolBar"
     app:contentInsetEnd="0dp"
     app:contentInsetLeft="0dp"
     app:contentInsetRight="0dp"

@@ -20,7 +20,6 @@
 
 package com.my.boilerplate;
 
-import android.Manifest;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -41,14 +40,16 @@ import com.my.boilerplate.view.IProgressBarView;
 import com.my.boilerplate.view.SampleMenuAdapter;
 import com.my.boilerplate.view.ScrapView;
 
+import java.util.Locale;
+
 public class StartActivity
     extends AppCompatActivity
     implements IProgressBarView {
 
-    private final static String TAG = StartActivity.class.getCanonicalName();
+    final static String TAG = StartActivity.class.getCanonicalName();
 
-    private Toolbar mToolbar;
-    private ListView mStartMenu;
+    Toolbar mToolbar;
+    ListView mStartMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,7 +131,7 @@ public class StartActivity
     protected SampleMenuAdapter onStartMenuCreate() {
         return new SampleMenuAdapter(
             this,
-            new Pair[] {
+            new Pair[]{
                 // item 0.
                 new Pair<>("CollageEditor",
                            "A view-based collage editor (on-going)."),
@@ -171,7 +172,7 @@ public class StartActivity
                 // item 10.
                 new Pair<>("OkHttp",
                            "(constructing)."),
-            });
+                });
     }
 
     private OnItemClickListener onClickStartMenuItem() {
@@ -242,8 +243,11 @@ public class StartActivity
 //                mCollageEditor.addView(scrap);
 
                 Toast.makeText(StartActivity.this,
-                               String.format("Make a scrap (aspect ratio is %f)", scrapRatio),
-                               Toast.LENGTH_SHORT);
+                               String.format(Locale.ENGLISH,
+                                             "Make a scrap (aspect ratio is %f)",
+                                             scrapRatio),
+                               Toast.LENGTH_SHORT)
+                     .show();
             }
         };
     }

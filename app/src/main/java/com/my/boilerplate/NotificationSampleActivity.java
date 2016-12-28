@@ -19,8 +19,8 @@ import com.my.boilerplate.view.SampleMenuAdapter;
 
 public class NotificationSampleActivity extends AppCompatActivity {
 
-    protected Toolbar mToolbar;
-    protected ListView mMenu;
+    Toolbar mToolbar;
+    ListView mMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -22,16 +22,13 @@ package com.my.boilerplate;
 
 import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -287,12 +284,9 @@ public class FileProviderActivity
             Environment.DIRECTORY_PICTURES + "/my_boilerplate_app");
         // Create the missing parents.
         if (dir.mkdirs() || dir.isDirectory()) {
-            File image = File.createTempFile(
-                timeStamp,
-                ".jpg",
-                dir);
-
-            return image;
+            return File.createTempFile(timeStamp,
+                                       ".jpg",
+                                       dir);
         } else {
             throw new IOException(String.format("%s is not present.",
                                                 dir.getAbsolutePath()));
