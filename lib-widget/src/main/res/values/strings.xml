@@ -1,0 +1,3 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="menu_settings" tools:ignore="MissingTranslation">Settings</string>
+</resources>

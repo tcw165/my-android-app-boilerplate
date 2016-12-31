@@ -1,3 +1,23 @@
+// Copyright (c) 2016-present boyw165
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+//    The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+//    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+
 package com.my.boilerplate;
 
 import android.os.Bundle;
@@ -12,13 +32,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.my.boilerplate.view.DropDownMenuView;
-import com.my.boilerplate.view.INavMenu;
+import com.my.widget.DropDownMenuView;
+import com.my.widget.IDrawerViewLayout;
 
 public class DrawerOfCoordinatorLayoutSampleFragment extends Fragment {
 
-    private Toolbar mToolbar;
-    private DropDownMenuView mDrawerMenu;
+    Toolbar mToolbar;
+    DropDownMenuView mDrawerMenu;
 
     public DrawerOfCoordinatorLayoutSampleFragment() {
         // Required empty public constructor
@@ -34,7 +54,7 @@ public class DrawerOfCoordinatorLayoutSampleFragment extends Fragment {
                                        false);
 
         mDrawerMenu = (DropDownMenuView) layout.findViewById(R.id.drawer_menu);
-        mDrawerMenu.setOnMenuStateChangeListener(onMenuStateChange());
+        mDrawerMenu.setOnDrawerStateChangeListener(onMenuStateChange());
         mDrawerMenu.setOnClickMenuItemListener(onClickMenuItem());
 
         // Set back icon of the toolbar.
@@ -90,15 +110,15 @@ public class DrawerOfCoordinatorLayoutSampleFragment extends Fragment {
         }
     }
 
-    private INavMenu.OnMenuStateChange onMenuStateChange() {
-        return new INavMenu.OnMenuStateChange() {
+    private IDrawerViewLayout.OnDrawerStateChange onMenuStateChange() {
+        return new IDrawerViewLayout.OnDrawerStateChange() {
             @Override
-            public void onShowMenu() {
+            public void onOpenDrawer() {
                 // DO NOTHING.
             }
 
             @Override
-            public void onHideMenu() {
+            public void onCloseDrawer() {
                 // DO NOTHING.
             }
         };

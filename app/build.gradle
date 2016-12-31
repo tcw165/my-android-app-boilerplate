@@ -5,13 +5,13 @@ apply plugin: "io.fabric"
 apply plugin: "com.google.gms.google-services"
 
 android {
-    compileSdkVersion 24
+    compileSdkVersion 25
     buildToolsVersion "24.0.3"
 
     defaultConfig {
         applicationId "com.my.boilerplate"
         minSdkVersion 21
-        targetSdkVersion 24
+        targetSdkVersion 25
         versionCode 1
         versionName "1.0"
 
@@ -27,10 +27,11 @@ android {
 
 repositories {
     maven { url "https://maven.fabric.io/public" }
+    flatDir { dirs 'libs' }
 }
 
 dependencies {
-    def SUPPORT_LIB_VER = "24.2.1"
+    def SUPPORT_LIB_VER = "25.1.0"
     def RETROFIT_VER = "2.1.0"
 
     compile fileTree(dir: "libs", include: ["*.jar"])
@@ -75,8 +76,14 @@ dependencies {
     compile "com.google.firebase:firebase-invites:9.8.0"
     compile "com.google.firebase:firebase-crash:9.8.0"
 
-    // My algorithm-lib for generating the grids.
+    // My lib-photo-collage for generating the grids.
+    // (enable it when you are developing the library)
+    // (enable it when you are developing the library)
 //    compile project(":algorithms-lib")
+    // My lib-widget
+    // (enable it when you are developing the library)
+//    compile project(":lib-widget")
+    compile 'com.my.widget:lib-widget-release:1.0.0@aar'
 
     testCompile "junit:junit:4.12"
 

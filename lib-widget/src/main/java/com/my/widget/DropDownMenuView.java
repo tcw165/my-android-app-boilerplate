@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.boilerplate.view;
+package com.my.widget;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
@@ -34,13 +34,12 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-import com.my.boilerplate.R;
-
 import java.util.ArrayList;
 import java.util.List;
 
+// FIXME: This is very old fashion, use custom ViewGroup instead.
 @CoordinatorLayout.DefaultBehavior(DropDownMenuView.DrawerBehavior.class)
-public class DropDownMenuView extends FrameLayout implements INavMenu {
+public class DropDownMenuView extends FrameLayout implements IDrawerViewLayout {
 
     protected boolean mIsShowing;
 
@@ -62,7 +61,7 @@ public class DropDownMenuView extends FrameLayout implements INavMenu {
      */
     protected View mAnchorView;
 
-    protected OnMenuStateChange mOnMenuStateChangeListener;
+    protected OnDrawerStateChange mOnDrawerStateChangeListener;
 
     public DropDownMenuView(Context context) {
         super(context);
@@ -78,8 +77,8 @@ public class DropDownMenuView extends FrameLayout implements INavMenu {
     }
 
     @Override
-    public void setOnMenuStateChangeListener(OnMenuStateChange listener) {
-        mOnMenuStateChangeListener = listener;
+    public void setOnDrawerStateChangeListener(OnDrawerStateChange listener) {
+        mOnDrawerStateChangeListener = listener;
     }
 
     public void setOnClickMenuItemListener(OnClickListener listener) {
@@ -108,8 +107,8 @@ public class DropDownMenuView extends FrameLayout implements INavMenu {
         mOverlayBackground.setClickable(true);
 
         // Notify the listener.
-        if (mOnMenuStateChangeListener != null) {
-            mOnMenuStateChangeListener.onShowMenu();
+        if (mOnDrawerStateChangeListener != null) {
+            mOnDrawerStateChangeListener.onOpenDrawer();
         }
 
         if (mAnimatorSet != null) {
@@ -152,8 +151,8 @@ public class DropDownMenuView extends FrameLayout implements INavMenu {
         mOverlayBackground.setClickable(false);
 
         // Notify the listener.
-        if (mOnMenuStateChangeListener != null) {
-            mOnMenuStateChangeListener.onHideMenu();
+        if (mOnDrawerStateChangeListener != null) {
+            mOnDrawerStateChangeListener.onCloseDrawer();
         }
 
         if (mAnimatorSet != null) {
@@ -253,7 +252,7 @@ public class DropDownMenuView extends FrameLayout implements INavMenu {
 
     protected void initView(Context context) {
         // The main layout.
-        inflate(context, R.layout.drop_down_menu, this);
+        inflate(context, R.layout.view_drop_down_menu, this);
 
         mIsShowing = false;
 

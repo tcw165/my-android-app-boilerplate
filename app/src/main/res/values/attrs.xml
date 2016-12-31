@@ -1,16 +1,3 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <declare-styleable name="DropDownMenuLayout">
-        <attr name="isDrawerView" format="boolean"/>
-    </declare-styleable>
-
-    <declare-styleable name="DropDownMenuView">
-        <attr name="menuBackgroundColor" format="color"/>
-        <attr name="downArrowBackgroundColor" format="color"/>
-    </declare-styleable>
-
-    <declare-styleable name="SquaredMenuItemView">
-        <attr name="iconSrcCompat" format="reference"/>
-        <attr name="caption" format="reference"/>
-    </declare-styleable>
 </resources>

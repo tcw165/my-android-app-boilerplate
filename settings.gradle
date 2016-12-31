@@ -1,1 +1,1 @@
-include ':app', ':lib-photo-collage'
+include ':app', ':lib-photo-collage', ':lib-widget'

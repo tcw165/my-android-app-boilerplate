@@ -37,10 +37,10 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.my.boilerplate.util.ViewUtil;
-import com.my.boilerplate.view.INavMenu;
-import com.my.boilerplate.view.IProgressBarView;
 import com.my.boilerplate.view.SampleMenuAdapter;
 import com.my.boilerplate.view.ScrapView;
+import com.my.widget.IDrawerViewLayout;
+import com.my.widget.IProgressBarView;
 
 import java.util.Locale;
 
@@ -128,15 +128,15 @@ public class StartActivity
         // DO NOTHING
     }
 
-    private INavMenu.OnMenuStateChange onMenuStateChange() {
-        return new INavMenu.OnMenuStateChange() {
+    private IDrawerViewLayout.OnDrawerStateChange onMenuStateChange() {
+        return new IDrawerViewLayout.OnDrawerStateChange() {
             @Override
-            public void onShowMenu() {
+            public void onOpenDrawer() {
                 mToolbar.setNavigationIcon(R.drawable.ic_close_1);
             }
 
             @Override
-            public void onHideMenu() {
+            public void onCloseDrawer() {
                 mToolbar.setNavigationIcon(R.drawable.ic_list_black_24px);
             }
         };

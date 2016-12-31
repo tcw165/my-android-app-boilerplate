@@ -6,6 +6,5 @@
     <color name="colorAccent">#666666</color>
 
     <!-- Background -->
-    <color name="bg_splash_screen">#FFFFFF</color>
     <color name="bg_translucent_black">#E6333333</color>
 </resources>

@@ -1,0 +1,42 @@
+apply plugin: "com.android.library"
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "25.0.1"
+
+    defaultConfig {
+        minSdkVersion 15
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
+
+        vectorDrawables.useSupportLibrary = true
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+        }
+    }
+}
+
+dependencies {
+    def SUPPORT_LIB_VER = "25.1.0"
+
+    compile fileTree(dir: "libs", include: ["*.jar"])
+    compile "com.android.support:appcompat-v7:${SUPPORT_LIB_VER}"
+    compile "com.android.support:design:${SUPPORT_LIB_VER}"
+    compile "com.android.support:support-vector-drawable:${SUPPORT_LIB_VER}"
+    compile "com.android.support:recyclerview-v7:${SUPPORT_LIB_VER}"
+    compile "com.android.support:percent:${SUPPORT_LIB_VER}"
+    compile "com.android.support:cardview-v7:${SUPPORT_LIB_VER}"
+    compile "com.android.support:gridlayout-v7:${SUPPORT_LIB_VER}"
+
+    testCompile "junit:junit:4.12"
+
+    androidTestCompile("com.android.support.test.espresso:espresso-core:2.2.2", {
+        exclude group: "com.android.support", module: "support-annotations"
+    })
+}

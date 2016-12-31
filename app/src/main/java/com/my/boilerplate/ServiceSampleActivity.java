@@ -32,9 +32,9 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
 import com.my.boilerplate.util.ViewUtil;
-import com.my.boilerplate.view.IProgressBarView;
 import com.my.boilerplate.LongOperationReceiver.ILongOperation;
 import com.my.boilerplate.view.SampleMenuAdapter;
+import com.my.widget.IProgressBarView;
 
 public class ServiceSampleActivity
     extends AppCompatActivity
