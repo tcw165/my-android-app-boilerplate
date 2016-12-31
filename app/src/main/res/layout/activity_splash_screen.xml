@@ -11,7 +11,8 @@
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_margin="40dp"
         android:scaleType="centerInside"
         android:layout_gravity="center"
-        app:srcCompat="@drawable/img_android_robot"/>
+        app:srcCompat="@drawable/img_splash_screen"/>
 </FrameLayout>

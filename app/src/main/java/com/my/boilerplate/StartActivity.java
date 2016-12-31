@@ -20,13 +20,14 @@
 
 package com.my.boilerplate;
 
-import android.Manifest;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Pair;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -41,14 +42,16 @@ import com.my.boilerplate.view.IProgressBarView;
 import com.my.boilerplate.view.SampleMenuAdapter;
 import com.my.boilerplate.view.ScrapView;
 
+import java.util.Locale;
+
 public class StartActivity
     extends AppCompatActivity
     implements IProgressBarView {
 
-    private final static String TAG = StartActivity.class.getCanonicalName();
+    final static String TAG = StartActivity.class.getCanonicalName();
 
-    private Toolbar mToolbar;
-    private ListView mStartMenu;
+    Toolbar mToolbar;
+    ListView mStartMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +62,8 @@ public class StartActivity
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            getSupportActionBar().setDisplayShowHomeEnabled(false);
         }
 
         // List menu.
@@ -75,10 +79,22 @@ public class StartActivity
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+
+        inflater.inflate(R.menu.start_menu, menu);
+
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 toggleDrawerMenu();
+                return true;
+            case R.id.menu_settings:
+                startActivity(new Intent(this, SettingsActivity.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -116,7 +132,7 @@ public class StartActivity
         return new INavMenu.OnMenuStateChange() {
             @Override
             public void onShowMenu() {
-                mToolbar.setNavigationIcon(R.drawable.ic_close);
+                mToolbar.setNavigationIcon(R.drawable.ic_close_1);
             }
 
             @Override
@@ -130,7 +146,7 @@ public class StartActivity
     protected SampleMenuAdapter onStartMenuCreate() {
         return new SampleMenuAdapter(
             this,
-            new Pair[] {
+            new Pair[]{
                 // item 0.
                 new Pair<>("CollageEditor",
                            "A view-based collage editor (on-going)."),
@@ -171,7 +187,7 @@ public class StartActivity
                 // item 10.
                 new Pair<>("OkHttp",
                            "(constructing)."),
-            });
+                });
     }
 
     private OnItemClickListener onClickStartMenuItem() {
@@ -242,8 +258,11 @@ public class StartActivity
 //                mCollageEditor.addView(scrap);
 
                 Toast.makeText(StartActivity.this,
-                               String.format("Make a scrap (aspect ratio is %f)", scrapRatio),
-                               Toast.LENGTH_SHORT);
+                               String.format(Locale.ENGLISH,
+                                             "Make a scrap (aspect ratio is %f)",
+                                             scrapRatio),
+                               Toast.LENGTH_SHORT)
+                     .show();
             }
         };
     }

@@ -6,7 +6,7 @@
         android:viewportWidth="24">
 
     <path
-        android:fillColor="?attr/colorAccent"
+        android:fillColor="@color/colorAccent"
         android:pathData="M 5.625 4.21875 L 4.21875 5.625 L 10.59375 12 L 4.21875 18.375 L 5.625 19.78125
 L 12 13.40625 L 18.375 19.78125 L 19.78125 18.375 L 13.40625 12 L 19.78125 5.625
 L 18.375 4.21875 L 12 10.59375 L 5.625 4.21875 z"/>

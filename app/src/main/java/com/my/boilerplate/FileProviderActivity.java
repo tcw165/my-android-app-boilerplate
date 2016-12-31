@@ -22,17 +22,15 @@ package com.my.boilerplate;
 
 import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
+import android.support.v4.view.animation.FastOutLinearInInterpolator;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -62,13 +60,13 @@ import io.reactivex.observers.DisposableObserver;
 public class FileProviderActivity
     extends AppCompatActivity {
 
-    protected static final int REQ_TAKE_PHOTO = 0;
+    static final int REQ_TAKE_PHOTO = 0;
 
-    protected Uri mPhotoPath;
-    protected Observable<Void> mShowPhotoTask;
+    Uri mPhotoPath;
+    Observable<Void> mShowPhotoTask;
 
-    protected Toolbar mToolbar;
-    protected ListView mMenu;
+    Toolbar mToolbar;
+    ListView mMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,11 +94,6 @@ public class FileProviderActivity
                           .connect();
             mShowPhotoTask = null;
         }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
     }
 
     @Override
@@ -138,7 +131,7 @@ public class FileProviderActivity
     // Protected / Private Methods ////////////////////////////////////////////
 
     @SuppressWarnings({"unchecked"})
-    protected SampleMenuAdapter onSampleMenuCreate() {
+    private SampleMenuAdapter onSampleMenuCreate() {
         return new SampleMenuAdapter(
             this,
             new Pair[]{
@@ -151,7 +144,7 @@ public class FileProviderActivity
             });
     }
 
-    protected OnItemClickListener onClickMenuItem() {
+    private OnItemClickListener onClickMenuItem() {
         return new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent,
@@ -170,8 +163,8 @@ public class FileProviderActivity
     /**
      * The callback function is called after taking a photo.
      */
-    protected void onTakePhoto(int resultCode,
-                               Intent data) {
+    private void onTakePhoto(int resultCode,
+                             Intent data) {
         if (resultCode == RESULT_CANCELED) return;
 
         final File file = new File(mPhotoPath.getPath());
@@ -195,7 +188,7 @@ public class FileProviderActivity
         // TODO: Add the photo to the system MediaContent.
     }
 
-    protected void showPhoto(final Uri uri) {
+    private void showPhoto(final Uri uri) {
         Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
         if (prev != null) {
             getSupportFragmentManager()
@@ -209,7 +202,7 @@ public class FileProviderActivity
             .show(getSupportFragmentManager(), "dialog");
     }
 
-    protected void grantPermAndDispatchTakePhotoIntent() {
+    private void grantPermAndDispatchTakePhotoIntent() {
         if (Build.VERSION.SDK_INT >= 23) {
             RxPermissions
                 .getInstance(this)
@@ -243,7 +236,7 @@ public class FileProviderActivity
         }
     }
 
-    protected void dispatchTakePhotoIntent() {
+    private void dispatchTakePhotoIntent() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
         if (intent.resolveActivity(getPackageManager()) != null) {
@@ -269,9 +262,10 @@ public class FileProviderActivity
                 // order to avoid conflicts. Typically this name is the same as
                 // the class implementation describing the provider's data
                 // structure.
-                Uri uri = FileProvider.getUriForFile(this,
-                                                     "com.my.boilerplate",
-                                                     file);
+                final String authority = getResources().getString(R.string.file_provider_authority);
+                final Uri uri = FileProvider.getUriForFile(this,
+                                                           authority,
+                                                           file);
                 Log.d("xyz", String.format("Generated uri=%s", uri));
 
                 intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
@@ -283,16 +277,14 @@ public class FileProviderActivity
 
     private File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.ENGLISH).format(new Date());
-        File dir = Environment.getExternalStoragePublicDirectory(
-            Environment.DIRECTORY_PICTURES + "/my_boilerplate_app");
+        final String appName = getResources().getString(R.string.app_name);
+        final File dir = Environment.getExternalStoragePublicDirectory(
+            Environment.DIRECTORY_PICTURES + "/" + appName);
         // Create the missing parents.
         if (dir.mkdirs() || dir.isDirectory()) {
-            File image = File.createTempFile(
-                timeStamp,
-                ".jpg",
-                dir);
-
-            return image;
+            return File.createTempFile(timeStamp,
+                                       ".jpg",
+                                       dir);
         } else {
             throw new IOException(String.format("%s is not present.",
                                                 dir.getAbsolutePath()));

@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId "com.my.boilerplate"
-        minSdkVersion 15
+        minSdkVersion 21
         targetSdkVersion 24
         versionCode 1
         versionName "1.0"
@@ -30,7 +30,7 @@ repositories {
 }
 
 dependencies {
-    def SUPPORT_LIB_VER = "24.2.0"
+    def SUPPORT_LIB_VER = "24.2.1"
     def RETROFIT_VER = "2.1.0"
 
     compile fileTree(dir: "libs", include: ["*.jar"])
@@ -79,4 +79,8 @@ dependencies {
 //    compile project(":algorithms-lib")
 
     testCompile "junit:junit:4.12"
+
+    androidTestCompile("com.android.support.test.espresso:espresso-core:2.2.2", {
+        exclude group: "com.android.support", module: "support-annotations"
+    })
 }

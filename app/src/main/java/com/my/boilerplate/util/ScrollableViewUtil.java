@@ -22,13 +22,12 @@ package com.my.boilerplate.util;
 
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup.MarginLayoutParams;
 import android.widget.ListView;
 import android.widget.ScrollView;
 
-public class ScrollViewUtil {
+public class ScrollableViewUtil {
 
     /**
      * Return true if the given scrollable view is over scrolling in terms of
@@ -47,39 +46,51 @@ public class ScrollViewUtil {
 
         // TODO: Test it.
         if (view instanceof ScrollView) {
-            ScrollView scrollView = (ScrollView) view;
+            final ScrollView scrollView = (ScrollView) view;
+            final View child = scrollView.getChildAt(0);
+            if (scrollView.getHeight() >= child.getHeight()) return true;
 
             if (dy > 0) {
                 // Slide the thumb down to scroll up the list.
                 return scrollView.getScrollY() == 0;
             } else {
                 // Slide the thumb up to scroll down the list.
-                View child = scrollView.getChildAt(0);
                 MarginLayoutParams params = (MarginLayoutParams) child.getLayoutParams();
 
                 return child.getHeight() - scrollView.getScrollY() ==
                        scrollView.getHeight() - (params.topMargin + params.bottomMargin);
             }
+//        } else if (view instanceof WebView) {
+//            WebView webView = (WebView) view;
+//
+//            // TODO: Complete it.
+//            if (dy > 0) {
+//                // Slide the thumb down to scroll up the list.
+//                return webView.computeHorizontalScrollOffset() == 0.f;
+//            } else {
+//                // Slide the thumb up to scroll down the list.
+//                return false;
+//            }
         } else if (view instanceof NestedScrollView) {
-            NestedScrollView scrollView = (NestedScrollView) view;
+            final NestedScrollView scrollView = (NestedScrollView) view;
+            final int scrollRange = scrollView.computeVerticalScrollRange() -
+                                    scrollView.computeVerticalScrollExtent();
+
+            if (scrollRange <= 0) return true;
+
+            if (dy > 0) {
+                // Slide the thumb down to scroll up the list.
+                return scrollView.computeVerticalScrollOffset() == 0.f;
+            } else {
+                // Slide the thumb up to scroll down the list.
+                return scrollView.computeVerticalScrollOffset() == scrollRange;
+            }
+        } else if (view instanceof ListView) {
+            final ListView listView = (ListView) view;
+            if (listView.getAdapter().getCount() == 0) return true;
 
             // TODO: Complete it.
             if (dy > 0) {
-//                Log.d("xyz", String.format("  ifOverScrollingVertically for NestedScrollView, getScrollY()=%d", scrollView.getScrollY()));
-                // Slide the thumb down to scroll up the list.
-//                return scrollView.getFirstVisiblePosition() * firstChild.getHeight() - firstChild.getTop();
-                return scrollView.getScrollY() == 0;
-            } else {
-//                Log.d("xyz", "  ifOverScrollingVertically for NestedScrollView if dy < 0 is always false");
-                // Slide the thumb up to scroll down the list.
-                return false;
-            }
-        } else if (view instanceof ListView) {
-            ListView listView = (ListView) view;
-
-//            return listView.canScrollList(ListView.SCROLL_AXIS_VERTICAL);
-            if (dy > 0) {
-//                Log.d("xyz", String.format("ScrollViewUtil#ifOverScrollingVertically, getScrollY()=%d", listView.getScrollY()));
                 // Slide the thumb down to scroll up the list.
                 return listView.getScrollY() == 0;
             } else {
@@ -87,19 +98,23 @@ public class ScrollViewUtil {
                 return false;
             }
         } else if (view instanceof RecyclerView) {
-            RecyclerView recyclerView = (RecyclerView) view;
+            final RecyclerView recyclerView = (RecyclerView) view;
+            if (recyclerView.getAdapter().getItemCount() == 0) return true;
 
-            // TODO: Complete it.
+            final int scrollRange = recyclerView.computeVerticalScrollRange() -
+                                    recyclerView.computeVerticalScrollExtent();
+
             if (dy > 0) {
                 // Slide the thumb down to scroll up the list.
-                return true;
+                return recyclerView.computeVerticalScrollOffset() == 0.f;
             } else {
                 // Slide the thumb up to scroll down the list.
-                return false;
+                return recyclerView.computeVerticalScrollOffset() == scrollRange;
             }
         }
         // TODO: Support more scrollable view.
 
-        return false;
+        // Return true for the unsupported view because the dy is non-zero.
+        return true;
     }
 }

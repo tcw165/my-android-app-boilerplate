@@ -28,7 +28,7 @@
         <!-- Splash Screen -->
         <activity
             android:name=".SplashScreenActivity"
-            android:theme="@style/SplashScreenTheme">
+            android:theme="@style/AppTheme.SplashScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
@@ -44,8 +44,7 @@
         <!-- Other pages -->
         <activity
             android:name=".SettingsActivity"
-            android:label="@string/menu_settings"
-            android:theme="@style/AppTheme">
+            android:label="@string/menu_settings">
         </activity>
 
         <activity
@@ -138,7 +137,7 @@
 
         <provider
             android:name="android.support.v4.content.FileProvider"
-            android:authorities="com.my.boilerplate"
+            android:authorities="@string/file_provider_authority"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

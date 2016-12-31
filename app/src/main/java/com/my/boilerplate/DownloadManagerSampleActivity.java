@@ -20,12 +20,9 @@
 
 package com.my.boilerplate;
 
-import android.*;
 import android.Manifest;
 import android.app.DownloadManager;
 import android.content.Context;
-import android.content.Intent;
-import android.icu.text.LocaleDisplayNames;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -42,16 +39,14 @@ import android.widget.ListView;
 import com.my.boilerplate.view.SampleMenuAdapter;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
-import io.reactivex.Observer;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
 
 public class DownloadManagerSampleActivity extends AppCompatActivity {
 
-    protected Toolbar mToolbar;
-    protected ListView mMenu;
+    Toolbar mToolbar;
+    ListView mMenu;
 
-    protected DownloadManager mDownloadManager;
+    DownloadManager mDownloadManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

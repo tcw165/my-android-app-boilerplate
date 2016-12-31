@@ -1,8 +1,11 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- general -->
     <string name="app_name" tools:ignore="MissingTranslation">My Boilerplate</string>
+    <string name="file_provider_authority" tools:ignore="MissingTranslation">com.my.boilerplate</string>
     <string name="loading" tools:ignore="MissingTranslation">Loading</string>
     <string name="receive_notification" tools:ignore="MissingTranslation">Receive a notification</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment" tools:ignore="MissingTranslation">Blank Fragment</string>
     <string name="number_1">1</string>
     <string name="number_2">2</string>
 
@@ -21,7 +24,4 @@
     <string name="menu_next" tools:ignore="MissingTranslation">Next</string>
     <string name="menu_settings" tools:ignore="MissingTranslation">Settings</string>
     <string name="menu_help_and_feedback" tools:ignore="MissingTranslation"><![CDATA[Help & Feedback]]></string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

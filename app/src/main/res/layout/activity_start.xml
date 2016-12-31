@@ -11,12 +11,11 @@
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        android:elevation="4dp"
-        app:navigationIcon="@drawable/ic_list_black_24px"
+        android:layout_height="56dp"
+        android:background="@color/colorPrimary"
+        app:navigationIcon="@drawable/ic_close_1"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-        app:titleTextColor="?attr/colorAccent"/>
+        app:titleTextColor="@color/colorAccent"/>
 
     <FrameLayout
         android:id="@+id/frame"
