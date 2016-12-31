@@ -8,5 +8,5 @@
     <!-- Splash screen -->
     <color name="bg_splash_screen">#FFFFFF</color>
     <!-- Transparent -->
-    <color name="bg_transparent_black">#E6333333</color>
+    <color name="bg_translucent_black">#E6333333</color>
 </resources>

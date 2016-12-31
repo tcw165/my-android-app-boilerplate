@@ -13,7 +13,7 @@
         android:layout_height="match_parent"
         android:alpha="0"
         android:clickable="true"
-        app:srcCompat="@color/bg_transparent_black"
+        app:srcCompat="@color/bg_translucent_black"
         tools:alpha="1"/>
 
     <LinearLayout

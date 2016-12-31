@@ -32,6 +32,17 @@
         <item name="android:backgroundDimEnabled">false</item>
     </style>
 
+    <!-- Activity with translucent black window theme -->
+    <style name="AppTheme.TranslucentBlackBg" parent="AppTheme.CustomToolbar">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@color/bg_translucent_black</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:colorBackgroundCacheHint">@null</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+    </style>
+
     <!-- Common toolbar theme -->
     <style name="ThemeOverlay.ToolBar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
     </style>
