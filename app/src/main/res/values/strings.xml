@@ -1,5 +1,5 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- general -->
+    <!-- Common -->
     <string name="app_name" tools:ignore="MissingTranslation">My Boilerplate</string>
     <string name="file_provider_authority" tools:ignore="MissingTranslation">com.my.boilerplate</string>
     <string name="loading" tools:ignore="MissingTranslation">Loading</string>

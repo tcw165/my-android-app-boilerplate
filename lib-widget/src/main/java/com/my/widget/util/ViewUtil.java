@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.boilerplate.util;
+package com.my.widget.util;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -30,7 +30,6 @@ public class ViewUtil {
 
     private static final WeakHashMap<Context, ViewUtil> sInstancePool = new WeakHashMap<>();
 
-    private final WeakReference<Context> mContext;
     private final WeakReference<ProgressDialog> mProgress;
 
     /**
@@ -48,9 +47,8 @@ public class ViewUtil {
 
     ///////////////////////////////////////////////////////////////////////////
 
-    ViewUtil(final Context context) {
-        mContext = new WeakReference<>(context);
-        mProgress = new WeakReference<>(new ProgressDialog(mContext.get()));
+    private ViewUtil(final Context context) {
+        mProgress = new WeakReference<>(new ProgressDialog(context));
     }
 
     ///////////////////////////////////////////////////////////////////////////

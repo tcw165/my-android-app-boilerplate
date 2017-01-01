@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.my.boilerplate.StartActivity">
+    tools:context="com.my.comp.PhotoPickerActivity">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
@@ -17,22 +17,13 @@
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:titleTextColor="@color/colorAccent"/>
 
-    <FrameLayout
-        android:id="@+id/frame"
+    <android.support.v7.widget.AppCompatSpinner
+        android:id="@+id/album_list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#E5E5E5">
+        android:layout_height="56dp"/>
 
-        <!--<com.my.boilerplate.view.CollageLayout-->
-        <!--android:id="@+id/collage_editor"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:layout_gravity="center"-->
-        <!--android:background="#FFFFFF"/>-->
-        <ListView
-            android:id="@+id/menu"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:descendantFocusability="beforeDescendants"/>
-    </FrameLayout>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/photo_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 </LinearLayout>

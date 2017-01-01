@@ -1,4 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest package="com.my.comp"
           xmlns:android="http://schemas.android.com/apk/res/android">
-    <application/>
+
+    <application>
+
+        <activity android:name=".PhotoPickerActivity">
+        </activity>
+
+        <activity
+            android:name=".TakePhotoDelegateActivity"
+            android:theme="@style/AppTheme.Invisible">
+        </activity>
+    </application>
 </manifest>

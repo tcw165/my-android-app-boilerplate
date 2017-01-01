@@ -21,10 +21,10 @@
 package com.my.widget;
 
 /**
- * The view that is responsible for showing/hiding the progress bar (the view
- * also decides the way of showing the progress bar).
+ * The Activity/Fragment that is responsible for showing/hiding the progress bar
+ * (the view also decides the way of showing the progress bar).
  */
-public interface IProgressBarView {
+public interface IProgressBar {
 
     /**
      * Show the progress bar in certain way.

@@ -31,14 +31,14 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
-import com.my.boilerplate.util.ViewUtil;
+import com.my.widget.util.ViewUtil;
 import com.my.boilerplate.LongOperationReceiver.ILongOperation;
 import com.my.boilerplate.view.SampleMenuAdapter;
-import com.my.widget.IProgressBarView;
+import com.my.widget.IProgressBar;
 
 public class ServiceSampleActivity
     extends AppCompatActivity
-    implements IProgressBarView {
+    implements IProgressBar {
 
     protected Toolbar mToolbar;
     protected ListView mMenu;
