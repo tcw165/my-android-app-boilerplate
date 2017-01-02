@@ -22,24 +22,16 @@ package com.my.boilerplate.util;
 
 import android.app.Activity;
 import android.content.Context;
-import android.util.Log;
 
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import com.my.boilerplate.json.JsonWhatever;
 import com.my.boilerplate.net.IWhateverApiService;
-import com.my.boilerplate.view.IProgressBarView;
+import com.my.widget.IProgressBar;
 
 import java.lang.ref.WeakReference;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
-import io.reactivex.Scheduler;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
-import io.reactivex.internal.util.ConnectConsumer;
-import io.reactivex.schedulers.Schedulers;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -48,9 +40,9 @@ public class WebApiUtil {
 
     protected static final String TAG = WebApiUtil.class.getSimpleName();
 
-    public static final String BASE_URL = "http://cook-buddy.herokuapp.com/";
+    private static final String BASE_URL = "http://cook-buddy.herokuapp.com/";
 
-    protected static WebApiUtil sSingleton = null;
+    private static WebApiUtil sSingleton = null;
 
     public static WebApiUtil with(final Context context) {
         if (sSingleton == null) {
@@ -65,17 +57,17 @@ public class WebApiUtil {
     /**
      * The application context.
      */
-    protected final Context mContext;
+    private final Context mContext;
 
     /**
      * The weak reference pointed to the activity that supports
-     * {@code IProgressBarView} interface.
+     * {@code IProgressBar} interface.
      */
-    protected WeakReference<IProgressBarView> mProgressView;
+    private WeakReference<IProgressBar> mProgressView;
 
-    protected final OkHttpClient mHttpClient;
-    protected final Retrofit mServiceFactory;
-    protected final IWhateverApiService mWhateverApiServ;
+    private final OkHttpClient mHttpClient;
+    private final Retrofit mServiceFactory;
+    private final IWhateverApiService mWhateverApiServ;
 
 //    protected Transformer<Object, Object> mDefaultRxBehavior;
 
@@ -107,6 +99,7 @@ public class WebApiUtil {
             .addConverterFactory(GsonConverterFactory.create())
             .build();
 
+        // FIXME: Might introduce the memory leak.
         mContext = context;
         mWhateverApiServ = mServiceFactory.create(IWhateverApiService.class);
     }
@@ -114,7 +107,7 @@ public class WebApiUtil {
     /**
      * Show the progress bar when processing.
      */
-    public WebApiUtil showProgressBar(final IProgressBarView view) {
+    public WebApiUtil showProgressBar(final IProgressBar view) {
         if (view instanceof Activity &&
             ((Activity) view).isFinishing()) return this;
 

@@ -46,7 +46,7 @@ public class DrawerSampleFragment extends Fragment {
     public void onStart() {
         super.onStart();
 
-        mToolbar.setNavigationIcon(R.drawable.ic_close_1);
+        mToolbar.setNavigationIcon(R.drawable.ic_toolbar_close);
     }
 
     ///////////////////////////////////////////////////////////////////////////

@@ -36,17 +36,17 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.my.boilerplate.util.ViewUtil;
-import com.my.boilerplate.view.INavMenu;
-import com.my.boilerplate.view.IProgressBarView;
+import com.my.widget.util.ViewUtil;
 import com.my.boilerplate.view.SampleMenuAdapter;
 import com.my.boilerplate.view.ScrapView;
+import com.my.widget.IDrawerViewLayout;
+import com.my.widget.IProgressBar;
 
 import java.util.Locale;
 
 public class StartActivity
     extends AppCompatActivity
-    implements IProgressBarView {
+    implements IProgressBar {
 
     final static String TAG = StartActivity.class.getCanonicalName();
 
@@ -128,15 +128,15 @@ public class StartActivity
         // DO NOTHING
     }
 
-    private INavMenu.OnMenuStateChange onMenuStateChange() {
-        return new INavMenu.OnMenuStateChange() {
+    private IDrawerViewLayout.OnDrawerStateChange onMenuStateChange() {
+        return new IDrawerViewLayout.OnDrawerStateChange() {
             @Override
-            public void onShowMenu() {
-                mToolbar.setNavigationIcon(R.drawable.ic_close_1);
+            public void onOpenDrawer() {
+                mToolbar.setNavigationIcon(R.drawable.ic_toolbar_close);
             }
 
             @Override
-            public void onHideMenu() {
+            public void onCloseDrawer() {
                 mToolbar.setNavigationIcon(R.drawable.ic_list_black_24px);
             }
         };

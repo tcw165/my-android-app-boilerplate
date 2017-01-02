@@ -13,13 +13,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.my.boilerplate.view.DropDownMenuLayout;
-import com.my.boilerplate.view.INavMenu;
+import com.my.widget.DropDownMenuLayout;
+import com.my.widget.IDrawerViewLayout;
 
 public class DrawerOfCustomViewGroupSampleFragment extends Fragment {
 
-    private Toolbar mToolbar;
-    private DropDownMenuLayout mDrawerLayout;
+    Toolbar mToolbar;
+    DropDownMenuLayout mDrawerLayout;
 
     public DrawerOfCustomViewGroupSampleFragment() {
         // Required empty public constructor
@@ -35,7 +35,7 @@ public class DrawerOfCustomViewGroupSampleFragment extends Fragment {
                                        false);
 
         mDrawerLayout = (DropDownMenuLayout) layout;
-        mDrawerLayout.setOnMenuStateChangeListener(onMenuStateChange());
+        mDrawerLayout.setOnDrawerStateChangeListener(onMenuStateChange());
 
         // Set back icon of the toolbar.
         mToolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
@@ -90,16 +90,16 @@ public class DrawerOfCustomViewGroupSampleFragment extends Fragment {
         }
     }
 
-    private INavMenu.OnMenuStateChange onMenuStateChange() {
-        return new INavMenu.OnMenuStateChange() {
+    private IDrawerViewLayout.OnDrawerStateChange onMenuStateChange() {
+        return new IDrawerViewLayout.OnDrawerStateChange() {
             @Override
-            public void onShowMenu() {
-                Log.d("xyz", "DrawerOfCustomViewGroupSampleFragment#onShowMenu");
+            public void onOpenDrawer() {
+                Log.d("xyz", "DrawerOfCustomViewGroupSampleFragment#onOpenDrawer");
             }
 
             @Override
-            public void onHideMenu() {
-                Log.d("xyz", "DrawerOfCustomViewGroupSampleFragment#onHideMenu");
+            public void onCloseDrawer() {
+                Log.d("xyz", "DrawerOfCustomViewGroupSampleFragment#onCloseDrawer");
             }
         };
     }

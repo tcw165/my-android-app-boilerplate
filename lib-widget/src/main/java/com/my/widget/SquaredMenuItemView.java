@@ -1,18 +1,12 @@
-package com.my.boilerplate.view;
+package com.my.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.percent.PercentRelativeLayout;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.my.boilerplate.R;
 
 public class SquaredMenuItemView extends PercentRelativeLayout {
 
@@ -63,7 +57,7 @@ public class SquaredMenuItemView extends PercentRelativeLayout {
 
     protected void initView(Context context) {
         // The main layout.
-        inflate(context, R.layout.squared_menu_item, this);
+        inflate(context, R.layout.view_squared_menu_item, this);
 
         mIcon = (ImageView) findViewById(R.id.icon);
         if (mIconRes != 0) {

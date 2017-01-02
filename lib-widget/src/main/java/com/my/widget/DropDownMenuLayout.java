@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.boilerplate.view;
+package com.my.widget;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
@@ -42,8 +42,7 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 
-import com.my.boilerplate.R;
-import com.my.boilerplate.util.ScrollableViewUtil;
+import com.my.widget.util.ScrollableViewUtil;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
@@ -51,7 +50,7 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
  * The layout supporting a drop-down child view with drawer liked fling gesture.
  */
 public class DropDownMenuLayout extends ViewGroup
-    implements INavMenu {
+    implements IDrawerViewLayout {
 
     /**
      * Minimum drawer margin in DP.
@@ -105,7 +104,7 @@ public class DropDownMenuLayout extends ViewGroup
     private static final float ANIMATION_DURATION_OPEN = 300.f;
     private static final float ANIMATION_DURATION_CLOSE = 250.f;
 
-    private OnMenuStateChange mMenuStateListener;
+    private OnDrawerStateChange mDrawerStateListener;
 
     public DropDownMenuLayout(Context context) {
         this(context, null);
@@ -447,8 +446,8 @@ public class DropDownMenuLayout extends ViewGroup
     }
 
     @Override
-    public void setOnMenuStateChangeListener(OnMenuStateChange listener) {
-        mMenuStateListener = listener;
+    public void setOnDrawerStateChangeListener(OnDrawerStateChange listener) {
+        mDrawerStateListener = listener;
     }
 
     public boolean isDrawerOpened() {
@@ -497,8 +496,8 @@ public class DropDownMenuLayout extends ViewGroup
             mAnimatorSet.start();
         }
 
-        if (mMenuStateListener != null) {
-            mMenuStateListener.onShowMenu();
+        if (mDrawerStateListener != null) {
+            mDrawerStateListener.onOpenDrawer();
         }
     }
 
@@ -543,8 +542,8 @@ public class DropDownMenuLayout extends ViewGroup
             mAnimatorSet.start();
         }
 
-        if (mMenuStateListener != null) {
-            mMenuStateListener.onHideMenu();
+        if (mDrawerStateListener != null) {
+            mDrawerStateListener.onCloseDrawer();
         }
     }
 
@@ -690,7 +689,7 @@ public class DropDownMenuLayout extends ViewGroup
     ///////////////////////////////////////////////////////////////////////////
     // Clazz //////////////////////////////////////////////////////////////////
 
-    public static class LayoutParams extends ViewGroup.MarginLayoutParams {
+    public static class LayoutParams extends MarginLayoutParams {
 
         /**
          * Child view with "isDrawerView=true" attribute would be a drawer view.
@@ -701,9 +700,9 @@ public class DropDownMenuLayout extends ViewGroup
          *     <DropDownMenuLayout/>
          * </pre>
          */
-        private boolean isDrawer;
+        boolean isDrawer;
 
-        public LayoutParams(Context c, AttributeSet attrs) {
+        LayoutParams(Context c, AttributeSet attrs) {
             super(c, attrs);
 
             final TypedArray array = c.obtainStyledAttributes(attrs, R.styleable.DropDownMenuLayout);
@@ -714,7 +713,7 @@ public class DropDownMenuLayout extends ViewGroup
             }
         }
 
-        public LayoutParams(int width, int height) {
+        LayoutParams(int width, int height) {
             super(width, height);
         }
     }

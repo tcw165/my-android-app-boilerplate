@@ -21,7 +21,7 @@
         app:layout_heightPercent="33%"
         app:layout_marginTopPercent="21%"
         app:layout_widthPercent="100%"
-        app:srcCompat="@drawable/ic_list_black_24px"/>
+        app:srcCompat="@drawable/ic_settings"/>
 
     <!-- Notification badge -->
     <FrameLayout
@@ -36,7 +36,7 @@
         <FrameLayout
             android:layout_width="8dp"
             android:layout_height="8dp"
-            android:layout_gravity="top|right"
+            android:layout_gravity="top|end"
             android:background="@drawable/bg_circle_red"
             app:layout_marginTopPercent="18%"/>
     </FrameLayout>
@@ -44,7 +44,6 @@
     <!-- Caption -->
     <TextView
         android:id="@+id/caption"
-        fontPath="fonts/Avenir-Roman.otf"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/icon"
