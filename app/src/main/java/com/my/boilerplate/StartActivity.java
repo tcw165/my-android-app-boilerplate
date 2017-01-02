@@ -83,7 +83,7 @@ public class StartActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
 
-        inflater.inflate(R.menu.start_menu, menu);
+        inflater.inflate(R.menu.menu_photo_picker, menu);
 
         return true;
     }
@@ -94,7 +94,7 @@ public class StartActivity
             case android.R.id.home:
                 toggleDrawerMenu();
                 return true;
-            case R.id.menu_settings:
+            case R.id.item_settings:
                 startActivity(new Intent(this, SettingsActivity.class));
                 return true;
             default:

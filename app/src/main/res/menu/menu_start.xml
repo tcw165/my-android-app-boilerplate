@@ -18,10 +18,10 @@
         <!--app:showAsAction="ifRoom"/>-->
 
     <!-- Group -->
-    <group android:id="@+id/menu_group">
-        <item android:id="@+id/menu_settings"
+    <group>
+        <item android:id="@+id/item_settings"
               android:title="@string/menu_settings" />
-        <item android:id="@+id/menu_help_and_feedback"
+        <item android:id="@+id/item_help_and_feedback"
               android:title="@string/menu_help_and_feedback" />
     </group>
 
