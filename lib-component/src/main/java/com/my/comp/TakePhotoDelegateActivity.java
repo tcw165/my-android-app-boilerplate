@@ -46,12 +46,27 @@ import io.reactivex.observers.DisposableObserver;
 
 /**
  * An invisible Activity responsible for taking care of the necessary permissions
- * and dispatching the intent. It makes taking photo easier simply by
+ * and dispatching the intent. It uses {@link FileProvider} to grant the access
+ * of URI. You don't need to define the {@link FileProvider} in your project's
+ * {@code AndroidManifest.xml} because it's defined in the library.
+ * <br/>
+ * <br/>
+ * Usage:
+ * <br/>
+ * 1. Define {@code <string name="file_provider_authority"></string>} in the
+ * {@code res/values/strings.xml} file.
+ * <br/>
+ * 2. Define your {@code res/xml/paths.xml}.
+ * <br/>
+ * 3. Use {@link AppCompatActivity#startActivityForResult(Intent, int)} like the
+ * example:
  * <pre>
+ *
  * startActivityForResult(
  *     new Intent(FileProviderActivity.this,
  *     TakePhotoDelegateActivity.class),
  *     REQ_TAKE_PHOTO);
+ *
  * </pre>
  */
 public class TakePhotoDelegateActivity extends AppCompatActivity {
