@@ -1,7 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    tools:context=".PhotoPickerActivity">
 
+    <ImageView
+        android:id="@+id/album_cover"
+        android:layout_width="@dimen/spinner_height"
+        android:layout_height="@dimen/spinner_height"
+        android:layout_margin="4dp"
+        android:scaleType="centerCrop"
+        app:srcCompat="@color/colorAccent"/>
+
+    <TextView
+        android:id="@+id/album_name"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/spinner_height"
+        android:gravity="center_vertical"
+        android:paddingEnd="16dp"
+        android:paddingStart="16dp"
+        android:textSize="18sp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        tools:text="test x test x test x test x test x test x test x test x test"/>
 </LinearLayout>

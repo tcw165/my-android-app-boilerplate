@@ -6,7 +6,10 @@
 
         <!-- Common ////////////////////////////////////////////////////////-->
 
-        <activity android:name=".PhotoPickerActivity">
+        <activity
+            android:name=".PhotoPickerActivity"
+            android:theme="@style/AppTheme.CustomToolbar"
+            android:label="@string/title_photo_picker">
         </activity>
 
         <activity

@@ -36,6 +36,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.my.comp.PhotoPickerActivity;
 import com.my.widget.util.ViewUtil;
 import com.my.boilerplate.view.SampleMenuAdapter;
 import com.my.boilerplate.view.ScrapView;
@@ -209,6 +210,9 @@ public class StartActivity
                                           .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                         break;
                     case 2:
+                        startActivity(new Intent(StartActivity.this,
+                                                 PhotoPickerActivity.class)
+                                          .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                         break;
                     case 3:
                         startActivity(new Intent(StartActivity.this,
