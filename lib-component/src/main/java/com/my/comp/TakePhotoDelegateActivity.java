@@ -42,16 +42,32 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.observers.DisposableObserver;
 
 /**
  * An invisible Activity responsible for taking care of the necessary permissions
- * and dispatching the intent. It makes taking photo easier simply by
+ * and dispatching the intent. It uses {@link FileProvider} to grant the access
+ * of URI. You don't need to define the {@link FileProvider} in your project's
+ * {@code AndroidManifest.xml} because it's defined in the library.
+ * <br/>
+ * <br/>
+ * Usage:
+ * <br/>
+ * 1. Define {@code <string name="file_provider_authority"></string>} in the
+ * {@code res/values/strings.xml} file.
+ * <br/>
+ * 2. Define your {@code res/xml/paths.xml}.
+ * <br/>
+ * 3. Use {@link AppCompatActivity#startActivityForResult(Intent, int)} like the
+ * example:
  * <pre>
+ *
  * startActivityForResult(
  *     new Intent(FileProviderActivity.this,
  *     TakePhotoDelegateActivity.class),
  *     REQ_TAKE_PHOTO);
+ *
  * </pre>
  */
 public class TakePhotoDelegateActivity extends AppCompatActivity {
@@ -149,6 +165,7 @@ public class TakePhotoDelegateActivity extends AppCompatActivity {
                 .getInstance(this)
                 .request(Manifest.permission.WRITE_EXTERNAL_STORAGE,
                          Manifest.permission.CAMERA)
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new DisposableObserver<Boolean>() {
                     @Override
                     public void onNext(Boolean granted) {
@@ -160,6 +177,7 @@ public class TakePhotoDelegateActivity extends AppCompatActivity {
                                 "WRITE_EXTERNAL_STORAGE | CAMERA is not granted.",
                                 Toast.LENGTH_SHORT)
                                  .show();
+                            finish();
                         }
                     }
 

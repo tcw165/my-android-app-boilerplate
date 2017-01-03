@@ -46,4 +46,7 @@ dependencies {
 
     // Rx-Permissions.
     compile "com.tbruyelle.rxpermissions2:rxpermissions:0.8.2@aar"
+
+    // Image loader.
+    compile "com.github.bumptech.glide:glide:3.7.0"
 }

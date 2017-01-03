@@ -3,4 +3,10 @@
     <string name="app_name">My Component</string>
     <string name="loading" tools:ignore="MissingTranslation">Loading</string>
     <string name="file_provider_authority" tools:ignore="MissingTranslation">com.my.comp</string>
+
+    <!-- Title -->
+    <string name="title_photo_picker">Photo Picker</string>
+
+    <!-- Menu -->
+    <string name="menu_take_photo">Camera</string>
 </resources>

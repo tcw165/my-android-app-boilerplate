@@ -52,7 +52,7 @@ public class DrawerOfCustomViewGroupSampleFragment extends Fragment {
     public void onCreateOptionsMenu(Menu menu,
                                     MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.drawer_sample_menu, menu);
+        inflater.inflate(R.menu.menu_drawer_sample, menu);
     }
 
     @Override
