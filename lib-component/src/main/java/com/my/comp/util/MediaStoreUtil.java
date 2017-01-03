@@ -121,10 +121,10 @@ public class MediaStoreUtil {
         private float mThumbWidth = 0;
         private float mThumbHeight = 0;
 
-        public Album(String id,
-                     String name,
-                     String thumbPath,
-                     int photoNum) {
+        Album(String id,
+              String name,
+              String thumbPath,
+              int photoNum) {
             mId = id;
             mName = name;
             mThumbnailPath = thumbPath;
@@ -173,7 +173,7 @@ public class MediaStoreUtil {
 
         @Override
         public int photoNum() {
-            return 0;
+            return mPhotoNum;
         }
 
         @Override
@@ -219,6 +219,77 @@ public class MediaStoreUtil {
         @Override
         public void setPhotoNum(int num) {
             mPhotoNum = num;
+        }
+    }
+
+    static class Photo implements IPhoto {
+
+        private String mFullsizePath = null;
+        private String mThumbnailPath = null;
+
+        private float mWidth = 0;
+        private float mHeight = 0;
+        private float mThumbWidth = 0;
+        private float mThumbHeight = 0;
+
+        @Override
+        public float width() {
+            return mWidth;
+        }
+
+        @Override
+        public float height() {
+            return mHeight;
+        }
+
+        @Override
+        public float thumbnailWidth() {
+            return mThumbWidth;
+        }
+
+        @Override
+        public float thumbnailHeight() {
+            return mThumbHeight;
+        }
+
+        @Override
+        public String thumbnailPath() {
+            return mThumbnailPath;
+        }
+
+        @Override
+        public String fullsizePath() {
+            return mFullsizePath;
+        }
+
+        @Override
+        public void setWidth(float width) {
+            mWidth = width;
+        }
+
+        @Override
+        public void setHeight(float height) {
+            mHeight = height;
+        }
+
+        @Override
+        public void setThumbnailWidth(float width) {
+            mThumbWidth = width;
+        }
+
+        @Override
+        public void setThumbnailHeight(float height) {
+            mThumbHeight = height;
+        }
+
+        @Override
+        public void setThumbnailPath(String path) {
+            mThumbnailPath = path;
+        }
+
+        @Override
+        public void setFullsizePath(String path) {
+            mFullsizePath = path;
         }
     }
 }

@@ -43,6 +43,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.my.comp.data.IPhotoAlbum;
 import com.my.comp.util.MediaStoreUtil;
 import com.my.widget.IProgressBar;
@@ -97,6 +98,7 @@ public class PhotoPickerActivity
         mPhotoList.setAdapter(mAlbumPhotoAdapter);
 
         // FIXME: Add observer.
+//        Cursor#requery()
 
         // Load the albums.
         loadAlbumListAndPhotosOfDefaultAlbum();
@@ -105,6 +107,10 @@ public class PhotoPickerActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        if (mAlbumPhotoAdapter != null) {
+            mAlbumPhotoAdapter.clear();
+        }
 
         // TODO: Support "don't keep Activity".
     }
@@ -159,10 +165,10 @@ public class PhotoPickerActivity
         return Observable
             .create(new ObservableOnSubscribe<List<IPhotoAlbum>>() {
                 @Override
-                public void subscribe(ObservableEmitter<List<IPhotoAlbum>> e)
+                public void subscribe(ObservableEmitter<List<IPhotoAlbum>> emitter)
                     throws Exception {
-                    e.onNext(MediaStoreUtil.getAlbums(getContentResolver()));
-                    e.onComplete();
+                    emitter.onNext(MediaStoreUtil.getAlbums(getContentResolver()));
+                    emitter.onComplete();
                 }
             })
             .subscribeOn(Schedulers.io());
@@ -172,15 +178,17 @@ public class PhotoPickerActivity
         return Observable
             .create(new ObservableOnSubscribe<Cursor>() {
                 @Override
-                public void subscribe(ObservableEmitter<Cursor> e)
+                public void subscribe(ObservableEmitter<Cursor> emitter)
                     throws Exception {
                     // TODO: Complete it.
+                    emitter.onComplete();
                 }
             })
             .subscribeOn(Schedulers.io());
     }
 
     void loadAlbumListAndPhotosOfDefaultAlbum() {
+        // FIXME: Figure out the way of Observable.chain(ob1, ob2, ob3, ...)
         loadAlbumList()
             .observeOn(AndroidSchedulers.mainThread())
             .flatMap(new Function<List<IPhotoAlbum>, ObservableSource<Cursor>>() {
@@ -322,6 +330,7 @@ public class PhotoPickerActivity
                 holder = new AlbumViewHolder();
                 holder.albumCover = (ImageView) convertView.findViewById(R.id.album_cover);
                 holder.albumName = (TextView) convertView.findViewById(R.id.album_name);
+                holder.albumPhotoNum = (TextView) convertView.findViewById(R.id.album_photo_num);
 
                 convertView.setTag(holder);
             } else {
@@ -332,6 +341,7 @@ public class PhotoPickerActivity
             // TODO: Load the cover image.
             // Update the album name.
             holder.albumName.setText(album.name());
+            holder.albumPhotoNum.setText("(" + album.photoNum() + ")");
 
             return convertView;
         }
@@ -339,6 +349,7 @@ public class PhotoPickerActivity
         static class AlbumViewHolder {
             ImageView albumCover;
             TextView albumName;
+            TextView albumPhotoNum;
         }
     }
 
@@ -347,19 +358,52 @@ public class PhotoPickerActivity
      */
     static class MyAlbumPhotoAdapter extends RecyclerView.Adapter<ViewHolder> {
 
+        Cursor mCursor;
+
         @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return null;
+        public ViewHolder onCreateViewHolder(ViewGroup parent,
+                                             int viewType) {
+            LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+
+            return new AlbumPhotoViewHolder(
+                inflater.inflate(R.layout.view_photo_grid_item, parent, false));
         }
 
         @Override
-        public void onBindViewHolder(ViewHolder holder, int position) {
+        public void onBindViewHolder(ViewHolder holder,
+                                     int position) {
+            final Context context = holder.itemView.getContext();
 
+//            Glide.with(context)
+//                .load()
         }
 
         @Override
         public int getItemCount() {
-            return 0;
+            if (mCursor == null || mCursor.isClosed()) {
+                return 0;
+            } else {
+                return mCursor.getCount();
+            }
+        }
+
+        void setData(Cursor cursor) {
+            clear();
+
+            mCursor = cursor;
+        }
+
+        void clear() {
+            if (mCursor != null && !mCursor.isClosed()) {
+                mCursor.close();
+            }
+        }
+
+        static class AlbumPhotoViewHolder extends ViewHolder {
+
+            AlbumPhotoViewHolder(View view) {
+                super(view);
+            }
         }
     }
 }

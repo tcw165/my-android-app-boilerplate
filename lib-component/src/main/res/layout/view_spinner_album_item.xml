@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -17,14 +17,26 @@
         app:srcCompat="@color/colorAccent"/>
 
     <TextView
+        android:id="@+id/album_photo_num"
+        android:layout_width="80dp"
+        android:layout_height="@dimen/spinner_height"
+        android:layout_alignParentRight="true"
+        android:gravity="center"
+        android:textSize="18sp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        tools:text="(999)"/>
+
+    <TextView
         android:id="@+id/album_name"
         android:layout_width="match_parent"
         android:layout_height="@dimen/spinner_height"
-        android:gravity="center_vertical"
-        android:paddingEnd="16dp"
-        android:paddingStart="16dp"
+        android:layout_toRightOf="@id/album_cover"
+        android:layout_toLeftOf="@id/album_photo_num"
+        android:gravity="left|center_vertical"
+        android:paddingLeft="16dp"
         android:textSize="18sp"
         android:ellipsize="end"
         android:maxLines="1"
         tools:text="test x test x test x test x test x test x test x test x test"/>
-</LinearLayout>
+</RelativeLayout>

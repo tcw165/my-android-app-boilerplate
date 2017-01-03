@@ -11,11 +11,11 @@
         <!--app:showAsAction="ifRoom"-->
         <!--app:srcCompat="@drawable/ic_search"/>-->
 
-    <!-- Next -->
-    <!--<item-->
-        <!--android:id="@+id/menu_next"-->
-        <!--android:title="@string/menu_next"-->
-        <!--app:showAsAction="ifRoom"/>-->
+    <item
+        android:id="@+id/item_take_photo"
+        android:icon="@drawable/ic_toolbar_camera"
+        android:title="@string/menu_take_photo"
+        app:showAsAction="ifRoom"/>
 
     <!-- Group -->
     <group>
