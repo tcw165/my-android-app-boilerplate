@@ -37,6 +37,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.my.comp.PhotoPickerActivity;
+import com.my.comp.TakePhotoDelegateActivity;
 import com.my.widget.util.ViewUtil;
 import com.my.boilerplate.view.SampleMenuAdapter;
 import com.my.boilerplate.view.ScrapView;
@@ -83,7 +84,7 @@ public class StartActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
 
-        inflater.inflate(R.menu.menu_photo_picker, menu);
+        inflater.inflate(R.menu.menu_start, menu);
 
         return true;
     }
@@ -93,6 +94,9 @@ public class StartActivity
         switch (item.getItemId()) {
             case android.R.id.home:
                 toggleDrawerMenu();
+                return true;
+            case R.id.item_take_photo:
+                startActivity(new Intent(this, TakePhotoDelegateActivity.class));
                 return true;
             case R.id.item_settings:
                 startActivity(new Intent(this, SettingsActivity.class));

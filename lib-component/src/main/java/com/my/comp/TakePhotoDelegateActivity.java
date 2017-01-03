@@ -42,6 +42,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.observers.DisposableObserver;
 
 /**
@@ -164,6 +165,7 @@ public class TakePhotoDelegateActivity extends AppCompatActivity {
                 .getInstance(this)
                 .request(Manifest.permission.WRITE_EXTERNAL_STORAGE,
                          Manifest.permission.CAMERA)
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new DisposableObserver<Boolean>() {
                     @Override
                     public void onNext(Boolean granted) {
@@ -175,6 +177,7 @@ public class TakePhotoDelegateActivity extends AppCompatActivity {
                                 "WRITE_EXTERNAL_STORAGE | CAMERA is not granted.",
                                 Toast.LENGTH_SHORT)
                                  .show();
+                            finish();
                         }
                     }
 
