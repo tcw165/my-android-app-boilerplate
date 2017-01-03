@@ -36,6 +36,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.my.comp.IapDelegateActivity;
 import com.my.comp.PhotoPickerActivity;
 import com.my.comp.TakePhotoDelegateActivity;
 import com.my.widget.util.ViewUtil;
@@ -181,15 +182,18 @@ public class StartActivity
                 new Pair<>("FileProvider",
                            "Share file URI through FileProvider."),
                 // item 7.
-                new Pair<>("AlertManager",
+                new Pair<>("In-App-Purchase",
                            "(constructing)"),
                 // item 8.
-                new Pair<>("BroadcastReceiver",
+                new Pair<>("AlertManager",
                            "(constructing)"),
                 // item 9.
+                new Pair<>("BroadcastReceiver",
+                           "(constructing)"),
+                // item 10.
                 new Pair<>("RxJava-2",
                            "(constructing)."),
-                // item 10.
+                // item 11.
                 new Pair<>("OkHttp",
                            "(constructing)."),
                 });
@@ -236,6 +240,11 @@ public class StartActivity
                     case 6:
                         startActivity(new Intent(StartActivity.this,
                                                  FileProviderActivity.class)
+                                          .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                        break;
+                    case 7:
+                        startActivity(new Intent(StartActivity.this,
+                                                 IapSampleActivity.class)
                                           .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                         break;
                     default:

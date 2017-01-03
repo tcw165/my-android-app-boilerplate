@@ -2,14 +2,24 @@
 <manifest package="com.my.comp"
           xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
+    <uses-permission android:name="android.permission.CAMERA"/>
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+    <uses-permission android:name="com.android.vending.BILLING"/>
+
     <application>
 
-        <!-- Common ////////////////////////////////////////////////////////-->
+        <!-- Common //////////////////////////////////////////////////////// -->
 
         <activity
             android:name=".PhotoPickerActivity"
-            android:theme="@style/AppTheme.CustomToolbar"
-            android:label="@string/title_photo_picker">
+            android:label="@string/title_photo_picker"
+            android:theme="@style/AppTheme.CustomToolbar">
         </activity>
 
         <activity
@@ -17,7 +27,12 @@
             android:theme="@style/AppTheme.Invisible">
         </activity>
 
-        <!-- ContentProviders //////////////////////////////////////////////-->
+        <activity
+            android:name=".IapDelegateActivity"
+            android:theme="@style/AppTheme.Invisible">
+        </activity>
+
+        <!-- ContentProviders ////////////////////////////////////////////// -->
 
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -30,4 +45,5 @@
             </meta-data>
         </provider>
     </application>
+
 </manifest>

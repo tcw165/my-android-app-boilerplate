@@ -9,7 +9,10 @@
     <string name="number_1">1</string>
     <string name="number_2">2</string>
 
-    <!-- activity title -->
+    <!-- Button -->
+    <string name="btn_buy_it" tools:ignore="MissingTranslation">Buy It</string>
+
+    <!-- Activity title -->
     <string name="title_collage_editor_sample" tools:ignore="MissingTranslation">Collage Editor</string>
     <string name="title_drawer_sample" tools:ignore="MissingTranslation">Drawer Sample</string>
     <string name="title_notification_sample" tools:ignore="MissingTranslation">Notification Sample</string>
@@ -18,7 +21,7 @@
     <string name="title_download_manager_sample">DownloadManager Sample</string>
     <string name="title_file_provider_sample">FileProvider Sample</string>
 
-    <!-- menu item captions -->
+    <!-- Menu item captions -->
     <string name="menu_toggle_drawer">Menu</string>
     <string name="menu_search" tools:ignore="MissingTranslation">Search</string>
     <string name="menu_next" tools:ignore="MissingTranslation">Next</string>

@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="com.android.vending.BILLING"/>
 
     <uses-feature
         android:name="android.hardware.camera"
@@ -37,8 +38,7 @@
         </activity>
 
         <!-- Start Page -->
-        <activity
-            android:name=".StartActivity">
+        <activity android:name=".StartActivity">
         </activity>
 
         <!-- Other pages -->
@@ -46,17 +46,14 @@
             android:name=".SettingsActivity"
             android:label="@string/menu_settings">
         </activity>
-
         <activity
             android:name=".CollageEditorActivity"
             android:label="@string/title_collage_editor_sample">
         </activity>
-
         <activity
             android:name=".DrawerSampleActivity"
             android:label="@string/title_drawer_sample">
         </activity>
-
         <activity
             android:name=".NotificationSampleActivity"
             android:label="@string/title_notification_sample">
@@ -80,30 +77,29 @@
             android:launchMode="singleTask"
             android:taskAffinity="">
         </activity>
-
         <activity
             android:name=".ServiceSampleActivity"
             android:label="@string/title_service_sample">
         </activity>
-
         <activity
             android:name=".DownloadManagerSampleActivity"
             android:label="@string/title_download_manager_sample">
         </activity>
-
         <activity
             android:name=".FileProviderActivity"
             android:label="@string/title_file_provider_sample">
         </activity>
 
         <!-- Sample Shadow Activity (for e.g. RxPermissions) -->
-        <!--<activity-->
-        <!--android:name=".util.PermissionActivity"-->
-        <!--android:launchMode="singleTop"-->
-        <!--android:theme="@style/InvisibleTheme">-->
-        <!--</activity>-->
+        <!-- <activity -->
+        <!-- android:name=".util.PermissionActivity" -->
+        <!-- android:launchMode="singleTop" -->
+        <!-- android:theme="@style/InvisibleTheme"> -->
+        <!-- </activity> -->
 
-        <!-- Services //////////////////////////////////////////////////////-->
+
+        <!-- Services ////////////////////////////////////////////////////// -->
+
 
         <!-- Google Firebase -->
         <service
@@ -120,31 +116,33 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT"/>
             </intent-filter>
         </service>
-
         <service
             android:name=".ImmortalService"
             android:enabled="true"
             android:exported="false">
         </service>
-
         <service
             android:name=".LongOperationService"
             android:enabled="true"
             android:exported="false">
         </service>
 
-        <!-- ContentProviders //////////////////////////////////////////////-->
+        <!-- ContentProviders ////////////////////////////////////////////// -->
+
 
         <!-- Already defined in the lib-component -->
-        <!--<provider-->
-            <!--android:name="android.support.v4.content.FileProvider"-->
-            <!--android:authorities="@string/file_provider_authority"-->
-            <!--android:exported="false"-->
-            <!--android:grantUriPermissions="true">-->
-            <!--<meta-data-->
-                <!--android:name="android.support.FILE_PROVIDER_PATHS"-->
-                <!--android:resource="@xml/paths">-->
-            <!--</meta-data>-->
-        <!--</provider>-->
+        <!-- <provider -->
+        <!-- android:name="android.support.v4.content.FileProvider" -->
+        <!-- android:authorities="@string/file_provider_authority" -->
+        <!-- android:exported="false" -->
+        <!-- android:grantUriPermissions="true"> -->
+        <!-- <meta-data -->
+        <!-- android:name="android.support.FILE_PROVIDER_PATHS" -->
+        <!-- android:resource="@xml/paths"> -->
+        <!-- </meta-data> -->
+        <!-- </provider> -->
+        <activity android:name=".IapSampleActivity">
+        </activity>
     </application>
+
 </manifest>
