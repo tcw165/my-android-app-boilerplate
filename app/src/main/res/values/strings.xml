@@ -10,7 +10,8 @@
     <string name="number_2">2</string>
 
     <!-- Button -->
-    <string name="btn_buy_it" tools:ignore="MissingTranslation">Buy It</string>
+    <string name="btn_iap_buy_it" tools:ignore="MissingTranslation">Buy It</string>
+    <string name="btn_iap_reset">Reset</string>
 
     <!-- Activity title -->
     <string name="title_collage_editor_sample" tools:ignore="MissingTranslation">Collage Editor</string>

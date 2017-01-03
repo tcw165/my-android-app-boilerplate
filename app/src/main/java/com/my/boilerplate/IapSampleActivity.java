@@ -26,12 +26,15 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.my.comp.IapDelegateActivity;
 
 public class IapSampleActivity extends AppCompatActivity {
 
+    Toolbar mToolbar;
     Button mBtnBuy;
+    Button mBtnReset;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +42,38 @@ public class IapSampleActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_iap_sample);
 
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            getSupportActionBar().setDisplayShowHomeEnabled(false);
+        }
+
         mBtnBuy = (Button) findViewById(R.id.btn_buy_it);
+        mBtnBuy.setOnClickListener(onClickBuyIt());
+
+        mBtnReset = (Button) findViewById(R.id.btn_reset);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode,
+                                    int resultCode,
+                                    Intent data) {
+        if (requestCode == 0) {
+            if (resultCode == RESULT_OK) {
+                Toast.makeText(this,
+                               "Successfully purchase the item.",
+                               Toast.LENGTH_SHORT)
+                     .show();
+            } else {
+                Toast.makeText(this,
+                               "Failed to purchase the item.",
+                               Toast.LENGTH_SHORT)
+                     .show();
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -49,9 +83,18 @@ public class IapSampleActivity extends AppCompatActivity {
         return new OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivityForResult(new Intent(IapSampleActivity.this,
-                                                  IapDelegateActivity.class),
-                                       0);
+//                startActivityForResult(
+//                    new Intent(IapSampleActivity.this,
+//                               IapDelegateActivity.class)
+//                        .putExtra(IapDelegateActivity.KEY_SKU, "com.cardinalblue.piccollage.watermark")
+//                        .putExtra(IapDelegateActivity.KEY_PRICE, 1.99f),
+//                    0);
+                startActivityForResult(
+                    new Intent(IapSampleActivity.this,
+                               IapDelegateActivity.class)
+                        .putExtra(IapDelegateActivity.KEY_SKU, "com.cardinalblue.piccollage.glitterny")
+                        .putExtra(IapDelegateActivity.KEY_PRICE, 1.99f),
+                    0);
             }
         };
     }

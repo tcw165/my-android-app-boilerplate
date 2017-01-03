@@ -13,8 +13,21 @@ android {
         vectorDrawables.useSupportLibrary = true
     }
 
+    // For application security and in-app-purchasing.
+//    signingConfigs {
+//        release {
+//            keyAlias 'pc-release'
+//            storeFile new File(project.ANDROID_SIGNING_CONFIG_PATH)
+//            storePassword "cogini"
+//            keyPassword "cogini"
+//        }
+//    }
+
     buildTypes {
         release {
+            // Enable the application signing.
+//            signingConfig signingConfigs.release
+
             minifyEnabled false
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
