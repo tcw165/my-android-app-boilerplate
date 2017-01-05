@@ -23,6 +23,7 @@ package com.my.boilerplate;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -45,8 +46,7 @@ public class IapSampleActivity extends AppCompatActivity {
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-            getSupportActionBar().setDisplayShowHomeEnabled(false);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
         mBtnBuy = (Button) findViewById(R.id.btn_buy_it);
@@ -86,14 +86,12 @@ public class IapSampleActivity extends AppCompatActivity {
 //                startActivityForResult(
 //                    new Intent(IapSampleActivity.this,
 //                               IapDelegateActivity.class)
-//                        .putExtra(IapDelegateActivity.KEY_SKU, "com.cardinalblue.piccollage.watermark")
+//                        .putExtra(IapDelegateActivity.KEY_SKU, "com.cardinalblue.piccollage.glitterny")
 //                        .putExtra(IapDelegateActivity.KEY_PRICE, 1.99f),
 //                    0);
                 startActivityForResult(
                     new Intent(IapSampleActivity.this,
-                               IapDelegateActivity.class)
-                        .putExtra(IapDelegateActivity.KEY_SKU, "com.cardinalblue.piccollage.glitterny")
-                        .putExtra(IapDelegateActivity.KEY_PRICE, 1.99f),
+                               IapDelegateActivity.class),
                     0);
             }
         };

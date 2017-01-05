@@ -43,6 +43,7 @@ android {
 
 repositories {
     maven { url "https://maven.fabric.io/public" }
+    // Support AAR file.
     flatDir { dirs 'libs' }
 }
 
