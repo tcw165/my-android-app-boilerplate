@@ -9,4 +9,6 @@
 
     <!-- Menu -->
     <string name="menu_take_photo">Camera</string>
+
+    <!-- In-App-Purchase -->
 </resources>

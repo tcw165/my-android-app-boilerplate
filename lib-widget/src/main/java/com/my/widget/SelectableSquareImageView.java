@@ -24,6 +24,9 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
+/**
+ * For displaying photos in a photo picker.
+ */
 public class SelectableSquareImageView extends ImageView {
 
     public SelectableSquareImageView(Context context) {
@@ -32,5 +35,15 @@ public class SelectableSquareImageView extends ImageView {
 
     public SelectableSquareImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
+    }
+
+    @Override
+    protected void onMeasure(int widthSpec, int heightSpec) {
+        int width = MeasureSpec.getSize(widthSpec);
+        int height = MeasureSpec.getSize(heightSpec);
+        int dimen = Math.min(width, height);
+
+        // Choose the minimal side as the dimension.
+        setMeasuredDimension(dimen, dimen);
     }
 }
