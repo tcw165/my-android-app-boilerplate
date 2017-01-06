@@ -89,6 +89,9 @@
             android:name=".FileProviderActivity"
             android:label="@string/title_file_provider_sample">
         </activity>
+        <activity
+            android:name=".IapSampleActivity">
+        </activity>
 
         <!-- Sample Shadow Activity (for e.g. RxPermissions) -->
         <!-- <activity -->
@@ -98,8 +101,7 @@
         <!-- </activity> -->
 
 
-        <!-- Services ////////////////////////////////////////////////////// -->
-
+        <!-- Services ///////////////////////////////////////////////////// -->
 
         <!-- Google Firebase -->
         <service
@@ -127,22 +129,20 @@
             android:exported="false">
         </service>
 
-        <!-- ContentProviders ////////////////////////////////////////////// -->
-
+        <!-- ContentProviders ///////////////////////////////////////////// -->
 
         <!-- Already defined in the lib-component -->
-        <!-- <provider -->
-        <!-- android:name="android.support.v4.content.FileProvider" -->
-        <!-- android:authorities="@string/file_provider_authority" -->
-        <!-- android:exported="false" -->
-        <!-- android:grantUriPermissions="true"> -->
-        <!-- <meta-data -->
-        <!-- android:name="android.support.FILE_PROVIDER_PATHS" -->
-        <!-- android:resource="@xml/paths"> -->
-        <!-- </meta-data> -->
+        <!-- <provider android:name="android.support.v4.content.FileProvider"> -->
         <!-- </provider> -->
-        <activity android:name=".IapSampleActivity">
-        </activity>
-    </application>
 
+        <!-- BroadcastReceiver //////////////////////////////////////////// -->
+
+        <receiver android:name=".IapResultReceiver"
+                  android:exported="false" >
+            <intent-filter>
+                <action android:name="my.intent.action.IAP_OK" />
+                <action android:name="my.intent.action.IAP_CANCELED" />
+            </intent-filter>
+        </receiver>
+    </application>
 </manifest>

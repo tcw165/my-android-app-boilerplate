@@ -59,11 +59,11 @@ public class IapDelegateActivity extends AppCompatActivity {
     /**
      * The IAP task is successful.
      */
-    public static final String ACTION_IAP_OK = "action.IAP_OK";
+    public static final String ACTION_IAP_OK = "my.intent.action.IAP_OK";
     /**
      * The IAP task is failed.
      */
-    public static final String ACTION_IAP_CANCELED = "action.IAP_CANCELED";
+    public static final String ACTION_IAP_CANCELED = "my.intent.action.IAP_CANCELED";
 
 
     public static final String PARAMS_SKU = "PARAMS_SKU";
