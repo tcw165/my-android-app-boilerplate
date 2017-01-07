@@ -35,12 +35,12 @@ import android.widget.Toast;
 import com.my.widget.DropDownMenuView;
 import com.my.widget.IDrawerViewLayout;
 
-public class DrawerOfCoordinatorLayoutSampleFragment extends Fragment {
+public class ViewOfCoordinatorLayoutSampleFragment extends Fragment {
 
     Toolbar mToolbar;
     DropDownMenuView mDrawerMenu;
 
-    public DrawerOfCoordinatorLayoutSampleFragment() {
+    public ViewOfCoordinatorLayoutSampleFragment() {
         // Required empty public constructor
     }
 

@@ -16,12 +16,12 @@ import android.widget.Toast;
 import com.my.widget.DropDownMenuLayout;
 import com.my.widget.IDrawerViewLayout;
 
-public class DrawerOfCustomViewGroupSampleFragment extends Fragment {
+public class ViewOfCustomViewGroupSampleFragment extends Fragment {
 
     Toolbar mToolbar;
     DropDownMenuLayout mDrawerLayout;
 
-    public DrawerOfCustomViewGroupSampleFragment() {
+    public ViewOfCustomViewGroupSampleFragment() {
         // Required empty public constructor
     }
 
@@ -94,12 +94,12 @@ public class DrawerOfCustomViewGroupSampleFragment extends Fragment {
         return new IDrawerViewLayout.OnDrawerStateChange() {
             @Override
             public void onOpenDrawer() {
-                Log.d("xyz", "DrawerOfCustomViewGroupSampleFragment#onOpenDrawer");
+                Log.d("xyz", "ViewOfCustomViewGroupSampleFragment#onOpenDrawer");
             }
 
             @Override
             public void onCloseDrawer() {
-                Log.d("xyz", "DrawerOfCustomViewGroupSampleFragment#onCloseDrawer");
+                Log.d("xyz", "ViewOfCustomViewGroupSampleFragment#onCloseDrawer");
             }
         };
     }

@@ -14,13 +14,13 @@ import android.widget.ListView;
 import com.my.boilerplate.view.SampleMenuAdapter;
 
 /**
- * The start menu of the {@code DrawerSampleActivity}.
+ * The start menu of the {@code ViewSampleActivity}.
  */
-public class DrawerSampleFragment extends Fragment {
+public class ViewSampleFragment extends Fragment {
 
     private Toolbar mToolbar;
 
-    public DrawerSampleFragment() {
+    public ViewSampleFragment() {
         // Required empty public constructor
     }
 
@@ -64,7 +64,9 @@ public class DrawerSampleFragment extends Fragment {
                            "solution is to customize a ViewGroup."),
                 new Pair<>("Custom ViewGroup behaves like DrawerLayout",
                            "The custom ViewGroup is responsible for intercept " +
-                           "the dragging touch event.")
+                           "the dragging touch event."),
+                new Pair<>("Custom ElasticDragDismissFrameLayout.",
+                           "Idea inspired from the sample code of Plaid app.")
             });
     }
 
@@ -80,7 +82,7 @@ public class DrawerSampleFragment extends Fragment {
                         getActivity()
                             .getSupportFragmentManager()
                             .beginTransaction()
-                            .replace(R.id.frame, new DrawerOfCoordinatorLayoutSampleFragment())
+                            .replace(R.id.frame, new ViewOfCoordinatorLayoutSampleFragment())
                             .addToBackStack(null)
                             .commit();
                         break;
@@ -88,7 +90,15 @@ public class DrawerSampleFragment extends Fragment {
                         getActivity()
                             .getSupportFragmentManager()
                             .beginTransaction()
-                            .replace(R.id.frame, new DrawerOfCustomViewGroupSampleFragment())
+                            .replace(R.id.frame, new ViewOfCustomViewGroupSampleFragment())
+                            .addToBackStack(null)
+                            .commit();
+                        break;
+                    case 2:
+                        getActivity()
+                            .getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.frame, new ViewOfElasticDragDismissFrameLayoutSampleFragment())
                             .addToBackStack(null)
                             .commit();
                         break;

@@ -51,7 +51,7 @@
             android:label="@string/title_collage_editor_sample">
         </activity>
         <activity
-            android:name=".DrawerSampleActivity"
+            android:name=".ViewSampleActivity"
             android:label="@string/title_drawer_sample">
         </activity>
         <activity
