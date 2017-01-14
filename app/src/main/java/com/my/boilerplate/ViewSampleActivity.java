@@ -70,10 +70,12 @@ public class ViewSampleActivity extends AppCompatActivity {
             .findFragmentById(R.id.frame);
 
         if (fragment instanceof ViewOfCoordinatorLayoutSampleFragment) {
+            // Need to ensure the drawer is dismissed.
             isHandled = ((ViewOfCoordinatorLayoutSampleFragment) fragment)
                 .onBackPressed();
-        } else if (fragment instanceof ViewOfCustomViewGroupSampleFragment) {
-            isHandled = ((ViewOfCustomViewGroupSampleFragment) fragment)
+        } else if (fragment instanceof ViewOfDropDownMenuLayoutSampleFragment) {
+            // Need to ensure the drawer is dismissed.
+            isHandled = ((ViewOfDropDownMenuLayoutSampleFragment) fragment)
                 .onBackPressed();
         }
 

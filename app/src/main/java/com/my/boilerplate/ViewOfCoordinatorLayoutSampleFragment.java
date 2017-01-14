@@ -49,7 +49,7 @@ public class ViewOfCoordinatorLayoutSampleFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View layout = inflater.inflate(R.layout.fragment_drawer_of_coordinator_layout_sample,
+        View layout = inflater.inflate(R.layout.fragment_view_of_coordinator_layout_sample,
                                        container,
                                        false);
 
@@ -60,7 +60,7 @@ public class ViewOfCoordinatorLayoutSampleFragment extends Fragment {
         // Set back icon of the toolbar.
         mToolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
         mToolbar.setNavigationIcon(R.drawable.ic_back);
-        mToolbar.setTitle("Sample of CoordinatorLayout");
+        mToolbar.setTitle("CoordinatorLayout");
 
         // It wants to contribute the menu option.
         setHasOptionsMenu(true);

@@ -16,12 +16,12 @@ import android.widget.Toast;
 import com.my.widget.DropDownMenuLayout;
 import com.my.widget.IDrawerViewLayout;
 
-public class ViewOfCustomViewGroupSampleFragment extends Fragment {
+public class ViewOfDropDownMenuLayoutSampleFragment extends Fragment {
 
     Toolbar mToolbar;
     DropDownMenuLayout mDrawerLayout;
 
-    public ViewOfCustomViewGroupSampleFragment() {
+    public ViewOfDropDownMenuLayoutSampleFragment() {
         // Required empty public constructor
     }
 
@@ -30,7 +30,7 @@ public class ViewOfCustomViewGroupSampleFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View layout = inflater.inflate(R.layout.fragment_drawer_of_custom_viewgroup_sample,
+        View layout = inflater.inflate(R.layout.fragment_view_of_drop_down_menu_layout_sample,
                                        container,
                                        false);
 
@@ -40,7 +40,7 @@ public class ViewOfCustomViewGroupSampleFragment extends Fragment {
         // Set back icon of the toolbar.
         mToolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
         mToolbar.setNavigationIcon(R.drawable.ic_back);
-        mToolbar.setTitle("Sample of custom ViewGroup");
+        mToolbar.setTitle("DropDownMenuLayout");
 
         // It wants to contribute the menu option.
         setHasOptionsMenu(true);
@@ -94,12 +94,12 @@ public class ViewOfCustomViewGroupSampleFragment extends Fragment {
         return new IDrawerViewLayout.OnDrawerStateChange() {
             @Override
             public void onOpenDrawer() {
-                Log.d("xyz", "ViewOfCustomViewGroupSampleFragment#onOpenDrawer");
+                Log.d("xyz", "ViewOfDropDownMenuLayoutSampleFragment#onOpenDrawer");
             }
 
             @Override
             public void onCloseDrawer() {
-                Log.d("xyz", "ViewOfCustomViewGroupSampleFragment#onCloseDrawer");
+                Log.d("xyz", "ViewOfDropDownMenuLayoutSampleFragment#onCloseDrawer");
             }
         };
     }

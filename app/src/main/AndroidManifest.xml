@@ -52,7 +52,7 @@
         </activity>
         <activity
             android:name=".ViewSampleActivity"
-            android:label="@string/title_drawer_sample">
+            android:label="@string/title_view_sample">
         </activity>
         <activity
             android:name=".NotificationSampleActivity"

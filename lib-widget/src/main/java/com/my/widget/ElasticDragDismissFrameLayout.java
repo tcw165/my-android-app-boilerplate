@@ -30,13 +30,10 @@ import android.widget.FrameLayout;
 import java.util.ArrayList;
 import java.util.List;
 
-//import io.plaidapp.util.AnimUtils;
-//import io.plaidapp.util.ColorUtils;
-//import io.plaidapp.util.ViewUtils;
-
 /**
- * A {@link FrameLayout} which responds to nested scrolls to create drag-dismissable layouts.
- * Applies an elasticity factor to reduce movement as you approach the given dismiss distance.
+ * A {@link FrameLayout} which responds to nested scrolls to create drag-
+ * dismissable layouts. Applies an elasticity factor to reduce movement
+ * as you approach the given dismiss distance.
  * Optionally also scales down content during drag.
  */
 public class ElasticDragDismissFrameLayout
@@ -61,7 +58,8 @@ public class ElasticDragDismissFrameLayout
         this(context, null);
     }
 
-    public ElasticDragDismissFrameLayout(Context context, AttributeSet attrs) {
+    public ElasticDragDismissFrameLayout(Context context,
+                                         AttributeSet attrs) {
         super(context, attrs);
 
         final TypedArray array = getContext().obtainStyledAttributes(
@@ -91,12 +89,17 @@ public class ElasticDragDismissFrameLayout
     }
 
     @Override
-    public boolean onStartNestedScroll(View child, View target, int nestedScrollAxes) {
+    public boolean onStartNestedScroll(View child,
+                                       View target,
+                                       int nestedScrollAxes) {
         return (nestedScrollAxes & View.SCROLL_AXIS_VERTICAL) != 0;
     }
 
     @Override
-    public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
+    public void onNestedPreScroll(View target,
+                                  int dx,
+                                  int dy,
+                                  int[] consumed) {
         // if we're in a drag gesture and the user reverses up the we should take those events
         if (mDraggingDown && dy > 0 || mDraggingUp && dy < 0) {
             dragScale(dy);
@@ -105,8 +108,11 @@ public class ElasticDragDismissFrameLayout
     }
 
     @Override
-    public void onNestedScroll(View target, int dxConsumed, int dyConsumed,
-                               int dxUnconsumed, int dyUnconsumed) {
+    public void onNestedScroll(View target,
+                               int dxConsumed,
+                               int dyConsumed,
+                               int dxUnconsumed,
+                               int dyUnconsumed) {
         dragScale(dyUnconsumed);
     }
 
@@ -114,7 +120,8 @@ public class ElasticDragDismissFrameLayout
     public void onStopNestedScroll(View child) {
         if (Math.abs(mTotalDrag) >= mDragDismissDistance) {
             dispatchDismissCallback();
-        } else { // settle back to natural position
+        } else {
+            // Settle back to natural position.
             animate()
                 .translationY(0f)
                 .scaleX(1f)
@@ -130,8 +137,11 @@ public class ElasticDragDismissFrameLayout
     }
 
     @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
+    protected void onSizeChanged(int w,
+                                 int h,
+                                 int oldW,
+                                 int oldH) {
+        super.onSizeChanged(w, h, oldW, oldH);
         if (mDragDismissFraction > 0f) {
             mDragDismissDistance = h * mDragDismissFraction;
         }
@@ -199,8 +209,10 @@ public class ElasticDragDismissFrameLayout
                              Math.min(1f, Math.abs(mTotalDrag) / mDragDismissDistance), mTotalDrag);
     }
 
-    private void dispatchDragCallback(float elasticOffset, float elasticOffsetPixels,
-                                      float rawOffset, float rawOffsetPixels) {
+    private void dispatchDragCallback(float elasticOffset,
+                                      float elasticOffsetPixels,
+                                      float rawOffset,
+                                      float rawOffsetPixels) {
         if (mCallbacks != null && !mCallbacks.isEmpty()) {
             for (ElasticDragDismissCallback callback : mCallbacks) {
                 callback.onDrag(elasticOffset, elasticOffsetPixels,
@@ -217,53 +229,6 @@ public class ElasticDragDismissFrameLayout
         }
     }
 
-//    /**
-//     * An {@link ElasticDragDismissCallback} which fades system chrome (i.e. status bar and
-//     * navigation bar) whilst elastic drags are performed and
-//     * {@link Activity#finishAfterTransition() finishes} the activity when drag dismissed.
-//     */
-//    public static class SystemChromeFader extends ElasticDragDismissCallback {
-//
-//        private final Activity activity;
-//        private final int statusBarAlpha;
-//        private final int navBarAlpha;
-//        private final boolean fadeNavBar;
-//
-//        public SystemChromeFader(Activity activity) {
-//            this.activity = activity;
-//            statusBarAlpha = Color.alpha(activity.getWindow().getStatusBarColor());
-//            navBarAlpha = Color.alpha(activity.getWindow().getNavigationBarColor());
-//            // FIXME: What is this?
-//            fadeNavBar = ViewUtils.isNavBarOnBottom(activity);
-//        }
-//
-//        @Override
-//        public void onDrag(float elasticOffset, float elasticOffsetPixels,
-//                           float rawOffset, float rawOffsetPixels) {
-//            if (elasticOffsetPixels > 0) {
-//                // dragging downward, fade the status bar in proportion
-////                activity.getWindow().setStatusBarColor(ColorUtils.modifyAlpha(activity.getWindow()
-////                        .getStatusBarColor(), (int) ((1f - rawOffset) * statusBarAlpha)));
-//            } else if (elasticOffsetPixels == 0) {
-//                // reset
-////                activity.getWindow().setStatusBarColor(ColorUtils.modifyAlpha(
-////                        activity.getWindow().getStatusBarColor(), statusBarAlpha));
-////                activity.getWindow().setNavigationBarColor(ColorUtils.modifyAlpha(
-////                        activity.getWindow().getNavigationBarColor(), navBarAlpha));
-//            } else if (fadeNavBar) {
-//                // dragging upward, fade the navigation bar in proportion
-////                activity.getWindow().setNavigationBarColor(
-////                        ColorUtils.modifyAlpha(activity.getWindow().getNavigationBarColor(),
-////                                (int) ((1f - rawOffset) * navBarAlpha)));
-//            }
-//        }
-//
-//        public void onDragDismissed() {
-//            // FIXME: API>21
-//            activity.finishAfterTransition();
-//        }
-//    }
-
     ///////////////////////////////////////////////////////////////////////////
     // Clazz //////////////////////////////////////////////////////////////////
 
@@ -271,13 +236,15 @@ public class ElasticDragDismissFrameLayout
         /**
          * Called for each drag event.
          *
-         * @param elasticOffset       Indicating the drag offset with elasticity applied i.e. may
-         *                            exceed 1.
-         * @param elasticOffsetPixels The elastically scaled drag distance in pixels.
-         * @param rawOffset           Value from [0, 1] indicating the raw drag offset i.e.
-         *                            without elasticity applied. A value of 1 indicates that the
-         *                            dismiss distance has been reached.
-         * @param rawOffsetPixels     The raw distance the user has dragged
+         * @param elasticOffset       Indicating the drag offset with elasticity
+         *                            applied i.e. may exceed 1.
+         * @param elasticOffsetPixels The elastically scaled drag distance in
+         *                            pixels.
+         * @param rawOffset           Value from [0, 1] indicating the raw drag
+         *                            offset i.e. without elasticity applied. A
+         *                            value of 1 indicates that the dismiss
+         *                            distance has been reached.
+         * @param rawOffsetPixels     The raw distance the user has dragged.
          */
         void onDrag(float elasticOffset,
                     float elasticOffsetPixels,
@@ -285,7 +252,8 @@ public class ElasticDragDismissFrameLayout
                     float rawOffsetPixels);
 
         /**
-         * Called when dragging is released and has exceeded the threshold dismiss distance.
+         * Called when dragging is released and has exceeded the threshold dismiss
+         * distance.
          */
         void onDragDismissed();
     }

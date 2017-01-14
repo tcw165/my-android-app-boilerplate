@@ -37,7 +37,7 @@ public class ViewSampleFragment extends Fragment {
         menu.setOnItemClickListener(onClickMenuItem());
 
         mToolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
-        mToolbar.setTitle(getString(R.string.title_drawer_sample));
+        mToolbar.setTitle(getString(R.string.title_view_sample));
 
         return layout;
     }
@@ -90,7 +90,7 @@ public class ViewSampleFragment extends Fragment {
                         getActivity()
                             .getSupportFragmentManager()
                             .beginTransaction()
-                            .replace(R.id.frame, new ViewOfCustomViewGroupSampleFragment())
+                            .replace(R.id.frame, new ViewOfDropDownMenuLayoutSampleFragment())
                             .addToBackStack(null)
                             .commit();
                         break;

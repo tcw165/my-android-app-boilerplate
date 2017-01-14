@@ -30,7 +30,7 @@ public class ViewOfElasticDragDismissFrameLayoutSampleFragment extends Fragment 
     public View onCreateView(LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View layout = inflater.inflate(R.layout.fragment_drawer_of_custom_viewgroup_sample,
+        View layout = inflater.inflate(R.layout.fragment_view_of_elastic_drag_dismiss_frame_layout_sample,
                                        container,
                                        false);
 
@@ -40,7 +40,7 @@ public class ViewOfElasticDragDismissFrameLayoutSampleFragment extends Fragment 
         // Set back icon of the toolbar.
         mToolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
         mToolbar.setNavigationIcon(R.drawable.ic_back);
-        mToolbar.setTitle("Sample of custom ViewGroup");
+        mToolbar.setTitle("ElasticDragDismissFrameLayout");
 
         // It wants to contribute the menu option.
         setHasOptionsMenu(true);
@@ -94,12 +94,12 @@ public class ViewOfElasticDragDismissFrameLayoutSampleFragment extends Fragment 
         return new IDrawerViewLayout.OnDrawerStateChange() {
             @Override
             public void onOpenDrawer() {
-                Log.d("xyz", "ViewOfCustomViewGroupSampleFragment#onOpenDrawer");
+                Log.d("xyz", "ViewOfDropDownMenuLayoutSampleFragment#onOpenDrawer");
             }
 
             @Override
             public void onCloseDrawer() {
-                Log.d("xyz", "ViewOfCustomViewGroupSampleFragment#onCloseDrawer");
+                Log.d("xyz", "ViewOfDropDownMenuLayoutSampleFragment#onCloseDrawer");
             }
         };
     }
