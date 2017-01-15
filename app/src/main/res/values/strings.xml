@@ -16,6 +16,7 @@
     <!-- Activity title -->
     <string name="title_collage_editor_sample" tools:ignore="MissingTranslation">Collage Editor</string>
     <string name="title_view_sample" tools:ignore="MissingTranslation">Custom View Sample</string>
+    <string name="title_elastic_drag_dismiss_frame_layout_sample">ElasticDragDismissFrameLayout</string>
     <string name="title_notification_sample" tools:ignore="MissingTranslation">Notification Sample</string>
     <string name="title_notification_result_sample" tools:ignore="MissingTranslation">Notification Result Sample</string>
     <string name="title_service_sample" tools:ignore="MissingTranslation">Services Sample</string>

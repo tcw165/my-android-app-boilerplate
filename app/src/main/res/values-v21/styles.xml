@@ -1,0 +1,15 @@
+<resources>
+
+    <!-- common Activity theme with system tool bar -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light">
+        <item name="android:colorPrimary">@color/colorPrimary</item>
+        <item name="android:colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="android:colorAccent">@color/colorAccent</item>
+
+        <!-- API 21 -->
+        <!-- FIXME: The transition doesn't work -->
+        <item name="android:windowActivityTransitions">true</item>
+        <item name="android:windowEnterTransition">@transition/slide_up_enter</item>
+        <item name="android:windowExitTransition">@transition/slide_down_exit</item>
+    </style>
+</resources>

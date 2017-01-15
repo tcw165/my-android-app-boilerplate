@@ -5,6 +5,16 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+
+        <!-- API 1 -->
+        <!-- FIXME: The animation doesn't work -->
+        <item name="android:windowAnimationStyle">@style/AppTheme.Animation.Activity</item>
+    </style>
+
+    <!-- FIXME: The animation doesn't work -->
+    <style name="AppTheme.Animation.Activity" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/slide_up_enter</item>
+        <item name="android:activityCloseExitAnimation">@anim/slide_down_exit</item>
     </style>
 
     <!-- common Activity theme without system tool bar -->
@@ -24,7 +34,7 @@
     </style>
 
     <!-- Shadow/Invisible Activity theme -->
-    <style name="AppTheme.Invisible" parent="Theme.AppCompat.NoActionBar">
+    <style name="AppTheme.Invisible" parent="AppTheme.CustomToolbar">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowContentOverlay">@null</item>

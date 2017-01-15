@@ -55,6 +55,11 @@
             android:label="@string/title_view_sample">
         </activity>
         <activity
+            android:name=".ViewOfElasticDragDismissFrameLayoutSampleActivity"
+            android:label="@string/title_elastic_drag_dismiss_frame_layout_sample"
+            android:theme="@style/AppTheme.TranslucentBlackBg">
+        </activity>
+        <activity
             android:name=".NotificationSampleActivity"
             android:label="@string/title_notification_sample">
         </activity>

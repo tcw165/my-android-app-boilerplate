@@ -20,10 +20,16 @@
 
 package com.my.widget;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.os.Build;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.view.NestedScrollingChild;
 import android.support.v4.view.NestedScrollingParent;
+import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 
@@ -92,7 +98,7 @@ public class ElasticDragDismissFrameLayout
     public boolean onStartNestedScroll(View child,
                                        View target,
                                        int nestedScrollAxes) {
-        return (nestedScrollAxes & View.SCROLL_AXIS_VERTICAL) != 0;
+        return (nestedScrollAxes & ViewCompat.SCROLL_AXIS_VERTICAL) != 0;
     }
 
     @Override
@@ -100,7 +106,8 @@ public class ElasticDragDismissFrameLayout
                                   int dx,
                                   int dy,
                                   int[] consumed) {
-        // if we're in a drag gesture and the user reverses up the we should take those events
+        Log.d("xyz", "onNestedPreScroll");
+        // If we're in a drag gesture and the user reverses up the we should take those events
         if (mDraggingDown && dy > 0 || mDraggingUp && dy < 0) {
             dragScale(dy);
             consumed[1] = dy;
@@ -113,6 +120,7 @@ public class ElasticDragDismissFrameLayout
                                int dyConsumed,
                                int dxUnconsumed,
                                int dyUnconsumed) {
+        Log.d("xyz", "onNestedScroll");
         dragScale(dyUnconsumed);
     }
 
@@ -136,17 +144,6 @@ public class ElasticDragDismissFrameLayout
         }
     }
 
-    @Override
-    protected void onSizeChanged(int w,
-                                 int h,
-                                 int oldW,
-                                 int oldH) {
-        super.onSizeChanged(w, h, oldW, oldH);
-        if (mDragDismissFraction > 0f) {
-            mDragDismissDistance = h * mDragDismissFraction;
-        }
-    }
-
     public void addListener(ElasticDragDismissCallback listener) {
         if (mCallbacks == null) {
             mCallbacks = new ArrayList<>();
@@ -157,6 +154,37 @@ public class ElasticDragDismissFrameLayout
     public void removeListener(ElasticDragDismissCallback listener) {
         if (mCallbacks != null && mCallbacks.size() > 0) {
             mCallbacks.remove(listener);
+        }
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Protected / Private Methods ////////////////////////////////////////////
+
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec,
+                             int heightMeasureSpec) {
+        // Ensure all the child views are NestedScrollingChild so that this
+        // view-group is able to catch the nested scroll event.
+        final int childCount = getChildCount();
+        for (int i = 0; i < childCount; ++i) {
+            if (!(getChildAt(i) instanceof NestedScrollingChild)) {
+                throw new IllegalStateException(
+                    "View #" + i + " is't NestedScrollingChild.");
+            }
+        }
+
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+    }
+
+    @Override
+    protected void onSizeChanged(int w,
+                                 int h,
+                                 int oldW,
+                                 int oldH) {
+        super.onSizeChanged(w, h, oldW, oldH);
+        if (mDragDismissFraction > 0f) {
+            mDragDismissDistance = h * mDragDismissFraction;
         }
     }
 
@@ -252,9 +280,65 @@ public class ElasticDragDismissFrameLayout
                     float rawOffsetPixels);
 
         /**
-         * Called when dragging is released and has exceeded the threshold dismiss
-         * distance.
+         * Called when dragging is released and has exceeded the threshold
+         * dismiss distance.
          */
         void onDragDismissed();
+    }
+
+    /**
+     * An {@link ElasticDragDismissCallback} which fades system chrome (i.e.
+     * status bar and navigation bar) whilst elastic drags are performed and
+     * {@link Activity#finishAfterTransition() finishes} the activity when drag
+     * dismissed.
+     */
+    public static class SystemChromeFader implements ElasticDragDismissCallback {
+
+        final Activity activity;
+//        final int statusBarAlpha;
+//        final int navBarAlpha;
+//        final boolean fadeNavBar;
+
+        public SystemChromeFader(Activity activity) {
+            this.activity = activity;
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//            statusBarAlpha = Color.alpha(activity.getWindow().getStatusBarColor());
+//            navBarAlpha = Color.alpha(activity.getWindow().getNavigationBarColor());
+//            fadeNavBar = ViewUtils.isNavBarOnBottom(activity);
+            } else {
+//            statusBarAlpha = Color.alpha(activity.getWindow().getStatusBarColor());
+//            navBarAlpha = Color.alpha(activity.getWindow().getNavigationBarColor());
+//            fadeNavBar = ViewUtils.isNavBarOnBottom(activity);
+            }
+        }
+
+        @Override
+        public void onDrag(float elasticOffset,
+                           float elasticOffsetPixels,
+                           float rawOffset,
+                           float rawOffsetPixels) {
+//            if (elasticOffsetPixels > 0) {
+//                // dragging downward, fade the status bar in proportion
+//                activity.getWindow().setStatusBarColor(ColorUtils.modifyAlpha(activity.getWindow()
+//                                                                                      .getStatusBarColor(), (int) ((1f - rawOffset) * statusBarAlpha)));
+//            } else if (elasticOffsetPixels == 0) {
+//                // reset
+//                activity.getWindow().setStatusBarColor(ColorUtils.modifyAlpha(
+//                    activity.getWindow().getStatusBarColor(), statusBarAlpha));
+//                activity.getWindow().setNavigationBarColor(ColorUtils.modifyAlpha(
+//                    activity.getWindow().getNavigationBarColor(), navBarAlpha));
+//            } else if (fadeNavBar) {
+//                // dragging upward, fade the navigation bar in proportion
+//                activity.getWindow().setNavigationBarColor(
+//                    ColorUtils.modifyAlpha(activity.getWindow().getNavigationBarColor(),
+//                                           (int) ((1f - rawOffset) * navBarAlpha)));
+//            }
+            // Dummy callback.
+        }
+
+        public void onDragDismissed() {
+            ActivityCompat.finishAfterTransition(activity);
+        }
     }
 }

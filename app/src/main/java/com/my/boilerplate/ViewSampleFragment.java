@@ -1,5 +1,6 @@
 package com.my.boilerplate;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -56,7 +57,7 @@ public class ViewSampleFragment extends Fragment {
     protected SampleMenuAdapter onSampleMenuCreate() {
         return new SampleMenuAdapter(
             getActivity(),
-            new Pair[] {
+            new Pair[]{
                 new Pair<>("CoordinatorLayout and Behavior",
                            "Use the CoordinatorLayout and Behavior to imitate " +
                            "the drag-and-drop drawer menu in the vertical way. " +
@@ -66,7 +67,9 @@ public class ViewSampleFragment extends Fragment {
                            "The custom ViewGroup is responsible for intercept " +
                            "the dragging touch event."),
                 new Pair<>("Custom ElasticDragDismissFrameLayout.",
-                           "Idea inspired from the sample code of Plaid app.")
+                           "Idea inspired from the sample code of Plaid app. It " +
+                           "is using a translucent Activity to implement the " +
+                           "drag-to-dismiss gesture.")
             });
     }
 
@@ -95,12 +98,9 @@ public class ViewSampleFragment extends Fragment {
                             .commit();
                         break;
                     case 2:
-                        getActivity()
-                            .getSupportFragmentManager()
-                            .beginTransaction()
-                            .replace(R.id.frame, new ViewOfElasticDragDismissFrameLayoutSampleFragment())
-                            .addToBackStack(null)
-                            .commit();
+                        startActivity(
+                            new Intent(getActivity(),
+                                       ViewOfElasticDragDismissFrameLayoutSampleActivity.class));
                         break;
                 }
             }
