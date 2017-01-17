@@ -51,8 +51,13 @@
             android:label="@string/title_collage_editor_sample">
         </activity>
         <activity
-            android:name=".DrawerSampleActivity"
-            android:label="@string/title_drawer_sample">
+            android:name=".ViewSampleActivity"
+            android:label="@string/title_view_sample">
+        </activity>
+        <activity
+            android:name=".ViewOfElasticDragDismissFrameLayoutSampleActivity"
+            android:label="@string/title_elastic_drag_dismiss_frame_layout_sample"
+            android:theme="@style/AppTheme.TranslucentBlackBg">
         </activity>
         <activity
             android:name=".NotificationSampleActivity"

@@ -36,7 +36,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.my.comp.IapDelegateActivity;
 import com.my.comp.PhotoPickerActivity;
 import com.my.comp.TakePhotoDelegateActivity;
 import com.my.widget.util.ViewUtil;
@@ -157,10 +156,8 @@ public class StartActivity
                 new Pair<>("CollageEditor",
                            "A view-based collage editor (on-going)."),
                 // item 1.
-                new Pair<>("Drawer Experiments",
-                           "The experiments using different ways to create a custom " +
-                           "drawer liked view that the user could fling to open or " +
-                           "close it."),
+                new Pair<>("Custom View Experiments",
+                           "The experiments of custom View/ViewGroup."),
                 // item 2.
                 new Pair<>("RecyclerView",
                            "Add/Remove/Reposition the items in the RecyclerView " +
@@ -214,7 +211,7 @@ public class StartActivity
                         break;
                     case 1:
                         startActivity(new Intent(StartActivity.this,
-                                                 DrawerSampleActivity.class)
+                                                 ViewSampleActivity.class)
                                           .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                         break;
                     case 2:

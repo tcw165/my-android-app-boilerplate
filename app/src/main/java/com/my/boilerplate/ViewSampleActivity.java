@@ -27,7 +27,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
-public class DrawerSampleActivity extends AppCompatActivity {
+public class ViewSampleActivity extends AppCompatActivity {
 
     Toolbar mToolbar;
 
@@ -46,7 +46,7 @@ public class DrawerSampleActivity extends AppCompatActivity {
         // Show the default menu.
         getSupportFragmentManager()
             .beginTransaction()
-            .replace(R.id.frame, new DrawerSampleFragment())
+            .replace(R.id.frame, new ViewSampleFragment())
             .commit();
     }
 
@@ -69,11 +69,13 @@ public class DrawerSampleActivity extends AppCompatActivity {
         Fragment fragment = getSupportFragmentManager()
             .findFragmentById(R.id.frame);
 
-        if (fragment instanceof DrawerOfCoordinatorLayoutSampleFragment) {
-            isHandled = ((DrawerOfCoordinatorLayoutSampleFragment) fragment)
+        if (fragment instanceof ViewOfCoordinatorLayoutSampleFragment) {
+            // Need to ensure the drawer is dismissed.
+            isHandled = ((ViewOfCoordinatorLayoutSampleFragment) fragment)
                 .onBackPressed();
-        } else if (fragment instanceof DrawerOfCustomViewGroupSampleFragment) {
-            isHandled = ((DrawerOfCustomViewGroupSampleFragment) fragment)
+        } else if (fragment instanceof ViewOfDropDownMenuLayoutSampleFragment) {
+            // Need to ensure the drawer is dismissed.
+            isHandled = ((ViewOfDropDownMenuLayoutSampleFragment) fragment)
                 .onBackPressed();
         }
 

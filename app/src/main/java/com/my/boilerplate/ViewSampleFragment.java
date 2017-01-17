@@ -1,7 +1,9 @@
 package com.my.boilerplate;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
 import android.util.Pair;
@@ -14,13 +16,13 @@ import android.widget.ListView;
 import com.my.boilerplate.view.SampleMenuAdapter;
 
 /**
- * The start menu of the {@code DrawerSampleActivity}.
+ * The start menu of the {@code ViewSampleActivity}.
  */
-public class DrawerSampleFragment extends Fragment {
+public class ViewSampleFragment extends Fragment {
 
     private Toolbar mToolbar;
 
-    public DrawerSampleFragment() {
+    public ViewSampleFragment() {
         // Required empty public constructor
     }
 
@@ -37,7 +39,7 @@ public class DrawerSampleFragment extends Fragment {
         menu.setOnItemClickListener(onClickMenuItem());
 
         mToolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
-        mToolbar.setTitle(getString(R.string.title_drawer_sample));
+        mToolbar.setTitle(getString(R.string.title_view_sample));
 
         return layout;
     }
@@ -56,7 +58,7 @@ public class DrawerSampleFragment extends Fragment {
     protected SampleMenuAdapter onSampleMenuCreate() {
         return new SampleMenuAdapter(
             getActivity(),
-            new Pair[] {
+            new Pair[]{
                 new Pair<>("CoordinatorLayout and Behavior",
                            "Use the CoordinatorLayout and Behavior to imitate " +
                            "the drag-and-drop drawer menu in the vertical way. " +
@@ -64,7 +66,11 @@ public class DrawerSampleFragment extends Fragment {
                            "solution is to customize a ViewGroup."),
                 new Pair<>("Custom ViewGroup behaves like DrawerLayout",
                            "The custom ViewGroup is responsible for intercept " +
-                           "the dragging touch event.")
+                           "the dragging touch event."),
+                new Pair<>("Custom ElasticDragDismissFrameLayout.",
+                           "Idea inspired from the sample code of Plaid app. It " +
+                           "is using a translucent Activity to implement the " +
+                           "drag-to-dismiss gesture.")
             });
     }
 
@@ -80,7 +86,7 @@ public class DrawerSampleFragment extends Fragment {
                         getActivity()
                             .getSupportFragmentManager()
                             .beginTransaction()
-                            .replace(R.id.frame, new DrawerOfCoordinatorLayoutSampleFragment())
+                            .replace(R.id.frame, new ViewOfCoordinatorLayoutSampleFragment())
                             .addToBackStack(null)
                             .commit();
                         break;
@@ -88,9 +94,25 @@ public class DrawerSampleFragment extends Fragment {
                         getActivity()
                             .getSupportFragmentManager()
                             .beginTransaction()
-                            .replace(R.id.frame, new DrawerOfCustomViewGroupSampleFragment())
+                            .replace(R.id.frame, new ViewOfDropDownMenuLayoutSampleFragment())
                             .addToBackStack(null)
                             .commit();
+                        break;
+                    case 2:
+//                        startActivity(
+//                            new Intent(getActivity(),
+//                                       ViewOfElasticDragDismissFrameLayoutSampleActivity.class),
+//                            // Necessary option to enable the scene transition.
+//                            ActivityOptionsCompat
+//                                .makeSceneTransitionAnimation(
+//                                    getActivity(),
+//                                    (android.support.v4.util.Pair<View, String>[]) null)
+//                                .toBundle());
+                        startActivity(
+                            new Intent(getActivity(),
+                                       ViewOfElasticDragDismissFrameLayoutSampleActivity.class));
+                        // Disable the default window transition.
+                        getActivity().overridePendingTransition(0, 0);
                         break;
                 }
             }

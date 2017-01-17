@@ -573,7 +573,7 @@ public class DropDownMenuLayout extends ViewGroup
             // The content view.
             boolean result = super.drawChild(canvas, child, drawingTime);
 
-            // Draw the cover  paint.
+            // Draw the cover paint.
 //            if (mDrawerState != STATE_DRAWER_OPENING) {
                 final int h = mDrawerView.getHeight();
                 final float ty = mDrawerView.getTranslationY();
