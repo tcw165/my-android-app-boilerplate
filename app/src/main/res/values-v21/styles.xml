@@ -15,4 +15,16 @@
         <!-- Disable default window transition -->
         <!--<item name="android:windowAnimationStyle">@null</item>-->
     </style>
+
+    <!-- Activity with translucent black background painted by the window -->
+    <style name="AppTheme.TranslucentBlackBg" parent="AppTheme.CustomToolbar">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:colorBackgroundCacheHint">@null</item>
+        <!-- API 21 -->
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+    </style>
 </resources>

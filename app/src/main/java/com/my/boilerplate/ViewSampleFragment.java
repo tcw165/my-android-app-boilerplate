@@ -3,7 +3,6 @@ package com.my.boilerplate;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
 import android.util.Pair;
@@ -101,7 +100,7 @@ public class ViewSampleFragment extends Fragment {
                     case 2:
 //                        startActivity(
 //                            new Intent(getActivity(),
-//                                       ViewOfElasticDragDismissFrameLayoutSampleActivity.class),
+//                                       ViewOfDragDismissSampleActivity.class),
 //                            // Necessary option to enable the scene transition.
 //                            ActivityOptionsCompat
 //                                .makeSceneTransitionAnimation(
@@ -110,9 +109,7 @@ public class ViewSampleFragment extends Fragment {
 //                                .toBundle());
                         startActivity(
                             new Intent(getActivity(),
-                                       ViewOfElasticDragDismissFrameLayoutSampleActivity.class));
-                        // Disable the default window transition.
-                        getActivity().overridePendingTransition(0, 0);
+                                       ViewOfDragDismissSampleActivity.class));
                         break;
                 }
             }

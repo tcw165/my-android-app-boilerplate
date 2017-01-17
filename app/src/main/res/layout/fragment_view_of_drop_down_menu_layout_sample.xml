@@ -108,7 +108,7 @@
                 <!--android:layout_height="24dp"-->
                 <!--android:layout_gravity="center"-->
                 <!--android:tint="@android:color/darker_gray"-->
-                <!--app:srcCompat="@drawable/ic_down_arrow"/>-->
+                <!--app:srcCompat="@drawable/ic_arrow_down"/>-->
 
             <!--<ImageView-->
                 <!--android:id="@+id/down_arrow_end"-->
@@ -116,7 +116,7 @@
                 <!--android:layout_height="24dp"-->
                 <!--android:layout_gravity="center"-->
                 <!--android:alpha="0"-->
-                <!--app:srcCompat="@drawable/ic_down_arrow"/>-->
+                <!--app:srcCompat="@drawable/ic_arrow_down"/>-->
         <!--</FrameLayout>-->
     </LinearLayout>
 </com.my.widget.DropDownMenuLayout>
