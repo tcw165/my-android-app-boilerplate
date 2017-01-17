@@ -53,9 +53,9 @@ public class ViewOfCoordinatorLayoutSampleFragment extends Fragment {
                                        container,
                                        false);
 
-        mDrawerMenu = (DropDownMenuView) layout.findViewById(R.id.drawer_menu);
-        mDrawerMenu.setOnDrawerStateChangeListener(onMenuStateChange());
-        mDrawerMenu.setOnClickMenuItemListener(onClickMenuItem());
+//        mDrawerMenu = (DropDownMenuView) layout.findViewById(R.id.drawer_menu);
+//        mDrawerMenu.setOnDrawerStateChangeListener(onMenuStateChange());
+//        mDrawerMenu.setOnClickMenuItemListener(onClickMenuItem());
 
         // Set back icon of the toolbar.
         mToolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
@@ -89,12 +89,13 @@ public class ViewOfCoordinatorLayoutSampleFragment extends Fragment {
     }
 
     public boolean onBackPressed() {
-        if (mDrawerMenu.isShowing()) {
-            mDrawerMenu.hideWithAnimation();
-            return true;
-        } else {
-            return false;
-        }
+//        if (mDrawerMenu.isShowing()) {
+//            mDrawerMenu.hideWithAnimation();
+//            return true;
+//        } else {
+//            return false;
+//        }
+        return false;
     }
 
     ///////////////////////////////////////////////////////////////////////////
