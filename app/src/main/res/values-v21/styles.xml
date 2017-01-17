@@ -7,9 +7,12 @@
         <item name="android:colorAccent">@color/colorAccent</item>
 
         <!-- API 21 -->
-        <!-- FIXME: The transition doesn't work -->
+        <!-- Enable window content transitions -->
         <item name="android:windowActivityTransitions">true</item>
         <item name="android:windowEnterTransition">@transition/slide_up_enter</item>
-        <item name="android:windowExitTransition">@transition/slide_down_exit</item>
+        <item name="android:windowReturnTransition">@transition/slide_down_exit</item>
+        <!-- FIXME: The settings don't work -->
+        <!-- Disable default window transition -->
+        <!--<item name="android:windowAnimationStyle">@null</item>-->
     </style>
 </resources>

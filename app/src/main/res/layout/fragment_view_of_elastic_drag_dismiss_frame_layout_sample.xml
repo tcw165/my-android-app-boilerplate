@@ -10,9 +10,8 @@
     app:dragDismissScale="0.75">
 
     <include
-        android:id="@+id/menu"
+        android:id="@+id/drawer"
         layout="@layout/list_placeholder"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="@dimen/toolbar_height"/>
+        android:layout_height="match_parent"/>
 </com.my.widget.ElasticDragDismissFrameLayout>

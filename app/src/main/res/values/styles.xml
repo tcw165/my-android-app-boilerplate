@@ -5,16 +5,11 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-
-        <!-- API 1 -->
-        <!-- FIXME: The animation doesn't work -->
-        <item name="android:windowAnimationStyle">@style/AppTheme.Animation.Activity</item>
-    </style>
-
-    <!-- FIXME: The animation doesn't work -->
-    <style name="AppTheme.Animation.Activity" parent="@android:style/Animation.Activity">
-        <item name="android:activityOpenEnterAnimation">@anim/slide_up_enter</item>
-        <item name="android:activityCloseExitAnimation">@anim/slide_down_exit</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:activityOpenEnterAnimation">@null</item>
+        <item name="android:activityOpenExitAnimation">@null</item>
+        <item name="android:activityCloseExitAnimation">@null</item>
+        <item name="android:activityCloseEnterAnimation">@null</item>
     </style>
 
     <!-- common Activity theme without system tool bar -->
@@ -23,7 +18,7 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <!-- Splash screen theme -->
+    <!-- Splash screen -->
     <style name="AppTheme.SplashScreen" parent="AppTheme">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
@@ -33,7 +28,7 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <!-- Shadow/Invisible Activity theme -->
+    <!-- Shadow/Invisible Activity -->
     <style name="AppTheme.Invisible" parent="AppTheme.CustomToolbar">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
@@ -42,7 +37,7 @@
         <item name="android:backgroundDimEnabled">false</item>
     </style>
 
-    <!-- Activity with translucent black window theme -->
+    <!-- Activity with translucent black background painted by the window -->
     <style name="AppTheme.TranslucentBlackBg" parent="AppTheme.CustomToolbar">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@color/bg_translucent_black</item>
@@ -50,10 +45,10 @@
         <item name="android:windowIsFloating">false</item>
         <item name="android:backgroundDimEnabled">false</item>
         <item name="android:colorBackgroundCacheHint">@null</item>
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <!--<item name="android:windowDrawsSystemBarBackgrounds">true</item>-->
     </style>
 
-    <!-- Common toolbar theme -->
+    <!-- Common toolbar -->
     <style name="ThemeOverlay.ToolBar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
     </style>
 

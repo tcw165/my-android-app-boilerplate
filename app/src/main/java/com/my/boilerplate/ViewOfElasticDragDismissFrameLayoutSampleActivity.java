@@ -28,6 +28,14 @@ public class ViewOfElasticDragDismissFrameLayoutSampleActivity extends AppCompat
         mFrame.addListener(new ElasticDragDismissFrameLayout.SystemChromeFader(this));
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        // Disable the default window transition.
+        overridePendingTransition(0, 0);
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // Protected / Private Methods ////////////////////////////////////////////
 }
