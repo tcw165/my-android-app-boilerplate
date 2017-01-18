@@ -158,6 +158,16 @@ public class ElasticDragDismissFrameLayout
     }
 
     @Override
+    public void onNestedScrollAccepted(View child,
+                                       View target,
+                                       int axes) {
+        // Backport implementation for <API-21 devices.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            super.onNestedScrollAccepted(child, target, axes);
+        }
+    }
+
+    @Override
     public void onNestedPreScroll(View target,
                                   int dx,
                                   int dy,
@@ -181,6 +191,25 @@ public class ElasticDragDismissFrameLayout
     }
 
     @Override
+    public boolean onNestedPreFling(View target,
+                                    float velocityX,
+                                    float velocityY) {
+        // Backport implementation for <API-21 devices.
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
+               super.onNestedPreFling(target, velocityX, velocityY);
+    }
+
+    @Override
+    public boolean onNestedFling(View target,
+                                 float velocityX,
+                                 float velocityY,
+                                 boolean consumed) {
+        // Backport implementation for <API-21 devices.
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
+               super.onNestedFling(target, velocityX, velocityY, consumed);
+    }
+
+    @Override
     public void onStopNestedScroll(View child) {
         Log.d("xyz", "onStopNestedScroll");
         if (Math.abs(mTotalDrag) >= mDragDismissDistance) {
@@ -188,6 +217,14 @@ public class ElasticDragDismissFrameLayout
         } else {
             open();
         }
+    }
+
+    @Override
+    public int getNestedScrollAxes() {
+        // Backport implementation for <API-21 devices.
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ?
+            super.getNestedScrollAxes() :
+            ViewCompat.SCROLL_AXIS_NONE;
     }
 
     public void addListener(DragDismissCallback listener) {
@@ -495,11 +532,13 @@ public class ElasticDragDismissFrameLayout
             mDraggingDown = true;
             if (mShouldScale) {
                 ViewCompat.setPivotY(mMovableChildView, mMovableChildView.getHeight());
+                ViewCompat.setPivotX(mMovableChildView, mMovableChildView.getWidth() / 2);
             }
         } else if (scroll > 0 && !mDraggingDown && !mDraggingUp) {
             mDraggingUp = true;
             if (mShouldScale) {
                 ViewCompat.setPivotY(mMovableChildView, 0f);
+                ViewCompat.setPivotX(mMovableChildView, mMovableChildView.getWidth() / 2);
             }
         }
         // how far have we dragged relative to the distance to perform a dismiss
