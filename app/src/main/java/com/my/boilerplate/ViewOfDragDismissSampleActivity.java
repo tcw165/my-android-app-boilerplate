@@ -6,11 +6,11 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
-import com.my.widget.ElasticDragDismissFrameLayout;
+import com.my.widget.ElasticDragDismissLayout;
 
 public class ViewOfDragDismissSampleActivity extends AppCompatActivity {
 
-    ElasticDragDismissFrameLayout mLayout;
+    ElasticDragDismissLayout mLayout;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -20,8 +20,8 @@ public class ViewOfDragDismissSampleActivity extends AppCompatActivity {
         // Disable the default window transition and let mLayout to handle it.
         overridePendingTransition(0, 0);
 
-        mLayout = (ElasticDragDismissFrameLayout) findViewById(R.id.layout);
-        mLayout.addListener(new ElasticDragDismissFrameLayout.SystemChromeFader(this) {
+        mLayout = (ElasticDragDismissLayout) findViewById(R.id.layout);
+        mLayout.addListener(new ElasticDragDismissLayout.SystemChromeFader(this) {
             @Override
             public void onDrag(float elasticOffset,
                                float elasticOffsetPixels,

@@ -33,6 +33,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.Build;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.NestedScrollingChild;
 import android.support.v4.view.NestedScrollingParent;
@@ -41,6 +42,8 @@ import android.support.v4.widget.NestedScrollView;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewTreeObserver;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
@@ -53,20 +56,22 @@ import java.util.List;
  * dismissable layouts. Applies an elasticity factor to reduce movement
  * as you approach the given dismiss distance.
  * Optionally also scales down content during drag.
- * <p>
+ * <br/>
+ * The first child must be {@link NestedScrollingChild}.
+ * <br/>
  * Attributes:
  * <br/>
- * {@link R.styleable#ElasticDragDismissFrameLayout_dragDismissDistance}
+ * {@link R.styleable#ElasticDragDismissLayout_dragDismissDistance}
  * <br/>
- * {@link R.styleable#ElasticDragDismissFrameLayout_dragDismissFraction}
+ * {@link R.styleable#ElasticDragDismissLayout_dragDismissFraction}
  * <br/>
- * {@link R.styleable#ElasticDragDismissFrameLayout_dragDismissScale}
+ * {@link R.styleable#ElasticDragDismissLayout_dragDismissScale}
  * <br/>
- * {@link R.styleable#ElasticDragDismissFrameLayout_dragElasticity}
+ * {@link R.styleable#ElasticDragDismissLayout_dragElasticity}
  * <br/>
  */
-public class ElasticDragDismissFrameLayout
-    extends FrameLayout
+public class ElasticDragDismissLayout
+    extends CoordinatorLayout
     implements NestedScrollingParent {
 
     public static final int CLOSE_BY_DRAG = 0;
@@ -74,7 +79,7 @@ public class ElasticDragDismissFrameLayout
     public static final int CLOSE_BY_COVER_PRESSED = 2;
 
     // Configurable attributes.
-    float mDragDismissDistance = 224f;
+    float mDragDismissDistance = 114f;
     float mDragDismissFraction = -1f;
     float mDragDismissScale = 0.9f;
     boolean mShouldScale = false;
@@ -106,37 +111,38 @@ public class ElasticDragDismissFrameLayout
             final int alpha = (int) Math.max(0, COVER_FADE_PAINT_ALPHA * (h - ty) / h);
 
             mCoveredFadePaint.setAlpha(alpha);
+            Log.d("xyz", "update cover alpha=" + alpha);
             invalidate();
         }
     };
 
-    public ElasticDragDismissFrameLayout(Context context,
-                                         AttributeSet attrs) {
+    public ElasticDragDismissLayout(Context context,
+                                    AttributeSet attrs) {
         super(context, attrs);
 
         final float density = context.getResources().getDisplayMetrics().density;
         final TypedArray array = getContext().obtainStyledAttributes(
-            attrs, R.styleable.ElasticDragDismissFrameLayout, 0, 0);
+            attrs, R.styleable.ElasticDragDismissLayout, 0, 0);
 
         // Init configurable attributes.
-        if (array.hasValue(R.styleable.ElasticDragDismissFrameLayout_dragDismissDistance)) {
+        if (array.hasValue(R.styleable.ElasticDragDismissLayout_dragDismissDistance)) {
             mDragDismissDistance = array.getDimensionPixelSize(
-                R.styleable.ElasticDragDismissFrameLayout_dragDismissDistance,
+                R.styleable.ElasticDragDismissLayout_dragDismissDistance,
                 (int) (mDragDismissDistance * density));
-        } else if (array.hasValue(R.styleable.ElasticDragDismissFrameLayout_dragDismissFraction)) {
+        } else if (array.hasValue(R.styleable.ElasticDragDismissLayout_dragDismissFraction)) {
             mDragDismissFraction = array.getFloat(
-                R.styleable.ElasticDragDismissFrameLayout_dragDismissFraction,
+                R.styleable.ElasticDragDismissLayout_dragDismissFraction,
                 mDragDismissFraction);
         }
-        if (array.hasValue(R.styleable.ElasticDragDismissFrameLayout_dragDismissScale)) {
+        if (array.hasValue(R.styleable.ElasticDragDismissLayout_dragDismissScale)) {
             mDragDismissScale = array.getFloat(
-                R.styleable.ElasticDragDismissFrameLayout_dragDismissScale,
+                R.styleable.ElasticDragDismissLayout_dragDismissScale,
                 mDragDismissScale);
             mShouldScale = mDragDismissScale != 1f;
         }
-        if (array.hasValue(R.styleable.ElasticDragDismissFrameLayout_dragElasticity)) {
+        if (array.hasValue(R.styleable.ElasticDragDismissLayout_dragElasticity)) {
             mDragElasticity = array.getFloat(
-                R.styleable.ElasticDragDismissFrameLayout_dragElasticity,
+                R.styleable.ElasticDragDismissLayout_dragElasticity,
                 mDragElasticity);
         }
         array.recycle();
@@ -145,6 +151,18 @@ public class ElasticDragDismissFrameLayout
         mCoveredFadePaint.setColor(Color.BLACK);
         mCoveredFadePaint.setAlpha(0);
         mCoveredFadeRect = new Rect();
+    }
+
+    @Override
+    public void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        setOnClickListener(OnClickCoverToClose());
+    }
+
+    @Override
+    public void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        setOnClickListener(null);
     }
 
     @Override
@@ -158,26 +176,18 @@ public class ElasticDragDismissFrameLayout
     }
 
     @Override
-    public void onNestedScrollAccepted(View child,
-                                       View target,
-                                       int axes) {
-        // Backport implementation for <API-21 devices.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            super.onNestedScrollAccepted(child, target, axes);
-        }
-    }
-
-    @Override
     public void onNestedPreScroll(View target,
                                   int dx,
                                   int dy,
                                   int[] consumed) {
-        // If we're in a drag gesture and the user reverses up the we should take those events
+        // If we're in a drag gesture and the user reverses up the we should
+        // take those events
         if (mDraggingDown && dy > 0 || mDraggingUp && dy < 0) {
             Log.d("xyz", "  onNestedPreScroll");
             dragScale(dy);
             consumed[1] = dy;
         }
+        super.onNestedPreScroll(target, dx, dy, consumed);
     }
 
     @Override
@@ -188,25 +198,7 @@ public class ElasticDragDismissFrameLayout
                                int dyUnconsumed) {
         Log.d("xyz", "    onNestedScroll");
         dragScale(dyUnconsumed);
-    }
-
-    @Override
-    public boolean onNestedPreFling(View target,
-                                    float velocityX,
-                                    float velocityY) {
-        // Backport implementation for <API-21 devices.
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
-               super.onNestedPreFling(target, velocityX, velocityY);
-    }
-
-    @Override
-    public boolean onNestedFling(View target,
-                                 float velocityX,
-                                 float velocityY,
-                                 boolean consumed) {
-        // Backport implementation for <API-21 devices.
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
-               super.onNestedFling(target, velocityX, velocityY, consumed);
+        super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
     }
 
     @Override
@@ -217,14 +209,7 @@ public class ElasticDragDismissFrameLayout
         } else {
             open();
         }
-    }
-
-    @Override
-    public int getNestedScrollAxes() {
-        // Backport implementation for <API-21 devices.
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ?
-            super.getNestedScrollAxes() :
-            ViewCompat.SCROLL_AXIS_NONE;
+        super.onStopNestedScroll(child);
     }
 
     public void addListener(DragDismissCallback listener) {
@@ -314,9 +299,11 @@ public class ElasticDragDismissFrameLayout
      * Post call of the {@link #open()}.
      */
     public void postOpen() {
-        post(new Runnable() {
+        getViewTreeObserver()
+            .addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
             @Override
-            public void run() {
+            public void onGlobalLayout() {
+                getViewTreeObserver().removeGlobalOnLayoutListener(this);
                 if (!isOpened()) {
                     open();
                 }
@@ -403,20 +390,6 @@ public class ElasticDragDismissFrameLayout
     // Protected / Private Methods ////////////////////////////////////////////
 
     @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
-
-        setOnClickListener(OnClickCoverToClose());
-    }
-
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-
-        setOnClickListener(null);
-    }
-
-    @Override
     protected void onFinishInflate() {
         // Called before #onMeasure().
         if (getChildCount() > 1) {
@@ -459,23 +432,8 @@ public class ElasticDragDismissFrameLayout
     @Override
     protected void onMeasure(int widthMeasureSpec,
                              int heightMeasureSpec) {
-        final int widthSize = MeasureSpec.getSize(widthMeasureSpec);
-        final int heightSize = MeasureSpec.getSize(heightMeasureSpec);
-
-        // Measure itself.
-        setMeasuredDimension(widthSize, heightSize);
-
-        // Measure the only child view.
-        final View child = getChildAt(0);
-        final LayoutParams lp = (LayoutParams) child.getLayoutParams();
-        final int childWidthSpec = MeasureSpec.makeMeasureSpec(
-            widthSize - lp.leftMargin - lp.rightMargin,
-            MeasureSpec.EXACTLY);
-        final int childHeightSpec = MeasureSpec.makeMeasureSpec(
-            heightSize + lp.topMargin,
-            MeasureSpec.EXACTLY);
-
-        child.measure(childWidthSpec, childHeightSpec);
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        // TODO: Support drag padding.
     }
 
     @Override
@@ -571,7 +529,7 @@ public class ElasticDragDismissFrameLayout
         // transforms
         if ((mDraggingDown && mTotalDrag >= 0)
             || (mDraggingUp && mTotalDrag <= 0)) {
-            mTotalDrag = dragTo = dragFraction = 0;
+            mTotalDrag = dragTo = dragFraction = 0f;
             mDraggingDown = mDraggingUp = false;
             ViewCompat.setTranslationY(mMovableChildView, 0f);
             ViewCompat.setScaleX(mMovableChildView, 1f);
