@@ -1,5 +1,9 @@
 package com.my.widget;
 
+import android.animation.Animator;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.support.design.widget.CoordinatorLayout;
 import android.util.AttributeSet;
@@ -8,6 +12,7 @@ import android.view.View;
 
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.NestedScrollView;
+import android.view.animation.DecelerateInterpolator;
 
 @CoordinatorLayout.DefaultBehavior(ElasticNestedScrollView.DrawerBehavior.class)
 public class ElasticNestedScrollView extends NestedScrollView {
@@ -34,18 +39,66 @@ public class ElasticNestedScrollView extends NestedScrollView {
     public static class DrawerBehavior
         extends CoordinatorLayout.Behavior<View> {
 
-        int totalDrag;
+        // Configurable attributes.
+        float mDragStopDistance = 422f;
+        float mDragElasticity = 0.95f;
+
+        // State.
+        float mTotalDrag = 0;
+        boolean mIsDraggingUp;
+        boolean mIsDraggingDown;
 
         /**
          * Show the banner when ty < SHOW_THRESHOLD * height.
          */
-        protected static final float SHOW_THRESHOLD = 0.5f;
+        static final float SHOW_THRESHOLD = 0.5f;
+
+        // Animator.
+        AnimatorSet mAnimSet;
+        Animator.AnimatorListener mAnimListener = new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        };
+        ValueAnimator.AnimatorUpdateListener mCoverUpdater = new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+//                final int h = mElasticScrollView.getHeight();
+//                final float ty = Math.abs(mElasticScrollView.getTranslationY());
+//                final int alpha = (int) Math.max(0, COVER_FADE_PAINT_ALPHA * (h - ty) / h);
+//
+//                mCoveredFadePaint.setAlpha(alpha);
+//                invalidate();
+            }
+        };
 
         public DrawerBehavior() {
+            // DO NOTHING.
         }
 
-        public DrawerBehavior(Context context, AttributeSet attrs) {
+        public DrawerBehavior(Context context,
+                              AttributeSet attrs) {
             super(context, attrs);
+
+            // Handle the attribute.
+            final float density = context.getResources().getDisplayMetrics().density;
+            mDragStopDistance = mDragStopDistance * density;
         }
 
         @Override
@@ -67,18 +120,13 @@ public class ElasticNestedScrollView extends NestedScrollView {
                                       int[] consumed) {
             Log.d("xyz", "onNestedPreScroll, dy=" + dy + "; consume[1]=" + consumed[1]);
 
-            float ty = ViewCompat.getTranslationY(child);
-            if (ty > 0 && dy > 0) {
-                ty = Math.max(ty - dy, 0);
-                ViewCompat.setTranslationY(child, ty);
-                totalDrag += -dy;
+            // If we're in a drag gesture and the user reverses up the we should
+            // take those events
+            if ((mIsDraggingDown && dy > 0) ||
+                (mIsDraggingUp && dy < 0)) {
+                dragTo(target, dy);
                 consumed[1] = dy;
             }
-//            if (mDraggingDown && dy > 0 || mDraggingUp && dy < 0) {
-//                Log.d("xyz", String.format("onNestedPreScroll, dy=%d", dy));
-//                dragScale(dy);
-//                consumed[1] = dy;
-//            }
         }
 
         @Override
@@ -90,16 +138,8 @@ public class ElasticNestedScrollView extends NestedScrollView {
                                    int dxUnconsumed,
                                    int dyUnconsumed) {
             Log.d("xyz", String.format("onNestedScroll, dyConsumed=%d, dyUnconsumed=%d", dyConsumed, dyUnconsumed));
-//            if (dyConsumed > 0) {
-//                child.scroll(dyConsumed);
-//            } else {
-//                child.scroll(dyUnconsumed);
-//            }
 
-//            totalDrag += -dyUnconsumed;
-//
-////            int ty = (int) ViewCompat.getTranslationY(child) - dyUnconsumed;
-//            ViewCompat.setTranslationY(child, totalDrag);
+            dragTo(child, dyUnconsumed);
         }
 
         @Override
@@ -107,19 +147,84 @@ public class ElasticNestedScrollView extends NestedScrollView {
                                        View child,
                                        View anchorView) {
             Log.d("xyz", "onStopNestedScroll");
-            totalDrag = 0;
-//            // Check if the translation is over a threshold, hide it or show it.
-//            float ty = Math.abs(child.getScrollTargetView().getTranslationY());
-//            Log.d("xyz", String.format("stop the nested scroll, ty=%f", ty));
-//            float height = child.getScrollTargetHeight();
-//            // When the anchor view is scrolling up.
-//            if ((height - ty) / height > SHOW_THRESHOLD) {
-//                // Show it.
-//                child.showWithAnimation();
-//            } else {
-//                // Hide it.
-//                child.hideWithAnimation();
-//            }
+
+            if (Math.abs(mTotalDrag) >= mDragStopDistance) {
+                Log.d("xyz", "onStopNestedScroll-> over drag stop distance");
+            }
+            reset(child);
+        }
+
+        ///////////////////////////////////////////////////////////////////////////
+        // Protected / Private Methods ////////////////////////////////////////////
+
+        void dragTo(View target,
+                    int scroll) {
+            // Ensure the animation is cancelled.
+            if (mAnimSet != null) {
+                mAnimSet.cancel();
+                mAnimSet = null;
+            }
+
+            mTotalDrag += scroll;
+
+            // track the direction & set the pivot point for scaling
+            // don't double track i.e. if start dragging down and then reverse,
+            // keep tracking as dragging down until they reach the 'natural'
+            // position
+            if (scroll < 0 && !mIsDraggingDown && !mIsDraggingUp) {
+                mIsDraggingDown = true;
+            } else if (scroll > 0 && !mIsDraggingDown && !mIsDraggingUp) {
+                mIsDraggingUp = true;
+            }
+
+            // how far have we dragged relative to the distance to perform a dismiss
+            // (0–1 where 1 = dismiss distance). Decreasing logarithmically as we
+            // approach the limit
+            float dragFraction = (float) Math.log10(1 + (Math.abs(mTotalDrag) / mDragStopDistance));
+
+            // calculate the desired translation given the drag fraction
+            float dragTo = dragFraction * mDragStopDistance * mDragElasticity;
+
+            if (mIsDraggingUp) {
+                // as we use the absolute magnitude when calculating the drag
+                // fraction, need to re-apply the drag direction
+                dragTo *= -1;
+            }
+
+            ViewCompat.setTranslationY(target, dragTo);
+
+            // if we've reversed direction and gone past the settle point then clear
+            // the flags to allow the list to get the scroll events & reset any
+            // transforms
+            if ((mIsDraggingDown && mTotalDrag >= 0)
+                || (mIsDraggingUp && mTotalDrag <= 0)) {
+                mTotalDrag = dragTo = dragFraction = 0f;
+                mIsDraggingDown = mIsDraggingUp = false;
+                ViewCompat.setTranslationY(target, 0f);
+            }
+
+//            dispatchDragCallback(
+//                dragFraction, dragTo,
+//                Math.min(1f, Math.abs(mTotalDrag) / mDragDismissDistance), mTotalDrag);
+        }
+
+        void reset(View target) {
+            final ObjectAnimator animTy = ObjectAnimator
+                .ofFloat(target, "translationY", 0);
+
+            if (mAnimSet != null) {
+                mAnimSet.cancel();
+            }
+
+            mAnimSet = new AnimatorSet();
+            mAnimSet.playTogether(animTy);
+            mAnimSet.setDuration(200L);
+            mAnimSet.setInterpolator(new DecelerateInterpolator());
+            mAnimSet.start();
+
+            // Update the state.
+            mTotalDrag = 0;
+            mIsDraggingDown = false;
         }
     }
 }

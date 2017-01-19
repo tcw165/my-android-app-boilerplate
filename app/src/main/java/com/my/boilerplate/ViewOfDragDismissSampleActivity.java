@@ -16,7 +16,7 @@ public class ViewOfDragDismissSampleActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.fragment_view_of_elastic_drag_dismiss_sample);
+        setContentView(R.layout.activity_view_of_elastic_drag_dismiss_sample);
         // Disable the default window transition and let mLayout to handle it.
         overridePendingTransition(0, 0);
 

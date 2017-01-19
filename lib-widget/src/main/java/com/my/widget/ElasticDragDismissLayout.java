@@ -42,7 +42,6 @@ import android.support.v4.widget.NestedScrollView;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
@@ -79,7 +78,7 @@ public class ElasticDragDismissLayout
     public static final int CLOSE_BY_COVER_PRESSED = 2;
 
     // Configurable attributes.
-    float mDragDismissDistance = 114f;
+    float mDragDismissDistance = 0f;
     float mDragDismissFraction = -1f;
     float mDragDismissScale = 0.9f;
     boolean mShouldScale = false;
@@ -98,7 +97,7 @@ public class ElasticDragDismissLayout
     static final int COVER_FADE_PAINT_ALPHA = (int) (0.33 * 0xFF);
 
     // Views related.
-    View mMovableChildView;
+    View mElasticScrollView;
     List<DragDismissCallback> mCallbacks;
 
     // Animator.
@@ -106,8 +105,10 @@ public class ElasticDragDismissLayout
     AnimatorUpdateListener mCoverUpdater = new AnimatorUpdateListener() {
         @Override
         public void onAnimationUpdate(ValueAnimator animation) {
-            final int h = mMovableChildView.getHeight();
-            final float ty = Math.abs(mMovableChildView.getTranslationY());
+            if (!(mElasticScrollView instanceof NestedScrollingChild)) return;
+
+            final int h = mElasticScrollView.getHeight();
+            final float ty = Math.abs(mElasticScrollView.getTranslationY());
             final int alpha = (int) Math.max(0, COVER_FADE_PAINT_ALPHA * (h - ty) / h);
 
             mCoveredFadePaint.setAlpha(alpha);
@@ -128,7 +129,7 @@ public class ElasticDragDismissLayout
         if (array.hasValue(R.styleable.ElasticDragDismissLayout_dragDismissDistance)) {
             mDragDismissDistance = array.getDimensionPixelSize(
                 R.styleable.ElasticDragDismissLayout_dragDismissDistance,
-                (int) (mDragDismissDistance * density));
+                (int) mDragDismissDistance);
         } else if (array.hasValue(R.styleable.ElasticDragDismissLayout_dragDismissFraction)) {
             mDragDismissFraction = array.getFloat(
                 R.styleable.ElasticDragDismissLayout_dragDismissFraction,
@@ -239,20 +240,22 @@ public class ElasticDragDismissLayout
      * Open the layout with sliding up animation.
      */
     public void open() {
+        if (!(mElasticScrollView instanceof NestedScrollingChild)) return;
+
         // TODO: If the backport of the transition library is promising, then
         // TODO: I need to use it instead.
         final ObjectAnimator animTy = ObjectAnimator
-            .ofFloat(mMovableChildView,
+            .ofFloat(mElasticScrollView,
                      "translationY",
                      0);
         // Cover updater.
         animTy.addUpdateListener(mCoverUpdater);
         final ObjectAnimator animSx = ObjectAnimator
-            .ofFloat(mMovableChildView,
+            .ofFloat(mElasticScrollView,
                      "scaleX",
                      1.f);
         final ObjectAnimator animSy = ObjectAnimator
-            .ofFloat(mMovableChildView,
+            .ofFloat(mElasticScrollView,
                      "scaleY",
                      1.f);
 
@@ -334,14 +337,16 @@ public class ElasticDragDismissLayout
      *                       respectively.
      */
     public void close(int closeByGesture) {
+        if (!(mElasticScrollView instanceof NestedScrollingChild)) return;
+
         // TODO: If the backport of the transition library is promising, then
         // TODO: I need to use it instead.
         final ObjectAnimator animTy = ObjectAnimator
-            .ofFloat(mMovableChildView,
+            .ofFloat(mElasticScrollView,
                      "translationY",
                      (mTotalDrag <= 0 ?
-                         mMovableChildView.getMeasuredHeight() :
-                         -mMovableChildView.getMeasuredHeight()));
+                         mElasticScrollView.getMeasuredHeight() :
+                         -mElasticScrollView.getMeasuredHeight()));
         // Cover updater.
         animTy.addUpdateListener(mCoverUpdater);
 
@@ -391,24 +396,16 @@ public class ElasticDragDismissLayout
 
     @Override
     protected void onFinishInflate() {
-        // Called before #onMeasure().
-        if (getChildCount() > 1) {
-            throw new IllegalStateException("One child view is accepted!");
-        }
-
         super.onFinishInflate();
 
         // Ensure the movable child list.
-        mMovableChildView = getChildAt(0);
+        mElasticScrollView = getChildAt(0);
 
         // Very Important: setting this property to true to make the
         // view fill the visible area!
-        if (mMovableChildView instanceof NestedScrollView) {
-            NestedScrollView child = (NestedScrollView) mMovableChildView;
+        if (mElasticScrollView instanceof NestedScrollView) {
+            NestedScrollView child = (NestedScrollView) mElasticScrollView;
             child.setFillViewport(true);
-        } else if (!(mMovableChildView instanceof NestedScrollingChild)) {
-            throw new IllegalStateException(
-                "The only child view must implement NestedScrollingChild.");
         }
     }
 
@@ -422,10 +419,17 @@ public class ElasticDragDismissLayout
             mDragDismissDistance = h * mDragDismissFraction;
         }
 
+        // Ensure the animation is cancelled.
+        if (mAnimSet != null) {
+            mAnimSet.cancel();
+            mAnimSet = null;
+        }
+
         // Set translation Y of the movable child view.
-        if (!isInEditMode()) {
-            ViewCompat.setTranslationY(mMovableChildView,
-                                       mMovableChildView.getMeasuredHeight());
+        if (!isInEditMode() &&
+            mElasticScrollView instanceof NestedScrollingChild) {
+            ViewCompat.setTranslationY(mElasticScrollView,
+                                       mElasticScrollView.getMeasuredHeight());
         }
     }
 
@@ -473,7 +477,10 @@ public class ElasticDragDismissLayout
     }
 
     void dragScale(int scroll) {
-        if (scroll == 0) return;
+        if (scroll == 0 ||
+            !(mElasticScrollView instanceof NestedScrollingChild)) {
+            return;
+        }
 
         // Ensure the animation is cancelled.
         if (mAnimSet != null) {
@@ -489,14 +496,14 @@ public class ElasticDragDismissLayout
         if (scroll < 0 && !mDraggingUp && !mDraggingDown) {
             mDraggingDown = true;
             if (mShouldScale) {
-                ViewCompat.setPivotY(mMovableChildView, mMovableChildView.getHeight());
-                ViewCompat.setPivotX(mMovableChildView, mMovableChildView.getWidth() / 2);
+                ViewCompat.setPivotY(mElasticScrollView, mElasticScrollView.getHeight());
+                ViewCompat.setPivotX(mElasticScrollView, mElasticScrollView.getWidth() / 2);
             }
         } else if (scroll > 0 && !mDraggingDown && !mDraggingUp) {
             mDraggingUp = true;
             if (mShouldScale) {
-                ViewCompat.setPivotY(mMovableChildView, 0f);
-                ViewCompat.setPivotX(mMovableChildView, mMovableChildView.getWidth() / 2);
+                ViewCompat.setPivotY(mElasticScrollView, 0f);
+                ViewCompat.setPivotX(mElasticScrollView, mElasticScrollView.getWidth() / 2);
             }
         }
         // how far have we dragged relative to the distance to perform a dismiss
@@ -516,12 +523,12 @@ public class ElasticDragDismissLayout
 //        // Clamp dragTo to positive value (dragging down only).
 //        dragTo = Math.max(0, dragTo);
 
-        ViewCompat.setTranslationY(mMovableChildView, dragTo);
+        ViewCompat.setTranslationY(mElasticScrollView, dragTo);
 
         if (mShouldScale) {
             final float scale = 1 - ((1 - mDragDismissScale) * dragFraction);
-            ViewCompat.setScaleX(mMovableChildView, scale);
-            ViewCompat.setScaleY(mMovableChildView, scale);
+            ViewCompat.setScaleX(mElasticScrollView, scale);
+            ViewCompat.setScaleY(mElasticScrollView, scale);
         }
 
         // if we've reversed direction and gone past the settle point then clear
@@ -531,14 +538,14 @@ public class ElasticDragDismissLayout
             || (mDraggingUp && mTotalDrag <= 0)) {
             mTotalDrag = dragTo = dragFraction = 0f;
             mDraggingDown = mDraggingUp = false;
-            ViewCompat.setTranslationY(mMovableChildView, 0f);
-            ViewCompat.setScaleX(mMovableChildView, 1f);
-            ViewCompat.setScaleY(mMovableChildView, 1f);
+            ViewCompat.setTranslationY(mElasticScrollView, 0f);
+            ViewCompat.setScaleX(mElasticScrollView, 1f);
+            ViewCompat.setScaleY(mElasticScrollView, 1f);
         }
 
 //        // Update the cover alpha.
-//        final int h = mMovableChildView.getHeight();
-//        final float ty = Math.abs(mMovableChildView.getTranslationY());
+//        final int h = mElasticScrollView.getHeight();
+//        final float ty = Math.abs(mElasticScrollView.getTranslationY());
 //        final int alpha = (int) Math.max(0, COVER_FADE_PAINT_ALPHA * (h - ty) / h);
 //        mCoveredFadePaint.setAlpha(alpha);
 //        invalidate();
