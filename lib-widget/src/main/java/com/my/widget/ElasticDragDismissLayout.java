@@ -45,15 +45,14 @@ import android.view.View;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.FrameLayout;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A {@link FrameLayout} which responds to nested scrolls to create drag-
- * dismissable layouts. Applies an elasticity factor to reduce movement
- * as you approach the given dismiss distance.
+ * A {@link CoordinatorLayout} which responds to nested scrolls to create drag-
+ * dismissable layouts. Applies an elasticity factor to reduce movement as you
+ * approach the given dismiss distance.
  * Optionally also scales down content during drag.
  * <br/>
  * The first child must be {@link NestedScrollingChild}.
@@ -64,7 +63,7 @@ import java.util.List;
  * <br/>
  * {@link R.styleable#ElasticDragDismissLayout_dragDismissFraction}
  * <br/>
- * {@link R.styleable#ElasticDragDismissLayout_dragDismissScale}
+ * {@link R.styleable#ElasticDragDismissLayout_dragScale}
  * <br/>
  * {@link R.styleable#ElasticDragDismissLayout_dragElasticity}
  * <br/>
@@ -78,10 +77,48 @@ public class ElasticDragDismissLayout
     public static final int CLOSE_BY_COVER_PRESSED = 2;
 
     // Configurable attributes.
-    float mDragDismissDistance = 0f;
+    /**
+     * The over dragging distance.
+     * <br/>
+     * Attribute:
+     * <br/>
+     * See {@link R.styleable#ElasticDragDismissLayout_dragOverDistance}.
+     */
+    float mDragOverDistance = 244f;
+    /**
+     * The distance that the dismiss callback is called when over dragging.
+     * <br/>
+     * Attribute:
+     * <br/>
+     * See {@link R.styleable#ElasticDragDismissLayout_dragDismissDistance}.
+     */
+    float mDragDismissDistance = 24f;
+    /**
+     * The fraction percentage that the dismiss callback is called when over
+     * dragging.
+     * It's a mutual exclusive configuration of {@link #mDragDismissDistance}.
+     * <br/>
+     * Attribute:
+     * <br/>
+     * See {@link R.styleable#ElasticDragDismissLayout_dragDismissFraction}.
+     */
     float mDragDismissFraction = -1f;
-    float mDragDismissScale = 0.9f;
+    /**
+     * The scale factor when over dragging.
+     * <br/>
+     * Attribute:
+     * <br/>
+     * See {@link R.styleable#ElasticDragDismissLayout_dragScale}.
+     */
+    float mDragScale = 0.9f;
     boolean mShouldScale = false;
+    /**
+     * The elasticity factor of over dragging.
+     * <br/>
+     * Attribute:
+     * <br/>
+     * See {@link R.styleable#ElasticDragDismissLayout_dragElasticity}.
+     */
     float mDragElasticity = 0.8f;
 
     // State
@@ -129,17 +166,22 @@ public class ElasticDragDismissLayout
         if (array.hasValue(R.styleable.ElasticDragDismissLayout_dragDismissDistance)) {
             mDragDismissDistance = array.getDimensionPixelSize(
                 R.styleable.ElasticDragDismissLayout_dragDismissDistance,
-                (int) mDragDismissDistance);
+                (int) (mDragDismissDistance * density));
         } else if (array.hasValue(R.styleable.ElasticDragDismissLayout_dragDismissFraction)) {
             mDragDismissFraction = array.getFloat(
                 R.styleable.ElasticDragDismissLayout_dragDismissFraction,
                 mDragDismissFraction);
         }
-        if (array.hasValue(R.styleable.ElasticDragDismissLayout_dragDismissScale)) {
-            mDragDismissScale = array.getFloat(
-                R.styleable.ElasticDragDismissLayout_dragDismissScale,
-                mDragDismissScale);
-            mShouldScale = mDragDismissScale != 1f;
+        if (array.hasValue(R.styleable.ElasticDragDismissLayout_dragOverDistance)) {
+            mDragOverDistance = array.getDimensionPixelSize(
+                R.styleable.ElasticDragDismissLayout_dragOverDistance,
+                (int) (mDragOverDistance * density));
+        }
+        if (array.hasValue(R.styleable.ElasticDragDismissLayout_dragScale)) {
+            mDragScale = array.getFloat(
+                R.styleable.ElasticDragDismissLayout_dragScale,
+                mDragScale);
+            mShouldScale = mDragScale != 1f;
         }
         if (array.hasValue(R.styleable.ElasticDragDismissLayout_dragElasticity)) {
             mDragElasticity = array.getFloat(
@@ -213,22 +255,22 @@ public class ElasticDragDismissLayout
         super.onStopNestedScroll(child);
     }
 
-    public void addListener(DragDismissCallback listener) {
+    public void addOnDragDismissListener(DragDismissCallback listener) {
         if (mCallbacks == null) {
             mCallbacks = new ArrayList<>();
         }
         mCallbacks.add(listener);
     }
 
-    public void removeListener(DragDismissCallback listener) {
+    public void removeOnDragDismissListener(DragDismissCallback listener) {
         if (mCallbacks != null && mCallbacks.size() > 0) {
             mCallbacks.remove(listener);
         }
     }
 
-    public void removeAllListeners() {
+    public void removeAllOnDragDismissListeners() {
         while (!mCallbacks.isEmpty()) {
-            removeListener(mCallbacks.get(0));
+            removeOnDragDismissListener(mCallbacks.get(0));
         }
     }
 
@@ -333,12 +375,13 @@ public class ElasticDragDismissLayout
      *                       {@link DragDismissCallback#onBackPressedDismissed()},
      *                       {@link DragDismissCallback#onCoverPressedDismissed()}
      *                       and
-     *                       {@link DragDismissCallback#onDragDismissed()}
+     *                       {@link DragDismissCallback#onDragDismissed(float)}
      *                       respectively.
      */
     public void close(int closeByGesture) {
         if (!(mElasticScrollView instanceof NestedScrollingChild)) return;
 
+        final float totalScroll = mTotalDrag;
         // TODO: If the backport of the transition library is promising, then
         // TODO: I need to use it instead.
         final ObjectAnimator animTy = ObjectAnimator
@@ -365,7 +408,7 @@ public class ElasticDragDismissLayout
                 animTy.removeUpdateListener(mCoverUpdater);
                 mAnimSet.removeListener(this);
 
-                dispatchDismissCallback();
+                dispatchDismissCallback(totalScroll);
             }
 
             @Override
@@ -509,10 +552,10 @@ public class ElasticDragDismissLayout
         // how far have we dragged relative to the distance to perform a dismiss
         // (0–1 where 1 = dismiss distance). Decreasing logarithmically as we
         // approach the limit
-        float dragFraction = (float) Math.log10(1 + (Math.abs(mTotalDrag) / mDragDismissDistance));
+        float dragFraction = (float) Math.log10(1 + (Math.abs(mTotalDrag) / mDragOverDistance));
 
         // calculate the desired translation given the drag fraction
-        float dragTo = dragFraction * mDragDismissDistance * mDragElasticity;
+        float dragTo = dragFraction * mDragOverDistance * mDragElasticity;
 
         if (mDraggingUp) {
             // as we use the absolute magnitude when calculating the drag
@@ -526,7 +569,7 @@ public class ElasticDragDismissLayout
         ViewCompat.setTranslationY(mElasticScrollView, dragTo);
 
         if (mShouldScale) {
-            final float scale = 1 - ((1 - mDragDismissScale) * dragFraction);
+            final float scale = 1 - ((1 - mDragScale) * dragFraction);
             ViewCompat.setScaleX(mElasticScrollView, scale);
             ViewCompat.setScaleY(mElasticScrollView, scale);
         }
@@ -552,7 +595,17 @@ public class ElasticDragDismissLayout
 
         dispatchDragCallback(
             dragFraction, dragTo,
-            Math.min(1f, Math.abs(mTotalDrag) / mDragDismissDistance), mTotalDrag);
+            Math.min(1f, Math.abs(mTotalDrag) / mDragOverDistance), mTotalDrag);
+
+        onPostDragScale(dragTo);
+    }
+
+    /**
+     * Called after {@link #dragScale(int)}. It's an interface for the child
+     * class.
+     */
+    void onPostDragScale(float dragTo) {
+        // Dummy implementation.
     }
 
     void dispatchDragCallback(float elasticOffset,
@@ -567,7 +620,7 @@ public class ElasticDragDismissLayout
         }
     }
 
-    void dispatchDismissCallback() {
+    void dispatchDismissCallback(float totalScroll) {
         if (mCallbacks != null && !mCallbacks.isEmpty()) {
             for (DragDismissCallback callback : mCallbacks) {
                 switch (mClosedBy) {
@@ -579,7 +632,7 @@ public class ElasticDragDismissLayout
                         break;
                     case CLOSE_BY_DRAG:
                     default:
-                        callback.onDragDismissed();
+                        callback.onDragDismissed(totalScroll);
                         break;
                 }
             }
@@ -612,7 +665,7 @@ public class ElasticDragDismissLayout
          * Called when dragging is released and has exceeded the threshold
          * dismiss distance.
          */
-        void onDragDismissed();
+        void onDragDismissed(float totalScroll);
 
         /**
          * Dismissed by tapping on the back button.
@@ -676,7 +729,7 @@ public class ElasticDragDismissLayout
             // Dummy callback.
         }
 
-        public void onDragDismissed() {
+        public void onDragDismissed(float totalScroll) {
             ActivityCompat.finishAfterTransition(activity);
         }
 

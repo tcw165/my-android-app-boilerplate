@@ -41,27 +41,27 @@ import java.util.List;
 @CoordinatorLayout.DefaultBehavior(DropDownMenuView.DrawerBehavior.class)
 public class DropDownMenuView extends FrameLayout implements IDrawerViewLayout {
 
-    protected boolean mIsShowing;
+    boolean mIsShowing;
 
-    protected int mMenuBgColor;
-    protected int mDownArrowBgColor;
-    protected float mMenuHeight;
-    protected AnimatorSet mAnimatorSet;
+    int mMenuBgColor;
+    int mDownArrowBgColor;
+    float mMenuHeight;
+    AnimatorSet mAnimatorSet;
 
-    protected View mMenu;
-    protected List<SquaredMenuItemView> mMenuItems;
-    protected ImageView mOverlayBackground;
-    protected View mDownArrowContainer;
-    protected View mDownArrowStart;
-    protected View mDownArrowEnd;
+    View mMenu;
+    List<SquaredMenuItemView> mMenuItems;
+    ImageView mOverlayBackground;
+    View mDownArrowContainer;
+    View mDownArrowStart;
+    View mDownArrowEnd;
 
     /**
      * This is drop-down menu, it consumes the unconsumed dy from the anchor
      * view. It also animates the anchor view.
      */
-    protected View mAnchorView;
+    View mAnchorView;
 
-    protected OnDrawerStateChange mOnDrawerStateChangeListener;
+    List<OnDrawerStateChange> mCallbacks;
 
     public DropDownMenuView(Context context) {
         super(context);
@@ -77,8 +77,24 @@ public class DropDownMenuView extends FrameLayout implements IDrawerViewLayout {
     }
 
     @Override
-    public void setOnDrawerStateChangeListener(OnDrawerStateChange listener) {
-        mOnDrawerStateChangeListener = listener;
+    public void addOnDrawerStateChangeListener(OnDrawerStateChange listener) {
+        // Ensure callbacks.
+        if (mCallbacks == null) {
+            mCallbacks = new ArrayList<>();
+        }
+        mCallbacks.add(listener);
+    }
+
+    @Override
+    public void removeOnDrawerStateChangeListener(OnDrawerStateChange listener) {
+        mCallbacks.remove(listener);
+    }
+
+    @Override
+    public void removeAllOnDrawerStateChangeListeners() {
+        while (!mCallbacks.isEmpty()) {
+            mCallbacks.remove(0);
+        }
     }
 
     public void setOnClickMenuItemListener(OnClickListener listener) {
@@ -107,8 +123,10 @@ public class DropDownMenuView extends FrameLayout implements IDrawerViewLayout {
         mOverlayBackground.setClickable(true);
 
         // Notify the listener.
-        if (mOnDrawerStateChangeListener != null) {
-            mOnDrawerStateChangeListener.onOpenDrawer();
+        if (mCallbacks != null && !mCallbacks.isEmpty()) {
+            for (OnDrawerStateChange callback : mCallbacks) {
+                callback.onOpenDrawer();
+            }
         }
 
         if (mAnimatorSet != null) {
@@ -151,8 +169,10 @@ public class DropDownMenuView extends FrameLayout implements IDrawerViewLayout {
         mOverlayBackground.setClickable(false);
 
         // Notify the listener.
-        if (mOnDrawerStateChangeListener != null) {
-            mOnDrawerStateChangeListener.onCloseDrawer();
+        if (mCallbacks != null && !mCallbacks.isEmpty()) {
+            for (OnDrawerStateChange callback : mCallbacks) {
+                callback.onCloseDrawer();
+            }
         }
 
         if (mAnimatorSet != null) {

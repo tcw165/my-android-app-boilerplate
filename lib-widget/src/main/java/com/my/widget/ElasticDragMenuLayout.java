@@ -24,6 +24,7 @@ import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.graphics.Canvas;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.view.View;
@@ -41,7 +42,7 @@ import java.util.Collection;
  * <br/>
  * {@link R.styleable#ElasticDragDismissLayout_dragDismissFraction}
  * <br/>
- * {@link R.styleable#ElasticDragDismissLayout_dragDismissScale}
+ * {@link R.styleable#ElasticDragDismissLayout_dragScale}
  * <br/>
  * {@link R.styleable#ElasticDragDismissLayout_dragElasticity}
  * <br/>
@@ -151,15 +152,27 @@ public class ElasticDragMenuLayout
     }
 
     @Override
-    void dispatchDismissCallback() {
+    protected boolean drawChild(Canvas canvas,
+                                View child,
+                                long drawingTime) {
+        // TODO: Draw the cover before drawing the menu.
+        if (isMenuOpened()) {
+            // DO NOTHING.
+        }
+        return super.drawChild(canvas, child, drawingTime);
+    }
+
+    @Override
+    void dispatchDismissCallback(float totalScroll) {
         if (mCallbacks != null && !mCallbacks.isEmpty()) {
             for (DragDismissCallback callback : mCallbacks) {
-                callback.onDragDismissed();
+                callback.onDragDismissed(totalScroll);
             }
         }
     }
 
     void resetScrollView(boolean forceOpenMenu) {
+        final float totalDrag = mTotalDrag;
         final boolean isOpenMenu = forceOpenMenu || Math.abs(mTotalDrag) > mDragDismissDistance;
         // TODO: If the backport of the transition library is promising, then
         // TODO: I need to use it instead.
@@ -190,7 +203,7 @@ public class ElasticDragMenuLayout
                 mAnimSet.removeListener(this);
 
                 if (isOpenMenu) {
-                    dispatchDismissCallback();
+                    dispatchDismissCallback(totalDrag);
                 }
             }
 

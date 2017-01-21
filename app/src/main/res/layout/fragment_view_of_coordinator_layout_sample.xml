@@ -5,8 +5,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:dragDismissDistance="244dp"
-    app:dragElasticity="0.98">
+    app:dragDismissDistance="24dp"
+    app:dragElasticity="0.98"
+    app:dragOverDistance="344dp"
+    app:dragScale="1">
 
     <android.support.v4.widget.NestedScrollView
         android:id="@+id/elastic_scroll_view"
@@ -149,7 +151,7 @@
             android:layout_height="match_parent"
             android:layout_gravity="center"
             android:gravity="center"
-            android:textSize="40sp"
-            android:text="@string/app_name"/>
+            android:text="@string/app_name"
+            android:textSize="40sp"/>
     </FrameLayout>
 </com.my.widget.ElasticDragMenuLayout>

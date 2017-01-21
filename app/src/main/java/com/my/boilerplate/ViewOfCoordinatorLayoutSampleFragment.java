@@ -31,11 +31,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.my.widget.ElasticDragDismissLayout;
 import com.my.widget.ElasticDragMenuLayout;
-import com.my.widget.IDrawerViewLayout;
 
 public class ViewOfCoordinatorLayoutSampleFragment extends Fragment {
 
@@ -56,14 +54,14 @@ public class ViewOfCoordinatorLayoutSampleFragment extends Fragment {
             R.layout.fragment_view_of_coordinator_layout_sample,
             container,
             false);
-        mLayout.addListener(new ElasticDragDismissLayout.DragDismissCallback() {
+        mLayout.addOnDragDismissListener(new ElasticDragDismissLayout.DragDismissCallback() {
             @Override
             public void onDrag(float elasticOffset, float elasticOffsetPixels, float rawOffset, float rawOffsetPixels) {
                 // DO NOTHING.
             }
 
             @Override
-            public void onDragDismissed() {
+            public void onDragDismissed(float totalScroll) {
                 Log.d("xyz", "onDragDismissed");
             }
 
@@ -79,7 +77,7 @@ public class ViewOfCoordinatorLayoutSampleFragment extends Fragment {
         });
 
 //        mDrawerMenu = (DropDownMenuView) layout.findViewById(R.id.drawer_menu);
-//        mDrawerMenu.setOnDrawerStateChangeListener(onMenuStateChange());
+//        mDrawerMenu.addOnDrawerStateChangeListener(onMenuStateChange());
 //        mDrawerMenu.setOnClickMenuItemListener(onClickMenuItem());
 
         // Set back icon of the toolbar.
@@ -96,7 +94,7 @@ public class ViewOfCoordinatorLayoutSampleFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        mLayout.removeAllListeners();
+        mLayout.removeAllOnDragDismissListeners();
     }
 
     @Override

@@ -21,7 +21,7 @@ public class ViewOfDragDismissSampleActivity extends AppCompatActivity {
         overridePendingTransition(0, 0);
 
         mLayout = (ElasticDragDismissLayout) findViewById(R.id.layout);
-        mLayout.addListener(new ElasticDragDismissLayout.SystemChromeFader(this) {
+        mLayout.addOnDragDismissListener(new ElasticDragDismissLayout.SystemChromeFader(this) {
             @Override
             public void onDrag(float elasticOffset,
                                float elasticOffsetPixels,
@@ -34,7 +34,7 @@ public class ViewOfDragDismissSampleActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onDragDismissed() {
+            public void onDragDismissed(float totalScroll) {
                 Log.d("xyz", "onDragDismissed");
                 finishWithResult();
             }
@@ -58,7 +58,7 @@ public class ViewOfDragDismissSampleActivity extends AppCompatActivity {
         super.onDestroy();
 
         // Actively remove the listeners to prevent coupled reference.
-        mLayout.removeAllListeners();
+        mLayout.removeAllOnDragDismissListeners();
     }
 
     @Override

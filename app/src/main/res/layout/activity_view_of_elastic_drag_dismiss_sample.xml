@@ -6,8 +6,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:dragDismissDistance="144dp"
-    app:dragDismissScale="0.87"
+    app:dragDismissDistance="24dp"
+    app:dragOverDistance="344dp"
+    app:dragScale="0.87"
     tools:context=".ViewOfDragDismissSampleActivity">
 
     <!-- This layout contains one child view only -->

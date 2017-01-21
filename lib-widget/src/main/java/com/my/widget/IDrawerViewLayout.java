@@ -7,9 +7,19 @@ package com.my.widget;
 public interface IDrawerViewLayout {
 
     /**
-     * Set the listener that subscribes to the status of the drawer.
+     * Add the listener that subscribes to the status of the drawer.
      */
-    void setOnDrawerStateChangeListener(OnDrawerStateChange listener);
+    void addOnDrawerStateChangeListener(OnDrawerStateChange listener);
+
+    /**
+     * Remove the listener.
+     */
+    void removeOnDrawerStateChangeListener(OnDrawerStateChange listener);
+
+    /**
+     * Remove all the listeners.
+     */
+    void removeAllOnDrawerStateChangeListeners();
 
     /**
      * Activity/Fragment implementing this interface supports receiving the

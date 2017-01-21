@@ -35,7 +35,7 @@ public class ViewOfDropDownMenuLayoutSampleFragment extends Fragment {
                                        false);
 
         mDrawerLayout = (DropDownMenuLayout) layout;
-        mDrawerLayout.setOnDrawerStateChangeListener(onMenuStateChange());
+        mDrawerLayout.addOnDrawerStateChangeListener(onMenuStateChange());
 
         // Set back icon of the toolbar.
         mToolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
