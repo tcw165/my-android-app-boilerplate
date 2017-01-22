@@ -35,8 +35,8 @@ import java.util.Collection;
 
 /**
  * ...
- * <br/>
- * Attributes:
+ * <br/> <br/>
+ * Attributes for itself:
  * <br/>
  * {@link R.styleable#ElasticDragDismissLayout_dragDismissDistance}
  * <br/>
@@ -45,6 +45,14 @@ import java.util.Collection;
  * {@link R.styleable#ElasticDragDismissLayout_dragScale}
  * <br/>
  * {@link R.styleable#ElasticDragDismissLayout_dragElasticity}
+ * <br/> <br/>
+ * Attributes for child views:
+ * <br/>
+ * {@link R.styleable#ElasticDragDismissLayout_elasticScrollView}
+ * <br/>
+ * {@link R.styleable#ElasticDragDismissLayout_elasticScrollViewHeader}
+ * <br/>
+ * {@link R.styleable#ElasticDragDismissLayout_elasticScrollViewFooter}
  * <br/>
  */
 public class ElasticDragMenuLayout
@@ -64,30 +72,6 @@ public class ElasticDragMenuLayout
         mIsOpened = true;
         // Disable the drag-scale.
         mShouldScale = false;
-    }
-
-    @Override
-    public boolean onStartNestedScroll(View child,
-                                       View target,
-                                       int nestedScrollAxes) {
-        return super.onStartNestedScroll(child, target, nestedScrollAxes);
-    }
-
-    @Override
-    public void onNestedPreScroll(View target,
-                                  int dx,
-                                  int dy,
-                                  int[] consumed) {
-        super.onNestedPreScroll(target, dx, dy, consumed);
-    }
-
-    @Override
-    public void onNestedScroll(View target,
-                               int dxConsumed,
-                               int dyConsumed,
-                               int dxUnconsumed,
-                               int dyUnconsumed) {
-        super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
     }
 
     /**
@@ -130,9 +114,6 @@ public class ElasticDragMenuLayout
         super.onFinishInflate();
 
         // TODO: Use layout params to configure it.
-        // Ensure the movable child list.
-//        mElasticScrollView = getChildAt(0);
-        // TODO: Use layout params to configure it.
         mMenuView = getChildAt(getChildCount() - 1);
 
         if (mMenuView != null && !isInEditMode()) {
@@ -148,7 +129,9 @@ public class ElasticDragMenuLayout
         super.onSizeChanged(w, h, oldW, oldH);
 
         // Override the ty.
-        ViewCompat.setTranslationY(mElasticScrollView, 0);
+        if (mElasticScrollView != null) {
+            ViewCompat.setTranslationY(mElasticScrollView, 0);
+        }
     }
 
     @Override

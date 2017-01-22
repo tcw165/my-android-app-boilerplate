@@ -42,12 +42,15 @@ import android.support.v4.widget.NestedScrollView;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
 /**
  * A {@link CoordinatorLayout} which responds to nested scrolls to create drag-
@@ -56,8 +59,8 @@ import java.util.List;
  * Optionally also scales down content during drag.
  * <br/>
  * The first child must be {@link NestedScrollingChild}.
- * <br/>
- * Attributes:
+ * <br/> <br/>
+ * Attributes for itself:
  * <br/>
  * {@link R.styleable#ElasticDragDismissLayout_dragDismissDistance}
  * <br/>
@@ -66,6 +69,14 @@ import java.util.List;
  * {@link R.styleable#ElasticDragDismissLayout_dragScale}
  * <br/>
  * {@link R.styleable#ElasticDragDismissLayout_dragElasticity}
+ * <br/> <br/>
+ * Attributes for child views:
+ * <br/>
+ * {@link R.styleable#ElasticDragDismissLayout_elasticScrollView}
+ * <br/>
+ * {@link R.styleable#ElasticDragDismissLayout_elasticScrollViewHeader}
+ * <br/>
+ * {@link R.styleable#ElasticDragDismissLayout_elasticScrollViewFooter}
  * <br/>
  */
 public class ElasticDragDismissLayout
@@ -92,7 +103,7 @@ public class ElasticDragDismissLayout
      * <br/>
      * See {@link R.styleable#ElasticDragDismissLayout_dragDismissDistance}.
      */
-    float mDragDismissDistance = 24f;
+    float mDragDismissDistance = 56f;
     /**
      * The fraction percentage that the dismiss callback is called when over
      * dragging.
@@ -135,6 +146,8 @@ public class ElasticDragDismissLayout
 
     // Views related.
     View mElasticScrollView;
+    View mElasticScrollViewHeader;
+    View mElasticScrollViewFooter;
     List<DragDismissCallback> mCallbacks;
 
     // Animator.
@@ -223,14 +236,14 @@ public class ElasticDragDismissLayout
                                   int dx,
                                   int dy,
                                   int[] consumed) {
+        super.onNestedPreScroll(target, dx, dy, consumed);
         // If we're in a drag gesture and the user reverses up the we should
         // take those events
         if (mDraggingDown && dy > 0 || mDraggingUp && dy < 0) {
-            Log.d("xyz", "  onNestedPreScroll");
+            Log.d("xyz", "  onNestedPreScroll: Handle the reverse drag.");
             dragScale(dy);
             consumed[1] = dy;
         }
-        super.onNestedPreScroll(target, dx, dy, consumed);
     }
 
     @Override
@@ -239,20 +252,19 @@ public class ElasticDragDismissLayout
                                int dyConsumed,
                                int dxUnconsumed,
                                int dyUnconsumed) {
-        Log.d("xyz", "    onNestedScroll");
-        dragScale(dyUnconsumed);
         super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
+        dragScale(dyUnconsumed);
     }
 
     @Override
     public void onStopNestedScroll(View child) {
+        super.onStopNestedScroll(child);
         Log.d("xyz", "onStopNestedScroll");
         if (Math.abs(mTotalDrag) >= mDragDismissDistance) {
             close(CLOSE_BY_DRAG);
         } else {
             open();
         }
-        super.onStopNestedScroll(child);
     }
 
     public void addOnDragDismissListener(DragDismissCallback listener) {
@@ -300,6 +312,7 @@ public class ElasticDragDismissLayout
             .ofFloat(mElasticScrollView,
                      "scaleY",
                      1.f);
+        // TODO: Handle scroll-view header and footer.
 
         if (mAnimSet != null) {
             mAnimSet.cancel();
@@ -346,14 +359,20 @@ public class ElasticDragDismissLayout
     public void postOpen() {
         getViewTreeObserver()
             .addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                if (!isOpened()) {
-                    open();
+                @Override
+                public void onGlobalLayout() {
+                    if (!getViewTreeObserver().isAlive()) return;
+
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+                        getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                    } else {
+                        getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    }
+                    if (!isOpened()) {
+                        open();
+                    }
                 }
-            }
-        });
+            });
     }
 
     /**
@@ -379,7 +398,10 @@ public class ElasticDragDismissLayout
      *                       respectively.
      */
     public void close(int closeByGesture) {
-        if (!(mElasticScrollView instanceof NestedScrollingChild)) return;
+        if (!(mElasticScrollView instanceof NestedScrollingChild)) {
+            dispatchDismissCallback(0);
+            return;
+        }
 
         final float totalScroll = mTotalDrag;
         // TODO: If the backport of the transition library is promising, then
@@ -392,6 +414,7 @@ public class ElasticDragDismissLayout
                          -mElasticScrollView.getMeasuredHeight()));
         // Cover updater.
         animTy.addUpdateListener(mCoverUpdater);
+        // TODO: Handle scroll-view header and footer.
 
         if (mAnimSet != null) {
             mAnimSet.cancel();
@@ -438,11 +461,70 @@ public class ElasticDragDismissLayout
     // Protected / Private Methods ////////////////////////////////////////////
 
     @Override
+    protected boolean checkLayoutParams(ViewGroup.LayoutParams p) {
+        return p instanceof LayoutParams;
+    }
+
+    @Override
+    public LayoutParams generateLayoutParams(AttributeSet attrs) {
+        // The CoordinatorLayout.LayoutParams's constructor taking attribute
+        // as arguments is private.
+        // FIXME: Remove it if the constructor is public in the new release.
+        final ElasticDragDismissLayout.LayoutParams params = new ElasticDragDismissLayout.LayoutParams(
+            super.generateLayoutParams(attrs));
+        final TypedArray array = getContext().obtainStyledAttributes(
+            attrs, R.styleable.ElasticDragDismissLayout);
+
+        try {
+            // Custom attributes.
+            if (array.hasValue(R.styleable.ElasticDragDismissLayout_elasticScrollView)) {
+                params.isElasticScrollView = array.getBoolean(
+                    R.styleable.ElasticDragDismissLayout_elasticScrollView, false);
+            }
+            if (array.hasValue(R.styleable.ElasticDragDismissLayout_elasticScrollViewHeader)) {
+                params.isElasticScrollViewHeader = array.getBoolean(
+                    R.styleable.ElasticDragDismissLayout_elasticScrollViewHeader, false);
+            }
+            if (array.hasValue(R.styleable.ElasticDragDismissLayout_elasticScrollViewFooter)) {
+                params.isElasticScrollViewFooter = array.getBoolean(
+                    R.styleable.ElasticDragDismissLayout_elasticScrollViewFooter, false);
+            }
+        } finally {
+            array.recycle();
+        }
+
+        return params;
+    }
+
+    @Override
+    protected LayoutParams generateDefaultLayoutParams() {
+        return new ElasticDragDismissLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT);
+    }
+
+    @Override
+    protected LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {
+        return new ElasticDragDismissLayout.LayoutParams(p);
+    }
+
+    @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
 
         // Ensure the movable child list.
-        mElasticScrollView = getChildAt(0);
+        final int childCount = getChildCount();
+        for (int i = 0; i < childCount; ++i) {
+            final View child = getChildAt(i);
+            final LayoutParams params = (LayoutParams) child.getLayoutParams();
+            if (params == null) continue;
+
+            if (params.isElasticScrollView) {
+                mElasticScrollView = child;
+            } else if (params.isElasticScrollViewHeader) {
+                mElasticScrollViewHeader = child;
+            } else if (params.isElasticScrollViewFooter) {
+                mElasticScrollViewFooter = child;
+            }
+        }
 
         // Very Important: setting this property to true to make the
         // view fill the visible area!
@@ -491,6 +573,8 @@ public class ElasticDragDismissLayout
                             int bottom) {
         // Layout children.
         super.onLayout(changed, left, top, right, bottom);
+
+        // TODO: Handle scroll-view header and footer.
 
         // Set the cover boundary.
         if (changed) {
@@ -567,6 +651,7 @@ public class ElasticDragDismissLayout
 //        dragTo = Math.max(0, dragTo);
 
         ViewCompat.setTranslationY(mElasticScrollView, dragTo);
+        // TODO: Handle scroll-view header and footer.
 
         if (mShouldScale) {
             final float scale = 1 - ((1 - mDragScale) * dragFraction);
@@ -642,6 +727,44 @@ public class ElasticDragDismissLayout
     ///////////////////////////////////////////////////////////////////////////
     // Clazz //////////////////////////////////////////////////////////////////
 
+    public static class LayoutParams extends CoordinatorLayout.LayoutParams {
+
+        public boolean isElasticScrollView;
+        public boolean isElasticScrollViewHeader;
+        public boolean isElasticScrollViewFooter;
+
+        public LayoutParams(int width,
+                            int height) {
+            super(width, height);
+        }
+
+        /**
+         * A workaround constructor that copying the necessary fields from
+         * CoordinatorLayout.LayoutParams to it.
+         */
+        public LayoutParams(CoordinatorLayout.LayoutParams p) {
+            super(p);
+
+            // FIXME: Doing this is simply because the Coordinator's
+            // FIXME: constructor is private.
+            // FIXME: It might cause side effect like un-synchronized
+            // FIXME: Remove it if the constructor is public in the new release.
+            anchorGravity = p.anchorGravity;
+            keyline = p.keyline;
+            insetEdge = p.insetEdge;
+            dodgeInsetEdges = p.dodgeInsetEdges;
+
+            setAnchorId(p.getAnchorId());
+            setBehavior(p.getBehavior());
+            // Ensure null.
+            p.setBehavior(null);
+        }
+
+        public LayoutParams(ViewGroup.LayoutParams p) {
+            super(p);
+        }
+    }
+
     public interface DragDismissCallback {
         /**
          * Called for each drag event.
@@ -686,7 +809,7 @@ public class ElasticDragDismissLayout
      */
     public static class SystemChromeFader implements DragDismissCallback {
 
-        final Activity activity;
+        public final Activity activity;
 //        final int statusBarAlpha;
 //        final int navBarAlpha;
 //        final boolean fadeNavBar;

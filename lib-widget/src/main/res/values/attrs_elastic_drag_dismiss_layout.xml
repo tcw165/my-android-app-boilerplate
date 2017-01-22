@@ -6,5 +6,9 @@
         <attr name="dragDismissFraction" format="float"/>
         <attr name="dragScale" format="float"/>
         <attr name="dragElasticity" format="float"/>
+
+        <attr name="elasticScrollViewHeader" format="boolean"/>
+        <attr name="elasticScrollView" format="boolean"/>
+        <attr name="elasticScrollViewFooter" format="boolean"/>
     </declare-styleable>
 </resources>

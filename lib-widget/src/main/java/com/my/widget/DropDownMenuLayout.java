@@ -726,7 +726,7 @@ public class DropDownMenuLayout extends ViewGroup
          */
         boolean isDrawer;
 
-        LayoutParams(Context c, AttributeSet attrs) {
+        public LayoutParams(Context c, AttributeSet attrs) {
             super(c, attrs);
 
             final TypedArray array = c.obtainStyledAttributes(attrs, R.styleable.DropDownMenuLayout);
@@ -737,7 +737,7 @@ public class DropDownMenuLayout extends ViewGroup
             }
         }
 
-        LayoutParams(int width, int height) {
+        public LayoutParams(int width, int height) {
             super(width, height);
         }
     }

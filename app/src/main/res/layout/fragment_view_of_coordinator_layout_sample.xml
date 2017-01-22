@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:dragDismissDistance="24dp"
+    app:dragDismissDistance="56dp"
     app:dragElasticity="0.98"
     app:dragOverDistance="344dp"
     app:dragScale="1">
@@ -14,7 +14,8 @@
         android:id="@+id/elastic_scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/white">
+        android:background="@android:color/white"
+        app:elasticScrollView="true">
 
         <LinearLayout
             android:layout_width="match_parent"
