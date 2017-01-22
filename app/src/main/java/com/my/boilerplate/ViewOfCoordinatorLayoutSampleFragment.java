@@ -24,21 +24,22 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
-import com.my.widget.DropDownMenuView;
-import com.my.widget.IDrawerViewLayout;
+import com.my.widget.ElasticDragDismissLayout;
+import com.my.widget.ElasticDragMenuLayout;
 
 public class ViewOfCoordinatorLayoutSampleFragment extends Fragment {
 
     Toolbar mToolbar;
-    DropDownMenuView mDrawerMenu;
+    ElasticDragMenuLayout mLayout;
+//    DropDownMenuView mDrawerMenu;
 
     public ViewOfCoordinatorLayoutSampleFragment() {
         // Required empty public constructor
@@ -49,13 +50,35 @@ public class ViewOfCoordinatorLayoutSampleFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View layout = inflater.inflate(R.layout.fragment_view_of_coordinator_layout_sample,
-                                       container,
-                                       false);
+        mLayout = (ElasticDragMenuLayout) inflater.inflate(
+            R.layout.fragment_view_of_coordinator_layout_sample,
+            container,
+            false);
+        mLayout.addOnDragDismissListener(new ElasticDragDismissLayout.DragDismissCallback() {
+            @Override
+            public void onDrag(float elasticOffset, float elasticOffsetPixels, float rawOffset, float rawOffsetPixels) {
+                // DO NOTHING.
+            }
 
-        mDrawerMenu = (DropDownMenuView) layout.findViewById(R.id.drawer_menu);
-        mDrawerMenu.setOnDrawerStateChangeListener(onMenuStateChange());
-        mDrawerMenu.setOnClickMenuItemListener(onClickMenuItem());
+            @Override
+            public void onDragDismissed(float totalScroll) {
+                Log.d("xyz", "onDragDismissed");
+            }
+
+            @Override
+            public void onBackPressedDismissed() {
+                // DO NOTHING.
+            }
+
+            @Override
+            public void onCoverPressedDismissed() {
+                // DO NOTHING.
+            }
+        });
+
+//        mDrawerMenu = (DropDownMenuView) layout.findViewById(R.id.drawer_menu);
+//        mDrawerMenu.addOnDrawerStateChangeListener(onMenuStateChange());
+//        mDrawerMenu.setOnClickMenuItemListener(onClickMenuItem());
 
         // Set back icon of the toolbar.
         mToolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
@@ -65,7 +88,13 @@ public class ViewOfCoordinatorLayoutSampleFragment extends Fragment {
         // It wants to contribute the menu option.
         setHasOptionsMenu(true);
 
-        return layout;
+        return mLayout;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mLayout.removeAllOnDragDismissListeners();
     }
 
     @Override
@@ -89,8 +118,10 @@ public class ViewOfCoordinatorLayoutSampleFragment extends Fragment {
     }
 
     public boolean onBackPressed() {
-        if (mDrawerMenu.isShowing()) {
-            mDrawerMenu.hideWithAnimation();
+        if (mLayout == null) return false;
+
+        if (mLayout.isMenuOpened()) {
+            mLayout.closeMenu();
             return true;
         } else {
             return false;
@@ -101,38 +132,38 @@ public class ViewOfCoordinatorLayoutSampleFragment extends Fragment {
     // Protected / Private Methods ////////////////////////////////////////////
 
     private void toggleDrawerMenu() {
-        if (mDrawerMenu == null) return;
+        if (mLayout == null) return;
 
-        if (mDrawerMenu.isShowing()) {
-            mDrawerMenu.hideWithAnimation();
+        if (mLayout.isMenuOpened()) {
+            mLayout.closeMenu();
         } else {
-            mDrawerMenu.showWithAnimation();
+            mLayout.openMenu();
         }
     }
 
-    private IDrawerViewLayout.OnDrawerStateChange onMenuStateChange() {
-        return new IDrawerViewLayout.OnDrawerStateChange() {
-            @Override
-            public void onOpenDrawer() {
-                // DO NOTHING.
-            }
-
-            @Override
-            public void onCloseDrawer() {
-                // DO NOTHING.
-            }
-        };
-    }
-
-    private View.OnClickListener onClickMenuItem() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getActivity(),
-                               R.string.menu_settings,
-                               Toast.LENGTH_SHORT)
-                     .show();
-            }
-        };
-    }
+//    private IDrawerViewLayout.OnDrawerStateChange onMenuStateChange() {
+//        return new IDrawerViewLayout.OnDrawerStateChange() {
+//            @Override
+//            public void onOpenDrawer() {
+//                // DO NOTHING.
+//            }
+//
+//            @Override
+//            public void onCloseDrawer() {
+//                // DO NOTHING.
+//            }
+//        };
+//    }
+//
+//    private View.OnClickListener onClickMenuItem() {
+//        return new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Toast.makeText(getActivity(),
+//                               R.string.menu_settings,
+//                               Toast.LENGTH_SHORT)
+//                     .show();
+//            }
+//        };
+//    }
 }

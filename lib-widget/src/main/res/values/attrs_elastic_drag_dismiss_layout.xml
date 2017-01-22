@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ElasticDragDismissLayout">
+        <attr name="dragOverDistance" format="dimension"/>
+        <attr name="dragDismissDistance" format="dimension"/>
+        <attr name="dragDismissFraction" format="float"/>
+        <attr name="dragScale" format="float"/>
+        <attr name="dragElasticity" format="float"/>
+
+        <attr name="elasticScrollViewHeader" format="boolean"/>
+        <attr name="elasticScrollView" format="boolean"/>
+        <attr name="elasticScrollViewFooter" format="boolean"/>
+    </declare-styleable>
+</resources>

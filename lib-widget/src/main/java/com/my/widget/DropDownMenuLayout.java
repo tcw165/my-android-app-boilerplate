@@ -44,6 +44,9 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 
 import com.my.widget.util.ScrollableViewUtil;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
 /**
@@ -55,56 +58,56 @@ public class DropDownMenuLayout extends ViewGroup
     /**
      * Minimum drawer margin in DP.
      */
-    private static final int MIN_DRAWER_MARGIN_IN_DP = 64;
+    static final int MIN_DRAWER_MARGIN_IN_DP = 64;
 
     /**
      * Drawer elevation in DP.
      */
-    private static final int DRAWER_ELEVATION_IN_DP = 10;
-    private static final boolean SET_DRAWER_SHADOW_FROM_ELEVATION = Build.VERSION.SDK_INT >= 21;
-    private float mDrawerElevation;
+    static final int DRAWER_ELEVATION_IN_DP = 10;
+    static final boolean SET_DRAWER_SHADOW_FROM_ELEVATION = Build.VERSION.SDK_INT >= 21;
+    float mDrawerElevation;
 
-    private static final int STATE_DRAWER_CLOSED = 0x0;
-    private static final int STATE_DRAWER_OPENED = 0x1;
-    private static final int STATE_DRAWER_OPENING = 0x2;
-    private static final int STATE_DRAWER_CLOSING = 0x3;
-    private int mDrawerState = STATE_DRAWER_CLOSED;
+    static final int STATE_DRAWER_CLOSED = 0x0;
+    static final int STATE_DRAWER_OPENED = 0x1;
+    static final int STATE_DRAWER_OPENING = 0x2;
+    static final int STATE_DRAWER_CLOSING = 0x3;
+    int mDrawerState = STATE_DRAWER_CLOSED;
 
     /**
      * Distance to travel before a drag may begin.
      */
-    private int mTouchSlop;
-    private float mTouchInitY;
-    private float mTouchCurrentY;
+    int mTouchSlop;
+    float mTouchInitY;
+    float mTouchCurrentY;
 
-    private Matrix mChildInverseMatrix;
-    private float[] mChildTouchPoint;
+    Matrix mChildInverseMatrix;
+    float[] mChildTouchPoint;
 
     /**
      * The view with isDrawer=true LayoutParams.
      * <br/>
      * See {@link LayoutParams#isDrawer}.
      */
-    private View mDrawerView;
-    private View mContentView;
+    View mDrawerView;
+    View mContentView;
     /**
      * The view is being dragging.
      */
-    private View mTouchingChild;
+    View mTouchingChild;
     /**
      * The black translucent cover.
      */
-    private Paint mCoveredFadePaint;
-    private Rect mCoveredFadeRect;
-    private static final int COVER_FADE_PAINT_ALPHA = (int) (0.75 * 0xFF);
+    Paint mCoveredFadePaint;
+    Rect mCoveredFadeRect;
+    static final int COVER_FADE_PAINT_ALPHA = (int) (0.75 * 0xFF);
     /**
      * Animator for the drawer animation.
      */
-    private AnimatorSet mAnimatorSet;
-    private static final float ANIMATION_DURATION_OPEN = 300.f;
-    private static final float ANIMATION_DURATION_CLOSE = 250.f;
+    AnimatorSet mAnimatorSet;
+    static final float ANIMATION_DURATION_OPEN = 300.f;
+    static final float ANIMATION_DURATION_CLOSE = 250.f;
 
-    private OnDrawerStateChange mDrawerStateListener;
+    List<OnDrawerStateChange> mCallbacks;
 
     public DropDownMenuLayout(Context context) {
         this(context, null);
@@ -446,8 +449,25 @@ public class DropDownMenuLayout extends ViewGroup
     }
 
     @Override
-    public void setOnDrawerStateChangeListener(OnDrawerStateChange listener) {
-        mDrawerStateListener = listener;
+    public void addOnDrawerStateChangeListener(OnDrawerStateChange listener) {
+        // Ensure callbacks.
+        if (mCallbacks == null) {
+            mCallbacks = new ArrayList<>();
+        }
+        mCallbacks.add(listener);
+    }
+
+    @Override
+    public void removeOnDrawerStateChangeListener(OnDrawerStateChange listener) {
+        if (mCallbacks == null) return;
+        mCallbacks.remove(listener);
+    }
+
+    @Override
+    public void removeAllOnDrawerStateChangeListeners() {
+        while (!mCallbacks.isEmpty()) {
+            mCallbacks.remove(0);
+        }
     }
 
     public boolean isDrawerOpened() {
@@ -496,8 +516,10 @@ public class DropDownMenuLayout extends ViewGroup
             mAnimatorSet.start();
         }
 
-        if (mDrawerStateListener != null) {
-            mDrawerStateListener.onOpenDrawer();
+        if (mCallbacks != null && !mCallbacks.isEmpty()) {
+            for (OnDrawerStateChange callback : mCallbacks) {
+                callback.onOpenDrawer();
+            }
         }
     }
 
@@ -542,8 +564,10 @@ public class DropDownMenuLayout extends ViewGroup
             mAnimatorSet.start();
         }
 
-        if (mDrawerStateListener != null) {
-            mDrawerStateListener.onCloseDrawer();
+        if (mCallbacks != null && !mCallbacks.isEmpty()) {
+            for (OnDrawerStateChange callback : mCallbacks) {
+                callback.onCloseDrawer();
+            }
         }
     }
 
@@ -702,7 +726,7 @@ public class DropDownMenuLayout extends ViewGroup
          */
         boolean isDrawer;
 
-        LayoutParams(Context c, AttributeSet attrs) {
+        public LayoutParams(Context c, AttributeSet attrs) {
             super(c, attrs);
 
             final TypedArray array = c.obtainStyledAttributes(attrs, R.styleable.DropDownMenuLayout);
@@ -713,7 +737,7 @@ public class DropDownMenuLayout extends ViewGroup
             }
         }
 
-        LayoutParams(int width, int height) {
+        public LayoutParams(int width, int height) {
             super(width, height);
         }
     }

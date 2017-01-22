@@ -58,18 +58,18 @@ public class ViewSampleFragment extends Fragment {
         return new SampleMenuAdapter(
             getActivity(),
             new Pair[]{
-                new Pair<>("CoordinatorLayout and Behavior",
-                           "Use the CoordinatorLayout and Behavior to imitate " +
-                           "the drag-and-drop drawer menu in the vertical way. " +
-                           "I use \"imitate\" here is because I think the best " +
-                           "solution is to customize a ViewGroup."),
                 new Pair<>("Custom ViewGroup behaves like DrawerLayout",
                            "The custom ViewGroup is responsible for intercept " +
                            "the dragging touch event."),
-                new Pair<>("Custom ElasticDragDismissFrameLayout.",
+                new Pair<>("ElasticDragDismissLayout.",
                            "Idea inspired from the sample code of Plaid app. It " +
-                           "is using a translucent Activity to implement the " +
-                           "drag-to-dismiss gesture.")
+                           "inherits from the CoordinatorLayout and is using a " +
+                           "translucent Activity to implement the drag-to-dismiss " +
+                           "gesture."),
+                new Pair<>("ElasticDragMenuLayout",
+                           "A child class inheriting from ElasticDragDismissLayout. " +
+                           "The layout allows a NestedScrollingChild child view " +
+                           "being over dragged.")
             });
     }
 
@@ -85,19 +85,11 @@ public class ViewSampleFragment extends Fragment {
                         getActivity()
                             .getSupportFragmentManager()
                             .beginTransaction()
-                            .replace(R.id.frame, new ViewOfCoordinatorLayoutSampleFragment())
-                            .addToBackStack(null)
-                            .commit();
-                        break;
-                    case 1:
-                        getActivity()
-                            .getSupportFragmentManager()
-                            .beginTransaction()
                             .replace(R.id.frame, new ViewOfDropDownMenuLayoutSampleFragment())
                             .addToBackStack(null)
                             .commit();
                         break;
-                    case 2:
+                    case 1:
 //                        startActivity(
 //                            new Intent(getActivity(),
 //                                       ViewOfDragDismissSampleActivity.class),
@@ -110,6 +102,14 @@ public class ViewSampleFragment extends Fragment {
                         startActivity(
                             new Intent(getActivity(),
                                        ViewOfDragDismissSampleActivity.class));
+                        break;
+                    case 2:
+                        getActivity()
+                            .getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.frame, new ViewOfCoordinatorLayoutSampleFragment())
+                            .addToBackStack(null)
+                            .commit();
                         break;
                 }
             }

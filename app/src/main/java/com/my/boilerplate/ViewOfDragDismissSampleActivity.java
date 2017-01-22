@@ -6,22 +6,22 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
-import com.my.widget.ElasticDragDismissFrameLayout;
+import com.my.widget.ElasticDragDismissLayout;
 
 public class ViewOfDragDismissSampleActivity extends AppCompatActivity {
 
-    ElasticDragDismissFrameLayout mLayout;
+    ElasticDragDismissLayout mLayout;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.fragment_view_of_elastic_drag_dismiss_sample);
+        setContentView(R.layout.activity_view_of_elastic_drag_dismiss_sample);
         // Disable the default window transition and let mLayout to handle it.
         overridePendingTransition(0, 0);
 
-        mLayout = (ElasticDragDismissFrameLayout) findViewById(R.id.layout);
-        mLayout.addListener(new ElasticDragDismissFrameLayout.SystemChromeFader(this) {
+        mLayout = (ElasticDragDismissLayout) findViewById(R.id.layout);
+        mLayout.addOnDragDismissListener(new ElasticDragDismissLayout.SystemChromeFader(this) {
             @Override
             public void onDrag(float elasticOffset,
                                float elasticOffsetPixels,
@@ -34,7 +34,7 @@ public class ViewOfDragDismissSampleActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onDragDismissed() {
+            public void onDragDismissed(float totalScroll) {
                 Log.d("xyz", "onDragDismissed");
                 finishWithResult();
             }
@@ -58,7 +58,7 @@ public class ViewOfDragDismissSampleActivity extends AppCompatActivity {
         super.onDestroy();
 
         // Actively remove the listeners to prevent coupled reference.
-        mLayout.removeAllListeners();
+        mLayout.removeAllOnDragDismissListeners();
     }
 
     @Override
