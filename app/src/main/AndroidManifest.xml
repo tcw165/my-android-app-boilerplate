@@ -55,8 +55,13 @@
             android:label="@string/title_view_sample">
         </activity>
         <activity
+            android:name=".ViewOfCameraSampleActivity"
+            android:label="@string/title_camera_sample"
+            android:theme="@style/AppTheme.TranslucentBlackBg">
+        </activity>
+        <activity
             android:name=".ViewOfDragDismissSampleActivity"
-            android:label="@string/title_elastic_drag_dismiss_frame_layout_sample"
+            android:label="@string/title_elastic_drag_dismiss_layout_sample"
             android:theme="@style/AppTheme.TranslucentBlackBg">
         </activity>
         <activity

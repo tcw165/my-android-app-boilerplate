@@ -58,6 +58,8 @@ public class ViewSampleFragment extends Fragment {
         return new SampleMenuAdapter(
             getActivity(),
             new Pair[]{
+                new Pair<>("Custom CameraView",
+                           "(constructing)"),
                 new Pair<>("Custom ViewGroup behaves like DrawerLayout",
                            "The custom ViewGroup is responsible for intercept " +
                            "the dragging touch event."),
@@ -82,6 +84,11 @@ public class ViewSampleFragment extends Fragment {
                                     long id) {
                 switch (position) {
                     case 0:
+                        startActivity(
+                            new Intent(getActivity(),
+                                       ViewOfCameraSampleActivity.class));
+                        break;
+                    case 1:
                         getActivity()
                             .getSupportFragmentManager()
                             .beginTransaction()
@@ -89,7 +96,7 @@ public class ViewSampleFragment extends Fragment {
                             .addToBackStack(null)
                             .commit();
                         break;
-                    case 1:
+                    case 2:
 //                        startActivity(
 //                            new Intent(getActivity(),
 //                                       ViewOfDragDismissSampleActivity.class),
@@ -103,7 +110,7 @@ public class ViewSampleFragment extends Fragment {
                             new Intent(getActivity(),
                                        ViewOfDragDismissSampleActivity.class));
                         break;
-                    case 2:
+                    case 3:
                         getActivity()
                             .getSupportFragmentManager()
                             .beginTransaction()
