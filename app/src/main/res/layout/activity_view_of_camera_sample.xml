@@ -8,7 +8,7 @@
     android:layout_height="match_parent"
     app:dragDismissDistance="122dp"
     app:dragOverDistance="344dp"
-    app:dragScale="0.87">
+    app:dragScale="1">
 
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -29,7 +29,7 @@
                 app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
                 app:titleTextColor="@color/colorAccent"/>
 
-            <SurfaceView
+            <com.my.widget.CameraSurfaceView
                 android:id="@+id/cameraPreview"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
