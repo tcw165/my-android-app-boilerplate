@@ -30,7 +30,6 @@ import android.view.TextureView;
 import com.my.widget.util.CameraUtil;
 
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 
 public class CameraTextureView
     extends TextureView
@@ -39,7 +38,6 @@ public class CameraTextureView
     int mCameraId;
 
     Camera mCamera;
-    WeakReference<SurfaceTexture> mSurface;
 
     public CameraTextureView(Context context) {
         this(context, null);
@@ -54,7 +52,6 @@ public class CameraTextureView
     public void onSurfaceTextureAvailable(SurfaceTexture surface,
                                           int width,
                                           int height) {
-        mSurface = new WeakReference<>(surface);
         safePreviewCamera();
     }
 
@@ -74,13 +71,7 @@ public class CameraTextureView
 
     @Override
     public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
-        if (mSurface != null) {
-            mSurface.clear();
-            mSurface = null;
-        }
-
         closeCamera();
-
         return true;
     }
 
@@ -147,7 +138,7 @@ public class CameraTextureView
     }
 
     protected boolean isCameraOpenedAndSurfaceCreated() {
-        return mCamera != null && mSurface != null;
+        return mCamera != null && isAvailable();
     }
 
     protected void safePreviewCamera() {
@@ -156,7 +147,7 @@ public class CameraTextureView
         try {
             // It must be called after the surface is created and before
             // the Camera#startPreview.
-            mCamera.setPreviewTexture(mSurface.get());
+            mCamera.setPreviewTexture(getSurfaceTexture());
             mCamera.setDisplayOrientation(
                 CameraUtil.getDisplayOrientation(
                     getContext(),
