@@ -4,18 +4,17 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.MenuItem;
 
 import com.my.widget.CameraSurfaceView;
+import com.my.widget.CameraTextureView;
 import com.my.widget.ElasticDragDismissLayout;
 
 public class ViewOfCameraSampleActivity extends AppCompatActivity {
 
     ElasticDragDismissLayout mLayout;
-    Toolbar mToolbar;
-    CameraSurfaceView mCameraView;
+//    CameraSurfaceView mCameraView;
+    CameraTextureView mCameraView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -24,12 +23,6 @@ public class ViewOfCameraSampleActivity extends AppCompatActivity {
         setContentView(R.layout.activity_view_of_camera_sample);
         // Disable the default window transition and let mLayout to handle it.
         overridePendingTransition(0, 0);
-
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(mToolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
 
         mLayout = (ElasticDragDismissLayout) findViewById(R.id.layout);
         mLayout.addOnDragDismissListener(new ElasticDragDismissLayout.SystemChromeFader(this) {
@@ -63,7 +56,8 @@ public class ViewOfCameraSampleActivity extends AppCompatActivity {
             }
         });
 
-        mCameraView = (CameraSurfaceView) findViewById(R.id.cameraPreview);
+//        mCameraView = (CameraSurfaceView) findViewById(R.id.cameraPreview);
+        mCameraView = (CameraTextureView) findViewById(R.id.cameraPreview);
     }
 
     @Override
@@ -97,17 +91,6 @@ public class ViewOfCameraSampleActivity extends AppCompatActivity {
     public void onBackPressed() {
         // Close the layout with animation.
         mLayout.close();
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
     }
 
     public void finishWithResult() {

@@ -8,7 +8,7 @@
     android:layout_height="match_parent"
     app:dragDismissDistance="122dp"
     app:dragOverDistance="344dp"
-    app:dragScale="1">
+    app:dragScale="0.87">
 
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -20,20 +20,23 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <android.support.v7.widget.Toolbar
-                android:id="@+id/toolbar"
+            <ImageView
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/toolbar_height"
-                android:background="@color/colorPrimary"
-                app:navigationIcon="@drawable/ic_toolbar_close"
-                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-                app:titleTextColor="@color/colorAccent"/>
+                android:layout_height="44dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:background="@android:color/white"
+                android:scaleType="centerInside"
+                app:srcCompat="@drawable/ic_arrow_down"/>
 
-            <com.my.widget.CameraSurfaceView
+            <!--<com.my.widget.CameraSurfaceView-->
+                <!--android:id="@+id/cameraPreview"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"/>-->
+            <com.my.widget.CameraTextureView
                 android:id="@+id/cameraPreview"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"/>
+                android:layout_height="match_parent"/>
         </LinearLayout>
     </android.support.v4.widget.NestedScrollView>
 </com.my.widget.ElasticDragDismissLayout>
