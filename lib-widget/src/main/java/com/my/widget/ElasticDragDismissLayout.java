@@ -162,7 +162,7 @@ public class ElasticDragDismissLayout
             final int alpha = (int) Math.max(0, COVER_FADE_PAINT_ALPHA * (h - ty) / h);
 
             mCoveredFadePaint.setAlpha(alpha);
-            Log.d("xyz", "update cover alpha=" + alpha);
+//            Log.d("xyz", "update cover alpha=" + alpha);
             invalidate();
         }
     };

@@ -12,10 +12,15 @@
     <uses-feature
         android:name="android.hardware.camera"
         android:required="true"/>
+    <uses-feature
+        android:name="android.hardware.camera.autofocus"
+        android:required="true"/>
 
+    <!--android:hardwareAccelerated="true" is for TextureView-->
     <application
         android:name=".MyApplication"
         android:allowBackup="true"
+        android:hardwareAccelerated="true"
         android:icon="@mipmap/icon_launcher"
         android:label="@string/app_name"
         android:supportsRtl="false"
@@ -147,11 +152,12 @@
 
         <!-- BroadcastReceiver //////////////////////////////////////////// -->
 
-        <receiver android:name=".IapResultReceiver"
-                  android:exported="false" >
+        <receiver
+            android:name=".IapResultReceiver"
+            android:exported="false">
             <intent-filter>
-                <action android:name="my.intent.action.IAP_OK" />
-                <action android:name="my.intent.action.IAP_CANCELED" />
+                <action android:name="my.intent.action.IAP_OK"/>
+                <action android:name="my.intent.action.IAP_CANCELED"/>
             </intent-filter>
         </receiver>
     </application>

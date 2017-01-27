@@ -20,26 +20,25 @@
 
 package com.my.widget;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.hardware.Camera;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import com.my.widget.util.CameraUtil;
+
 import java.io.IOException;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CameraSurfaceView extends SurfaceView {
 
-    AtomicBoolean mIsSurfaceCreated = new AtomicBoolean(false);
+    int mCameraId;
+    // TODO: Use Handler and its MessageQueue instead?
+    AtomicBoolean mIsSurfaceAvailable = new AtomicBoolean(false);
 
     Camera mCamera;
-    List<Camera.Size> mSupportedPreviewSizes;
 
     public CameraSurfaceView(Context context) {
         this(context, null);
@@ -55,16 +54,21 @@ public class CameraSurfaceView extends SurfaceView {
         return openCamera(0);
     }
 
-    public boolean openCamera(final int camera) {
-        if (Camera.getNumberOfCameras() <= camera) return false;
+    public boolean openCamera(final int cameraId) {
+        if (cameraId < 0 && cameraId >= Camera.getNumberOfCameras()) return false;
 
         try {
             closeCamera();
-            mCamera = Camera.open(camera);
-            mSupportedPreviewSizes = mCamera.getParameters()
-                                            .getSupportedPreviewSizes();
+
+            final long start = System.currentTimeMillis();
+            // TODO: Takes around 178 ms, run it in the background?
+            mCamera = Camera.open(cameraId);
+            final long end = System.currentTimeMillis();
+            Log.d("xyz", "Camera.open takes " + (end - start) + " ms.");
+
+            mCameraId = cameraId;
         } catch (Exception e) {
-            Log.e("xyz", "failed to open Camera " + camera);
+            Log.e("xyz", "failed to open Camera " + cameraId);
             e.printStackTrace();
         }
 
@@ -112,7 +116,7 @@ public class CameraSurfaceView extends SurfaceView {
     SurfaceHolder.Callback mSurfaceCallback = new SurfaceHolder.Callback() {
         @Override
         public void surfaceCreated(SurfaceHolder holder) {
-            mIsSurfaceCreated.set(true);
+            mIsSurfaceAvailable.set(true);
 
             if (mCamera == null) return;
 
@@ -132,30 +136,19 @@ public class CameraSurfaceView extends SurfaceView {
             // Now that the size is known, set up the camera parameters and
             // begin the preview.
             final Camera.Parameters params = mCamera.getParameters();
-            if (mSupportedPreviewSizes != null &&
-                !mSupportedPreviewSizes.isEmpty()) {
-                for (Camera.Size size : mSupportedPreviewSizes) {
-                    if (Math.min(width, height) >=
-                        Math.max(size.width, size.height)) {
-                        params.setPreviewSize(size.width, size.height);
-
-                        mCamera.setParameters(params);
-                        break;
-                    }
-                }
-            }
-
-            // Setup the camera orientation.
-            setCameraDisplayOrientation();
+            final Camera.Size size = CameraUtil.getClosetPreviewSize(mCamera, width, height);
+            params.setPreviewSize(size.width, size.height);
+            mCamera.setParameters(params);
 
             // Important: Call startPreview() to start updating the preview surface.
             // Preview must be started before you can take a picture.
+            // TODO: Takes around 213 ms, run it in the background?
             mCamera.startPreview();
         }
 
         @Override
         public void surfaceDestroyed(SurfaceHolder holder) {
-            mIsSurfaceCreated.set(false);
+            mIsSurfaceAvailable.set(false);
 
             if (mCamera == null) return;
 
@@ -164,68 +157,40 @@ public class CameraSurfaceView extends SurfaceView {
     };
 
     protected boolean isCameraOpenedAndSurfaceCreated() {
-        return mCamera != null && mIsSurfaceCreated.get();
+        return mCamera != null && mIsSurfaceAvailable.get();
     }
 
     protected void safePreviewCamera() {
         if (!isCameraOpenedAndSurfaceCreated()) return;
 
         try {
+            // TODO: Takes around 1 ms, run it in the background?
+            // TODO: Detect the orientation change automatically.
             // It must be called after the surface is created and before
             // the Camera#startPreview.
+            long start = System.currentTimeMillis();
             mCamera.setPreviewDisplay(getHolder());
+            long end = System.currentTimeMillis();
+            Log.d("xyz", "Camera.setPreviewDisplay takes " + (end - start) + " ms.");
+
+            // TODO: Takes around 2 ms, run it in the background?
+            // Setup the camera orientation.
+            start = System.currentTimeMillis();
+            mCamera.setDisplayOrientation(
+                CameraUtil.getDisplayOrientation(
+                    getContext(),
+                    mCameraId));
+            end = System.currentTimeMillis();
+            Log.d("xyz", "Camera.setDisplayOrientation takes " + (end - start) + " ms.");
+
+            // TODO: Takes around 213 ms, run it in the background?
+            start = System.currentTimeMillis();
             mCamera.startPreview();
+            end = System.currentTimeMillis();
+            Log.d("xyz", "Camera.startPreview takes " + (end - start) + " ms.");
         } catch (IOException e) {
             Log.e("xyz", "Failed to set preview.");
             e.printStackTrace();
         }
-    }
-
-    protected void setCameraDisplayOrientation() {
-        // TODO: Detect the orientation change automatically.
-        final Camera.CameraInfo info = new Camera.CameraInfo();
-        Camera.getCameraInfo(0, info);
-
-        int windowRotation = 0;
-        switch (getActivity()
-            .getWindowManager()
-            .getDefaultDisplay()
-            .getRotation()) {
-            case Surface.ROTATION_0:
-                windowRotation = 0;
-                break;
-            case Surface.ROTATION_90:
-                windowRotation = 90;
-                break;
-            case Surface.ROTATION_180:
-                windowRotation = 180;
-                break;
-            case Surface.ROTATION_270:
-                windowRotation = 270;
-                break;
-        }
-
-        int result;
-        if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-            result = (info.orientation + windowRotation) % 360;
-            // compensate the mirror
-            result = (360 - result) % 360;
-        } else {
-            // back-facing
-            result = (info.orientation - windowRotation + 360) % 360;
-        }
-
-        mCamera.setDisplayOrientation(result);
-    }
-
-    Activity getActivity() {
-        Context context = getContext();
-        while (context instanceof ContextWrapper) {
-            if (context instanceof Activity) {
-                return (Activity) context;
-            }
-            context = ((ContextWrapper) context).getBaseContext();
-        }
-        return null;
     }
 }
