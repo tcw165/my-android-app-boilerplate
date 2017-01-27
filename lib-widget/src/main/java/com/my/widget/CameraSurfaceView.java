@@ -65,7 +65,6 @@ public class CameraSurfaceView extends SurfaceView {
             mCamera = Camera.open(cameraId);
             final long end = System.currentTimeMillis();
             Log.d("xyz", "Camera.open takes " + (end - start) + " ms.");
-
             mCameraId = cameraId;
         } catch (Exception e) {
             Log.e("xyz", "failed to open Camera " + cameraId);
@@ -128,7 +127,7 @@ public class CameraSurfaceView extends SurfaceView {
                                    int format,
                                    int width,
                                    int height) {
-            if (mCamera == null) return;
+            if (!isCameraOpenedAndSurfaceCreated()) return;
 
             // Stop the preview before updating the parameters.
             mCamera.stopPreview();
@@ -149,10 +148,7 @@ public class CameraSurfaceView extends SurfaceView {
         @Override
         public void surfaceDestroyed(SurfaceHolder holder) {
             mIsSurfaceAvailable.set(false);
-
-            if (mCamera == null) return;
-
-            mCamera.stopPreview();
+            closeCamera();
         }
     };
 
