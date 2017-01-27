@@ -22,7 +22,6 @@ package com.my.widget.util;
 
 import android.content.Context;
 import android.hardware.Camera;
-import android.icu.text.IDNA;
 import android.util.Log;
 import android.view.Surface;
 import android.view.WindowManager;
