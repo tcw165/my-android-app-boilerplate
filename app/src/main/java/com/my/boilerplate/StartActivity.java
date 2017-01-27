@@ -158,6 +158,7 @@ public class StartActivity
                 // item 1.
                 new Pair<>("Custom View Experiments",
                            "The experiments of custom View/ViewGroup."),
+                // TODO: Move to the custom view exp.
                 // item 2.
                 new Pair<>("RecyclerView",
                            "Add/Remove/Reposition the items in the RecyclerView " +
