@@ -23,9 +23,12 @@ package com.my.widget;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.TextureView;
+import android.widget.Toast;
 
 import com.my.widget.util.CameraUtil;
 
@@ -35,8 +38,14 @@ public class CameraTextureView
     extends TextureView
     implements TextureView.SurfaceTextureListener {
 
+    // State.
     int mCameraId;
+    boolean mIsPreviewing;
 
+    static final String TAG = CameraTextureView.class.getSimpleName();
+    // Because the Camera.open and Camera.setPreviewTexture take 100ms
+    // individually, doing them in the other thread avoids
+    Handler mHandler;
     Camera mCamera;
 
     public CameraTextureView(Context context) {
@@ -49,48 +58,85 @@ public class CameraTextureView
     }
 
     @Override
-    public void onSurfaceTextureAvailable(SurfaceTexture surface,
-                                          int width,
-                                          int height) {
-        safePreviewCamera();
+    public synchronized void onSurfaceTextureAvailable(SurfaceTexture surface,
+                                                       int width,
+                                                       int height) {
+        // Ensure the handler.
+        ensureHandler();
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                safePreviewCamera();
+            }
+        });
     }
 
     @Override
-    public void onSurfaceTextureSizeChanged(SurfaceTexture surface,
-                                            int width,
-                                            int height) {
-        if (!isCameraOpenedAndSurfaceCreated()) return;
-
-        // Now that the size is known, set up the camera parameters and
-        // begin the preview.
-        final Camera.Parameters params = mCamera.getParameters();
-        final Camera.Size size = CameraUtil.getClosetPreviewSize(mCamera, width, height);
-        params.setPreviewSize(size.width, size.height);
-        mCamera.setParameters(params);
+    public synchronized void onSurfaceTextureSizeChanged(SurfaceTexture surface,
+                                                         final int width,
+                                                         final int height) {
+        // Ensure the handler.
+        ensureHandler();
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                setPreviewSize(width, height);
+            }
+        });
     }
 
     @Override
-    public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
-        closeCamera();
+    public synchronized boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+        // Ensure the handler.
+        ensureHandler();
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                closeCameraSync();
+            }
+        });
         return true;
     }
 
     @Override
-    public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+    public synchronized void onSurfaceTextureUpdated(SurfaceTexture surface) {
         // Invoked when the specified SurfaceTexture is updated through
         // SurfaceTexture.updateTexImage().
     }
 
-    public boolean openCamera() {
+    public void openCameraAsync() {
         // TODO: Support face camera
-        return openCamera(0);
+        openCameraAsync(0);
     }
 
-    public boolean openCamera(final int cameraId) {
-        if (Camera.getNumberOfCameras() <= cameraId) return false;
+    public void openCameraAsync(final int cameraId) {
+        // Ensure the handler.
+        ensureHandler();
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                openCameraSync(cameraId);
+            }
+        });
+    }
+
+    public void closeCameraAsync() {
+        // Ensure the handler.
+        ensureHandler();
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                closeCameraSync();
+            }
+        });
+    }
+
+    public synchronized void openCameraSync(final int cameraId) {
+        if (cameraId < 0 || cameraId >= Camera.getNumberOfCameras()) return;
 
         try {
-            closeCamera();
+            closeCameraSync();
+
             mCamera = Camera.open(cameraId);
             mCameraId = cameraId;
         } catch (Exception e) {
@@ -99,21 +145,20 @@ public class CameraTextureView
         }
 
         safePreviewCamera();
-
-        return mCamera != null;
     }
 
-    public void closeCamera() {
+    public synchronized void closeCameraSync() {
         if (mCamera == null) return;
 
         // Call stopPreview() to stop updating the preview surface.
         mCamera.stopPreview();
+        mIsPreviewing = false;
 
-        // Important: Call release() to release the camera for use by other
-        // applications. Applications should release the camera immediately
-        // during onPause() and re-open() it during onResume()).
+        // Important: Call release() to release the camera for use by
+        // other applications. Applications should release the camera
+        // immediately during onPause() and re-open() it during
+        // onResume()).
         mCamera.release();
-
         mCamera = null;
     }
 
@@ -124,27 +169,77 @@ public class CameraTextureView
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
 
-        if (isHardwareAccelerated()) {
-            setSurfaceTextureListener(this);
-        } else {
+        if (!isHardwareAccelerated()) {
             // TODO: Warn the user or throw an exception.
+            Toast.makeText(getContext(),
+                           R.string.warning_not_support_hardware_acceleration,
+                           Toast.LENGTH_SHORT)
+                 .show();
+            return;
         }
+
+        // Ensure the handler.
+        ensureHandler();
+
+        // The texture callback.
+        setSurfaceTextureListener(this);
     }
 
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
+
+        // The handler.
+        if (mHandler != null) {
+            mHandler.getLooper().quit();
+        }
+
+        // Force to close the camera.
+        closeCameraSync();
+
+        // The texture callback.
         setSurfaceTextureListener(null);
     }
 
-    protected boolean isCameraOpenedAndSurfaceCreated() {
+    void ensureHandler() {
+        synchronized (this) {
+            if (mHandler == null) {
+                final HandlerThread thread = new HandlerThread(TAG);
+                thread.start();
+
+                mHandler = new Handler(thread.getLooper());
+            }
+        }
+    }
+
+    synchronized boolean isCameraOpenedAndSurfaceAvailable() {
         return mCamera != null && isAvailable();
     }
 
-    protected void safePreviewCamera() {
-        if (!isCameraOpenedAndSurfaceCreated()) return;
+    synchronized void setPreviewSize(int width,
+                                     int height) {
+        if (!isCameraOpenedAndSurfaceAvailable()) return;
+
+        // Pause the preview before updating the preview size.
+        if (mIsPreviewing) mCamera.stopPreview();
+
+        // Now that the size is known, set up the camera parameters and
+        // begin the preview.
+        final Camera.Parameters params = mCamera.getParameters();
+        final Camera.Size size = CameraUtil.getClosetPreviewSize(mCamera, width, height);
+        params.setPreviewSize(size.width, size.height);
+        mCamera.setParameters(params);
+
+        // Resume the preview after updating the preview size.
+        if (mIsPreviewing) mCamera.startPreview();
+    }
+
+    synchronized void safePreviewCamera() {
+        if (!isCameraOpenedAndSurfaceAvailable()) return;
+        if (mIsPreviewing) return;
 
         try {
+            // TODO: Detect the orientation change automatically.
             // It must be called after the surface is created and before
             // the Camera#startPreview.
             mCamera.setPreviewTexture(getSurfaceTexture());
@@ -152,7 +247,11 @@ public class CameraTextureView
                 CameraUtil.getDisplayOrientation(
                     getContext(),
                     mCameraId));
+            // Find the most fit preview size.
+            setPreviewSize(getWidth(), getHeight());
             mCamera.startPreview();
+
+            mIsPreviewing = true;
         } catch (IOException e) {
             Log.e("xyz", "Failed to set preview.");
             e.printStackTrace();

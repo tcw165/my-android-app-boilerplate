@@ -6,7 +6,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
-import com.my.widget.CameraSurfaceView;
 import com.my.widget.CameraTextureView;
 import com.my.widget.ElasticDragDismissLayout;
 
@@ -76,7 +75,7 @@ public class ViewOfCameraSampleActivity extends AppCompatActivity {
         mLayout.postOpen();
 
         // Open the camera.
-        mCameraView.openCamera();
+        mCameraView.openCameraAsync();
     }
 
     @Override
@@ -84,7 +83,7 @@ public class ViewOfCameraSampleActivity extends AppCompatActivity {
         super.onPause();
 
         // Close the camera.
-        mCameraView.closeCamera();
+        mCameraView.closeCameraAsync();
     }
 
     @Override
