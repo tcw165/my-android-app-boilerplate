@@ -22,6 +22,8 @@ package com.my.widget;
 
 import android.content.Context;
 import android.hardware.Camera;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -30,14 +32,19 @@ import android.view.SurfaceView;
 import com.my.widget.util.CameraUtil;
 
 import java.io.IOException;
-import java.util.concurrent.atomic.AtomicBoolean;
 
-public class CameraSurfaceView extends SurfaceView {
+public class CameraSurfaceView
+    extends SurfaceView
+    implements SurfaceHolder.Callback {
 
     int mCameraId;
-    // TODO: Use Handler and its MessageQueue instead?
-    AtomicBoolean mIsSurfaceAvailable = new AtomicBoolean(false);
+    boolean mIsPreviewing;
+    boolean mIsSurfaceAvailable;
 
+    static final String TAG = CameraSurfaceView.class.getSimpleName();
+    // Because the Camera.open and Camera.setPreviewTexture take 100ms
+    // individually, doing them in the other thread avoids
+    Handler mHandler;
     Camera mCamera;
 
     public CameraSurfaceView(Context context) {
@@ -49,22 +56,80 @@ public class CameraSurfaceView extends SurfaceView {
         super(context, attrs);
     }
 
-    public boolean openCamera() {
-        // TODO: Support face camera
-        return openCamera(0);
+    @Override
+    public synchronized void surfaceCreated(SurfaceHolder holder) {
+        // Ensure the handler.
+        ensureHandler();
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                safePreviewCamera();
+            }
+        });
     }
 
-    public boolean openCamera(final int cameraId) {
-        if (cameraId < 0 && cameraId >= Camera.getNumberOfCameras()) return false;
+    @Override
+    public synchronized void surfaceChanged(SurfaceHolder holder,
+                                            final int format,
+                                            final int width,
+                                            final int height) {
+        // Ensure the handler.
+        ensureHandler();
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                setPreviewSize(width, height);
+            }
+        });
+    }
+
+    @Override
+    public synchronized void surfaceDestroyed(SurfaceHolder holder) {
+        // Ensure the handler.
+        ensureHandler();
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                closeCameraSync();
+            }
+        });
+    }
+
+    public void openCameraAsync() {
+        // TODO: Support face camera
+        openCameraAsync(0);
+    }
+
+    public void openCameraAsync(final int cameraId) {
+        // Ensure the handler.
+        ensureHandler();
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                openCameraSync(cameraId);
+            }
+        });
+    }
+
+    public void closeCameraAsync() {
+        // Ensure the handler.
+        ensureHandler();
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                closeCameraSync();
+            }
+        });
+    }
+
+    public synchronized void openCameraSync(final int cameraId) {
+        if (cameraId < 0 || cameraId >= Camera.getNumberOfCameras()) return;
 
         try {
-            closeCamera();
+            closeCameraSync();
 
-            final long start = System.currentTimeMillis();
-            // TODO: Takes around 178 ms, run it in the background?
+            // (Takes around 178 ms)
             mCamera = Camera.open(cameraId);
-            final long end = System.currentTimeMillis();
-            Log.d("xyz", "Camera.open takes " + (end - start) + " ms.");
             mCameraId = cameraId;
         } catch (Exception e) {
             Log.e("xyz", "failed to open Camera " + cameraId);
@@ -72,21 +137,19 @@ public class CameraSurfaceView extends SurfaceView {
         }
 
         safePreviewCamera();
-
-        return mCamera != null;
     }
 
-    public void closeCamera() {
+    public synchronized void closeCameraSync() {
         if (mCamera == null) return;
 
         // Call stopPreview() to stop updating the preview surface.
         mCamera.stopPreview();
+        mIsPreviewing = false;
 
         // Important: Call release() to release the camera for use by other
         // applications. Applications should release the camera immediately
         // during onPause() and re-open() it during onResume()).
         mCamera.release();
-
         mCamera = null;
     }
 
@@ -97,7 +160,10 @@ public class CameraSurfaceView extends SurfaceView {
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
 
-        getHolder().addCallback(mSurfaceCallback);
+        // Ensure the handler.
+        ensureHandler();
+
+        getHolder().addCallback(this);
         getHolder().setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
     }
 
@@ -105,85 +171,72 @@ public class CameraSurfaceView extends SurfaceView {
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
 
-        if (mCamera != null) {
-            mCamera.stopPreview();
+        // The handler.
+        if (mHandler != null) {
+            mHandler.getLooper().quit();
         }
 
-        getHolder().removeCallback(mSurfaceCallback);
+        // Force to close the camera.
+        closeCameraSync();
+
+        getHolder().removeCallback(this);
     }
 
-    SurfaceHolder.Callback mSurfaceCallback = new SurfaceHolder.Callback() {
-        @Override
-        public void surfaceCreated(SurfaceHolder holder) {
-            mIsSurfaceAvailable.set(true);
+    void ensureHandler() {
+        synchronized (this) {
+            if (mHandler == null) {
+                final HandlerThread thread = new HandlerThread(TAG);
+                thread.start();
 
-            if (mCamera == null) return;
-
-            safePreviewCamera();
+                mHandler = new Handler(thread.getLooper());
+            }
         }
-
-        @Override
-        public void surfaceChanged(SurfaceHolder holder,
-                                   int format,
-                                   int width,
-                                   int height) {
-            if (!isCameraOpenedAndSurfaceCreated()) return;
-
-            // Stop the preview before updating the parameters.
-            mCamera.stopPreview();
-
-            // Now that the size is known, set up the camera parameters and
-            // begin the preview.
-            final Camera.Parameters params = mCamera.getParameters();
-            final Camera.Size size = CameraUtil.getClosetPreviewSize(mCamera, width, height);
-            params.setPreviewSize(size.width, size.height);
-            mCamera.setParameters(params);
-
-            // Important: Call startPreview() to start updating the preview surface.
-            // Preview must be started before you can take a picture.
-            // TODO: Takes around 213 ms, run it in the background?
-            mCamera.startPreview();
-        }
-
-        @Override
-        public void surfaceDestroyed(SurfaceHolder holder) {
-            mIsSurfaceAvailable.set(false);
-            closeCamera();
-        }
-    };
-
-    protected boolean isCameraOpenedAndSurfaceCreated() {
-        return mCamera != null && mIsSurfaceAvailable.get();
     }
 
-    protected void safePreviewCamera() {
-        if (!isCameraOpenedAndSurfaceCreated()) return;
+    synchronized boolean isCameraOpenedAndSurfaceAvailable() {
+        return mCamera != null && mIsSurfaceAvailable;
+    }
+
+    synchronized void setPreviewSize(int width,
+                                     int height) {
+        if (!isCameraOpenedAndSurfaceAvailable()) return;
+
+        // Pause the preview before updating the preview size.
+        if (mIsPreviewing) mCamera.stopPreview();
+
+        // Now that the size is known, set up the camera parameters and
+        // begin the preview.
+        final Camera.Parameters params = mCamera.getParameters();
+        final Camera.Size size = CameraUtil.getClosetPreviewSize(mCamera, width, height);
+        params.setPreviewSize(size.width, size.height);
+        mCamera.setParameters(params);
+
+        // Resume the preview after updating the preview size.
+        if (mIsPreviewing) mCamera.startPreview();
+    }
+
+    synchronized void safePreviewCamera() {
+        if (!isCameraOpenedAndSurfaceAvailable()) return;
+        if (mIsPreviewing) return;
 
         try {
-            // TODO: Takes around 1 ms, run it in the background?
             // TODO: Detect the orientation change automatically.
+            // (Takes around 1 ms)
             // It must be called after the surface is created and before
             // the Camera#startPreview.
-            long start = System.currentTimeMillis();
             mCamera.setPreviewDisplay(getHolder());
-            long end = System.currentTimeMillis();
-            Log.d("xyz", "Camera.setPreviewDisplay takes " + (end - start) + " ms.");
-
-            // TODO: Takes around 2 ms, run it in the background?
+            // (Takes around 2 ms)
             // Setup the camera orientation.
-            start = System.currentTimeMillis();
             mCamera.setDisplayOrientation(
                 CameraUtil.getDisplayOrientation(
                     getContext(),
                     mCameraId));
-            end = System.currentTimeMillis();
-            Log.d("xyz", "Camera.setDisplayOrientation takes " + (end - start) + " ms.");
-
-            // TODO: Takes around 213 ms, run it in the background?
-            start = System.currentTimeMillis();
+            // Find the most fit preview size.
+            setPreviewSize(getWidth(), getHeight());
+            // (Takes around 213 ms)
             mCamera.startPreview();
-            end = System.currentTimeMillis();
-            Log.d("xyz", "Camera.startPreview takes " + (end - start) + " ms.");
+
+            mIsSurfaceAvailable = true;
         } catch (IOException e) {
             Log.e("xyz", "Failed to set preview.");
             e.printStackTrace();
