@@ -1,18 +1,38 @@
 package com.my.boilerplate;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.my.widget.CameraTextureView;
 import com.my.widget.ElasticDragDismissLayout;
+import com.tbruyelle.rxpermissions2.RxPermissions;
+
+import java.util.concurrent.TimeUnit;
+
+import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 
 public class ViewOfCameraSampleActivity extends AppCompatActivity {
 
+    /**
+     * Needed because it asks the permission in the onResume function and the
+     * RxPermission launch a delegate activity for handling the permission
+     * request. Otherwise the request would be fired for two times.
+     */
+    boolean mPermSettling;
+
     ElasticDragDismissLayout mLayout;
-//    CameraSurfaceView mCameraView;
+    //    CameraSurfaceView mCameraView;
     CameraTextureView mCameraView;
 
     @Override
@@ -74,8 +94,53 @@ public class ViewOfCameraSampleActivity extends AppCompatActivity {
         // Open the layout with animation.
         mLayout.postOpen();
 
-        // Open the camera.
-        mCameraView.openCameraAsync();
+        // Check the permission and open the camera.
+        if (!mPermSettling) {
+            final int permCheck = ContextCompat.checkSelfPermission(
+                this, Manifest.permission.CAMERA);
+            if (permCheck != PackageManager.PERMISSION_GRANTED) {
+                mPermSettling = true;
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    Observable
+                        .just(true)
+                        .delay(400, TimeUnit.MILLISECONDS)
+                        .flatMap(new Function<Boolean, ObservableSource<Boolean>>() {
+                            @Override
+                            public ObservableSource<Boolean> apply(Boolean ignored)
+                                throws Exception {
+                                return RxPermissions
+                                    .getInstance(ViewOfCameraSampleActivity.this)
+                                    .request(Manifest.permission.CAMERA);
+                            }
+                        })
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new Consumer<Boolean>() {
+                            @Override
+                            public void accept(Boolean granted)
+                                throws Exception {
+                                if (isFinishing()) return;
+                                if (granted) {
+                                    mCameraView.openCameraAsync();
+                                    mPermSettling = false;
+                                } else {
+                                    onBackPressed();
+                                }
+                            }
+                        });
+                }
+//                else {
+//                    // TODO: Use a PermissionDelegateActivity instead?
+//                    Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+//                                               Uri.fromParts("package", getPackageName(), null));
+//                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                    startActivity(intent);
+//                }
+            } else {
+                mCameraView.openCameraAsync();
+                mPermSettling = false;
+            }
+        }
     }
 
     @Override
