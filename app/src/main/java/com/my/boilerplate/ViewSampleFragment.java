@@ -59,7 +59,8 @@ public class ViewSampleFragment extends Fragment {
             getActivity(),
             new Pair[]{
                 new Pair<>("Custom CameraView",
-                           "(constructing)"),
+                           "Use TextureView or SurfaceView to provide the " +
+                           "camera feature."),
                 new Pair<>("Custom ViewGroup behaves like DrawerLayout",
                            "The custom ViewGroup is responsible for intercept " +
                            "the dragging touch event."),
