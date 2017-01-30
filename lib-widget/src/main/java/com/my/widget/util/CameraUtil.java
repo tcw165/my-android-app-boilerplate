@@ -193,6 +193,7 @@ public class CameraUtil {
                                                    int preferHeight) {
         Camera.Parameters parameters = camera.getParameters();
         List<Camera.Size> allSupportSizes = parameters.getSupportedPreviewSizes();
+        Log.d(TAG, "prefer size: " + preferWidth + "x" + preferHeight);
         Log.d(TAG, "all support preview size: " + dumpPreviewSizeList(allSupportSizes));
         int minDiff = Integer.MAX_VALUE;
         int index = 0;
@@ -209,6 +210,8 @@ public class CameraUtil {
                 index = i;
             }
         }
+        Log.d(TAG, "select size: " + allSupportSizes.get(index).width +
+                   "x" + allSupportSizes.get(index).height);
 
         return allSupportSizes.get(index);
     }
