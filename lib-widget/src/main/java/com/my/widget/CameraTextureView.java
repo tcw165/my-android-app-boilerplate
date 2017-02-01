@@ -34,6 +34,9 @@ import com.my.widget.util.CameraUtil;
 
 import java.io.IOException;
 
+// TODO: Need to change the TextureView size to match aspect-ratio of the
+// TODO: camera preview size.
+// TODO: Solve it in the View#onMeasure or SurfaceTexture#setDefaultBufferSize
 public class CameraTextureView
     extends TextureView
     implements TextureView.SurfaceTextureListener {
