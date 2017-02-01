@@ -74,6 +74,9 @@ model {
 
 dependencies {
     compile fileTree(dir: "libs", include: ["*.jar"])
+
+    // JSON.
+    compile "com.google.code.gson:gson:2.6.2"
 }
 
 // Copy tasks.

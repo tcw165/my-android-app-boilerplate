@@ -24,6 +24,10 @@ public class Predictor {
         mHandle = createPredictor(symbol, params, dev.ctype(), dev.id, keys, shapes);
     }
 
+    public long handle() {
+        return mHandle;
+    }
+
     public void free() {
         if (mHandle != 0) {
             nativeFree(mHandle);
@@ -77,12 +81,31 @@ public class Predictor {
     ///////////////////////////////////////////////////////////////////////////
     // Protected / Private Methods ////////////////////////////////////////////
 
+    /**
+     * Create a NN predictor.
+     *
+     * @param symbol      The graph of the NN, which is usually stored in a JSON
+     *                    file. e.g. symbol.json
+     * @param params      The pre-trained weights.
+     * @param devType     no idea...
+     * @param devId       no idea...
+     * @param inputKeys   The keys indicating what nodes in the symbol are the
+     *                    input nodes.
+     * @param inputShapes The dimension (shape) of the input nodes. e.g.
+     *                    [[1, 3, 224, 224]]
+     *                      ^  ^   ^    ^
+     *                      |  |   |    +---------------- Width or height
+     *                      |  |   +--------------------- Width or height
+     *                      |  +------------------------- Channels.
+     *                      +---------------------------- Batch size.
+     * @return A handle for referencing the NN.
+     */
     private native static long createPredictor(byte[] symbol,
                                                byte[] params,
                                                int devType,
                                                int devId,
-                                               String[] keys,
-                                               int[][] shapes);
+                                               String[] inputKeys,
+                                               int[][] inputShapes);
 
     private native static void nativeFree(long handle);
 
