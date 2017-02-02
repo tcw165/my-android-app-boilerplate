@@ -21,6 +21,7 @@
 package com.my.widget;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.os.Handler;
@@ -30,9 +31,15 @@ import android.util.Log;
 import android.view.TextureView;
 import android.widget.Toast;
 
+import com.my.ml.PredictorUtil;
 import com.my.widget.util.CameraUtil;
 
+
+import org.dmlc.mxnet.MxnetException;
+
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 // TODO: Need to change the TextureView size to match aspect-ratio of the
 // TODO: camera preview size.
@@ -44,11 +51,13 @@ public class CameraTextureView
     // State.
     int mCameraId;
     boolean mIsPreviewing;
+    Bitmap mBitmap;
 
     static final String TAG = CameraTextureView.class.getSimpleName();
     // Because the Camera.open and Camera.setPreviewTexture take 100ms
     // individually, doing them in the other thread avoids
     Handler mHandler;
+    Timer mPredictTimer;
     Camera mCamera;
 
     public CameraTextureView(Context context) {
@@ -163,6 +172,8 @@ public class CameraTextureView
         // onResume()).
         mCamera.release();
         mCamera = null;
+
+        stopTimer();
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -204,14 +215,12 @@ public class CameraTextureView
         setSurfaceTextureListener(null);
     }
 
-    void ensureHandler() {
-        synchronized (this) {
-            if (mHandler == null) {
-                final HandlerThread thread = new HandlerThread(TAG);
-                thread.start();
+    synchronized void ensureHandler() {
+        if (mHandler == null) {
+            final HandlerThread thread = new HandlerThread(TAG);
+            thread.start();
 
-                mHandler = new Handler(thread.getLooper());
-            }
+            mHandler = new Handler(thread.getLooper());
         }
     }
 
@@ -254,10 +263,83 @@ public class CameraTextureView
             setPreviewSize(getWidth(), getHeight());
             mCamera.startPreview();
 
+            // TODO: Start a timer to predict the camera buffer.
+            startTimer();
+
             mIsPreviewing = true;
         } catch (IOException e) {
             Log.e("xyz", "Failed to set preview.");
             e.printStackTrace();
         }
+    }
+
+    synchronized void startTimer() {
+        try {
+            PredictorUtil.prepare(getContext(), 0, 0, null, null);
+        } catch (Exception e) {
+            // DO NOTHING.
+        }
+
+        if (mBitmap == null) {
+            mBitmap = Bitmap.createBitmap(224, 224, Bitmap.Config.ARGB_8888);
+        }
+
+        if (mPredictTimer == null) {
+            mPredictTimer = new Timer();
+            mPredictTimer.scheduleAtFixedRate(
+                new TimerTask() {
+                    @Override
+                    public void run() {
+                        predictCameraPreviewAsync();
+                    }
+                },
+                0,
+                1000);
+        }
+    }
+
+    synchronized void stopTimer() {
+        try {
+            PredictorUtil.release();
+        } catch (Exception e) {
+            // DO NOTHING.
+        }
+
+        if (mBitmap != null) {
+            mBitmap.recycle();
+            mBitmap = null;
+        }
+
+        if (mPredictTimer != null) {
+            mPredictTimer.cancel();
+            mPredictTimer = null;
+        }
+    }
+
+    synchronized void predictCameraPreviewAsync() {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                if (!isAvailable()) return;
+
+                // Get the current preview.
+                getBitmap(mBitmap);
+
+                try {
+                    float[] clazz = PredictorUtil.predict(mBitmap);
+                    StringBuilder s = new StringBuilder("[");
+                    for (int i = 0; i < clazz.length; i++) {
+                        s.append((int) clazz[i]);
+                        if (i < clazz.length - 1) {
+                            s.append(",");
+                        }
+                    }
+                    s.append("]");
+                    Log.d("xyz", "clazz=" + s.toString());
+                } catch (MxnetException ignored) {
+                    Log.d("xyz", ignored.toString());
+                }
+            }
+        });
     }
 }

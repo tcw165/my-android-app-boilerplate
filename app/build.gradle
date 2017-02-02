@@ -10,12 +10,18 @@ android {
 
     defaultConfig {
         applicationId "com.my.boilerplate"
-        minSdkVersion 15
+        minSdkVersion 16
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
 
         vectorDrawables.useSupportLibrary = true
+
+        ndk {
+            // Options: 'x86', 'x86_64', 'armeabi', 'armeabi-v7a', 'arm64-v8a'
+            // Because the lib-ml supports only armeabi.
+            abiFilters 'armeabi'
+        }
     }
 
     // For application security and in-app-purchasing.
@@ -73,6 +79,8 @@ dependencies {
     // My lib-component
     compile project(":lib-component") // (enable when under actively developing)
 //    compile "com.my.comp:lib-component-release:1.0.0@aar" // (enable when not actively developing)
+    // My lib-ml.
+//    compile project(":lib-ml") // (enable when under actively developing)
 
     // Transition extension.
     compile "com.andkulikov:transitionseverywhere:1.7.0"

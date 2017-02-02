@@ -6,7 +6,7 @@ model {
         buildToolsVersion "24.0.3"
 
         defaultConfig.with {
-            minSdkVersion.apiLevel = 15
+            minSdkVersion.apiLevel = 16
             targetSdkVersion.apiLevel = 25
         }
 
@@ -18,7 +18,7 @@ model {
         def CPP_SOURCES = "src/main/jni/cpp"
 
         ndk {
-            platformVersion = 15
+            platformVersion = 16
             // The name of the native library recognized by JNI.
             moduleName "lib-ml"
             // The compiler options, including the the root path and common
@@ -31,15 +31,13 @@ model {
                              "-I" + file("${CPP_SOURCES}/include").absolutePath,
                              "-I" + file("${CPP_SOURCES}/third_party").absolutePath])
             // Support JNI to print message through __android_log_print method.
-            ldLibs.addAll(["log", "android"])
+            ldLibs.addAll(["log", "android", "libmxnet_predict"])
             // Determine what STL library being linked to.
             stl = "gnustl_static"
             // ABI
             abiFilters.addAll([
-                    "armeabi",
-                    "armeabi-v7a",
-                    "x86",
-                    "x86_64"
+                    "armeabi"
+//                    "armeabi-v7a",
             ])
         }
 
@@ -73,7 +71,7 @@ model {
 }
 
 dependencies {
-    compile fileTree(dir: "libs", include: ["*.jar"])
+    compile fileTree(dir: "libs", include: ["*.jar", "*.so"])
 
     // JSON.
     compile "com.google.code.gson:gson:2.6.2"
