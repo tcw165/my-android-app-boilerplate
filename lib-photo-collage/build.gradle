@@ -6,7 +6,7 @@ model {
         buildToolsVersion "24.0.3"
 
         defaultConfig.with {
-            minSdkVersion.apiLevel = 15
+            minSdkVersion.apiLevel = 16
             targetSdkVersion.apiLevel = 25
         }
 
@@ -18,7 +18,7 @@ model {
         def CPP_SOURCES = "src/main/jni/cpp"
 
         ndk {
-            platformVersion = 15
+            platformVersion = 16
             // The name of the native library recognized by JNI.
             moduleName "photo-collage"
             // The compiler options, including the the root path and common
