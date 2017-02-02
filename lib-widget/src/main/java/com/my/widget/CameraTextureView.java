@@ -31,9 +31,8 @@ import android.util.Log;
 import android.view.TextureView;
 import android.widget.Toast;
 
-import com.my.ml.PredictorUtil;
+import com.my.ml.ClassifierUtil;
 import com.my.widget.util.CameraUtil;
-
 
 import org.dmlc.mxnet.MxnetException;
 
@@ -59,6 +58,9 @@ public class CameraTextureView
     Handler mHandler;
     Timer mPredictTimer;
     Camera mCamera;
+
+    // Callbacks.
+    OnClassfiyCameraPreview mCallback;
 
     public CameraTextureView(Context context) {
         this(context, null);
@@ -176,6 +178,10 @@ public class CameraTextureView
         stopTimer();
     }
 
+    public void setOnClassifyPreviewListener(OnClassfiyCameraPreview callback) {
+        mCallback = callback;
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // Protected / Private Methods ////////////////////////////////////////////
 
@@ -275,7 +281,7 @@ public class CameraTextureView
 
     synchronized void startTimer() {
         try {
-            PredictorUtil.prepare(getContext(), 0, 0, null, null);
+            ClassifierUtil.prepare(getContext(), 0, 0, null, null);
         } catch (Exception e) {
             // DO NOTHING.
         }
@@ -300,7 +306,7 @@ public class CameraTextureView
 
     synchronized void stopTimer() {
         try {
-            PredictorUtil.release();
+            ClassifierUtil.release();
         } catch (Exception e) {
             // DO NOTHING.
         }
@@ -326,20 +332,46 @@ public class CameraTextureView
                 getBitmap(mBitmap);
 
                 try {
-                    float[] clazz = PredictorUtil.predict(mBitmap);
-                    StringBuilder s = new StringBuilder("[");
-                    for (int i = 0; i < clazz.length; i++) {
-                        s.append((int) clazz[i]);
-                        if (i < clazz.length - 1) {
-                            s.append(",");
-                        }
-                    }
-                    s.append("]");
-                    Log.d("xyz", "clazz=" + s.toString());
+                    float[] clazz = ClassifierUtil.predict(mBitmap);
+                    String description = ClassifierUtil.getDescription(
+                        getContext(), clazz, 0);
+
+                    dispatchCallback(description);
+
+                    Log.d("xyz", "this is " + description);
+
+                    // Log the raw class vector.
+//                    StringBuilder s = new StringBuilder("[");
+//                    for (int i = 0; i < clazz.length; i++) {
+//                        s.append(clazz[i]);
+//                        if (i < clazz.length - 1) {
+//                            s.append(",");
+//                        }
+//                    }
+//                    s.append("]");
+//                    Log.d("xyz", "clazz=" + s.toString());
                 } catch (MxnetException ignored) {
                     Log.d("xyz", ignored.toString());
                 }
             }
         });
+    }
+
+    void dispatchCallback(final String description) {
+        post(new Runnable() {
+            @Override
+            public void run() {
+                if (mCallback == null) return;
+
+                mCallback.onCameraPreviewClassified(description);
+            }
+        });
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Clazz //////////////////////////////////////////////////////////////////
+
+    public interface OnClassfiyCameraPreview {
+        void onCameraPreviewClassified(String description);
     }
 }
