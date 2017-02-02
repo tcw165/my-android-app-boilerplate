@@ -22,6 +22,7 @@ package com.my.ml;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.util.Log;
 
 import com.google.gson.GsonBuilder;
 import com.my.ml.model.Mean;
@@ -31,10 +32,14 @@ import org.dmlc.mxnet.Predictor;
 import org.dmlc.mxnet.Predictor.Device;
 import org.dmlc.mxnet.Predictor.InputNode;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Use the MxNet framework to predict the class of a given image.
@@ -42,30 +47,40 @@ import java.nio.ByteBuffer;
  * Usage:
  * <pre>
  * // Prepare the NN model (stored in the memory).
- * boolean created = PredictorUtil.prepare(this,
+ * boolean created = ClassifierUtil.prepare(this,
  *                                         R.raw.symbol,
  *                                         R.raw.params,
  *                                         new String[] {"data"},
  *                                         new int[][]{{1, 3, 224, 224}});
  * if (created) {
  *     // Predict the given bitmap.
- *     float[] clazz = PredictorUtil.predict(bitmap);
+ *     float[] clazz = ClassifierUtil.predict(bitmap);
  *
  *     // TODO: Make use of the clazz.
  *
  *     // Recycle the NN model.
- *     PredictorUtil.release();
+ *     ClassifierUtil.release();
  * }
  * </pre>
  */
-public class PredictorUtil {
+public class ClassifierUtil {
 
     private static final int INDEX_R = 0;
     private static final int INDEX_G = 1;
     private static final int INDEX_B = 2;
 
+    /**
+     * Subtract the RGB with the mean value per pixel.
+     */
     private static Mean sMean;
+    /**
+     * The MxNet predictor.
+     */
     private static Predictor sPredictor;
+    /**
+     * The lookup table for telling what class is the given image.
+     */
+    private static List<String> sClazzDescription;
 
 //    public static synchronized long prepare(Context context,
 //                                            File symbol,
@@ -166,6 +181,47 @@ public class PredictorUtil {
         sPredictor.forward("data", colors);
         // TODO: Not sure getting 0 means what.
         return sPredictor.getOutput(0);
+    }
+
+    public static synchronized String getDescription(Context context,
+                                                     float[] clazzVector,
+                                                     int clazzResId) {
+        if (clazzVector == null || clazzVector.length == 0) return null;
+
+        if (sClazzDescription == null) {
+            sClazzDescription = new ArrayList<>();
+
+            if (clazzResId == 0) {
+                clazzResId = R.raw.clazz;
+            }
+
+            final InputStream inputStream = context.getResources()
+                                                   .openRawResource(clazzResId);
+            final InputStreamReader is = new InputStreamReader(inputStream);
+            final BufferedReader reader = new BufferedReader(is);
+
+            String line;
+            try {
+                while ((line = reader.readLine()) != null) {
+                    sClazzDescription.add(line);
+                }
+            } catch (IOException e) {
+                Log.d("xyz", "Failed to read the class lookup table.");
+            }
+        }
+        if (sClazzDescription.isEmpty()) return null;
+
+        int len = Math.min(sClazzDescription.size(), clazzVector.length);
+        int maxIdx = 0;
+        float max = clazzVector[maxIdx];
+        for (int i = 1; i < len; ++i) {
+            if (clazzVector[i] > max) {
+                max = clazzVector[i];
+                maxIdx = i;
+            }
+        }
+
+        return sClazzDescription.get(maxIdx);
     }
 
     ///////////////////////////////////////////////////////////////////////////

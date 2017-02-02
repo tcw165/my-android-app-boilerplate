@@ -9,6 +9,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.TextView;
 
 import com.my.widget.CameraTextureView;
 import com.my.widget.ElasticDragDismissLayout;
@@ -22,7 +23,9 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 
-public class ViewOfCameraSampleActivity extends AppCompatActivity {
+public class ViewOfCameraSampleActivity
+    extends AppCompatActivity
+    implements CameraTextureView.OnClassfiyCameraPreview {
 
     /**
      * Needed because it asks the permission in the onResume function and the
@@ -32,6 +35,7 @@ public class ViewOfCameraSampleActivity extends AppCompatActivity {
     boolean mPermSettling;
 
     ElasticDragDismissLayout mLayout;
+    TextView mDescripView;
     //    CameraSurfaceView mCameraView;
     CameraTextureView mCameraView;
 
@@ -75,8 +79,13 @@ public class ViewOfCameraSampleActivity extends AppCompatActivity {
             }
         });
 
+        mDescripView = (TextView) findViewById(R.id.description);
+
+        // Use SurfaceView.
 //        mCameraView = (CameraSurfaceView) findViewById(R.id.cameraPreview);
+        // Use TextureView.
         mCameraView = (CameraTextureView) findViewById(R.id.cameraPreview);
+        mCameraView.setOnClassifyPreviewListener(this);
     }
 
     @Override
@@ -155,6 +164,11 @@ public class ViewOfCameraSampleActivity extends AppCompatActivity {
     public void onBackPressed() {
         // Close the layout with animation.
         mLayout.close();
+    }
+
+    @Override
+    public void onCameraPreviewClassified(String description) {
+        mDescripView.setText(description);
     }
 
     public void finishWithResult() {
