@@ -24,7 +24,6 @@ import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Context;
-import android.graphics.Canvas;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.view.View;
@@ -35,28 +34,10 @@ import java.util.Collection;
 
 /**
  * ...
- * <br/> <br/>
- * Attributes for itself:
- * <br/>
- * {@link R.styleable#ElasticDragDismissLayout_dragDismissDistance}
- * <br/>
- * {@link R.styleable#ElasticDragDismissLayout_dragDismissFraction}
- * <br/>
- * {@link R.styleable#ElasticDragDismissLayout_dragScale}
- * <br/>
- * {@link R.styleable#ElasticDragDismissLayout_dragElasticity}
- * <br/> <br/>
- * Attributes for child views:
- * <br/>
- * {@link R.styleable#ElasticDragDismissLayout_elasticScrollView}
- * <br/>
- * {@link R.styleable#ElasticDragDismissLayout_elasticScrollViewHeader}
- * <br/>
- * {@link R.styleable#ElasticDragDismissLayout_elasticScrollViewFooter}
- * <br/>
+ * Attributes:
+ * see {@link ElasticDragLayout}
  */
-public class ElasticDragMenuLayout
-    extends ElasticDragDismissLayout {
+public class ElasticDragMenuLayout extends ElasticDragLayout {
 
     // State.
     boolean mIsMenuOpened;
@@ -68,28 +49,8 @@ public class ElasticDragMenuLayout
                                  AttributeSet attrs) {
         super(context, attrs);
 
-        // Always opened.
-        mIsOpened = true;
         // Disable the drag-scale.
         mShouldScale = false;
-    }
-
-    /**
-     * ...
-     */
-    @Override
-    public void open() {
-        resetScrollView(false);
-    }
-
-    /**
-     * ...
-     */
-    @Override
-    public void close(int closeByGesture) {
-        // Ensure the gesture.
-        mClosedBy = CLOSE_BY_DRAG;
-        resetScrollView(false);
     }
 
     public boolean isMenuOpened() {
@@ -97,13 +58,11 @@ public class ElasticDragMenuLayout
     }
 
     public void openMenu() {
-        mIsMenuOpened = true;
-        resetScrollView(true);
+        doAnimation(mIsMenuOpened = true);
     }
 
     public void closeMenu() {
-        mIsMenuOpened = false;
-        resetScrollView(false);
+        doAnimation(mIsMenuOpened = false);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -116,59 +75,31 @@ public class ElasticDragMenuLayout
         // TODO: Use layout params to configure it.
         mMenuView = getChildAt(getChildCount() - 1);
 
-        if (mMenuView != null && !isInEditMode()) {
+        if (mMenuView != null && !isMenuOpened() &&
+            !isInEditMode()) {
             ViewCompat.setAlpha(mMenuView, 0f);
         }
     }
 
     @Override
-    protected void onSizeChanged(int w,
-                                 int h,
-                                 int oldW,
-                                 int oldH) {
-        super.onSizeChanged(w, h, oldW, oldH);
-
-        // Override the ty.
-        if (mElasticScrollView != null) {
-            ViewCompat.setTranslationY(mElasticScrollView, 0);
-        }
+    protected void onDragCancel() {
+        closeMenu();
     }
 
     @Override
-    protected boolean drawChild(Canvas canvas,
-                                View child,
-                                long drawingTime) {
-        // TODO: Draw the cover before drawing the menu.
-        if (isMenuOpened()) {
-            // DO NOTHING.
-        }
-        return super.drawChild(canvas, child, drawingTime);
+    protected void onDragOver(float totalDrag) {
+        openMenu();
     }
 
-    @Override
-    void dispatchDismissCallback(float totalScroll) {
-        if (mCallbacks != null && !mCallbacks.isEmpty()) {
-            for (DragDismissCallback callback : mCallbacks) {
-                callback.onDragDismissed(totalScroll);
-            }
-        }
-    }
-
-    void resetScrollView(boolean forceOpenMenu) {
-        final float totalDrag = mTotalDrag;
-        final boolean isOpenMenu = forceOpenMenu || Math.abs(mTotalDrag) > mDragDismissDistance;
+    void doAnimation(final boolean isOpenMenu) {
         // TODO: If the backport of the transition library is promising, then
         // TODO: I need to use it instead.
         final Collection<Animator> anims = new ArrayList<>();
         anims.add(ObjectAnimator
-                      .ofFloat(mElasticScrollView,
-                               "translationY",
-                               0f)
+                      .ofFloat(mElasticScrollView, "translationY", 0f)
                       .setDuration(250L));
         anims.add(ObjectAnimator
-                      .ofFloat(mMenuView,
-                               "alpha",
-                               isOpenMenu ? 1f : 0f)
+                      .ofFloat(mMenuView, "alpha", isOpenMenu ? 1f : 0f)
                       .setDuration(300L));
 
         if (mAnimSet != null) {
@@ -184,10 +115,6 @@ public class ElasticDragMenuLayout
             @Override
             public void onAnimationEnd(Animator animation) {
                 mAnimSet.removeListener(this);
-
-                if (isOpenMenu) {
-                    dispatchDismissCallback(totalDrag);
-                }
             }
 
             @Override
@@ -203,13 +130,6 @@ public class ElasticDragMenuLayout
         mAnimSet.playTogether(anims);
         mAnimSet.setInterpolator(new DecelerateInterpolator());
         mAnimSet.start();
-
-        // Update the state.
-        mTotalDrag = 0;
-        mIsOpened = true;
-        mIsMenuOpened = isOpenMenu;
-        mDraggingDown = mDraggingUp = false;
-        dispatchDragCallback(0f, 0f, 0f, 0f);
     }
 
     ///////////////////////////////////////////////////////////////////////////

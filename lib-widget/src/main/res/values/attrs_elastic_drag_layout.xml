@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <declare-styleable name="ElasticDragDismissLayout">
+    <declare-styleable name="ElasticDragLayout">
         <attr name="dragOverDistance" format="dimension"/>
-        <attr name="dragDismissDistance" format="dimension"/>
-        <attr name="dragDismissFraction" format="float"/>
+        <attr name="dragOverMaxDistance" format="dimension"/>
         <attr name="dragScale" format="float"/>
         <attr name="dragElasticity" format="float"/>
 

@@ -82,6 +82,10 @@ public class ClassifierUtil {
      */
     private static List<String> sClazzDescription;
 
+    public static synchronized boolean isAvailbe() {
+        return sPredictor != null;
+    }
+
 //    public static synchronized long prepare(Context context,
 //                                            File symbol,
 //                                            File params,

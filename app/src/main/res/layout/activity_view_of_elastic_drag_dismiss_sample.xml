@@ -6,10 +6,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:dragDismissDistance="122dp"
-    app:dragOverDistance="344dp"
-    app:dragScale="0.87"
-    tools:context=".ViewOfDragDismissSampleActivity">
+    app:dragOverDistance="122dp"
+    app:dragOverMaxDistance="344dp"
+    app:dragScale="0.89"
+    tools:context=".ViewOfElasticDragDismissSampleActivity">
 
     <!-- This layout contains one child view only -->
     <android.support.v4.widget.NestedScrollView

@@ -8,7 +8,7 @@ import android.util.Log;
 
 import com.my.widget.ElasticDragDismissLayout;
 
-public class ViewOfDragDismissSampleActivity extends AppCompatActivity {
+public class ViewOfElasticDragDismissSampleActivity extends AppCompatActivity {
 
     ElasticDragDismissLayout mLayout;
 
@@ -34,20 +34,20 @@ public class ViewOfDragDismissSampleActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onDragDismissed(float totalScroll) {
-                Log.d("xyz", "onDragDismissed");
+            public void onDismissByDragOver(float totalScroll) {
+                Log.d("xyz", "onDismissByDragOver");
                 finishWithResult();
             }
 
             @Override
-            public void onBackPressedDismissed() {
-                Log.d("xyz", "onBackPressedDismissed");
+            public void onDismissByBackPressed() {
+                Log.d("xyz", "onDismissByBackPressed");
                 finishWithResult();
             }
 
             @Override
-            public void onCoverPressedDismissed() {
-                Log.d("xyz", "onCoverPressedDismissed");
+            public void onDismissByBgPressed() {
+                Log.d("xyz", "onDismissByBgPressed");
                 finishWithResult();
             }
         });

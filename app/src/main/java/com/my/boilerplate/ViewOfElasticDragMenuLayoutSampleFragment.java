@@ -24,7 +24,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -32,16 +31,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.my.widget.ElasticDragDismissLayout;
 import com.my.widget.ElasticDragMenuLayout;
 
-public class ViewOfCoordinatorLayoutSampleFragment extends Fragment {
+public class ViewOfElasticDragMenuLayoutSampleFragment extends Fragment {
 
     Toolbar mToolbar;
     ElasticDragMenuLayout mLayout;
-//    DropDownMenuView mDrawerMenu;
 
-    public ViewOfCoordinatorLayoutSampleFragment() {
+    public ViewOfElasticDragMenuLayoutSampleFragment() {
         // Required empty public constructor
     }
 
@@ -51,39 +48,14 @@ public class ViewOfCoordinatorLayoutSampleFragment extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         mLayout = (ElasticDragMenuLayout) inflater.inflate(
-            R.layout.fragment_view_of_coordinator_layout_sample,
+            R.layout.fragment_view_of_elastic_drag_menu_layout_sample,
             container,
             false);
-        mLayout.addOnDragDismissListener(new ElasticDragDismissLayout.DragDismissCallback() {
-            @Override
-            public void onDrag(float elasticOffset, float elasticOffsetPixels, float rawOffset, float rawOffsetPixels) {
-                // DO NOTHING.
-            }
-
-            @Override
-            public void onDragDismissed(float totalScroll) {
-                Log.d("xyz", "onDragDismissed");
-            }
-
-            @Override
-            public void onBackPressedDismissed() {
-                // DO NOTHING.
-            }
-
-            @Override
-            public void onCoverPressedDismissed() {
-                // DO NOTHING.
-            }
-        });
-
-//        mDrawerMenu = (DropDownMenuView) layout.findViewById(R.id.drawer_menu);
-//        mDrawerMenu.addOnDrawerStateChangeListener(onMenuStateChange());
-//        mDrawerMenu.setOnClickMenuItemListener(onClickMenuItem());
 
         // Set back icon of the toolbar.
         mToolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
         mToolbar.setNavigationIcon(R.drawable.ic_back);
-        mToolbar.setTitle("CoordinatorLayout");
+        mToolbar.setTitle("ElasticDragMenuLayout");
 
         // It wants to contribute the menu option.
         setHasOptionsMenu(true);
@@ -94,7 +66,6 @@ public class ViewOfCoordinatorLayoutSampleFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        mLayout.removeAllOnDragDismissListeners();
     }
 
     @Override
@@ -140,30 +111,4 @@ public class ViewOfCoordinatorLayoutSampleFragment extends Fragment {
             mLayout.openMenu();
         }
     }
-
-//    private IDrawerViewLayout.OnDrawerStateChange onMenuStateChange() {
-//        return new IDrawerViewLayout.OnDrawerStateChange() {
-//            @Override
-//            public void onOpenDrawer() {
-//                // DO NOTHING.
-//            }
-//
-//            @Override
-//            public void onCloseDrawer() {
-//                // DO NOTHING.
-//            }
-//        };
-//    }
-//
-//    private View.OnClickListener onClickMenuItem() {
-//        return new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Toast.makeText(getActivity(),
-//                               R.string.menu_settings,
-//                               Toast.LENGTH_SHORT)
-//                     .show();
-//            }
-//        };
-//    }
 }
