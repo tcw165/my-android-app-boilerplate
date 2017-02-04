@@ -81,9 +81,9 @@ public class ElasticNestedScrollView extends NestedScrollView {
             public void onAnimationUpdate(ValueAnimator animation) {
 //                final int h = mElasticScrollView.getHeight();
 //                final float ty = Math.abs(mElasticScrollView.getTranslationY());
-//                final int alpha = (int) Math.max(0, COVER_FADE_PAINT_ALPHA * (h - ty) / h);
+//                final int alpha = (int) Math.max(0, BG_FADE_PAINT_ALPHA * (h - ty) / h);
 //
-//                mCoveredFadePaint.setAlpha(alpha);
+//                mBgFadePaint.setAlpha(alpha);
 //                invalidate();
             }
         };
@@ -203,9 +203,9 @@ public class ElasticNestedScrollView extends NestedScrollView {
                 ViewCompat.setTranslationY(target, 0f);
             }
 
-//            dispatchDragCallback(
+//            dispatchOnDragCallbacks(
 //                dragFraction, dragTo,
-//                Math.min(1f, Math.abs(mTotalDrag) / mDragDismissDistance), mTotalDrag);
+//                Math.min(1f, Math.abs(mTotalDrag) / mDragOverMaxDistance), mTotalDrag);
         }
 
         void reset(View target) {

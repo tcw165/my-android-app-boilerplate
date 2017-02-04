@@ -327,6 +327,7 @@ public class CameraTextureView
             @Override
             public void run() {
                 if (!isAvailable()) return;
+                if (!ClassifierUtil.isAvailbe()) return;
 
                 // Get the current preview.
                 getBitmap(mBitmap);

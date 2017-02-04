@@ -27,7 +27,6 @@ import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.app.Activity;
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -36,13 +35,9 @@ import android.os.Build;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.NestedScrollingChild;
-import android.support.v4.view.NestedScrollingParent;
 import android.support.v4.view.ViewCompat;
-import android.support.v4.widget.NestedScrollView;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
@@ -50,119 +45,55 @@ import android.view.animation.DecelerateInterpolator;
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-
 /**
  * A {@link CoordinatorLayout} which responds to nested scrolls to create drag-
  * dismissable layouts. Applies an elasticity factor to reduce movement as you
  * approach the given dismiss distance.
  * Optionally also scales down content during drag.
  * <br/>
- * The first child must be {@link NestedScrollingChild}.
- * <br/> <br/>
- * Attributes for itself:
- * <br/>
- * {@link R.styleable#ElasticDragDismissLayout_dragDismissDistance}
- * <br/>
- * {@link R.styleable#ElasticDragDismissLayout_dragDismissFraction}
- * <br/>
- * {@link R.styleable#ElasticDragDismissLayout_dragScale}
- * <br/>
- * {@link R.styleable#ElasticDragDismissLayout_dragElasticity}
- * <br/> <br/>
- * Attributes for child views:
- * <br/>
- * {@link R.styleable#ElasticDragDismissLayout_elasticScrollView}
- * <br/>
- * {@link R.styleable#ElasticDragDismissLayout_elasticScrollViewHeader}
- * <br/>
- * {@link R.styleable#ElasticDragDismissLayout_elasticScrollViewFooter}
- * <br/>
+ * Attributes:
+ * see {@link ElasticDragLayout}
  */
-public class ElasticDragDismissLayout
-    extends CoordinatorLayout
-    implements NestedScrollingParent {
+public class ElasticDragDismissLayout extends ElasticDragLayout {
 
-    public static final int CLOSE_BY_DRAG = 0;
-    public static final int CLOSE_BY_BACK_PRESSED = 1;
-    public static final int CLOSE_BY_COVER_PRESSED = 2;
-
-    // Configurable attributes.
     /**
-     * The over dragging distance.
-     * <br/>
-     * Attribute:
-     * <br/>
-     * See {@link R.styleable#ElasticDragDismissLayout_dragOverDistance}.
+     * See {@link #dispatchDismissCallback(int, float)}
      */
-    float mDragOverDistance = 244f;
+    public static final int CLOSED_BY_DRAG_OVER = 0;
     /**
-     * The distance that the dismiss callback is called when over dragging.
-     * <br/>
-     * Attribute:
-     * <br/>
-     * See {@link R.styleable#ElasticDragDismissLayout_dragDismissDistance}.
+     * See {@link #dispatchDismissCallback(int, float)}
      */
-    float mDragDismissDistance = 56f;
+    public static final int CLOSED_BY_BACK_PRESSED = 1;
     /**
-     * The fraction percentage that the dismiss callback is called when over
-     * dragging.
-     * It's a mutual exclusive configuration of {@link #mDragDismissDistance}.
-     * <br/>
-     * Attribute:
-     * <br/>
-     * See {@link R.styleable#ElasticDragDismissLayout_dragDismissFraction}.
+     * See {@link #dispatchDismissCallback(int, float)}
      */
-    float mDragDismissFraction = -1f;
-    /**
-     * The scale factor when over dragging.
-     * <br/>
-     * Attribute:
-     * <br/>
-     * See {@link R.styleable#ElasticDragDismissLayout_dragScale}.
-     */
-    float mDragScale = 0.9f;
-    boolean mShouldScale = false;
-    /**
-     * The elasticity factor of over dragging.
-     * <br/>
-     * Attribute:
-     * <br/>
-     * See {@link R.styleable#ElasticDragDismissLayout_dragElasticity}.
-     */
-    float mDragElasticity = 0.8f;
+    public static final int CLOSED_BY_COVER_PRESSED = 2;
 
     // State
-    float mTotalDrag;
-    int mClosedBy = -1;
-    boolean mIsOpened = false;
-    boolean mDraggingDown = false;
-    boolean mDraggingUp = false;
+    boolean mIsOpened;
 
-    // Rendering related.
-    Paint mCoveredFadePaint;
-    Rect mCoveredFadeRect;
-    static final int COVER_FADE_PAINT_ALPHA = (int) (0.33 * 0xFF);
+    // Background.
+    Paint mBgFadePaint;
+    Rect mBgFadeRect;
+    static final int BG_FADE_PAINT_ALPHA = (int) (0.33 * 0xFF);
 
-    // Views related.
-    View mElasticScrollView;
-    View mElasticScrollViewHeader;
-    View mElasticScrollViewFooter;
-    List<DragDismissCallback> mCallbacks;
+    // Callbacks.
+    List<OnDragDismissCallback> mDismissCallbacks;
 
     // Animator.
     AnimatorSet mAnimSet;
-    AnimatorUpdateListener mCoverUpdater = new AnimatorUpdateListener() {
+    AnimatorUpdateListener mBgFadeUpdater = new AnimatorUpdateListener() {
         @Override
         public void onAnimationUpdate(ValueAnimator animation) {
             if (!(mElasticScrollView instanceof NestedScrollingChild)) return;
 
             final int h = mElasticScrollView.getHeight();
             final float ty = Math.abs(mElasticScrollView.getTranslationY());
-            final int alpha = (int) Math.max(0, COVER_FADE_PAINT_ALPHA * (h - ty) / h);
+            final int alpha = (int) Math.max(0, BG_FADE_PAINT_ALPHA * (h - ty) / h);
 
-            mCoveredFadePaint.setAlpha(alpha);
-//            Log.d("xyz", "update cover alpha=" + alpha);
+            mBgFadePaint.setAlpha(alpha);
+//            Log.d("xyz", "bg alpha=" + mBgFadePaint.getAlpha());
+
             invalidate();
         }
     };
@@ -171,119 +102,22 @@ public class ElasticDragDismissLayout
                                     AttributeSet attrs) {
         super(context, attrs);
 
-        final float density = context.getResources().getDisplayMetrics().density;
-        final TypedArray array = getContext().obtainStyledAttributes(
-            attrs, R.styleable.ElasticDragDismissLayout, 0, 0);
-
-        // Init configurable attributes.
-        if (array.hasValue(R.styleable.ElasticDragDismissLayout_dragDismissDistance)) {
-            mDragDismissDistance = array.getDimensionPixelSize(
-                R.styleable.ElasticDragDismissLayout_dragDismissDistance,
-                (int) (mDragDismissDistance * density));
-        } else if (array.hasValue(R.styleable.ElasticDragDismissLayout_dragDismissFraction)) {
-            mDragDismissFraction = array.getFloat(
-                R.styleable.ElasticDragDismissLayout_dragDismissFraction,
-                mDragDismissFraction);
-        }
-        if (array.hasValue(R.styleable.ElasticDragDismissLayout_dragOverDistance)) {
-            mDragOverDistance = array.getDimensionPixelSize(
-                R.styleable.ElasticDragDismissLayout_dragOverDistance,
-                (int) (mDragOverDistance * density));
-        }
-        if (array.hasValue(R.styleable.ElasticDragDismissLayout_dragScale)) {
-            mDragScale = array.getFloat(
-                R.styleable.ElasticDragDismissLayout_dragScale,
-                mDragScale);
-            mShouldScale = mDragScale != 1f;
-        }
-        if (array.hasValue(R.styleable.ElasticDragDismissLayout_dragElasticity)) {
-            mDragElasticity = array.getFloat(
-                R.styleable.ElasticDragDismissLayout_dragElasticity,
-                mDragElasticity);
-        }
-        array.recycle();
-
-        mCoveredFadePaint = new Paint();
-        mCoveredFadePaint.setColor(Color.BLACK);
-        mCoveredFadePaint.setAlpha(0);
-        mCoveredFadeRect = new Rect();
+        mBgFadePaint = new Paint();
+        mBgFadePaint.setColor(Color.BLACK);
+        mBgFadePaint.setAlpha(0);
+        mBgFadeRect = new Rect();
     }
 
     @Override
     public void onAttachedToWindow() {
         super.onAttachedToWindow();
-        setOnClickListener(OnClickCoverToClose());
+        setOnClickListener(OnClickBgToDismiss());
     }
 
     @Override
     public void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         setOnClickListener(null);
-    }
-
-    @Override
-    public boolean onStartNestedScroll(View child,
-                                       View target,
-                                       int nestedScrollAxes) {
-        if (mAnimSet != null) {
-            mAnimSet.cancel();
-        }
-        return (nestedScrollAxes & ViewCompat.SCROLL_AXIS_VERTICAL) != 0;
-    }
-
-    @Override
-    public void onNestedPreScroll(View target,
-                                  int dx,
-                                  int dy,
-                                  int[] consumed) {
-        super.onNestedPreScroll(target, dx, dy, consumed);
-        // If we're in a drag gesture and the user reverses up the we should
-        // take those events
-        if (mDraggingDown && dy > 0 || mDraggingUp && dy < 0) {
-            Log.d("xyz", "  onNestedPreScroll: Handle the reverse drag.");
-            dragScale(dy);
-            consumed[1] = dy;
-        }
-    }
-
-    @Override
-    public void onNestedScroll(View target,
-                               int dxConsumed,
-                               int dyConsumed,
-                               int dxUnconsumed,
-                               int dyUnconsumed) {
-        super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
-        dragScale(dyUnconsumed);
-    }
-
-    @Override
-    public void onStopNestedScroll(View child) {
-        super.onStopNestedScroll(child);
-        Log.d("xyz", "onStopNestedScroll");
-        if (Math.abs(mTotalDrag) >= mDragDismissDistance) {
-            close(CLOSE_BY_DRAG);
-        } else {
-            open();
-        }
-    }
-
-    public void addOnDragDismissListener(DragDismissCallback listener) {
-        if (mCallbacks == null) {
-            mCallbacks = new ArrayList<>();
-        }
-        mCallbacks.add(listener);
-    }
-
-    public void removeOnDragDismissListener(DragDismissCallback listener) {
-        if (mCallbacks != null && mCallbacks.size() > 0) {
-            mCallbacks.remove(listener);
-        }
-    }
-
-    public void removeAllOnDragDismissListeners() {
-        while (!mCallbacks.isEmpty()) {
-            removeOnDragDismissListener(mCallbacks.get(0));
-        }
     }
 
     public boolean isOpened() {
@@ -299,19 +133,13 @@ public class ElasticDragDismissLayout
         // TODO: If the backport of the transition library is promising, then
         // TODO: I need to use it instead.
         final ObjectAnimator animTy = ObjectAnimator
-            .ofFloat(mElasticScrollView,
-                     "translationY",
-                     0);
+            .ofFloat(mElasticScrollView, "translationY", 0);
         // Cover updater.
-        animTy.addUpdateListener(mCoverUpdater);
+        animTy.addUpdateListener(mBgFadeUpdater);
         final ObjectAnimator animSx = ObjectAnimator
-            .ofFloat(mElasticScrollView,
-                     "scaleX",
-                     1.f);
+            .ofFloat(mElasticScrollView, "scaleX", 1.f);
         final ObjectAnimator animSy = ObjectAnimator
-            .ofFloat(mElasticScrollView,
-                     "scaleY",
-                     1.f);
+            .ofFloat(mElasticScrollView, "scaleY", 1.f);
         // TODO: Handle scroll-view header and footer.
 
         if (mAnimSet != null) {
@@ -326,13 +154,13 @@ public class ElasticDragDismissLayout
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                animTy.removeUpdateListener(mCoverUpdater);
+                animTy.removeUpdateListener(mBgFadeUpdater);
                 mAnimSet.removeListener(this);
             }
 
             @Override
             public void onAnimationCancel(Animator animation) {
-                animTy.removeUpdateListener(mCoverUpdater);
+                animTy.removeUpdateListener(mBgFadeUpdater);
                 mAnimSet.removeListener(this);
             }
 
@@ -347,10 +175,7 @@ public class ElasticDragDismissLayout
         mAnimSet.start();
 
         // Update the state.
-        mTotalDrag = 0;
         mIsOpened = true;
-        mDraggingDown = mDraggingUp = false;
-        dispatchDragCallback(0f, 0f, 0f, 0f);
     }
 
     /**
@@ -377,43 +202,43 @@ public class ElasticDragDismissLayout
 
     /**
      * Close the layout with a vertical sliding animation. It calls
-     * {@link DragDismissCallback#onBackPressedDismissed()} when the animation
+     * {@link OnDragDismissCallback#onDismissByBackPressed()} when the animation
      * ends.
      */
     public void close() {
-        close(CLOSE_BY_BACK_PRESSED);
+        close(CLOSED_BY_BACK_PRESSED);
     }
 
     /**
      * Close the layout with a vertical sliding animation.
      *
-     * @param closeByGesture Value of {@link #CLOSE_BY_BACK_PRESSED},
-     *                       {@link #CLOSE_BY_COVER_PRESSED} or
-     *                       {@link #CLOSE_BY_DRAG}.
+     * @param closeByGesture Value of {@link #CLOSED_BY_BACK_PRESSED},
+     *                       {@link #CLOSED_BY_COVER_PRESSED} or
+     *                       {@link #CLOSED_BY_DRAG_OVER}.
      *                       Will call
-     *                       {@link DragDismissCallback#onBackPressedDismissed()},
-     *                       {@link DragDismissCallback#onCoverPressedDismissed()}
+     *                       {@link OnDragDismissCallback#onDismissByBackPressed()},
+     *                       {@link OnDragDismissCallback#onDismissByBgPressed()}
      *                       and
-     *                       {@link DragDismissCallback#onDragDismissed(float)}
+     *                       {@link OnDragDismissCallback#onDismissByDragOver(float)}
      *                       respectively.
      */
-    public void close(int closeByGesture) {
+    public void close(final int closeByGesture) {
         if (!(mElasticScrollView instanceof NestedScrollingChild)) {
-            dispatchDismissCallback(0);
+            dispatchDismissCallback(closeByGesture, 0);
             return;
         }
 
-        final float totalScroll = mTotalDrag;
+        final float totalDrag = mTotalDrag;
         // TODO: If the backport of the transition library is promising, then
         // TODO: I need to use it instead.
         final ObjectAnimator animTy = ObjectAnimator
             .ofFloat(mElasticScrollView,
                      "translationY",
-                     (mTotalDrag <= 0 ?
+                     (totalDrag <= 0 ?
                          mElasticScrollView.getMeasuredHeight() :
                          -mElasticScrollView.getMeasuredHeight()));
         // Cover updater.
-        animTy.addUpdateListener(mCoverUpdater);
+        animTy.addUpdateListener(mBgFadeUpdater);
         // TODO: Handle scroll-view header and footer.
 
         if (mAnimSet != null) {
@@ -428,15 +253,17 @@ public class ElasticDragDismissLayout
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                animTy.removeUpdateListener(mCoverUpdater);
+                animTy.removeUpdateListener(mBgFadeUpdater);
                 mAnimSet.removeListener(this);
 
-                dispatchDismissCallback(totalScroll);
+                // Dispatch the dismiss callback here when the animation
+                // finishes.
+                dispatchDismissCallback(closeByGesture, totalDrag);
             }
 
             @Override
             public void onAnimationCancel(Animator animation) {
-                animTy.removeUpdateListener(mCoverUpdater);
+                animTy.removeUpdateListener(mBgFadeUpdater);
                 mAnimSet.removeListener(this);
             }
 
@@ -451,119 +278,30 @@ public class ElasticDragDismissLayout
         mAnimSet.start();
 
         // Update the state.
-        mTotalDrag = 0;
-        mIsOpened = true;
-        mClosedBy = closeByGesture;
-        mDraggingDown = mDraggingUp = false;
+        mIsOpened = false;
+    }
+
+    public void addOnDragDismissListener(OnDragDismissCallback listener) {
+        if (mDismissCallbacks == null) {
+            mDismissCallbacks = new ArrayList<>();
+        }
+        mDismissCallbacks.add(listener);
+    }
+
+    public void removeOnDragDismissListener(OnDragDismissCallback listener) {
+        if (mDismissCallbacks != null && mDismissCallbacks.size() > 0) {
+            mDismissCallbacks.remove(listener);
+        }
+    }
+
+    public void removeAllOnDragDismissListeners() {
+        while (!mDismissCallbacks.isEmpty()) {
+            removeOnDragDismissListener(mDismissCallbacks.get(0));
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////
     // Protected / Private Methods ////////////////////////////////////////////
-
-    @Override
-    protected boolean checkLayoutParams(ViewGroup.LayoutParams p) {
-        return p instanceof LayoutParams;
-    }
-
-    @Override
-    public LayoutParams generateLayoutParams(AttributeSet attrs) {
-        // The CoordinatorLayout.LayoutParams's constructor taking attribute
-        // as arguments is private.
-        // FIXME: Remove it if the constructor is public in the new release.
-        final ElasticDragDismissLayout.LayoutParams params = new ElasticDragDismissLayout.LayoutParams(
-            super.generateLayoutParams(attrs));
-        final TypedArray array = getContext().obtainStyledAttributes(
-            attrs, R.styleable.ElasticDragDismissLayout);
-
-        try {
-            // Custom attributes.
-            if (array.hasValue(R.styleable.ElasticDragDismissLayout_elasticScrollView)) {
-                params.isElasticScrollView = array.getBoolean(
-                    R.styleable.ElasticDragDismissLayout_elasticScrollView, false);
-            }
-            if (array.hasValue(R.styleable.ElasticDragDismissLayout_elasticScrollViewHeader)) {
-                params.isElasticScrollViewHeader = array.getBoolean(
-                    R.styleable.ElasticDragDismissLayout_elasticScrollViewHeader, false);
-            }
-            if (array.hasValue(R.styleable.ElasticDragDismissLayout_elasticScrollViewFooter)) {
-                params.isElasticScrollViewFooter = array.getBoolean(
-                    R.styleable.ElasticDragDismissLayout_elasticScrollViewFooter, false);
-            }
-        } finally {
-            array.recycle();
-        }
-
-        return params;
-    }
-
-    @Override
-    protected LayoutParams generateDefaultLayoutParams() {
-        return new ElasticDragDismissLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT);
-    }
-
-    @Override
-    protected LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {
-        return new ElasticDragDismissLayout.LayoutParams(p);
-    }
-
-    @Override
-    protected void onFinishInflate() {
-        super.onFinishInflate();
-
-        // Ensure the movable child list.
-        final int childCount = getChildCount();
-        for (int i = 0; i < childCount; ++i) {
-            final View child = getChildAt(i);
-            final LayoutParams params = (LayoutParams) child.getLayoutParams();
-            if (params == null) continue;
-
-            if (params.isElasticScrollView) {
-                mElasticScrollView = child;
-            } else if (params.isElasticScrollViewHeader) {
-                mElasticScrollViewHeader = child;
-            } else if (params.isElasticScrollViewFooter) {
-                mElasticScrollViewFooter = child;
-            }
-        }
-
-        // Very Important: setting this property to true to make the
-        // view fill the visible area!
-        if (mElasticScrollView instanceof NestedScrollView) {
-            NestedScrollView child = (NestedScrollView) mElasticScrollView;
-            child.setFillViewport(true);
-        }
-    }
-
-    @Override
-    protected void onSizeChanged(int w,
-                                 int h,
-                                 int oldW,
-                                 int oldH) {
-        super.onSizeChanged(w, h, oldW, oldH);
-        if (mDragDismissFraction > 0f) {
-            mDragDismissDistance = h * mDragDismissFraction;
-        }
-
-        // Ensure the animation is cancelled.
-        if (mAnimSet != null) {
-            mAnimSet.cancel();
-            mAnimSet = null;
-        }
-
-        // Set translation Y of the movable child view.
-        if (!isInEditMode() &&
-            mElasticScrollView instanceof NestedScrollingChild) {
-            ViewCompat.setTranslationY(mElasticScrollView,
-                                       mElasticScrollView.getMeasuredHeight());
-        }
-    }
-
-    @Override
-    protected void onMeasure(int widthMeasureSpec,
-                             int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        // TODO: Support drag padding.
-    }
 
     @Override
     protected void onLayout(boolean changed,
@@ -574,14 +312,21 @@ public class ElasticDragDismissLayout
         // Layout children.
         super.onLayout(changed, left, top, right, bottom);
 
+        // Set translation Y of the movable child view.
+        if (!isInEditMode() &&
+            mElasticScrollView instanceof NestedScrollingChild &&
+            changed && !isOpened()) {
+            ViewCompat.setTranslationY(mElasticScrollView,
+                                       mElasticScrollView.getMeasuredHeight());
+        }
         // TODO: Handle scroll-view header and footer.
 
         // Set the cover boundary.
         if (changed) {
-            mCoveredFadeRect.set(getLeft(),
-                                 getTop(),
-                                 getRight(),
-                                 getBottom());
+            mBgFadeRect.set(getLeft(),
+                            getTop(),
+                            getRight(),
+                            getBottom());
         }
     }
 
@@ -589,135 +334,44 @@ public class ElasticDragDismissLayout
     protected void dispatchDraw(Canvas canvas) {
         // FIXME: Figure out more proper place to draw the cover.
         // FIXME: Somehow the mBackground is not working.
-        canvas.drawRect(mCoveredFadeRect, mCoveredFadePaint);
+        canvas.drawRect(mBgFadeRect, mBgFadePaint);
 
         super.dispatchDraw(canvas);
     }
 
-    OnClickListener OnClickCoverToClose() {
+    @Override
+    protected void onDragOver(float totalDrag) {
+        close(CLOSED_BY_DRAG_OVER);
+    }
+
+    @Override
+    protected void onDragCancel() {
+        open();
+    }
+
+    OnClickListener OnClickBgToDismiss() {
         return new OnClickListener() {
             @Override
             public void onClick(View v) {
-                close(CLOSE_BY_COVER_PRESSED);
+                close(CLOSED_BY_COVER_PRESSED);
             }
         };
     }
 
-    void dragScale(int scroll) {
-        if (scroll == 0 ||
-            !(mElasticScrollView instanceof NestedScrollingChild)) {
-            return;
-        }
-
-        // Ensure the animation is cancelled.
-        if (mAnimSet != null) {
-            mAnimSet.cancel();
-            mAnimSet = null;
-        }
-
-        mTotalDrag += scroll;
-
-        // track the direction & set the pivot point for scaling
-        // don't double track i.e. if start dragging down and then reverse,
-        // keep tracking as dragging down until they reach the 'natural' position
-        if (scroll < 0 && !mDraggingUp && !mDraggingDown) {
-            mDraggingDown = true;
-            if (mShouldScale) {
-                ViewCompat.setPivotY(mElasticScrollView, mElasticScrollView.getHeight());
-                ViewCompat.setPivotX(mElasticScrollView, mElasticScrollView.getWidth() / 2);
-            }
-        } else if (scroll > 0 && !mDraggingDown && !mDraggingUp) {
-            mDraggingUp = true;
-            if (mShouldScale) {
-                ViewCompat.setPivotY(mElasticScrollView, 0f);
-                ViewCompat.setPivotX(mElasticScrollView, mElasticScrollView.getWidth() / 2);
-            }
-        }
-        // how far have we dragged relative to the distance to perform a dismiss
-        // (0–1 where 1 = dismiss distance). Decreasing logarithmically as we
-        // approach the limit
-        float dragFraction = (float) Math.log10(1 + (Math.abs(mTotalDrag) / mDragOverDistance));
-
-        // calculate the desired translation given the drag fraction
-        float dragTo = dragFraction * mDragOverDistance * mDragElasticity;
-
-        if (mDraggingUp) {
-            // as we use the absolute magnitude when calculating the drag
-            // fraction, need to re-apply the drag direction
-            dragTo *= -1;
-        }
-
-//        // Clamp dragTo to positive value (dragging down only).
-//        dragTo = Math.max(0, dragTo);
-
-        ViewCompat.setTranslationY(mElasticScrollView, dragTo);
-        // TODO: Handle scroll-view header and footer.
-
-        if (mShouldScale) {
-            final float scale = 1 - ((1 - mDragScale) * dragFraction);
-            ViewCompat.setScaleX(mElasticScrollView, scale);
-            ViewCompat.setScaleY(mElasticScrollView, scale);
-        }
-
-        // if we've reversed direction and gone past the settle point then clear
-        // the flags to allow the list to get the scroll events & reset any
-        // transforms
-        if ((mDraggingDown && mTotalDrag >= 0)
-            || (mDraggingUp && mTotalDrag <= 0)) {
-            mTotalDrag = dragTo = dragFraction = 0f;
-            mDraggingDown = mDraggingUp = false;
-            ViewCompat.setTranslationY(mElasticScrollView, 0f);
-            ViewCompat.setScaleX(mElasticScrollView, 1f);
-            ViewCompat.setScaleY(mElasticScrollView, 1f);
-        }
-
-//        // Update the cover alpha.
-//        final int h = mElasticScrollView.getHeight();
-//        final float ty = Math.abs(mElasticScrollView.getTranslationY());
-//        final int alpha = (int) Math.max(0, COVER_FADE_PAINT_ALPHA * (h - ty) / h);
-//        mCoveredFadePaint.setAlpha(alpha);
-//        invalidate();
-
-        dispatchDragCallback(
-            dragFraction, dragTo,
-            Math.min(1f, Math.abs(mTotalDrag) / mDragOverDistance), mTotalDrag);
-
-        onPostDragScale(dragTo);
-    }
-
-    /**
-     * Called after {@link #dragScale(int)}. It's an interface for the child
-     * class.
-     */
-    void onPostDragScale(float dragTo) {
-        // Dummy implementation.
-    }
-
-    void dispatchDragCallback(float elasticOffset,
-                              float elasticOffsetPixels,
-                              float rawOffset,
-                              float rawOffsetPixels) {
-        if (mCallbacks != null && !mCallbacks.isEmpty()) {
-            for (DragDismissCallback callback : mCallbacks) {
-                callback.onDrag(elasticOffset, elasticOffsetPixels,
-                                rawOffset, rawOffsetPixels);
-            }
-        }
-    }
-
-    void dispatchDismissCallback(float totalScroll) {
-        if (mCallbacks != null && !mCallbacks.isEmpty()) {
-            for (DragDismissCallback callback : mCallbacks) {
-                switch (mClosedBy) {
-                    case CLOSE_BY_BACK_PRESSED:
-                        callback.onBackPressedDismissed();
+    void dispatchDismissCallback(int gesture,
+                                 float totalDrag) {
+        if (mDismissCallbacks != null && !mDismissCallbacks.isEmpty()) {
+            for (OnDragDismissCallback callback : mDismissCallbacks) {
+                switch (gesture) {
+                    case CLOSED_BY_BACK_PRESSED:
+                        callback.onDismissByBackPressed();
                         break;
-                    case CLOSE_BY_COVER_PRESSED:
-                        callback.onCoverPressedDismissed();
+                    case CLOSED_BY_COVER_PRESSED:
+                        callback.onDismissByBgPressed();
                         break;
-                    case CLOSE_BY_DRAG:
+                    case CLOSED_BY_DRAG_OVER:
                     default:
-                        callback.onDragDismissed(totalScroll);
+                        callback.onDismissByDragOver(totalDrag);
                         break;
                 }
             }
@@ -727,45 +381,7 @@ public class ElasticDragDismissLayout
     ///////////////////////////////////////////////////////////////////////////
     // Clazz //////////////////////////////////////////////////////////////////
 
-    public static class LayoutParams extends CoordinatorLayout.LayoutParams {
-
-        public boolean isElasticScrollView;
-        public boolean isElasticScrollViewHeader;
-        public boolean isElasticScrollViewFooter;
-
-        public LayoutParams(int width,
-                            int height) {
-            super(width, height);
-        }
-
-        /**
-         * A workaround constructor that copying the necessary fields from
-         * CoordinatorLayout.LayoutParams to it.
-         */
-        public LayoutParams(CoordinatorLayout.LayoutParams p) {
-            super(p);
-
-            // FIXME: Doing this is simply because the Coordinator's
-            // FIXME: constructor is private.
-            // FIXME: It might cause side effect like un-synchronized
-            // FIXME: Remove it if the constructor is public in the new release.
-            anchorGravity = p.anchorGravity;
-            keyline = p.keyline;
-            insetEdge = p.insetEdge;
-            dodgeInsetEdges = p.dodgeInsetEdges;
-
-            setAnchorId(p.getAnchorId());
-            setBehavior(p.getBehavior());
-            // Ensure null.
-            p.setBehavior(null);
-        }
-
-        public LayoutParams(ViewGroup.LayoutParams p) {
-            super(p);
-        }
-    }
-
-    public interface DragDismissCallback {
+    public interface OnDragDismissCallback {
         /**
          * Called for each drag event.
          *
@@ -788,26 +404,26 @@ public class ElasticDragDismissLayout
          * Called when dragging is released and has exceeded the threshold
          * dismiss distance.
          */
-        void onDragDismissed(float totalScroll);
+        void onDismissByDragOver(float totalScroll);
 
         /**
          * Dismissed by tapping on the back button.
          */
-        void onBackPressedDismissed();
+        void onDismissByBackPressed();
 
         /**
-         * Dismissed by tapping on the cover.
+         * Dismissed by tapping on the background area.
          */
-        void onCoverPressedDismissed();
+        void onDismissByBgPressed();
     }
 
     /**
-     * An {@link DragDismissCallback} which fades system chrome (i.e.
+     * An {@link OnDragDismissCallback} which fades system chrome (i.e.
      * status bar and navigation bar) whilst elastic drags are performed and
      * {@link Activity#finishAfterTransition() finishes} the activity when drag
      * dismissed.
      */
-    public static class SystemChromeFader implements DragDismissCallback {
+    public static class SystemChromeFader implements OnDragDismissCallback {
 
         public final Activity activity;
 //        final int statusBarAlpha;
@@ -852,17 +468,17 @@ public class ElasticDragDismissLayout
             // Dummy callback.
         }
 
-        public void onDragDismissed(float totalScroll) {
+        public void onDismissByDragOver(float totalScroll) {
             ActivityCompat.finishAfterTransition(activity);
         }
 
         @Override
-        public void onBackPressedDismissed() {
+        public void onDismissByBackPressed() {
             ActivityCompat.finishAfterTransition(activity);
         }
 
         @Override
-        public void onCoverPressedDismissed() {
+        public void onDismissByBgPressed() {
             ActivityCompat.finishAfterTransition(activity);
         }
     }

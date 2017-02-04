@@ -65,7 +65,7 @@
             android:theme="@style/AppTheme.TranslucentBlackBg">
         </activity>
         <activity
-            android:name=".ViewOfDragDismissSampleActivity"
+            android:name=".ViewOfElasticDragDismissSampleActivity"
             android:label="@string/title_elastic_drag_dismiss_layout_sample"
             android:theme="@style/AppTheme.TranslucentBlackBg">
         </activity>

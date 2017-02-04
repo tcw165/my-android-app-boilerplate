@@ -58,18 +58,21 @@ public class ViewSampleFragment extends Fragment {
         return new SampleMenuAdapter(
             getActivity(),
             new Pair[]{
-                new Pair<>("Custom CameraView",
+                new Pair<>("CameraTextureView",
                            "Use TextureView or SurfaceView to provide the " +
                            "camera feature."),
-                new Pair<>("Custom ViewGroup behaves like DrawerLayout",
-                           "The custom ViewGroup is responsible for intercept " +
-                           "the dragging touch event."),
-                new Pair<>("ElasticDragDismissLayout.",
+                new Pair<>("DropDownMenuLayout",
+                           "The ViewGroup is responsible for intercepting the " +
+                           "touch event."),
+                new Pair<>("ElasticDragLayout",
+                           "Inheriting from CoordinatorLayout and support elastic " +
+                           "drag UX like iOS's scroll-view."),
+                new Pair<>("ElasticDragDismissLayout (ElasticDragLayout)",
                            "Idea inspired from the sample code of Plaid app. It " +
                            "inherits from the CoordinatorLayout and is using a " +
                            "translucent Activity to implement the drag-to-dismiss " +
                            "gesture."),
-                new Pair<>("ElasticDragMenuLayout",
+                new Pair<>("ElasticDragMenuLayout (ElasticDragLayout)",
                            "A child class inheriting from ElasticDragDismissLayout. " +
                            "The layout allows a NestedScrollingChild child view " +
                            "being over dragged.")
@@ -98,9 +101,17 @@ public class ViewSampleFragment extends Fragment {
                             .commit();
                         break;
                     case 2:
+                        getActivity()
+                            .getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.frame, new ViewOfElasticDragLayoutSampleFragment())
+                            .addToBackStack(null)
+                            .commit();
+                        break;
+                    case 3:
 //                        startActivity(
 //                            new Intent(getActivity(),
-//                                       ViewOfDragDismissSampleActivity.class),
+//                                       ViewOfElasticDragDismissSampleActivity.class),
 //                            // Necessary option to enable the scene transition.
 //                            ActivityOptionsCompat
 //                                .makeSceneTransitionAnimation(
@@ -109,13 +120,13 @@ public class ViewSampleFragment extends Fragment {
 //                                .toBundle());
                         startActivity(
                             new Intent(getActivity(),
-                                       ViewOfDragDismissSampleActivity.class));
+                                       ViewOfElasticDragDismissSampleActivity.class));
                         break;
-                    case 3:
+                    case 4:
                         getActivity()
                             .getSupportFragmentManager()
                             .beginTransaction()
-                            .replace(R.id.frame, new ViewOfCoordinatorLayoutSampleFragment())
+                            .replace(R.id.frame, new ViewOfElasticDragMenuLayoutSampleFragment())
                             .addToBackStack(null)
                             .commit();
                         break;
