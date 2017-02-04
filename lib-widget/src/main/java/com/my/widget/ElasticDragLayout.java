@@ -28,7 +28,6 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.view.NestedScrollingChild;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.NestedScrollView;
-import android.text.style.DynamicDrawableSpan;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -174,7 +173,6 @@ public class ElasticDragLayout extends CoordinatorLayout {
             mAnimSet = null;
         }
         if ((nestedScrollAxes & ViewCompat.SCROLL_AXIS_VERTICAL) != 0) {
-            Log.d("xyz", "onStartNestedScroll");
         }
         return (nestedScrollAxes & ViewCompat.SCROLL_AXIS_VERTICAL) != 0;
     }
@@ -188,7 +186,6 @@ public class ElasticDragLayout extends CoordinatorLayout {
         // If we're in a drag gesture and the user reverses up the we should
         // take those events
         if (mDraggingDown && dy > 0 || mDraggingUp && dy < 0) {
-            Log.d("xyz", "onNestedPreScroll: dy=" + dy);
             dragScale(dy);
             consumed[1] = dy;
         }
@@ -201,7 +198,6 @@ public class ElasticDragLayout extends CoordinatorLayout {
                                int dxUnconsumed,
                                int dyUnconsumed) {
         super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
-        Log.d("xyz", "onNestedScroll");
         dragScale(dyUnconsumed);
     }
 
@@ -216,7 +212,6 @@ public class ElasticDragLayout extends CoordinatorLayout {
             totalDrag = Math.min(0, totalDrag);
         }
 
-        Log.d("xyz", "onStopNestedScroll: totalDrag=" + totalDrag);
         try {
             if (Math.abs(totalDrag) >= mDragOverDistance) {
                 onDragOver(totalDrag);

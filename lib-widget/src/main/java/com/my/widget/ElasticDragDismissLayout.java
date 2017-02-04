@@ -37,6 +37,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.NestedScrollingChild;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.animation.AccelerateInterpolator;
@@ -80,8 +81,7 @@ public class ElasticDragDismissLayout extends ElasticDragLayout {
     // Callbacks.
     List<OnDragDismissCallback> mDismissCallbacks;
 
-    // Animator.
-    AnimatorSet mAnimSet;
+    // Animation.
     AnimatorUpdateListener mBgFadeUpdater = new AnimatorUpdateListener() {
         @Override
         public void onAnimationUpdate(ValueAnimator animation) {
