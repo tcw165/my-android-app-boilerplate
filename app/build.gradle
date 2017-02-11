@@ -19,8 +19,7 @@ android {
 
         ndk {
             // Options: 'x86', 'x86_64', 'armeabi', 'armeabi-v7a', 'arm64-v8a'
-            // Because the lib-ml supports only armeabi.
-            abiFilters 'armeabi'
+            abiFilters 'armeabi', 'armeabi-v7a'
         }
     }
 

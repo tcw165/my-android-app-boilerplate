@@ -31,13 +31,13 @@ model {
                              "-I" + file("${CPP_SOURCES}/include").absolutePath,
                              "-I" + file("${CPP_SOURCES}/third_party").absolutePath])
             // Support JNI to print message through __android_log_print method.
-            ldLibs.addAll(["log", "android", "libmxnet_predict"])
+            ldLibs.addAll(["log", "android"])
             // Determine what STL library being linked to.
             stl = "gnustl_static"
             // ABI
             abiFilters.addAll([
-                    "armeabi"
-//                    "armeabi-v7a",
+                    "armeabi",
+                    "armeabi-v7a"
             ])
         }
 
