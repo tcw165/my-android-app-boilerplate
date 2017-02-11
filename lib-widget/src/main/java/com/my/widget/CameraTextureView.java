@@ -31,12 +31,14 @@ import android.util.Log;
 import android.view.TextureView;
 import android.widget.Toast;
 
-import com.my.ml.ClassifierUtil;
 import com.my.widget.util.CameraUtil;
 
-import org.dmlc.mxnet.MxnetException;
+import org.tensorflow.contrib.android.Classifier;
+import org.tensorflow.contrib.android.Classifier.Recognition;
+import org.tensorflow.contrib.android.TensorFlowImageClassifier;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -46,6 +48,15 @@ import java.util.TimerTask;
 public class CameraTextureView
     extends TextureView
     implements TextureView.SurfaceTextureListener {
+
+    private static final String MODEL_FILE = "file:///android_asset/tensorflow_inception_graph.pb";
+    private static final String LABEL_FILE = "file:///android_asset/imagenet_comp_graph_label_strings.txt";
+    private static final int NUM_CLASSES = 1008;
+    private static final int INPUT_SIZE = 224;
+    private static final int IMAGE_MEAN = 117;
+    private static final float IMAGE_STD = 1;
+    private static final String INPUT_NAME = "input:0";
+    private static final String OUTPUT_NAME = "output:0";
 
     // State.
     int mCameraId;
@@ -59,8 +70,11 @@ public class CameraTextureView
     Timer mPredictTimer;
     Camera mCamera;
 
+    // The classifier.
+    Classifier mClassifier;
+
     // Callbacks.
-    OnClassfiyCameraPreview mCallback;
+    OnImageClassifiedCallback mCallback;
 
     public CameraTextureView(Context context) {
         this(context, null);
@@ -178,7 +192,7 @@ public class CameraTextureView
         stopTimer();
     }
 
-    public void setOnClassifyPreviewListener(OnClassfiyCameraPreview callback) {
+    public void setOnClassifyPreviewListener(OnImageClassifiedCallback callback) {
         mCallback = callback;
     }
 
@@ -281,32 +295,50 @@ public class CameraTextureView
 
     synchronized void startTimer() {
         try {
-            ClassifierUtil.prepare(getContext(), 0, 0, null, null);
+            mClassifier = TensorFlowImageClassifier.create(
+                getContext().getAssets(),
+                MODEL_FILE,
+                LABEL_FILE,
+                NUM_CLASSES,
+                INPUT_SIZE,
+                IMAGE_MEAN,
+                IMAGE_STD,
+                INPUT_NAME,
+                OUTPUT_NAME);
+
+            if (mBitmap == null) {
+                mBitmap = Bitmap.createBitmap(INPUT_SIZE, INPUT_SIZE, Bitmap.Config.ARGB_8888);
+            }
+
+            if (mPredictTimer == null) {
+                final int INTERVAL = 500;
+                mPredictTimer = new Timer();
+                mPredictTimer.scheduleAtFixedRate(
+                    new TimerTask() {
+                        @Override
+                        public void run() {
+                            predictCameraPreviewAsync();
+                        }
+                    },
+                    INTERVAL,
+                    INTERVAL);
+            }
         } catch (Exception e) {
             // DO NOTHING.
-        }
-
-        if (mBitmap == null) {
-            mBitmap = Bitmap.createBitmap(224, 224, Bitmap.Config.ARGB_8888);
-        }
-
-        if (mPredictTimer == null) {
-            mPredictTimer = new Timer();
-            mPredictTimer.scheduleAtFixedRate(
-                new TimerTask() {
-                    @Override
-                    public void run() {
-                        predictCameraPreviewAsync();
-                    }
-                },
-                0,
-                1000);
         }
     }
 
     synchronized void stopTimer() {
+        if (mPredictTimer != null) {
+            mPredictTimer.cancel();
+            mPredictTimer = null;
+        }
+
         try {
-            ClassifierUtil.release();
+            if (mClassifier != null) {
+                mClassifier.close();
+                mClassifier = null;
+            }
         } catch (Exception e) {
             // DO NOTHING.
         }
@@ -315,11 +347,6 @@ public class CameraTextureView
             mBitmap.recycle();
             mBitmap = null;
         }
-
-        if (mPredictTimer != null) {
-            mPredictTimer.cancel();
-            mPredictTimer = null;
-        }
     }
 
     synchronized void predictCameraPreviewAsync() {
@@ -327,44 +354,42 @@ public class CameraTextureView
             @Override
             public void run() {
                 if (!isAvailable()) return;
-                if (!ClassifierUtil.isAvailbe()) return;
+                if (mClassifier == null) return;
+                if (mBitmap == null) return;
 
                 // Get the current preview.
                 getBitmap(mBitmap);
 
                 try {
-                    float[] clazz = ClassifierUtil.predict(mBitmap);
-                    String description = ClassifierUtil.getDescription(
-                        getContext(), clazz, 0);
+                    final List<Recognition> results = mClassifier.recognizeImage(mBitmap);
+                    if (results != null && !results.isEmpty()) {
+                        String description = "";
+                        for (int i = 0; i < results.size(); ++i) {
+                            description += results.get(i).getTitle() +
+                                           "(" + results.get(i).getConfidence() + ")";
 
-                    dispatchCallback(description);
-
-                    Log.d("xyz", "this is " + description);
-
-                    // Log the raw class vector.
-//                    StringBuilder s = new StringBuilder("[");
-//                    for (int i = 0; i < clazz.length; i++) {
-//                        s.append(clazz[i]);
-//                        if (i < clazz.length - 1) {
-//                            s.append(",");
-//                        }
-//                    }
-//                    s.append("]");
-//                    Log.d("xyz", "clazz=" + s.toString());
-                } catch (MxnetException ignored) {
-                    Log.d("xyz", ignored.toString());
+                            if (i < results.size() - 1) {
+                                description += ", ";
+                            }
+                        }
+                        dispatchCallback(description);
+                        Log.d("xyz", "this is " + description);
+                    }
+                } catch (Throwable ignored) {
+                    Log.d("xyz", "error: " + ignored.toString());
                 }
             }
         });
     }
 
     void dispatchCallback(final String description) {
+        // Update on the UI thread.
         post(new Runnable() {
             @Override
             public void run() {
                 if (mCallback == null) return;
 
-                mCallback.onCameraPreviewClassified(description);
+                mCallback.onImageClassified(description);
             }
         });
     }
@@ -372,7 +397,8 @@ public class CameraTextureView
     ///////////////////////////////////////////////////////////////////////////
     // Clazz //////////////////////////////////////////////////////////////////
 
-    public interface OnClassfiyCameraPreview {
-        void onCameraPreviewClassified(String description);
+    // TODO: Should be independent.
+    public interface OnImageClassifiedCallback {
+        void onImageClassified(String description);
     }
 }

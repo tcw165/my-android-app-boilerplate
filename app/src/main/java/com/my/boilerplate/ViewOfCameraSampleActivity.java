@@ -25,7 +25,7 @@ import io.reactivex.functions.Function;
 
 public class ViewOfCameraSampleActivity
     extends AppCompatActivity
-    implements CameraTextureView.OnClassfiyCameraPreview {
+    implements CameraTextureView.OnImageClassifiedCallback {
 
     /**
      * Needed because it asks the permission in the onResume function and the
@@ -167,7 +167,7 @@ public class ViewOfCameraSampleActivity
     }
 
     @Override
-    public void onCameraPreviewClassified(String description) {
+    public void onImageClassified(final String description) {
         mDescripView.setText(description);
     }
 

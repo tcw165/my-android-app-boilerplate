@@ -17,4 +17,5 @@
 #}
 
 -keep class com.my.ml.** { *; }
+-keep class org.tensorflow.contrib.android.** { *; }
 -keep class org.dmlc.mxnet.** { *; }

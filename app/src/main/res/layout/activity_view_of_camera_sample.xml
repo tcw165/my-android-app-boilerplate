@@ -24,10 +24,12 @@
             <TextView
                 android:id="@+id/description"
                 android:layout_width="match_parent"
-                android:layout_height="44dp"
+                android:layout_height="56dp"
                 android:background="@android:color/white"
                 android:gravity="center"
+                android:maxLines="3"
                 android:padding="10dp"
+                android:textSize="14sp"
                 tools:text="test"/>
 
             <!--<com.my.widget.CameraSurfaceView-->
