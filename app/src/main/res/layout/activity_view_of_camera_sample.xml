@@ -32,14 +32,20 @@
                 android:textSize="14sp"
                 tools:text="test"/>
 
-            <!--<com.my.widget.CameraSurfaceView-->
-            <!--android:id="@+id/cameraPreview"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent"/>-->
-            <com.my.widget.CameraTextureView
-                android:id="@+id/cameraPreview"
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
+                android:layout_height="match_parent">
+
+                <!--<com.my.widget.CameraSurfaceView-->
+                <!--android:id="@+id/cameraPreview"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"/>-->
+                <com.my.widget.CameraTextureView
+                    android:id="@+id/cameraPreview"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"/>
+            </FrameLayout>
         </LinearLayout>
     </android.support.v4.widget.NestedScrollView>
 </com.my.widget.ElasticDragDismissLayout>

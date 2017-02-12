@@ -206,8 +206,12 @@ public class CameraSurfaceView
 
         // Now that the size is known, set up the camera parameters and
         // begin the preview.
+        final int orientation = CameraUtil.getDisplayOrientation(mCameraId);
         final Camera.Parameters params = mCamera.getParameters();
-        final Camera.Size size = CameraUtil.getClosetPreviewSize(mCamera, width, height);
+        final Camera.Size size = CameraUtil.getOptimalPreviewSize(mCamera,
+                                                                  orientation,
+                                                                  width,
+                                                                  height);
         params.setPreviewSize(size.width, size.height);
         mCamera.setParameters(params);
 
@@ -228,7 +232,7 @@ public class CameraSurfaceView
             // (Takes around 2 ms)
             // Setup the camera orientation.
             mCamera.setDisplayOrientation(
-                CameraUtil.getDisplayOrientation(
+                CameraUtil.getOptimalDisplayOrientation(
                     getContext(),
                     mCameraId));
             // Find the most fit preview size.
