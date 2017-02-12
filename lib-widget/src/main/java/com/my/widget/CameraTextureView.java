@@ -60,6 +60,7 @@ public class CameraTextureView
 
     // State.
     int mCameraId;
+    float mCameraPreviewAspectRatio;
     boolean mIsPreviewing;
     Bitmap mBitmap;
 
@@ -190,6 +191,12 @@ public class CameraTextureView
         mCamera = null;
 
         stopTimer();
+
+        // The handler.
+        if (mHandler != null) {
+            mHandler.getLooper().quit();
+            mHandler = null;
+        }
     }
 
     public void setOnClassifyPreviewListener(OnImageClassifiedCallback callback) {
@@ -223,16 +230,23 @@ public class CameraTextureView
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
 
-        // The handler.
-        if (mHandler != null) {
-            mHandler.getLooper().quit();
-        }
-
         // Force to close the camera.
-        closeCameraSync();
+        closeCameraAsync();
 
         // The texture callback.
         setSurfaceTextureListener(null);
+    }
+
+    @Override
+    protected void onMeasure(int widthSpec,
+                             int heightSpec) {
+        if (mCameraPreviewAspectRatio == 0.f) {
+            super.onMeasure(widthSpec, heightSpec);
+        } else {
+            final int height = MeasureSpec.getSize(heightSpec);
+            final int width = (int) (height / mCameraPreviewAspectRatio);
+            setMeasuredDimension(width, height);
+        }
     }
 
     synchronized void ensureHandler() {
@@ -257,8 +271,12 @@ public class CameraTextureView
 
         // Now that the size is known, set up the camera parameters and
         // begin the preview.
+        final int orientation = CameraUtil.getDisplayOrientation(mCameraId);
         final Camera.Parameters params = mCamera.getParameters();
-        final Camera.Size size = CameraUtil.getClosetPreviewSize(mCamera, width, height);
+        final Camera.Size size = CameraUtil.getOptimalPreviewSize(mCamera,
+                                                                  orientation,
+                                                                  width,
+                                                                  height);
         params.setPreviewSize(size.width, size.height);
         mCamera.setParameters(params);
 
@@ -274,16 +292,32 @@ public class CameraTextureView
             // TODO: Detect the orientation change automatically.
             // It must be called after the surface is created and before
             // the Camera#startPreview.
+            final int orientation = CameraUtil.getOptimalDisplayOrientation(getContext(),
+                                                                            mCameraId);
             mCamera.setPreviewTexture(getSurfaceTexture());
-            mCamera.setDisplayOrientation(
-                CameraUtil.getDisplayOrientation(
-                    getContext(),
-                    mCameraId));
+            mCamera.setDisplayOrientation(orientation);
             // Find the most fit preview size.
-            setPreviewSize(getWidth(), getHeight());
+            Camera.Size size = CameraUtil.getOptimalPreviewSize(mCamera,
+                                                                orientation,
+                                                                getWidth(),
+                                                                getHeight());
+            mCameraPreviewAspectRatio = (float) size.width / size.height;
+            postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    // Will trigger {@link #onMeasure}
+                    requestLayout();
+                }
+            }, 1000);
+            // TODO: Start preview after the layout finished.
             mCamera.startPreview();
 
-            // TODO: Start a timer to predict the camera buffer.
+            // TODO: It doesn't work, fix it.
+            // Enable auto-focus mode.
+            CameraUtil.enableAutoFocusModel(mCamera);
+
+            // TODO: Not sure using Timer or another HandlerThread, which is better.
+            // Start a timer to predict the camera buffer.
             startTimer();
 
             mIsPreviewing = true;
@@ -311,7 +345,7 @@ public class CameraTextureView
             }
 
             if (mPredictTimer == null) {
-                final int INTERVAL = 500;
+                final int INTERVAL = 1000;
                 mPredictTimer = new Timer();
                 mPredictTimer.scheduleAtFixedRate(
                     new TimerTask() {
@@ -350,6 +384,8 @@ public class CameraTextureView
     }
 
     synchronized void predictCameraPreviewAsync() {
+        if (mHandler == null) return;
+
         mHandler.post(new Runnable() {
             @Override
             public void run() {

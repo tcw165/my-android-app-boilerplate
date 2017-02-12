@@ -1,4 +1,12 @@
 <manifest package="com.my.widget"
           xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true"/>
+    <uses-feature
+        android:name="android.hardware.camera.autofocus"
+        android:required="true"/>
+
     <application/>
 </manifest>
