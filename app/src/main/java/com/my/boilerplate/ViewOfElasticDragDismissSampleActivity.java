@@ -66,13 +66,13 @@ public class ViewOfElasticDragDismissSampleActivity extends AppCompatActivity {
         super.onResume();
 
         // Open the layout with animation.
-        mLayout.postOpen();
+        mLayout.postOpen(null);
     }
 
     @Override
     public void onBackPressed() {
         // Close the layout with animation.
-        mLayout.close();
+        mLayout.close(null);
     }
 
     public void finishWithResult() {
