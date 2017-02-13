@@ -6,9 +6,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:dragOverDistance="122dp"
-    app:dragOverMaxDistance="344dp"
-    app:dragScale="0.87">
+    app:dragOverDistance="422dp"
+    app:dragOverMaxDistance="644dp"
+    app:dragScale="0.8">
 
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"

@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.my.widget.CameraTextureView;
 import com.my.widget.ElasticDragDismissLayout;
+import com.my.widget.ElasticDragDismissLayout.OnDragDismissCallback;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.util.concurrent.TimeUnit;
@@ -48,36 +49,7 @@ public class ViewOfCameraSampleActivity
         overridePendingTransition(0, 0);
 
         mLayout = (ElasticDragDismissLayout) findViewById(R.id.layout);
-        mLayout.addOnDragDismissListener(new ElasticDragDismissLayout.SystemChromeFader(this) {
-            @Override
-            public void onDrag(float elasticOffset,
-                               float elasticOffsetPixels,
-                               float rawOffset,
-                               float rawOffsetPixels) {
-                super.onDrag(elasticOffset,
-                             elasticOffsetPixels,
-                             rawOffset,
-                             rawOffsetPixels);
-            }
-
-            @Override
-            public void onDismissByDragOver(float totalScroll) {
-                Log.d("xyz", "onDismissByDragOver");
-                finishWithResult();
-            }
-
-            @Override
-            public void onDismissByBackPressed() {
-                Log.d("xyz", "onDismissByBackPressed");
-                finishWithResult();
-            }
-
-            @Override
-            public void onDismissByBgPressed() {
-                Log.d("xyz", "onDismissByBgPressed");
-                finishWithResult();
-            }
-        });
+        mLayout.addOnDragDismissListener(onDragDismissListener());
 
         mDescripView = (TextView) findViewById(R.id.description);
 
@@ -100,13 +72,59 @@ public class ViewOfCameraSampleActivity
     protected void onResume() {
         super.onResume();
 
-        // Open the layout with animation.
-        mLayout.postOpen();
+        // Open the camera.
+        if (mLayout.isOpened()) {
+            grantPermissionAndOpenCameraAsync();
+        } else {
+            // Open the layout with animation. Once the animation finishes,
+            // open the camera.
+            mLayout.postOpen(new Runnable() {
+                @Override
+                public void run() {
+                    grantPermissionAndOpenCameraAsync();
+                }
+            });
+        }
+    }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        // Close the camera.
+        mCameraView.closeCameraAsync();
+    }
+
+    @Override
+    public void onBackPressed() {
+        // Close the layout with animation.
+        mLayout.close(null);
+    }
+
+    @Override
+    public void onImageClassified(final String description) {
+        mDescripView.setText(description);
+    }
+
+    public void finishWithResult() {
+        // We cannot get the SupportFragmentManager to pop its stack when the
+        // activity is paused by calling super.onBackPressed().
+        ActivityCompat.finishAfterTransition(this);
+
+        // Disable the window transition and let the launching activity handle
+        // it.
+        overridePendingTransition(0, 0);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Protected / Private Methods ////////////////////////////////////////////
+
+    void grantPermissionAndOpenCameraAsync() {
         // Check the permission and open the camera.
         if (!mPermSettling) {
             final int permCheck = ContextCompat.checkSelfPermission(
-                this, Manifest.permission.CAMERA);
+                ViewOfCameraSampleActivity.this,
+                Manifest.permission.CAMERA);
             if (permCheck != PackageManager.PERMISSION_GRANTED) {
                 mPermSettling = true;
 
@@ -152,36 +170,36 @@ public class ViewOfCameraSampleActivity
         }
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
+    private OnDragDismissCallback onDragDismissListener() {
+        return new ElasticDragDismissLayout.SystemChromeFader(this) {
+            @Override
+            public void onDrag(float elasticOffset,
+                               float elasticOffsetPixels,
+                               float rawOffset,
+                               float rawOffsetPixels) {
+                super.onDrag(elasticOffset,
+                             elasticOffsetPixels,
+                             rawOffset,
+                             rawOffsetPixels);
+            }
 
-        // Close the camera.
-        mCameraView.closeCameraAsync();
+            @Override
+            public void onDismissByDragOver(float totalScroll) {
+                Log.d("xyz", "onDismissByDragOver");
+                finishWithResult();
+            }
+
+            @Override
+            public void onDismissByBackPressed() {
+                Log.d("xyz", "onDismissByBackPressed");
+                finishWithResult();
+            }
+
+            @Override
+            public void onDismissByBgPressed() {
+                Log.d("xyz", "onDismissByBgPressed");
+                finishWithResult();
+            }
+        };
     }
-
-    @Override
-    public void onBackPressed() {
-        // Close the layout with animation.
-        mLayout.close();
-    }
-
-    @Override
-    public void onImageClassified(final String description) {
-        mDescripView.setText(description);
-    }
-
-    public void finishWithResult() {
-        // We cannot get the SupportFragmentManager to pop its stack when the
-        // activity is paused by calling super.onBackPressed().
-        ActivityCompat.finishAfterTransition(this);
-
-        // Disable the window transition and let the launching activity handle
-        // it.
-        overridePendingTransition(0, 0);
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Protected / Private Methods ////////////////////////////////////////////
-
 }

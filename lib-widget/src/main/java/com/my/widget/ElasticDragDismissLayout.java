@@ -37,7 +37,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.NestedScrollingChild;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.animation.AccelerateInterpolator;
@@ -126,8 +125,10 @@ public class ElasticDragDismissLayout extends ElasticDragLayout {
 
     /**
      * Open the layout with sliding up animation.
+     * @param endAction The action {@link Runnable} to be run after the
+     *                  animation finishes.
      */
-    public void open() {
+    public void open(final Runnable endAction) {
         if (!(mElasticScrollView instanceof NestedScrollingChild)) return;
 
         // TODO: If the backport of the transition library is promising, then
@@ -156,6 +157,10 @@ public class ElasticDragDismissLayout extends ElasticDragLayout {
             public void onAnimationEnd(Animator animation) {
                 animTy.removeUpdateListener(mBgFadeUpdater);
                 mAnimSet.removeListener(this);
+
+                if (endAction != null) {
+                    endAction.run();
+                }
             }
 
             @Override
@@ -179,25 +184,19 @@ public class ElasticDragDismissLayout extends ElasticDragLayout {
     }
 
     /**
-     * Post call of the {@link #open()}.
+     * Post call of the {@link #open(Runnable)}.
      */
-    public void postOpen() {
-        getViewTreeObserver()
-            .addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
-                @Override
-                public void onGlobalLayout() {
-                    if (!getViewTreeObserver().isAlive()) return;
+    public void postOpen(final Runnable endAction) {
+        if (isOpened()) return;
 
-                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-                        getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                    } else {
-                        getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                    }
-                    if (!isOpened()) {
-                        open();
-                    }
-                }
-            });
+        // Because the layout is probably not ready at the moment the function
+        // get called, we postpone the opening animation a bit later.
+        postDelayed(new Runnable() {
+            @Override
+            public void run() {
+               open(endAction);
+            }
+        }, 200);
     }
 
     /**
@@ -205,8 +204,8 @@ public class ElasticDragDismissLayout extends ElasticDragLayout {
      * {@link OnDragDismissCallback#onDismissByBackPressed()} when the animation
      * ends.
      */
-    public void close() {
-        close(CLOSED_BY_BACK_PRESSED);
+    public void close(Runnable endAction) {
+        close(CLOSED_BY_BACK_PRESSED, endAction);
     }
 
     /**
@@ -221,8 +220,11 @@ public class ElasticDragDismissLayout extends ElasticDragLayout {
      *                       and
      *                       {@link OnDragDismissCallback#onDismissByDragOver(float)}
      *                       respectively.
+     * @param endAction The action {@link Runnable} to be run after the
+     *                  animation finishes.
      */
-    public void close(final int closeByGesture) {
+    public void close(final int closeByGesture,
+                      final Runnable endAction) {
         if (!(mElasticScrollView instanceof NestedScrollingChild)) {
             dispatchDismissCallback(closeByGesture, 0);
             return;
@@ -258,6 +260,9 @@ public class ElasticDragDismissLayout extends ElasticDragLayout {
 
                 // Dispatch the dismiss callback here when the animation
                 // finishes.
+                if (endAction != null) {
+                    endAction.run();
+                }
                 dispatchDismissCallback(closeByGesture, totalDrag);
             }
 
@@ -281,6 +286,7 @@ public class ElasticDragDismissLayout extends ElasticDragLayout {
         mIsOpened = false;
     }
 
+    @SuppressWarnings("unused")
     public void addOnDragDismissListener(OnDragDismissCallback listener) {
         if (mDismissCallbacks == null) {
             mDismissCallbacks = new ArrayList<>();
@@ -288,13 +294,16 @@ public class ElasticDragDismissLayout extends ElasticDragLayout {
         mDismissCallbacks.add(listener);
     }
 
+    @SuppressWarnings("unused")
     public void removeOnDragDismissListener(OnDragDismissCallback listener) {
         if (mDismissCallbacks != null && mDismissCallbacks.size() > 0) {
             mDismissCallbacks.remove(listener);
         }
     }
 
+    @SuppressWarnings("unused")
     public void removeAllOnDragDismissListeners() {
+        if (mDismissCallbacks == null) return;
         while (!mDismissCallbacks.isEmpty()) {
             removeOnDragDismissListener(mDismissCallbacks.get(0));
         }
@@ -341,19 +350,19 @@ public class ElasticDragDismissLayout extends ElasticDragLayout {
 
     @Override
     protected void onDragOver(float totalDrag) {
-        close(CLOSED_BY_DRAG_OVER);
+        close(CLOSED_BY_DRAG_OVER, null);
     }
 
     @Override
     protected void onDragCancel() {
-        open();
+        open(null);
     }
 
     OnClickListener OnClickBgToDismiss() {
         return new OnClickListener() {
             @Override
             public void onClick(View v) {
-                close(CLOSED_BY_COVER_PRESSED);
+                close(CLOSED_BY_COVER_PRESSED, null);
             }
         };
     }
