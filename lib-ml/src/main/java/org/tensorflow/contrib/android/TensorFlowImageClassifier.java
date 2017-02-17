@@ -157,12 +157,23 @@ public class TensorFlowImageClassifier implements Classifier {
                         return Float.compare(rhs.getConfidence(), lhs.getConfidence());
                     }
                 });
+
+        int count = 0;
+        String vecStr = "[";
         for (int i = 0; i < mOutputs.length; ++i) {
             if (mOutputs[i] > THRESHOLD) {
                 pq.add(new Recognition("" + i,
                                        labels.size() > i ? labels.get(i) : "unknown", mOutputs[i], null));
             }
+            vecStr += mOutputs[i];
+            if (i < mOutputs.length - 1) {
+                vecStr += ",";
+            } else {
+                vecStr += "]";
+            }
+            ++count;
         }
+        Log.d(TAG, "the output vec[" + count + "]=" + vecStr);
         final ArrayList<Recognition> recognitions = new ArrayList<>();
         int recognitionsSize = Math.min(pq.size(), MAX_RESULTS);
         for (int i = 0; i < recognitionsSize; ++i) {
