@@ -302,13 +302,14 @@ public class CameraTextureView
                                                                 getWidth(),
                                                                 getHeight());
             mCameraPreviewAspectRatio = (float) size.width / size.height;
-            postDelayed(new Runnable() {
+            // Request layout update in the UI thread.
+            post(new Runnable() {
                 @Override
                 public void run() {
                     // Will trigger {@link #onMeasure}
                     requestLayout();
                 }
-            }, 1000);
+            });
             // TODO: Start preview after the layout finished.
             mCamera.startPreview();
 
