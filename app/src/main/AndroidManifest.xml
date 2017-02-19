@@ -149,6 +149,11 @@
         <!-- Already defined in the lib-component -->
         <!-- <provider android:name="android.support.v4.content.FileProvider"> -->
         <!-- </provider> -->
+        <provider
+            android:authorities="${applicationId}.provider"
+            android:name=".StickerBundleProvider"
+            android:exported="false">
+        </provider>
 
         <!-- BroadcastReceiver //////////////////////////////////////////// -->
 

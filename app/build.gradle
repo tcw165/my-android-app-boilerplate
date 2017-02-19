@@ -9,6 +9,8 @@ android {
     buildToolsVersion "24.0.3"
 
     defaultConfig {
+        // Overwrite the "package" attribute defined in the
+        // AndroidManifest.xml.
         applicationId "com.my.boilerplate"
         minSdkVersion 16
         targetSdkVersion 25
@@ -57,7 +59,7 @@ repositories {
 }
 
 dependencies {
-    def SUPPORT_LIB_VER = "25.1.0"
+    def SUPPORT_LIB_VER = "25.1.1"
     def RETROFIT_VER = "2.1.0"
 
     compile fileTree(dir: "libs", include: ["*.jar"])
@@ -73,13 +75,17 @@ dependencies {
 
     // My lib-photo-collage for generating the grids.
     // (enable it when you are developing the library)
-//    compile project(":lib-photo-collage") // (enable when under actively developing)
-//    compile "com.my.algorithm:lib-photo-collage-release:1.0.0@aar" // (enable when not actively developing)
+//    compile project(":lib-photo-collage")
+    compile(name: "lib-photo-collage-release", ext: "aar")
+    // My lib-widget
+//    compile project(":lib-widget")
+    compile(name: "lib-widget-release", ext: "aar")
     // My lib-component
-    compile project(":lib-component") // (enable when under actively developing)
-//    compile "com.my.comp:lib-component-release:1.0.0@aar" // (enable when not actively developing)
+//    compile project(":lib-component")
+    compile(name: "lib-component-release", ext: "aar")
     // My lib-ml.
-//    compile project(":lib-ml") // (enable when under actively developing)
+//    compile project(":lib-ml")
+    compile(name: "lib-ml-release", ext: "aar")
 
     // Transition extension.
     compile "com.andkulikov:transitionseverywhere:1.7.0"
@@ -101,6 +107,7 @@ dependencies {
     compile "com.squareup.retrofit2:retrofit:${RETROFIT_VER}"
     compile "com.jakewharton.retrofit:retrofit2-rxjava2-adapter:1.0.0"
     compile "com.squareup.retrofit2:converter-gson:${RETROFIT_VER}"
+    compile "com.squareup.okhttp3:okhttp:3.6.0"
 
     // Image loader.
     compile "com.facebook.fresco:fresco:0.14.1"

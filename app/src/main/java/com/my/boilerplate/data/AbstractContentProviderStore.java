@@ -20,20 +20,26 @@
 
 package com.my.boilerplate.data;
 
+import android.app.Activity;
 import android.content.ContentProvider;
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.database.ContentObserver;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.util.Log;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.my.widget.IProgressBarView;
+
+import java.lang.ref.WeakReference;
+
+import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
+import io.reactivex.ObservableTransformer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 
 /**
  * A store is a data layer which observes the {@link ContentProvider} and
@@ -55,35 +61,87 @@ import java.util.List;
  */
 public abstract class AbstractContentProviderStore<T> {
 
-    private static final String TAG = AbstractContentProviderStore.class.getSimpleName();
-
     @NonNull
-    protected final ContentResolver mContentResolver;
+    protected final ContentResolver mResolver;
 
     @NonNull
     protected final ContentObserver mContentObserver;
 
+    /**
+     * The behavior that show/hide the progress-bar.
+     */
+    protected ObservableTransformer<Object, Object> mDefaultRxBehavior;
+    protected WeakReference<IProgressBarView> mProgressView;
+
     public AbstractContentProviderStore(ContentResolver contentResolver) {
-        mContentResolver = contentResolver;
+        mResolver = contentResolver;
         mContentObserver = createContentObserver();
     }
 
+    @SuppressWarnings("unused")
     final public ContentResolver getContentResolver() {
-        return mContentResolver;
+        return mResolver;
     }
 
+    @SuppressWarnings("unused")
     final public ContentObserver getContentObserver() {
         return mContentObserver;
     }
 
-    public void subscribeToContentResolver() {
-        mContentResolver.registerContentObserver(
-            getContentUri(), true, mContentObserver);
+    @SuppressWarnings("unused")
+    final public void subscribeToContentResolver() {
+        mResolver.registerContentObserver(
+            getRegistrationUri(), true, mContentObserver);
     }
 
-    public void unsubscribeToContentResolver() {
-        mContentResolver.unregisterContentObserver(mContentObserver);
+    @SuppressWarnings("unused")
+    final public void unsubscribeToContentResolver() {
+        mResolver.unregisterContentObserver(mContentObserver);
     }
+
+    /**
+     * Show the progress bar when the query is process; hide the progress bar
+     * when the process is done.
+     */
+    @SuppressWarnings("unused")
+    public AbstractContentProviderStore<T> showProgressBar(IProgressBarView view) {
+        if (view instanceof Activity &&
+            ((Activity) view).isFinishing()) return this;
+
+        mProgressView = new WeakReference<>(view);
+
+        return this;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Protected / Private Methods ////////////////////////////////////////////
+
+    /**
+     * Get the URI for registering {@link ContentObserver}.
+     */
+    @SuppressWarnings("unused")
+    @NonNull
+    protected abstract Uri getRegistrationUri();
+
+    /**
+     * Observer is responsible for receiving the update from the database and
+     * handle it in a worker thread.
+     * <br/><br/>
+     * Example:
+     * <pre>
+     * ContentObserver createContentObserver() {
+     *     return new ContentObserver(createHandler(TAG)) {
+     *         public void onChange(boolean selfChange, Uri uri) {
+     *             super.onChange(selfChange, uri);
+     *             // Dispatch the callbacks or notify the observers.
+     *         }
+     *     };
+     * }
+     * </pre>
+     */
+    @SuppressWarnings("unused")
+    @NonNull
+    protected abstract ContentObserver createContentObserver();
 
     @NonNull
     protected static Handler createHandler(String name) {
@@ -92,63 +150,64 @@ public abstract class AbstractContentProviderStore<T> {
         return new Handler(handlerThread.getLooper());
     }
 
-    protected void insertOrUpdate(T item, Uri uri) {
-        Log.v(TAG, "insertOrUpdate to " + uri);
-        ContentValues values = getContentValuesForItem(item);
-        Log.v(TAG, "values(" + values + ")");
-        if (mContentResolver.update(uri, values, null, null) == 0) {
-            final Uri resultUri = mContentResolver.insert(uri, values);
-            Log.v(TAG, "Inserted at " + resultUri);
-        } else {
-            Log.v(TAG, "Updated at " + uri);
-        }
+    protected void showProgressBar() {
+        if (mProgressView == null || mProgressView.get() == null) return;
+
+        mProgressView.get().showProgressBar();
     }
 
-    @NonNull
-    protected List<T> queryList(Uri uri) {
-        Cursor cursor = mContentResolver.query(uri,
-                                               getProjection(), null, null, null);
-        List<T> list = new ArrayList<>();
+    protected void hideProgressBar() {
+        if (mProgressView == null || mProgressView.get() == null) return;
 
-        if (cursor != null) {
-            if (cursor.moveToFirst()) {
-                list.add(read(cursor));
-            }
-            while (cursor.moveToNext()) {
-                list.add(read(cursor));
-            }
-            cursor.close();
-        }
-        if (list.size() == 0) {
-            Log.v(TAG, "Could not find with uri: " + uri);
-        }
-        return list;
+        mProgressView.get().hideProgressBar();
     }
 
-    @Nullable
-    protected T queryOne(Uri uri) {
-        final List<T> queryResults = queryList(uri);
-
-        if (queryResults.size() == 0) {
-            return null;
-        } else if (queryResults.size() > 1) {
-            Log.w(TAG, "Multiple items found in a query for a single item");
+    @SuppressWarnings("unchecked,unused")
+    protected  <T> ObservableTransformer<T, T> applyDefaultBehavior() {
+        // The reusable behavior.
+        if (mDefaultRxBehavior == null) {
+            mDefaultRxBehavior = new ObservableTransformer<Object, Object>() {
+                @Override
+                public ObservableSource<Object> apply(Observable<Object> upstream) {
+                    return upstream
+                        // When start.
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .doOnSubscribe(new Consumer<Disposable>() {
+                            @Override
+                            public void accept(Disposable disposable)
+                                throws Exception {
+                                showProgressBar();
+                            }
+                        })
+                        // When error happens.
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .doOnError(new Consumer<Throwable>() {
+                            @Override
+                            public void accept(Throwable throwable)
+                                throws Exception {
+                                hideProgressBar();
+                            }
+                        })
+                        // When next.
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .doOnNext(new Consumer<Object>() {
+                            @Override
+                            public void accept(Object o) throws Exception {
+                                showProgressBar();
+                            }
+                        })
+                        // When end.
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .doOnComplete(new Action() {
+                            @Override
+                            public void run() throws Exception {
+                                hideProgressBar();
+                            }
+                        });
+                }
+            };
         }
 
-        return queryResults.get(0);
+        return (ObservableTransformer<T, T>) mDefaultRxBehavior;
     }
-
-    @NonNull
-    protected abstract Uri getContentUri();
-
-    @NonNull
-    protected abstract ContentObserver createContentObserver();
-
-    @NonNull
-    protected abstract String[] getProjection();
-
-    protected abstract T read(Cursor cursor);
-
-    @NonNull
-    protected abstract ContentValues getContentValuesForItem(T item);
 }

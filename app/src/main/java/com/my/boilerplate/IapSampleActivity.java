@@ -24,12 +24,17 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.my.boilerplate.data.StickerBundleStore;
 import com.my.comp.IapDelegateActivity;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
 
 public class IapSampleActivity extends AppCompatActivity {
 
@@ -53,6 +58,20 @@ public class IapSampleActivity extends AppCompatActivity {
         mBtnBuy.setOnClickListener(onClickBuyIt());
 
         mBtnReset = (Button) findViewById(R.id.btn_reset);
+
+        // Sync the bundles every time the activity is created.
+        StickerBundleStore
+            .with(this)
+            .getBundleListFromServerAsync()
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(new Consumer<Boolean>() {
+                @Override
+                public void accept(Boolean done)
+                    throws Exception {
+                    Log.d(Const.TAG, "Successfully sync the sticker bundles " +
+                                     "with server");
+                }
+            });
     }
 
     @Override
@@ -89,10 +108,10 @@ public class IapSampleActivity extends AppCompatActivity {
 //                        .putExtra(IapDelegateActivity.KEY_SKU, "com.cardinalblue.piccollage.glitterny")
 //                        .putExtra(IapDelegateActivity.KEY_PRICE, 1.99f),
 //                    0);
-                startActivityForResult(
-                    new Intent(IapSampleActivity.this,
-                               IapDelegateActivity.class),
-                    0);
+//                startActivityForResult(
+//                    new Intent(IapSampleActivity.this,
+//                               IapDelegateActivity.class),
+//                    0);
             }
         };
     }

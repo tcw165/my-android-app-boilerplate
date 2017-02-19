@@ -37,16 +37,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.my.comp.data.IPhotoAlbum;
 import com.my.comp.util.MediaStoreUtil;
-import com.my.widget.IProgressBar;
+import com.my.widget.IProgressBarView;
 import com.my.widget.util.ViewUtil;
 
 import org.jetbrains.annotations.NotNull;
@@ -65,7 +63,7 @@ import io.reactivex.schedulers.Schedulers;
 
 public class PhotoPickerActivity
     extends AppCompatActivity
-    implements IProgressBar {
+    implements IProgressBarView {
 
     MyAlbumAdapter mAlbumAdapter;
     MyAlbumPhotoAdapter mAlbumPhotoAdapter;
