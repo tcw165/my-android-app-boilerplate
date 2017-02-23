@@ -21,7 +21,7 @@
         app:layout_heightPercent="33%"
         app:layout_marginTopPercent="21%"
         app:layout_widthPercent="100%"
-        app:srcCompat="@drawable/ic_settings"/>
+        app:srcCompat="@drawable/icon_settings"/>
 
     <!-- Notification badge -->
     <FrameLayout

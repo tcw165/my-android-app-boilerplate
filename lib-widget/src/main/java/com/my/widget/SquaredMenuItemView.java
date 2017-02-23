@@ -47,7 +47,7 @@ public class SquaredMenuItemView extends PercentRelativeLayout {
 
         try {
             mIconRes = a.getResourceId(R.styleable.SquaredMenuItemView_iconSrcCompat,
-                                       R.drawable.ic_settings);
+                                       R.drawable.icon_settings);
             mCaptionRes = a.getResourceId(R.styleable.SquaredMenuItemView_caption,
                                           R.string.menu_settings);
         } finally {
