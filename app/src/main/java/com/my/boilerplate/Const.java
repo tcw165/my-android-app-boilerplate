@@ -24,4 +24,10 @@ public class Const {
 
     public final static String TAG = "xyz";
 
+    public final static String DB_ACTION_KEY = "action";
+    public final static String DB_ACTION_VALUE_INSERT = "insert";
+    public final static String DB_ACTION_VALUE_DELETE = "delete";
+    public final static String DB_ACTION_VALUE_UPDATE = "update";
+    public final static String DB_ACTION_VALUE_QUERY = "query";
+
 }

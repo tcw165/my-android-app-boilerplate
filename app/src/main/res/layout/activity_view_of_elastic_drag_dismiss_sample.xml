@@ -32,7 +32,7 @@
                 <ImageView
                     android:layout_width="match_parent"
                     android:layout_height="64dp"
-                    app:srcCompat="@drawable/ic_arrow_up"/>
+                    app:srcCompat="@drawable/icon_arrow_up"/>
 
                 <TextView
                     android:layout_width="match_parent"
@@ -47,7 +47,7 @@
                 <ImageView
                     android:layout_width="match_parent"
                     android:layout_height="64dp"
-                    app:srcCompat="@drawable/ic_arrow_down"/>
+                    app:srcCompat="@drawable/icon_arrow_down"/>
             </LinearLayout>
         </FrameLayout>
     </android.support.v4.widget.NestedScrollView>

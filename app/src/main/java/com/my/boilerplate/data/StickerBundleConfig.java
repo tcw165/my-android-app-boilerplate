@@ -32,13 +32,13 @@ public class StickerBundleConfig {
     /**
      * See {@link R.raw#sticker_bundle_config_v1}.
      */
-    public static StickerBundleConfig getConfig(final Context context) {
+    public static StickerBundleConfig getLatestConfig(final Context context) {
         // TODO: Downward compatibility.
-        return getConfig(context, R.raw.sticker_bundle_config_v1);
+        return getLatestConfig(context, R.raw.sticker_bundle_config_v1);
     }
 
-    public static StickerBundleConfig getConfig(final Context context,
-                                                final int res) {
+    public static StickerBundleConfig getLatestConfig(final Context context,
+                                                      final int res) {
         if (context == null) return null;
         if (sInstance == null) {
             final Reader reader = new InputStreamReader(

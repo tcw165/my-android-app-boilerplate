@@ -27,9 +27,5 @@ import java.util.List;
 public class StickerBundleWrap {
 
     @SerializedName("bundles")
-    private List<StickerBundle> bundles;
-
-    public List<StickerBundle> bundles() {
-        return bundles;
-    }
+    public List<StickerBundle.RemoteJson> bundles;
 }
