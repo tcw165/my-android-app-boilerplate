@@ -1,8 +1,10 @@
 apply plugin: "com.android.library"
 
+// Gradle doc:
+// http://google.github.io/android-gradle-dsl/
 android {
     compileSdkVersion 25
-    buildToolsVersion "25.0.1"
+    buildToolsVersion "25.0.2"
 
     defaultConfig {
         minSdkVersion 16
@@ -22,7 +24,7 @@ android {
 }
 
 dependencies {
-    def SUPPORT_LIB_VER = "25.1.0"
+    def SUPPORT_LIB_VER = "25.2.0"
 
     compile fileTree(dir: "libs", include: ["*.jar"])
 

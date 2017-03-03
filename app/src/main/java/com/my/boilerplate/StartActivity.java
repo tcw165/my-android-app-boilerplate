@@ -38,17 +38,17 @@ import android.widget.Toast;
 
 import com.my.comp.PhotoPickerActivity;
 import com.my.comp.TakePhotoDelegateActivity;
+import com.my.widget.IProgressBarView;
 import com.my.widget.util.ViewUtil;
 import com.my.boilerplate.view.SampleMenuAdapter;
 import com.my.boilerplate.view.ScrapView;
 import com.my.widget.IDrawerViewLayout;
-import com.my.widget.IProgressBar;
 
 import java.util.Locale;
 
 public class StartActivity
     extends AppCompatActivity
-    implements IProgressBar {
+    implements IProgressBarView {
 
     final static String TAG = StartActivity.class.getCanonicalName();
 
@@ -181,7 +181,9 @@ public class StartActivity
                            "Share file URI through FileProvider."),
                 // item 7.
                 new Pair<>("In-App-Purchase",
-                           "(constructing)"),
+                           "A sticker store page using combined technologies of " +
+                           "Retrofit, RxJava2, Gson, ContentProvider, SQLite and " +
+                           "more."),
                 // item 8.
                 new Pair<>("AlertManager",
                            "(constructing)"),

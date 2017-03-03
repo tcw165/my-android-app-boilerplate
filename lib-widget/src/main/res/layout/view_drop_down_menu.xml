@@ -40,7 +40,7 @@
                 android:layout_height="0dp"
                 android:background="@drawable/bg_border_rect"
                 app:caption="@string/menu_settings"
-                app:iconSrcCompat="@drawable/ic_settings"
+                app:iconSrcCompat="@drawable/icon_settings"
                 app:layout_columnWeight="1"
                 app:layout_rowWeight="1"/>
 
@@ -50,7 +50,7 @@
                 android:layout_height="0dp"
                 android:background="@drawable/bg_border_rect"
                 app:caption="@string/menu_settings"
-                app:iconSrcCompat="@drawable/ic_settings"
+                app:iconSrcCompat="@drawable/icon_settings"
                 app:layout_columnWeight="1"
                 app:layout_rowWeight="1"/>
 
@@ -60,7 +60,7 @@
                 android:layout_height="0dp"
                 android:background="@drawable/bg_border_rect"
                 app:caption="@string/menu_settings"
-                app:iconSrcCompat="@drawable/ic_settings"
+                app:iconSrcCompat="@drawable/icon_settings"
                 app:layout_columnWeight="1"
                 app:layout_rowWeight="1"/>
 
@@ -70,7 +70,7 @@
                 android:layout_height="0dp"
                 android:background="@drawable/bg_border_rect"
                 app:caption="@string/menu_settings"
-                app:iconSrcCompat="@drawable/ic_settings"
+                app:iconSrcCompat="@drawable/icon_settings"
                 app:layout_columnWeight="1"
                 app:layout_rowWeight="1"/>
 
@@ -80,7 +80,7 @@
                 android:layout_height="0dp"
                 android:background="@drawable/bg_border_rect"
                 app:caption="@string/menu_settings"
-                app:iconSrcCompat="@drawable/ic_settings"
+                app:iconSrcCompat="@drawable/icon_settings"
                 app:layout_columnWeight="1"
                 app:layout_rowWeight="1"/>
 
@@ -90,7 +90,7 @@
                 android:layout_height="0dp"
                 android:background="@drawable/bg_border_rect"
                 app:caption="@string/menu_settings"
-                app:iconSrcCompat="@drawable/ic_settings"
+                app:iconSrcCompat="@drawable/icon_settings"
                 app:layout_columnWeight="1"
                 app:layout_rowWeight="1"/>
         </android.support.v7.widget.GridLayout>
@@ -109,7 +109,7 @@
                 android:layout_height="24dp"
                 android:layout_gravity="center"
                 android:tint="@android:color/darker_gray"
-                app:srcCompat="@drawable/ic_arrow_down"/>
+                app:srcCompat="@drawable/icon_arrow_down"/>
 
             <ImageView
                 android:id="@+id/down_arrow_end"
@@ -117,7 +117,7 @@
                 android:layout_height="24dp"
                 android:layout_gravity="center"
                 android:alpha="0"
-                app:srcCompat="@drawable/ic_arrow_down"/>
+                app:srcCompat="@drawable/icon_arrow_down"/>
         </FrameLayout>
     </LinearLayout>
 </merge>

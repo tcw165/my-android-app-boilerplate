@@ -26,7 +26,7 @@ import android.content.Context;
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import com.my.boilerplate.json.JsonWhatever;
 import com.my.boilerplate.net.IWhateverApiService;
-import com.my.widget.IProgressBar;
+import com.my.widget.IProgressBarView;
 
 import java.lang.ref.WeakReference;
 import java.util.concurrent.TimeUnit;
@@ -61,9 +61,9 @@ public class WebApiUtil {
 
     /**
      * The weak reference pointed to the activity that supports
-     * {@code IProgressBar} interface.
+     * {@code IProgressBarView} interface.
      */
-    private WeakReference<IProgressBar> mProgressView;
+    private WeakReference<IProgressBarView> mProgressView;
 
     private final OkHttpClient mHttpClient;
     private final Retrofit mServiceFactory;
@@ -107,7 +107,7 @@ public class WebApiUtil {
     /**
      * Show the progress bar when processing.
      */
-    public WebApiUtil showProgressBar(final IProgressBar view) {
+    public WebApiUtil showProgressBar(final IProgressBarView view) {
         if (view instanceof Activity &&
             ((Activity) view).isFinishing()) return this;
 

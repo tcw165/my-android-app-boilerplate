@@ -1,9 +1,11 @@
 apply plugin: "com.android.model.library"
 
+// Gradle doc:
+// http://google.github.io/android-gradle-dsl/
 model {
     android {
         compileSdkVersion 25
-        buildToolsVersion "24.0.3"
+        buildToolsVersion "25.0.2"
 
         defaultConfig.with {
             minSdkVersion.apiLevel = 16
@@ -20,7 +22,7 @@ model {
         ndk {
             platformVersion = 16
             // The name of the native library recognized by JNI.
-            moduleName "lib-ml"
+            moduleName "ml"
             // The compiler options, including the the root path and common
             // header files path.
             cppFlags.addAll(["-frtti",
@@ -74,7 +76,7 @@ dependencies {
     compile fileTree(dir: "libs", include: ["*.jar", "*.so"])
 
     // JSON.
-    compile "com.google.code.gson:gson:2.6.2"
+    compile "com.google.code.gson:gson:2.7"
 }
 
 // Copy tasks.
