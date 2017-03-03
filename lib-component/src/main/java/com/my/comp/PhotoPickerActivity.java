@@ -47,8 +47,6 @@ import com.my.comp.util.MediaStoreUtil;
 import com.my.widget.IProgressBarView;
 import com.my.widget.util.ViewUtil;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -296,14 +294,14 @@ public class PhotoPickerActivity
         @Override
         public View getView(int position,
                             View convertView,
-                            @NotNull ViewGroup parent) {
+                            ViewGroup parent) {
             return getCustomView(position, convertView, parent);
         }
 
         @Override
         public View getDropDownView(int position,
                                     View convertView,
-                                    @NotNull ViewGroup parent) {
+                                    ViewGroup parent) {
             return getCustomView(position, convertView, parent);
         }
 

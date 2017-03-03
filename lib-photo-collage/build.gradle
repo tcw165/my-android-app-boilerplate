@@ -1,5 +1,7 @@
 apply plugin: "com.android.model.library"
 
+// Gradle doc:
+// http://google.github.io/android-gradle-dsl/
 model {
     android {
         compileSdkVersion 25
@@ -37,9 +39,7 @@ model {
             // ABI
             abiFilters.addAll([
                     "armeabi",
-                    "armeabi-v7a",
-                    "x86",
-                    "x86_64"
+                    "armeabi-v7a"
             ])
         }
 

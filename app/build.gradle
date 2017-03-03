@@ -4,9 +4,11 @@ apply plugin: "io.fabric"
 // Google Services (e.g. Firebase).
 apply plugin: "com.google.gms.google-services"
 
+// Gradle doc:
+// http://google.github.io/android-gradle-dsl/
 android {
     compileSdkVersion 25
-    buildToolsVersion '25.0.0'
+    buildToolsVersion '25.0.2'
 
     defaultConfig {
         // Overwrite the "package" attribute defined in the
@@ -59,7 +61,7 @@ repositories {
 }
 
 dependencies {
-    def SUPPORT_LIB_VER = "25.1.1"
+    def SUPPORT_LIB_VER = "25.2.0"
     def RETROFIT_VER = "2.1.0"
 
     compile fileTree(dir: "libs", include: ["*.jar"])
