@@ -21,19 +21,19 @@
 package com.my.widget;
 
 import android.content.Context;
+import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
-import android.widget.ImageView;
 
 /**
  * For displaying photos in a photo picker.
  */
-public class SelectableSquareImageView extends ImageView {
+public class CheckableImageView extends AppCompatImageView {
 
-    public SelectableSquareImageView(Context context) {
+    public CheckableImageView(Context context) {
         this(context, null);
     }
 
-    public SelectableSquareImageView(Context context, AttributeSet attrs) {
+    public CheckableImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 

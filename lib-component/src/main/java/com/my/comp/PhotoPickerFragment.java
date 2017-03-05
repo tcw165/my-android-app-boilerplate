@@ -27,9 +27,10 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatSpinner;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,8 +40,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.my.comp.data.IPhotoAlbum;
 import com.my.comp.util.MediaStoreUtil;
+import com.my.comp.widget.CursorRecyclerViewAdapter;
 import com.my.widget.IProgressBarView;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
@@ -105,9 +108,13 @@ public class PhotoPickerFragment extends Fragment
         mAlbumList.setOnItemSelectedListener(onClickAlbum());
 
         // The photo list of the selected album.
-        mAlbumPhotoAdapter = new MyAlbumPhotoAdapter();
+        mAlbumPhotoAdapter = new MyAlbumPhotoAdapter(getActivity());
         mPhotoList = (RecyclerView) layout.findViewById(R.id.photo_list);
+        mPhotoList.setHasFixedSize(true);
         mPhotoList.setAdapter(mAlbumPhotoAdapter);
+        // TODO: Use
+        mPhotoList.setLayoutManager(new GridLayoutManager(
+            getContext(), getResources().getInteger(R.integer.photo_picker_grid_column_num)));
 
         // The photo list's parent view.
         mPhotoListParent = (SwipeRefreshLayout) layout.findViewById(R.id.photo_list_parent);
@@ -122,10 +129,8 @@ public class PhotoPickerFragment extends Fragment
     public void onDestroyView() {
         super.onDestroyView();
 
-        if (mAlbumPhotoAdapter != null) {
-            mAlbumPhotoAdapter.clear();
-        }
-
+        // Recycler the cursor.
+        mAlbumPhotoAdapter.setData(null);
         // TODO: Support "don't keep Activity".
     }
 
@@ -158,9 +163,12 @@ public class PhotoPickerFragment extends Fragment
 
                     // TODO: Handle #dispose by using the validToken parameter.
 
-                    emitter.onNext(MediaStoreUtil.getAlbums(
-                        getActivity().getContentResolver(),
-                        new AtomicBoolean(true)));
+                    // Emit to downstream if not disposed.
+                    if (!emitter.isDisposed()) {
+                        emitter.onNext(MediaStoreUtil.getAlbums(
+                            getActivity().getContentResolver(),
+                            new AtomicBoolean(true)));
+                    }
                     emitter.onComplete();
                 }
             })
@@ -173,7 +181,12 @@ public class PhotoPickerFragment extends Fragment
                 @Override
                 public void subscribe(ObservableEmitter<Cursor> emitter)
                     throws Exception {
-                    // TODO: Complete it.
+                    // Emit to downstream if not disposed.
+                    if (!emitter.isDisposed()) {
+                        emitter.onNext(MediaStoreUtil.getPhotosOfAlbum(
+                            getActivity().getContentResolver(),
+                            albumId));
+                    }
                     emitter.onComplete();
                 }
             })
@@ -181,9 +194,10 @@ public class PhotoPickerFragment extends Fragment
     }
 
     void loadDefaultAlbumAndPhotos() {
-        showProgressBar();
-
         // FIXME: Figure out the way of Observable.chain(ob1, ob2, ob3, ...)
+        // FIXME: And make showing/hiding the progress bar automatically.
+        showProgressBar();
+        // Ask for read/write permission first.
         RxPermissions
             .getInstance(getActivity())
             .request(Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -224,9 +238,10 @@ public class PhotoPickerFragment extends Fragment
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(new DisposableObserver<Cursor>() {
                 @Override
-                public void onNext(Cursor value) {
-                    // TODO: Complete it.
-                    Log.d("xyz", "onNext");
+                public void onNext(Cursor cursor) {
+                    // DO NOTHING.
+                    // The spinner will trigger the OnItemSelectedListener if
+                    // the data is valid.
                 }
 
                 @Override
@@ -248,8 +263,8 @@ public class PhotoPickerFragment extends Fragment
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(new DisposableObserver<Cursor>() {
                 @Override
-                public void onNext(Cursor value) {
-
+                public void onNext(Cursor cursor) {
+                    mAlbumPhotoAdapter.setData(cursor);
                 }
 
                 @Override
@@ -290,7 +305,7 @@ public class PhotoPickerFragment extends Fragment
     /**
      * The album adapter class.
      */
-    static class MyAlbumAdapter extends BaseAdapter {
+    private static class MyAlbumAdapter extends BaseAdapter {
 
         LayoutInflater mInflater;
         List<IPhotoAlbum> mAlbums;
@@ -360,6 +375,9 @@ public class PhotoPickerFragment extends Fragment
 
             IPhotoAlbum album = getItem(position);
             // TODO: Load the cover image.
+            Glide.with(parent.getContext())
+                 .load(mAlbums.get(position).thumbnailPath())
+                 .into(holder.albumCover);
             // Update the album name.
             holder.albumName.setText(album.name());
             holder.albumPhotoNum.setText("(" + album.photoNum() + ")");
@@ -377,47 +395,37 @@ public class PhotoPickerFragment extends Fragment
     /**
      * The album photo adapter class.
      */
-    static class MyAlbumPhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    private static class MyAlbumPhotoAdapter
+        extends CursorRecyclerViewAdapter<RecyclerView.ViewHolder> {
 
-        Cursor mCursor;
+        MyAlbumPhotoAdapter(Context context) {
+            super(context);
+        }
 
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent,
                                                           int viewType) {
-            LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-
             return new MyAlbumPhotoAdapter.AlbumPhotoViewHolder(
-                inflater.inflate(R.layout.view_photo_grid_item, parent, false));
+                getInflater().inflate(R.layout.view_photo_grid_item,
+                                      parent, false));
         }
 
         @Override
-        public void onBindViewHolder(RecyclerView.ViewHolder holder,
-                                     int position) {
-            final Context context = holder.itemView.getContext();
+        public void onBindViewHolder(RecyclerView.ViewHolder viewHolder,
+                                     Cursor cursor,
+                                     List<Object> payloads) {
+            final AppCompatImageView imageView = (AppCompatImageView) viewHolder.itemView;
 
-//            Glide.with(context)
-//                .load()
-        }
+            imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // TODO: DO SOMETHING.
+                }
+            });
 
-        @Override
-        public int getItemCount() {
-            if (mCursor == null || mCursor.isClosed()) {
-                return 0;
-            } else {
-                return mCursor.getCount();
-            }
-        }
-
-        void setData(Cursor cursor) {
-            clear();
-
-            mCursor = cursor;
-        }
-
-        void clear() {
-            if (mCursor != null && !mCursor.isClosed()) {
-                mCursor.close();
-            }
+            Glide.with(getContext())
+                 .load(MediaStoreUtil.getThumbnailPath(cursor))
+                 .into(imageView);
         }
 
         static class AlbumPhotoViewHolder extends RecyclerView.ViewHolder {

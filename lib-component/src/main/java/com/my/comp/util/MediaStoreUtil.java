@@ -24,6 +24,7 @@ import android.content.ContentResolver;
 import android.database.Cursor;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.my.comp.data.IPhoto;
 import com.my.comp.data.IPhotoAlbum;
@@ -34,6 +35,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MediaStoreUtil {
 
+    // Albums related /////////////////////////////////////////////////////////
     private static final String[] ALBUMS_PROJECTION = {
         MediaStore.Images.Media.DATA,
         MediaStore.Images.Media.BUCKET_ID,
@@ -50,34 +52,56 @@ public class MediaStoreUtil {
         "    ELSE 50 " +
         "END as IDX"
     };
-    private static final String SELECTION_GROUP_BY =
+    private static final String ALBUMS_SELECTION =
         String.format("NOT TRIM(%s) = '') GROUP BY (2", MediaStore.Images.Media.DATA);
-    private static final String ALBUMS_SORT_ORDER =
+    private static final String ALBUMS_SORTING_ORDER =
         "IDX, _COUNT DESC, " +
         MediaStore.Images.Media.DEFAULT_SORT_ORDER +
         ", " +
         MediaStore.Images.Media.DATE_ADDED;
 
+    // Photos related /////////////////////////////////////////////////////////
+    private static final String[] PHOTOS_PROJECTION = {
+        MediaStore.Images.Media._ID,
+        MediaStore.Images.Media.DATA,
+        MediaStore.Images.Media.WIDTH,
+        MediaStore.Images.Media.HEIGHT,
+        MediaStore.Images.Media.ORIENTATION,
+        MediaStore.Images.Thumbnails.DATA,
+        MediaStore.Images.Thumbnails.WIDTH,
+        MediaStore.Images.Thumbnails.HEIGHT
+    };
+    private static final String PHOTOS_SELECTION =
+        String.format("NOT TRIM(%s) = '' AND %s = ? ",
+                      MediaStore.Images.Media.DATA,
+                      MediaStore.Images.Media.BUCKET_ID);
+    private static final String PHOTOS_SORTING_ORDER =
+        MediaStore.Images.Media.DATE_MODIFIED + " DESC";
+
     /**
      * Get list of the album on the device.
      *
-     * @param resolver      To query the {@link MediaStore.Images}.
-     * @param validToken    A token for the caller to cancel the process. True
-     *                      means the process is still valid; False means the
-     *                      process should be terminated.
+     * @param resolver   To query the {@link MediaStore.Images}.
+     * @param validToken A token for the caller to cancel the process. True
+     *                   means the process is still valid; False means the
+     *                   process should be terminated.
      */
-    public static List<IPhotoAlbum> getAlbums(ContentResolver resolver,
-                                              AtomicBoolean validToken) {
+    public static List<IPhotoAlbum> getAlbums(final ContentResolver resolver,
+                                              final AtomicBoolean validToken) {
         if (resolver == null || validToken == null) return null;
         // Return if it is canceled before doing anything.
         if (!validToken.get()) return null;
 
         Cursor cursor = resolver.query(
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            // projection.
             ALBUMS_PROJECTION,
-            SELECTION_GROUP_BY,
+            // selection.
+            ALBUMS_SELECTION,
+            // selection args.
             null,
-            ALBUMS_SORT_ORDER);
+            // sorting order.
+            ALBUMS_SORTING_ORDER);
         if (cursor == null) return null;
         // Return if it is canceled before doing anything.
         if (!validToken.get()) return null;
@@ -117,6 +141,36 @@ public class MediaStoreUtil {
         }
 
         return photos;
+    }
+
+    public static Cursor getPhotosOfAlbum(final ContentResolver resolver,
+                                          final String albumId) {
+        if (resolver == null ||
+            albumId == null || albumId.isEmpty()) return null;
+
+        return resolver.query(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            // projection.
+            PHOTOS_PROJECTION,
+            // selection.
+            PHOTOS_SELECTION,
+            // selection args.
+            new String[]{albumId},
+            // sorting order.
+            PHOTOS_SORTING_ORDER);
+    }
+
+    public static String getThumbnailPath(final Cursor cursor) {
+        int thumbColumn;
+        try {
+            thumbColumn = cursor.getColumnIndexOrThrow(
+                MediaStore.Images.Thumbnails.DATA);
+        } catch (IllegalArgumentException ignored) {
+            Log.d("xyz", "Failed to load thumbnail, try full-sized instead.");
+            thumbColumn = cursor.getColumnIndexOrThrow(
+                MediaStore.Images.Media.DATA);
+        }
+        return cursor.getString(thumbColumn);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -182,7 +236,7 @@ public class MediaStoreUtil {
         }
 
         @Override
-        public String fullsizePath() {
+        public String fullSizedPath() {
             return mFullsizePath;
         }
 
@@ -239,7 +293,7 @@ public class MediaStoreUtil {
 
     static class Photo implements IPhoto {
 
-        private String mFullsizePath = null;
+        private String mFullSizedPath = null;
         private String mThumbnailPath = null;
 
         private float mWidth = 0;
@@ -273,8 +327,8 @@ public class MediaStoreUtil {
         }
 
         @Override
-        public String fullsizePath() {
-            return mFullsizePath;
+        public String fullSizedPath() {
+            return mFullSizedPath;
         }
 
         @Override
@@ -304,7 +358,7 @@ public class MediaStoreUtil {
 
         @Override
         public void setFullsizePath(String path) {
-            mFullsizePath = path;
+            mFullSizedPath = path;
         }
     }
 }

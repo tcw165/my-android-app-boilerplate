@@ -9,7 +9,8 @@
     <android.support.v7.widget.AppCompatSpinner
         android:id="@+id/album_list"
         android:layout_width="match_parent"
-        android:layout_height="56dp"/>
+        android:layout_height="56dp"
+        android:dropDownWidth="248dp"/>
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/photo_list_parent"

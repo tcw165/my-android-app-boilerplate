@@ -26,7 +26,7 @@ public interface IPhoto {
     float thumbnailWidth();
     float thumbnailHeight();
     String thumbnailPath();
-    String fullsizePath();
+    String fullSizedPath();
 
     void setWidth(float width);
     void setHeight(float height);
