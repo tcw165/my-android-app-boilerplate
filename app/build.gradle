@@ -81,13 +81,13 @@ dependencies {
     compile(name: "lib-photo-collage-release", ext: "aar")
     // My lib-widget
 //    compile project(":lib-widget")
-    compile(name: "lib-widget-release", ext: "aar")
+//    compile(name: "lib-widget-release", ext: "aar")
     // My lib-component
-//    compile project(":lib-component")
-    compile(name: "lib-component-release", ext: "aar")
+    compile project(":lib-component")
+//    compile(name: "lib-component-release", ext: "aar")
     // My lib-ml.
 //    compile project(":lib-ml")
-    compile(name: "lib-ml-release", ext: "aar")
+//    compile(name: "lib-ml-release", ext: "aar")
 
     // Transition extension.
     compile "com.andkulikov:transitionseverywhere:1.7.0"

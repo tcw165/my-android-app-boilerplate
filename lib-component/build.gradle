@@ -58,8 +58,8 @@ dependencies {
     compile "com.android.support:gridlayout-v7:${SUPPORT_LIB_VER}"
 
     // My lib-widget
-//    compile project(":lib-widget")
-    compile(name: "lib-widget-release", ext: "aar")
+    compile project(":lib-widget")
+//    compile(name: "lib-widget-release", ext: "aar")
 
     // Rx-Android.
     compile "io.reactivex.rxjava2:rxandroid:2.0.1"

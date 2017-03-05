@@ -30,6 +30,7 @@ import com.my.comp.data.IPhotoAlbum;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MediaStoreUtil {
 
@@ -57,7 +58,20 @@ public class MediaStoreUtil {
         ", " +
         MediaStore.Images.Media.DATE_ADDED;
 
-    public static List<IPhotoAlbum> getAlbums(ContentResolver resolver) {
+    /**
+     * Get list of the album on the device.
+     *
+     * @param resolver      To query the {@link MediaStore.Images}.
+     * @param validToken    A token for the caller to cancel the process. True
+     *                      means the process is still valid; False means the
+     *                      process should be terminated.
+     */
+    public static List<IPhotoAlbum> getAlbums(ContentResolver resolver,
+                                              AtomicBoolean validToken) {
+        if (resolver == null || validToken == null) return null;
+        // Return if it is canceled before doing anything.
+        if (!validToken.get()) return null;
+
         Cursor cursor = resolver.query(
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
             ALBUMS_PROJECTION,
@@ -65,18 +79,19 @@ public class MediaStoreUtil {
             null,
             ALBUMS_SORT_ORDER);
         if (cursor == null) return null;
+        // Return if it is canceled before doing anything.
+        if (!validToken.get()) return null;
 
         List<IPhotoAlbum> photos = new ArrayList<>();
         try {
             cursor.moveToFirst();
-            int albumIdColumn = cursor
-                .getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_ID);
-            int thumbnailPathColumn = cursor
-                .getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-            int albumNameColumn = cursor
-                .getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
-            int countColumn = cursor
-                .getColumnIndexOrThrow("_COUNT");
+            int albumIdColumn = cursor.getColumnIndexOrThrow(
+                MediaStore.Images.Media.BUCKET_ID);
+            int thumbnailPathColumn = cursor.getColumnIndexOrThrow(
+                MediaStore.Images.Media.DATA);
+            int albumNameColumn = cursor.getColumnIndexOrThrow(
+                MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
+            int countColumn = cursor.getColumnIndexOrThrow("_COUNT");
 
             do {
                 final String albumId = cursor.getString(albumIdColumn);
@@ -96,7 +111,7 @@ public class MediaStoreUtil {
                                      albumName,
                                      thumbnailPath,
                                      photoNum));
-            } while (cursor.moveToNext());
+            } while (validToken.get() && cursor.moveToNext());
         } finally {
             cursor.close();
         }
