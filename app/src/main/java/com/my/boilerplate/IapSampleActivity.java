@@ -30,8 +30,11 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.my.boilerplate.data.StickerBundle;
 import com.my.boilerplate.data.StickerBundleStore;
 import com.my.comp.IapDelegateActivity;
+
+import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
@@ -62,11 +65,11 @@ public class IapSampleActivity extends AppCompatActivity {
         // Sync the bundles every time the activity is created.
         StickerBundleStore
             .with(this)
-            .getBundleListFromServerAsync()
+            .getBundleListFromServer()
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(new Consumer<Boolean>() {
+            .subscribe(new Consumer<List<StickerBundle>>() {
                 @Override
-                public void accept(Boolean done)
+                public void accept(List<StickerBundle> bundles)
                     throws Exception {
                     Log.d(Const.TAG, "Successfully sync the sticker bundles " +
                                      "with server");

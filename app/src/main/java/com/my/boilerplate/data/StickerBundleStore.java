@@ -12,9 +12,6 @@ import com.google.gson.Gson;
 import com.my.boilerplate.Const;
 import com.my.boilerplate.StickerBundleProvider;
 
-import org.jetbrains.annotations.NotNull;
-
-import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -268,7 +265,7 @@ public class StickerBundleStore extends AbstractContentProviderStore<StickerBund
     /**
      * The private constructor because it is a singleton.
      */
-    private StickerBundleStore(@NotNull final Context context) {
+    private StickerBundleStore(@NonNull final Context context) {
         super(context.getContentResolver());
 
         mContext = new WeakReference<>(context);

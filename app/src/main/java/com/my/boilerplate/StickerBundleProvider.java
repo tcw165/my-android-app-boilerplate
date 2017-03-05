@@ -13,12 +13,11 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.os.Looper;
 import android.support.annotation.IntDef;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.my.boilerplate.data.StickerBundle;
 import com.my.boilerplate.data.StickerBundleConfig;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -127,7 +126,7 @@ public class StickerBundleProvider extends ContentProvider {
     }
 
     @Override
-    public Cursor query(@NotNull Uri uri,
+    public Cursor query(@NonNull Uri uri,
                         String[] projection,
                         String selection,
                         String[] selectionArgs,
@@ -162,7 +161,7 @@ public class StickerBundleProvider extends ContentProvider {
     }
 
     @Override
-    public int update(@NotNull Uri uri,
+    public int update(@NonNull Uri uri,
                       ContentValues values,
                       String whereClause,
                       String[] whereArgs) {
@@ -194,7 +193,7 @@ public class StickerBundleProvider extends ContentProvider {
     }
 
     @Override
-    public Uri insert(@NotNull Uri uri,
+    public Uri insert(@NonNull Uri uri,
                       ContentValues values) {
         try {
             final SQLiteDatabase db = mSqlHelper.getWritableDatabase();
@@ -227,14 +226,14 @@ public class StickerBundleProvider extends ContentProvider {
     }
 
     @Override
-    public int delete(@NotNull Uri uri,
+    public int delete(@NonNull Uri uri,
                       String selection,
                       String[] selectionArgs) {
         return 0;
     }
 
     @Override
-    public String getType(@NotNull Uri uri) {
+    public String getType(@NonNull Uri uri) {
         return null;
     }
 
