@@ -160,7 +160,7 @@ public class MediaStoreUtil {
             PHOTOS_SORTING_ORDER);
     }
 
-    public static String getThumbnailPath(final Cursor cursor) {
+    public static String getImagePath(final Cursor cursor) {
         int thumbColumn;
         try {
             thumbColumn = cursor.getColumnIndexOrThrow(

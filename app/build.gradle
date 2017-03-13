@@ -103,7 +103,7 @@ dependencies {
 //    compile "com.jakewharton.rxbinding:rxbinding:1.0.0"
 
     // JSON.
-    compile "com.google.code.gson:gson:2.6.2"
+    compile "com.google.code.gson:gson:2.7"
 
     // HTTP.
     compile "com.squareup.retrofit2:retrofit:${RETROFIT_VER}"

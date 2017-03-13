@@ -25,6 +25,7 @@ import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.provider.BaseColumns;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 
 import java.lang.ref.WeakReference;
@@ -91,9 +92,20 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
             throw new IllegalStateException(
                 "couldn't move cursor to position " + position);
         }
+        Log.d("xyz", "onBindViewHolder(" + position + "), context=" + getContext());
         onBindViewHolder(viewHolder, mCursor, payloads);
     }
 
+    /**
+     * Called by RecyclerView to display the data at the specified position.
+     *
+     * @param viewHolder    The ViewHolder which should be updated to represent
+     *                      the contents of the item at the given position in
+     *                      the data set.
+     * @param cursor        The cursor of the item within the adapter's data set.
+     * @param payloads      A list of merged payloads (could be null). Can be
+     *                      empty list if requires full update.
+     */
     public abstract void onBindViewHolder(VH viewHolder,
                                           Cursor cursor,
                                           List<Object> payloads);
@@ -120,7 +132,7 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
     @SuppressWarnings("unused")
     public void setData(Cursor cursor) {
         Cursor old = swapCursor(cursor);
-        if (old != null) {
+        if (old != null && !old.isClosed()) {
             old.close();
         }
     }

@@ -25,12 +25,12 @@ import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,9 +41,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.manager.SupportRequestManagerFragment;
 import com.my.comp.data.IPhotoAlbum;
 import com.my.comp.util.MediaStoreUtil;
 import com.my.comp.widget.CursorRecyclerViewAdapter;
+import com.my.widget.GridItemDecoration;
 import com.my.widget.IProgressBarView;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
@@ -61,16 +64,15 @@ import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
 // TODO: We could actually make it a ViewGroup and be used by a ViewPager.
-public class PhotoPickerFragment extends Fragment
+public class PhotoPickerFragment extends SupportRequestManagerFragment
     implements IProgressBarView {
 
     // View.
     AppCompatSpinner mAlbumList;
+    MyAlbumAdapter mAlbumListAdapter;
     RecyclerView mPhotoList;
+    MyAlbumPhotoAdapter mPhotoListAdapter;
     SwipeRefreshLayout mPhotoListParent;
-
-    MyAlbumAdapter mAlbumAdapter;
-    MyAlbumPhotoAdapter mAlbumPhotoAdapter;
 
     public PhotoPickerFragment() {
         // Required empty public constructor
@@ -102,19 +104,22 @@ public class PhotoPickerFragment extends Fragment
                                        container, false);
 
         // The album list.
-        mAlbumAdapter = new MyAlbumAdapter(getActivity());
+        mAlbumListAdapter = new MyAlbumAdapter(getActivity());
         mAlbumList = (AppCompatSpinner) layout.findViewById(R.id.album_list);
-        mAlbumList.setAdapter(mAlbumAdapter);
+        mAlbumList.setAdapter(mAlbumListAdapter);
         mAlbumList.setOnItemSelectedListener(onClickAlbum());
 
         // The photo list of the selected album.
-        mAlbumPhotoAdapter = new MyAlbumPhotoAdapter(getActivity());
+        mPhotoListAdapter = new MyAlbumPhotoAdapter(getActivity());
         mPhotoList = (RecyclerView) layout.findViewById(R.id.photo_list);
         mPhotoList.setHasFixedSize(true);
-        mPhotoList.setAdapter(mAlbumPhotoAdapter);
-        // TODO: Use
+        mPhotoList.setAdapter(mPhotoListAdapter);
         mPhotoList.setLayoutManager(new GridLayoutManager(
-            getContext(), getResources().getInteger(R.integer.photo_picker_grid_column_num)));
+            getContext(),
+            getResources().getInteger(R.integer.photo_picker_grid_column_num)));
+        mPhotoList.addItemDecoration(new GridItemDecoration(
+            (int) getResources().getDimension(R.dimen.grid_item_spacing),
+            getResources().getInteger(R.integer.photo_picker_grid_column_num)));
 
         // The photo list's parent view.
         mPhotoListParent = (SwipeRefreshLayout) layout.findViewById(R.id.photo_list_parent);
@@ -130,7 +135,7 @@ public class PhotoPickerFragment extends Fragment
         super.onDestroyView();
 
         // Recycler the cursor.
-        mAlbumPhotoAdapter.setData(null);
+        mPhotoListAdapter.setData(null);
         // TODO: Support "don't keep Activity".
     }
 
@@ -158,6 +163,7 @@ public class PhotoPickerFragment extends Fragment
                 @Override
                 public void subscribe(ObservableEmitter<List<IPhotoAlbum>> emitter)
                     throws Exception {
+                    Log.d("xyz", "loadAlbumList");
                     // TODO: Return cursor instead of the list so that we know
                     // TODO: the cursor change.
 
@@ -181,6 +187,7 @@ public class PhotoPickerFragment extends Fragment
                 @Override
                 public void subscribe(ObservableEmitter<Cursor> emitter)
                     throws Exception {
+                    Log.d("xyz", "loadAlbumPhotoCursor, albumId=" + albumId);
                     // Emit to downstream if not disposed.
                     if (!emitter.isDisposed()) {
                         emitter.onNext(MediaStoreUtil.getPhotosOfAlbum(
@@ -223,32 +230,18 @@ public class PhotoPickerFragment extends Fragment
                 }
             })
             .observeOn(AndroidSchedulers.mainThread())
-            .flatMap(new Function<List<IPhotoAlbum>, ObservableSource<Cursor>>() {
+            .subscribe(new DisposableObserver<List<IPhotoAlbum>>() {
                 @Override
-                public ObservableSource<Cursor> apply(List<IPhotoAlbum> albums)
-                    throws Exception {
-                    final String defaultAlbumId = albums.get(0).id();
-
+                public void onNext(List<IPhotoAlbum> albums) {
                     // Update the album list.
-                    mAlbumAdapter.setData(albums);
-
-                    return loadAlbumPhotoCursor(defaultAlbumId);
-                }
-            })
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(new DisposableObserver<Cursor>() {
-                @Override
-                public void onNext(Cursor cursor) {
-                    // DO NOTHING.
-                    // The spinner will trigger the OnItemSelectedListener if
-                    // the data is valid.
+                    mAlbumListAdapter.setData(albums);
+                    // Set selection will trigger AdapterView#onItemSelected.
+                    mAlbumList.setSelection(0);
                 }
 
                 @Override
                 public void onError(Throwable e) {
                     hideProgressBar();
-                    // Finish the activity.
-                    getActivity().onBackPressed();
                 }
 
                 @Override
@@ -264,7 +257,9 @@ public class PhotoPickerFragment extends Fragment
             .subscribe(new DisposableObserver<Cursor>() {
                 @Override
                 public void onNext(Cursor cursor) {
-                    mAlbumPhotoAdapter.setData(cursor);
+                    mPhotoListAdapter.setData(cursor);
+                    // Show the top most one.
+                    mPhotoList.scrollToPosition(0);
                 }
 
                 @Override
@@ -285,9 +280,9 @@ public class PhotoPickerFragment extends Fragment
             public void onItemSelected(AdapterView<?> parent,
                                        View view, int position,
                                        long id) {
-                if (mAlbumAdapter.getCount() == 0) return;
+                if (mAlbumListAdapter.getCount() == 0) return;
 
-                loadPhotoListByAlbum(mAlbumAdapter
+                loadPhotoListByAlbum(mAlbumListAdapter
                                          .getItem(position)
                                          .id());
             }
@@ -398,16 +393,27 @@ public class PhotoPickerFragment extends Fragment
     private static class MyAlbumPhotoAdapter
         extends CursorRecyclerViewAdapter<RecyclerView.ViewHolder> {
 
+        static int testCounter = 0;
+
         MyAlbumPhotoAdapter(Context context) {
             super(context);
+            testCounter = 0;
         }
 
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent,
                                                           int viewType) {
+            ++testCounter;
+            Log.d("xyz", "onCreateViewHolder(" + testCounter +")");
             return new MyAlbumPhotoAdapter.AlbumPhotoViewHolder(
                 getInflater().inflate(R.layout.view_photo_grid_item,
                                       parent, false));
+        }
+
+        @Override
+        public void onViewRecycled(RecyclerView.ViewHolder holder) {
+            super.onViewRecycled(holder);
+            Log.d("xyz", "onViewRecycled");
         }
 
         @Override
@@ -415,6 +421,7 @@ public class PhotoPickerFragment extends Fragment
                                      Cursor cursor,
                                      List<Object> payloads) {
             final AppCompatImageView imageView = (AppCompatImageView) viewHolder.itemView;
+            Log.d("xyz", "the file pointed by the cursor is " + MediaStoreUtil.getImagePath(cursor));
 
             imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -423,9 +430,13 @@ public class PhotoPickerFragment extends Fragment
                 }
             });
 
-            Glide.with(getContext())
-                 .load(MediaStoreUtil.getThumbnailPath(cursor))
-                 .into(imageView);
+//            Glide.clear(imageView);
+//            Glide.with(getContext())
+//                 .load(MediaStoreUtil.getImagePath(cursor))
+//                 .diskCacheStrategy(DiskCacheStrategy.ALL)
+//                 .dontTransform()
+//                 .crossFade()
+//                 .into(imageView);
         }
 
         static class AlbumPhotoViewHolder extends RecyclerView.ViewHolder {
