@@ -34,16 +34,18 @@ public class CheckableImageView extends AppCompatImageView {
     }
 
     public CheckableImageView(Context context, AttributeSet attrs) {
-        super(context, attrs);
+        this(context, attrs, 0);
+    }
+
+    public CheckableImageView(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
     }
 
     @Override
     protected void onMeasure(int widthSpec, int heightSpec) {
-        int width = MeasureSpec.getSize(widthSpec);
-        int height = MeasureSpec.getSize(heightSpec);
-        int dimen = Math.min(width, height);
+        super.onMeasure(widthSpec, heightSpec);
 
-        // Choose the minimal side as the dimension.
-        setMeasuredDimension(dimen, dimen);
+        // Override the super's calculation.
+        setMeasuredDimension(getMeasuredWidth(), getMeasuredWidth());
     }
 }

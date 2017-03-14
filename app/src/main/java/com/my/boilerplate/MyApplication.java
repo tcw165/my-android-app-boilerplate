@@ -30,7 +30,7 @@ public class MyApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        // Image util.
+        // Image util (Fresco).
         Fresco.initialize(this);
     }
 }

@@ -26,7 +26,6 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -41,7 +40,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.manager.SupportRequestManagerFragment;
 import com.my.comp.data.IPhotoAlbum;
 import com.my.comp.util.MediaStoreUtil;
@@ -110,7 +108,7 @@ public class PhotoPickerFragment extends SupportRequestManagerFragment
         mAlbumList.setOnItemSelectedListener(onClickAlbum());
 
         // The photo list of the selected album.
-        mPhotoListAdapter = new MyAlbumPhotoAdapter(getActivity());
+        mPhotoListAdapter = new MyAlbumPhotoAdapter(getContext());
         mPhotoList = (RecyclerView) layout.findViewById(R.id.photo_list);
         mPhotoList.setHasFixedSize(true);
         mPhotoList.setAdapter(mPhotoListAdapter);
@@ -393,35 +391,38 @@ public class PhotoPickerFragment extends SupportRequestManagerFragment
     private static class MyAlbumPhotoAdapter
         extends CursorRecyclerViewAdapter<RecyclerView.ViewHolder> {
 
-        static int testCounter = 0;
-
         MyAlbumPhotoAdapter(Context context) {
             super(context);
-            testCounter = 0;
         }
 
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent,
                                                           int viewType) {
-            ++testCounter;
-            Log.d("xyz", "onCreateViewHolder(" + testCounter +")");
             return new MyAlbumPhotoAdapter.AlbumPhotoViewHolder(
                 getInflater().inflate(R.layout.view_photo_grid_item,
                                       parent, false));
         }
 
-        @Override
-        public void onViewRecycled(RecyclerView.ViewHolder holder) {
-            super.onViewRecycled(holder);
-            Log.d("xyz", "onViewRecycled");
-        }
+        // FIXME: These two functions will cause Glide loading incorrectly.
+//        @Override
+//        public void onViewRecycled(RecyclerView.ViewHolder holder) {
+//            super.onViewRecycled(holder);
+//            Log.d("xyz", "onViewRecycled");
+//            Glide.clear(holder.itemView);
+//        }
+//
+//        @Override
+//        public void onViewDetachedFromWindow(RecyclerView.ViewHolder holder) {
+//            super.onViewDetachedFromWindow(holder);
+//            Log.d("xyz", "onViewDetachedFromWindow");
+//            Glide.clear(holder.itemView);
+//        }
 
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder viewHolder,
                                      Cursor cursor,
                                      List<Object> payloads) {
-            final AppCompatImageView imageView = (AppCompatImageView) viewHolder.itemView;
-            Log.d("xyz", "the file pointed by the cursor is " + MediaStoreUtil.getImagePath(cursor));
+            final ImageView imageView = (ImageView) viewHolder.itemView;
 
             imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -430,13 +431,13 @@ public class PhotoPickerFragment extends SupportRequestManagerFragment
                 }
             });
 
-//            Glide.clear(imageView);
-//            Glide.with(getContext())
-//                 .load(MediaStoreUtil.getImagePath(cursor))
-//                 .diskCacheStrategy(DiskCacheStrategy.ALL)
-//                 .dontTransform()
-//                 .crossFade()
-//                 .into(imageView);
+            Glide.with(getContext())
+                 .load(MediaStoreUtil.getImagePath(cursor))
+                 // FIXME: Animation causes ghost images.
+                 .dontAnimate()
+//                 .skipMemoryCache(true)
+//                 .diskCacheStrategy(DiskCacheStrategy.NONE)
+                 .into(imageView);
         }
 
         static class AlbumPhotoViewHolder extends RecyclerView.ViewHolder {

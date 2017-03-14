@@ -23,7 +23,9 @@ package com.my.comp.widget;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.DataSetObserver;
+import android.os.Looper;
 import android.provider.BaseColumns;
+import android.support.v7.appcompat.BuildConfig;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -84,27 +86,39 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
     public void onBindViewHolder(VH viewHolder,
                                  int position,
                                  List<Object> payloads) {
-        if (!mDataValid) {
-            throw new IllegalStateException(
-                "this should only be called when the cursor is valid");
+        try {
+            if (!mDataValid) {
+                throw new IllegalStateException(
+                    "this should only be called when the cursor is valid");
+            }
+            if (!mCursor.moveToPosition(position)) {
+                throw new IllegalStateException(
+                    "couldn't move cursor to position " + position);
+            }
+            if (BuildConfig.DEBUG) {
+                Log.d("@", "onBindViewHolder(" + position +
+                           "), context=" + getContext() +
+                           ", running on " + Looper.myLooper());
+            }
+
+            onBindViewHolder(viewHolder, mCursor, payloads);
+        } catch (Throwable exception) {
+            if (BuildConfig.DEBUG) {
+                Log.d("@", "onBindViewHolder(" + position +
+                           "), error=" + exception.getMessage());
+            }
         }
-        if (!mCursor.moveToPosition(position)) {
-            throw new IllegalStateException(
-                "couldn't move cursor to position " + position);
-        }
-        Log.d("xyz", "onBindViewHolder(" + position + "), context=" + getContext());
-        onBindViewHolder(viewHolder, mCursor, payloads);
     }
 
     /**
      * Called by RecyclerView to display the data at the specified position.
      *
-     * @param viewHolder    The ViewHolder which should be updated to represent
-     *                      the contents of the item at the given position in
-     *                      the data set.
-     * @param cursor        The cursor of the item within the adapter's data set.
-     * @param payloads      A list of merged payloads (could be null). Can be
-     *                      empty list if requires full update.
+     * @param viewHolder The ViewHolder which should be updated to represent
+     *                   the contents of the item at the given position in
+     *                   the data set.
+     * @param cursor     The cursor of the item within the adapter's data set.
+     * @param payloads   A list of merged payloads (could be null). Can be
+     *                   empty list if requires full update.
      */
     public abstract void onBindViewHolder(VH viewHolder,
                                           Cursor cursor,
