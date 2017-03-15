@@ -120,7 +120,7 @@ public class PhotoPickerFragment extends SupportRequestManagerFragment
             getResources().getInteger(R.integer.photo_picker_grid_column_num)));
 
         // The photo list's parent view.
-        mPhotoListParent = (SwipeRefreshLayout) layout.findViewById(R.id.photo_list_parent);
+//        mPhotoListParent = (SwipeRefreshLayout) layout.findViewById(R.id.photo_list_parent);
 
         // Load the albums.
         loadDefaultAlbumAndPhotos();
@@ -139,16 +139,22 @@ public class PhotoPickerFragment extends SupportRequestManagerFragment
 
     @Override
     public void showProgressBar() {
+        if (mPhotoListParent == null) return;
+
         mPhotoListParent.setRefreshing(true);
     }
 
     @Override
     public void hideProgressBar() {
+        if (mPhotoListParent == null) return;
+
         mPhotoListParent.setRefreshing(false);
     }
 
     @Override
     public void updateProgress(int i) {
+        if (mPhotoListParent == null) return;
+
         mPhotoListParent.setRefreshing(true);
     }
 
