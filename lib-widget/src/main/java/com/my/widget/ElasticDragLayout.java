@@ -272,6 +272,7 @@ public class ElasticDragLayout extends CoordinatorLayout {
         return super.onNestedFling(target, velocityX, velocityY, consumed);
     }
 
+    @SuppressWarnings("unused")
     public void addOnElasticDragDismissListener(OnElasticDragCallback listener) {
         if (mCallbacks == null) {
             mCallbacks = new ArrayList<>();
@@ -279,12 +280,14 @@ public class ElasticDragLayout extends CoordinatorLayout {
         mCallbacks.add(listener);
     }
 
+    @SuppressWarnings("unused")
     public void removeOnElasticDragDismissListener(OnElasticDragCallback listener) {
         if (mCallbacks != null && mCallbacks.size() > 0) {
             mCallbacks.remove(listener);
         }
     }
 
+    @SuppressWarnings("unused")
     public void removeAllOnElasticDragDismissListeners() {
         while (!mCallbacks.isEmpty()) {
             removeOnElasticDragDismissListener(mCallbacks.get(0));
@@ -353,11 +356,16 @@ public class ElasticDragLayout extends CoordinatorLayout {
 
             if (params.isElasticScrollView) {
                 mElasticScrollView = child;
-                mElasticScrollView.setNestedScrollingEnabled(true);
+                // Ensure the nested-scrolling is enabled.
+                ViewCompat.setNestedScrollingEnabled(child, true);
             } else if (params.isElasticScrollViewHeader) {
                 mElasticScrollViewHeader = child;
+                // Ensure the nested-scrolling is enabled.
+                ViewCompat.setNestedScrollingEnabled(child, true);
             } else if (params.isElasticScrollViewFooter) {
                 mElasticScrollViewFooter = child;
+                // Ensure the nested-scrolling is enabled.
+                ViewCompat.setNestedScrollingEnabled(child, true);
             }
         }
 
