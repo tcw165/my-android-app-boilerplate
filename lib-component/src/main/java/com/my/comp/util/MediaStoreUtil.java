@@ -160,6 +160,7 @@ public class MediaStoreUtil {
             PHOTOS_SORTING_ORDER);
     }
 
+    @SuppressWarnings("unused")
     public static String getImagePath(final Cursor cursor) {
         int thumbColumn;
         try {
@@ -173,6 +174,57 @@ public class MediaStoreUtil {
         return cursor.getString(thumbColumn);
     }
 
+    public static IPhoto getPhotoInfo(Cursor cursor) {
+        // Validation check.
+        if (cursor == null) {
+            throw new IllegalArgumentException("The given cursor is null.");
+        } else if (cursor.getCount() == 0) {
+            throw new IllegalArgumentException("The given cursor is invalid.");
+        }
+
+        final Photo photo = new Photo();
+
+        // Full-sized path.
+        final int fullSizedPathCol = cursor.getColumnIndexOrThrow(
+            MediaStore.Images.Media.DATA);
+        photo.setFullSizePath(cursor.getString(fullSizedPathCol));
+        // Orientation.
+        final int orientationCol = cursor.getColumnIndexOrThrow(
+            MediaStore.Images.Media.ORIENTATION);
+        // Width and height.
+        if (orientationCol % 180 == 0) {
+            // 0 or 180.
+            final int fullSizedWidthCol = cursor.getColumnIndexOrThrow(
+                MediaStore.Images.Media.WIDTH);
+            photo.setWidth(cursor.getInt(fullSizedWidthCol));
+            final int fullSizedHeightCol = cursor.getColumnIndexOrThrow(
+                MediaStore.Images.Media.HEIGHT);
+            photo.setHeight(cursor.getInt(fullSizedHeightCol));
+        } else {
+            // 90 or 270.
+            final int fullSizedWidthCol = cursor.getColumnIndexOrThrow(
+                MediaStore.Images.Media.WIDTH);
+            photo.setHeight(cursor.getInt(fullSizedWidthCol));
+            final int fullSizedHeightCol = cursor.getColumnIndexOrThrow(
+                MediaStore.Images.Media.HEIGHT);
+            photo.setWidth(cursor.getInt(fullSizedHeightCol));
+        }
+
+        // Thumbnail-sized path.
+        final int thumbPathCol = cursor.getColumnIndexOrThrow(
+            MediaStore.Images.Thumbnails.DATA);
+        photo.setThumbnailPath(cursor.getString(thumbPathCol));
+        // Width and height.
+        final int thumbWidthCol = cursor.getColumnIndexOrThrow(
+            MediaStore.Images.Thumbnails.WIDTH);
+        photo.setThumbnailWidth(cursor.getInt(thumbWidthCol));
+        final int thumbHeightCol = cursor.getColumnIndexOrThrow(
+            MediaStore.Images.Thumbnails.HEIGHT);
+        photo.setThumbnailHeight(cursor.getInt(thumbHeightCol));
+
+        return photo;
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // Clazz //////////////////////////////////////////////////////////////////
 
@@ -180,7 +232,7 @@ public class MediaStoreUtil {
 
         private String mId = null;
         private String mName = null;
-        private String mFullsizePath = null;
+        private String mFullSizePath = null;
         private String mThumbnailPath = null;
 
         private int mPhotoNum = 0;
@@ -236,8 +288,8 @@ public class MediaStoreUtil {
         }
 
         @Override
-        public String fullSizedPath() {
-            return mFullsizePath;
+        public String fullSizePath() {
+            return mFullSizePath;
         }
 
         @Override
@@ -281,8 +333,8 @@ public class MediaStoreUtil {
         }
 
         @Override
-        public void setFullsizePath(String path) {
-            mFullsizePath = path;
+        public void setFullSizePath(String path) {
+            mFullSizePath = path;
         }
 
         @Override
@@ -293,7 +345,7 @@ public class MediaStoreUtil {
 
     static class Photo implements IPhoto {
 
-        private String mFullSizedPath = null;
+        private String mFullSizePath = null;
         private String mThumbnailPath = null;
 
         private float mWidth = 0;
@@ -327,8 +379,8 @@ public class MediaStoreUtil {
         }
 
         @Override
-        public String fullSizedPath() {
-            return mFullSizedPath;
+        public String fullSizePath() {
+            return mFullSizePath;
         }
 
         @Override
@@ -357,8 +409,29 @@ public class MediaStoreUtil {
         }
 
         @Override
-        public void setFullsizePath(String path) {
-            mFullSizedPath = path;
+        public void setFullSizePath(String path) {
+            mFullSizePath = path;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Photo photo = (Photo) o;
+
+            return Float.compare(photo.mWidth, mWidth) == 0 &&
+                   Float.compare(photo.mHeight, mHeight) == 0 &&
+                   mFullSizePath.equals(photo.mFullSizePath);
+
+        }
+
+        @Override
+        public int hashCode() {
+            int result = mFullSizePath.hashCode();
+            result = 31 * result + (mWidth != +0.0f ? Float.floatToIntBits(mWidth) : 0);
+            result = 31 * result + (mHeight != +0.0f ? Float.floatToIntBits(mHeight) : 0);
+            return result;
         }
     }
 }

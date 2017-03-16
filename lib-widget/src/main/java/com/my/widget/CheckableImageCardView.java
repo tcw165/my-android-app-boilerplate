@@ -59,6 +59,7 @@ public class CheckableImageCardView
      */
     private int mFixedDimension;
 
+    // TODO: Make them drawable.
     // Sub-views.
     private ImageView mImageView;
     private View mBorderView;

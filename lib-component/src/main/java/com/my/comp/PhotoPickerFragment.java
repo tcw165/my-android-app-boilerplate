@@ -35,17 +35,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.Checkable;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.Priority;
 import com.bumptech.glide.manager.SupportRequestManagerFragment;
+import com.my.comp.data.IPhoto;
 import com.my.comp.data.IPhotoAlbum;
 import com.my.comp.util.MediaStoreUtil;
 import com.my.comp.widget.CursorRecyclerViewAdapter;
+import com.my.widget.CheckableImageView;
 import com.my.widget.GridItemDecoration;
 import com.my.widget.IProgressBarView;
+import com.my.widget.data.ObservableHashSet;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.util.ArrayList;
@@ -71,6 +76,11 @@ public class PhotoPickerFragment extends SupportRequestManagerFragment
     RecyclerView mPhotoList;
     MyAlbumPhotoAdapter mPhotoListAdapter;
     SwipeRefreshLayout mPhotoListParent;
+
+    // State.
+    // FIXME: Temporarily here.
+    // FIXME: Make it order sensitive.
+    final ObservableHashSet<IPhoto> mSelectedPhotos = new ObservableHashSet<>();
 
     public PhotoPickerFragment() {
         // Required empty public constructor
@@ -108,7 +118,9 @@ public class PhotoPickerFragment extends SupportRequestManagerFragment
         mAlbumList.setOnItemSelectedListener(onClickAlbum());
 
         // The photo list of the selected album.
-        mPhotoListAdapter = new MyAlbumPhotoAdapter(getContext());
+        mPhotoListAdapter = new MyAlbumPhotoAdapter(
+            getContext(), mSelectedPhotos,
+            onClickPhoto());
         mPhotoList = (RecyclerView) layout.findViewById(R.id.photo_list);
         mPhotoList.setHasFixedSize(true);
         mPhotoList.setAdapter(mPhotoListAdapter);
@@ -120,7 +132,12 @@ public class PhotoPickerFragment extends SupportRequestManagerFragment
             getResources().getInteger(R.integer.photo_picker_grid_column_num)));
 
         // The photo list's parent view.
-//        mPhotoListParent = (SwipeRefreshLayout) layout.findViewById(R.id.photo_list_parent);
+        mPhotoListParent = (SwipeRefreshLayout) layout.findViewById(R.id.photo_list_parent);
+        // Disable the "Swipe" gesture and the animation.
+        mPhotoListParent.setEnabled(false);
+
+        // The selection pool.
+        mSelectedPhotos.addOnSetChangedListener(onPhotoSelectionUpdate());
 
         // Load the albums.
         loadDefaultAlbumAndPhotos();
@@ -298,8 +315,48 @@ public class PhotoPickerFragment extends SupportRequestManagerFragment
         };
     }
 
+    private OnClickPhotoListener onClickPhoto() {
+        return new OnClickPhotoListener() {
+            @Override
+            public void onClickPhoto(Checkable view,
+                                     IPhoto photo,
+                                     int position) {
+                // Update the checkable state.
+                view.toggle();
+
+                // Update the selection pool.
+                if (view.isChecked()) {
+                    mSelectedPhotos.add(photo);
+                } else {
+                    if (mSelectedPhotos.contains(photo)) {
+                        mSelectedPhotos.remove(photo);
+                    }
+                }
+            }
+        };
+    }
+
+    private ObservableHashSet.OnSetChangedListener<IPhoto> onPhotoSelectionUpdate() {
+        return new ObservableHashSet.OnSetChangedListener<IPhoto>() {
+            @Override
+            public void onSetChanged(ObservableHashSet<IPhoto> selection) {
+                Log.d("xyz", "select " + selection.size() + " photos.");
+            }
+        };
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // Clazz //////////////////////////////////////////////////////////////////
+
+    /**
+     * The callback.
+     */
+    interface OnClickPhotoListener {
+
+        void onClickPhoto(Checkable view,
+                          IPhoto photo,
+                          int position);
+    }
 
     /**
      * The album adapter class.
@@ -397,8 +454,16 @@ public class PhotoPickerFragment extends SupportRequestManagerFragment
     private static class MyAlbumPhotoAdapter
         extends CursorRecyclerViewAdapter<RecyclerView.ViewHolder> {
 
-        MyAlbumPhotoAdapter(Context context) {
+        final ObservableHashSet<IPhoto> mSelectedPhotos;
+        final OnClickPhotoListener mListener;
+
+        MyAlbumPhotoAdapter(Context context,
+                            ObservableHashSet<IPhoto> selectedPhotos,
+                            OnClickPhotoListener listener) {
             super(context);
+
+            mSelectedPhotos = selectedPhotos;
+            mListener = listener;
         }
 
         @Override
@@ -425,20 +490,28 @@ public class PhotoPickerFragment extends SupportRequestManagerFragment
 //        }
 
         @Override
-        public void onBindViewHolder(RecyclerView.ViewHolder viewHolder,
-                                     Cursor cursor,
+        public void onBindViewHolder(final RecyclerView.ViewHolder viewHolder,
+                                     final Cursor cursor,
                                      List<Object> payloads) {
-            final ImageView imageView = (ImageView) viewHolder.itemView;
+            final CheckableImageView imageView = (CheckableImageView) viewHolder.itemView;
+            final int position = viewHolder.getAdapterPosition();
+            final IPhoto photo = MediaStoreUtil.getPhotoInfo(cursor);
 
+            imageView.setChecked(mSelectedPhotos.contains(photo));
             imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // TODO: DO SOMETHING.
+                    if (mListener != null) {
+                        mListener.onClickPhoto(imageView,
+                                               photo,
+                                               position);
+                    }
                 }
             });
 
             Glide.with(getContext())
-                 .load(MediaStoreUtil.getImagePath(cursor))
+                 .load(photo.thumbnailPath())
+                 .priority(Priority.IMMEDIATE)
                  // FIXME: Animation causes ghost images.
                  .dontAnimate()
 //                 .skipMemoryCache(true)

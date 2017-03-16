@@ -13,10 +13,10 @@
         android:layout_height="56dp"
         android:dropDownWidth="248dp"/>
 
-    <!--<android.support.v4.widget.SwipeRefreshLayout-->
-        <!--android:id="@+id/photo_list_parent"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent">-->
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/photo_list_parent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
         <com.my.widget.ElasticDragLayout
             android:layout_width="match_parent"
@@ -34,5 +34,5 @@
                 android:scrollbars="vertical"
                 app:elasticScrollView="true"/>
         </com.my.widget.ElasticDragLayout>
-    <!--</android.support.v4.widget.SwipeRefreshLayout>-->
+    </android.support.v4.widget.SwipeRefreshLayout>
 </LinearLayout>

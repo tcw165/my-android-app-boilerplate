@@ -103,6 +103,8 @@ public class ObservableHashSet<T> extends HashSet<T> {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
+                if (mCallbacks == null) return;
+
                 for (OnSetChangedListener<T> callback : mCallbacks) {
                     callback.onSetChanged(thiz);
                 }
