@@ -12,6 +12,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ObservableHashSet<T> extends HashSet<T> {
 
+    private final Object mutex = new Object();
+
     private Handler mHandler;
     private List<OnSetChangedListener<T>> mCallbacks;
 
@@ -42,7 +44,7 @@ public class ObservableHashSet<T> extends HashSet<T> {
     @NonNull
     @Override
     public Iterator<T> iterator() {
-        synchronized (this) {
+        synchronized (mutex) {
             // Iterating a list may throw ConcurrentModificationException by
             // using for (Clazz var : list).
             // Copy the idea of CopyOnWriteArrayList to return the iterator of
@@ -54,28 +56,28 @@ public class ObservableHashSet<T> extends HashSet<T> {
 
     @Override
     public int size() {
-        synchronized (this) {
+        synchronized (mutex) {
             return super.size();
         }
     }
 
     @Override
     public boolean isEmpty() {
-        synchronized (this) {
+        synchronized (mutex) {
             return super.isEmpty();
         }
     }
 
     @Override
     public boolean contains(Object o) {
-        synchronized (this) {
+        synchronized (mutex) {
             return super.contains(o);
         }
     }
 
     @Override
     public boolean add(T t) {
-        synchronized (this) {
+        synchronized (mutex) {
             final boolean changed = super.add(t);
 
             if (changed) {
@@ -88,7 +90,7 @@ public class ObservableHashSet<T> extends HashSet<T> {
 
     @Override
     public boolean remove(Object o) {
-        synchronized (this) {
+        synchronized (mutex) {
             final boolean changed = super.remove(o);
 
             if (changed) {
@@ -101,7 +103,7 @@ public class ObservableHashSet<T> extends HashSet<T> {
 
     @Override
     public void clear() {
-        synchronized (this) {
+        synchronized (mutex) {
             super.clear();
             dispatchOnSetChangedCallbacks();
         }
@@ -109,7 +111,7 @@ public class ObservableHashSet<T> extends HashSet<T> {
 
     @SuppressWarnings("unused")
     public void addOnSetChangedListener(OnSetChangedListener<T> listener) {
-        synchronized (this) {
+        synchronized (mutex) {
             // Ensure the list.
             if (mCallbacks == null) {
                 mCallbacks = new CopyOnWriteArrayList<>();
@@ -121,7 +123,7 @@ public class ObservableHashSet<T> extends HashSet<T> {
 
     @SuppressWarnings("unused")
     public void removeOnSetChangedListener(OnSetChangedListener<T> listener) {
-        synchronized (this) {
+        synchronized (mutex) {
             if (mCallbacks == null) return;
 
             mCallbacks.remove(listener);
@@ -130,7 +132,7 @@ public class ObservableHashSet<T> extends HashSet<T> {
 
     @SuppressWarnings("unused")
     public void removeAllOnSetChangedListener() {
-        synchronized (this) {
+        synchronized (mutex) {
             if (mCallbacks == null) return;
 
             mCallbacks.clear();
