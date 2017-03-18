@@ -22,6 +22,8 @@ package com.my.comp.util;
 
 import android.content.ContentResolver;
 import android.database.Cursor;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
@@ -343,7 +345,7 @@ public class MediaStoreUtil {
         }
     }
 
-    static class Photo implements IPhoto {
+    static class Photo implements IPhoto, Parcelable {
 
         private String mFullSizePath = null;
         private String mThumbnailPath = null;
@@ -352,6 +354,31 @@ public class MediaStoreUtil {
         private float mHeight = 0;
         private float mThumbWidth = 0;
         private float mThumbHeight = 0;
+
+        public static final Creator<Photo> CREATOR = new Creator<Photo>() {
+            @Override
+            public Photo createFromParcel(Parcel in) {
+                return new Photo(in);
+            }
+
+            @Override
+            public Photo[] newArray(int size) {
+                return new Photo[size];
+            }
+        };
+
+        Photo() {
+            // DO NOTHING.
+        }
+
+        Photo(Parcel in) {
+            mFullSizePath = in.readString();
+            mThumbnailPath = in.readString();
+            mWidth = in.readFloat();
+            mHeight = in.readFloat();
+            mThumbWidth = in.readFloat();
+            mThumbHeight = in.readFloat();
+        }
 
         @Override
         public float width() {
@@ -411,6 +438,21 @@ public class MediaStoreUtil {
         @Override
         public void setFullSizePath(String path) {
             mFullSizePath = path;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeString(mFullSizePath);
+            dest.writeString(mThumbnailPath);
+            dest.writeFloat(mWidth);
+            dest.writeFloat(mHeight);
+            dest.writeFloat(mThumbWidth);
+            dest.writeFloat(mThumbHeight);
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
         }
 
         @Override

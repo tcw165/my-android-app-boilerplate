@@ -21,6 +21,7 @@
 package com.my.comp;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -80,11 +81,7 @@ public class PhotoPickerFragment extends SupportRequestManagerFragment
     // State.
     // FIXME: Temporarily here.
     // FIXME: Make it order sensitive.
-    final ObservableHashSet<IPhoto> mSelectedPhotos = new ObservableHashSet<>();
-
-    public PhotoPickerFragment() {
-        // Required empty public constructor
-    }
+    ObservableHashSet<IPhoto> mSelectedPhotos;
 
     /**
      * Use this factory method to create a new instance of
@@ -101,6 +98,20 @@ public class PhotoPickerFragment extends SupportRequestManagerFragment
         fragment.setArguments(args);
 
         return fragment;
+    }
+
+    public PhotoPickerFragment() {
+        // Required empty public constructor
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        if (activity instanceof ObservableHashSet.Provider) {
+            mSelectedPhotos = ((ObservableHashSet.Provider<IPhoto>) activity).getObservableSet();
+        }
     }
 
     @Override
@@ -339,8 +350,8 @@ public class PhotoPickerFragment extends SupportRequestManagerFragment
     private ObservableHashSet.OnSetChangedListener<IPhoto> onPhotoSelectionUpdate() {
         return new ObservableHashSet.OnSetChangedListener<IPhoto>() {
             @Override
-            public void onSetChanged(ObservableHashSet<IPhoto> selection) {
-                Log.d("xyz", "select " + selection.size() + " photos.");
+            public void onSetChanged(ObservableHashSet<IPhoto> set) {
+                Log.d("xyz", "select " + set.size() + " photos.");
             }
         };
     }

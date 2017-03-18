@@ -100,7 +100,7 @@ public class CheckableImageView
             context, R.drawable.bg_bordered_rect_55c3c5);
         // The checkbox drawable.
         mCheckboxDrawable = ContextCompat.getDrawable(
-            context, R.drawable.icon_checkbox_55c3c5);
+            context, R.drawable.icon_checkmark_55c3c5);
     }
 
     @SuppressWarnings("unused")

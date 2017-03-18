@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingBottom="8dp"
+    android:paddingLeft="5dp"
+    android:paddingRight="5dp"
+    android:paddingTop="8dp">
+
+    <FrameLayout
+        android:layout_width="70dp"
+        android:layout_height="36dp"
+        android:layout_gravity="center"
+        android:background="@drawable/bg_round_rect_accent">
+
+        <TextView
+            android:id="@+id/checked_number"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="left|center_vertical"
+            android:layout_marginLeft="8dp"
+            android:background="@drawable/bg_circle_white"
+            android:ellipsize="none"
+            android:gravity="center"
+            android:lineSpacingExtra="0dp"
+            android:maxLines="1"
+            android:minHeight="14dp"
+            android:minWidth="14dp"
+            android:textColor="@color/colorAccent"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            tools:text="30"/>
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/icon_done"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:layout_gravity="right|center_vertical"
+            android:layout_marginRight="8dp"
+            app:srcCompat="@drawable/icon_checkmark_white"/>
+    </FrameLayout>
+</FrameLayout>
