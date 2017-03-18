@@ -41,19 +41,6 @@ public class ObservableHashSet<T> extends HashSet<T> {
         ensureHandler();
     }
 
-    @NonNull
-    @Override
-    public Iterator<T> iterator() {
-        synchronized (mutex) {
-            // Iterating a list may throw ConcurrentModificationException by
-            // using for (Clazz var : list).
-            // Copy the idea of CopyOnWriteArrayList to return the iterator of
-            // a snapshot.
-            HashSet<T> snapshot = new ObservableHashSet<>(this);
-            return snapshot.iterator();
-        }
-    }
-
     @Override
     public int size() {
         synchronized (mutex) {
@@ -165,7 +152,11 @@ public class ObservableHashSet<T> extends HashSet<T> {
     ///////////////////////////////////////////////////////////////////////////
     // Clazz //////////////////////////////////////////////////////////////////
 
+    public interface Provider<E> {
+        ObservableHashSet<E> getObservableSet();
+    }
+
     public interface OnSetChangedListener<T> {
-        void onSetChanged(ObservableHashSet<T> thiz);
+        void onSetChanged(final ObservableHashSet<T> set);
     }
 }
