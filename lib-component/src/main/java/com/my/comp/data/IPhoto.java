@@ -26,12 +26,12 @@ public interface IPhoto {
     float thumbnailWidth();
     float thumbnailHeight();
     String thumbnailPath();
-    String fullsizePath();
+    String fullSizePath();
 
     void setWidth(float width);
     void setHeight(float height);
     void setThumbnailWidth(float width);
     void setThumbnailHeight(float height);
     void setThumbnailPath(String path);
-    void setFullsizePath(String path);
+    void setFullSizePath(String path);
 }

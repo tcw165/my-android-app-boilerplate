@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="photo_picker_grid_column_num">6</integer>
+</resources>

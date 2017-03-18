@@ -1,0 +1,38 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.my.comp.PhotoPickerFragment">
+
+    <android.support.v7.widget.AppCompatSpinner
+        android:id="@+id/album_list"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:dropDownWidth="248dp"/>
+
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/photo_list_parent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.my.widget.ElasticDragLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:dragElasticity="0.98"
+            app:dragOverDistance="344dp"
+            app:dragOverMaxDistance="56dp"
+            app:dragScale="1.0">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/photo_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:scrollbars="vertical"
+                app:elasticScrollView="true"/>
+        </com.my.widget.ElasticDragLayout>
+    </android.support.v4.widget.SwipeRefreshLayout>
+</LinearLayout>

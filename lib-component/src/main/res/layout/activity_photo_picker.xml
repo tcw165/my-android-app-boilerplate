@@ -17,13 +17,8 @@
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:titleTextColor="@color/colorAccent"/>
 
-    <android.support.v7.widget.AppCompatSpinner
-        android:id="@+id/album_list"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"/>
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/photo_list"
+    <FrameLayout
+        android:id="@+id/frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 </LinearLayout>

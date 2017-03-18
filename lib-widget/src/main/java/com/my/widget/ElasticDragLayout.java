@@ -45,23 +45,47 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
  * approach the given dismiss distance.
  * Optionally also scales down content during drag.
  * <br/>
- * The first child must be {@link NestedScrollingChild}.
+ * Note: Add {@link R.styleable#ElasticDragLayout_elasticScrollView} attribute
+ * to the child view you want it to be dragged elastically in the layout file.
  * <br/> <br/>
  * Attributes for itself:
- * <br/>
+ * <ul>
+ * <li>
  * {@link R.styleable#ElasticDragLayout_dragOverMaxDistance}
- * <br/>
+ * The over dragging distance
+ * </li>
+ * </ul>
+ * <ul>
+ * <li>
  * {@link R.styleable#ElasticDragLayout_dragScale}
- * <br/>
+ * The distance that the {@link OnElasticDragCallback#onDragOver(float)}
+ * callback is called when over dragging.
+ * </li>
+ * </ul>
+ * <ul>
+ * <li>
  * {@link R.styleable#ElasticDragLayout_dragElasticity}
+ * The scale factor when over dragging.
+ * </li>
+ * </ul>
  * <br/> <br/>
  * Attributes for child views:
- * <br/>
+ * <ul>
+ * <li>
  * {@link R.styleable#ElasticDragLayout_elasticScrollView}
- * <br/>
+ * The child view with this attribute is a elastic-draggable view.
+ * </li>
+ * </ul>
+ * <ul>
+ * <li>
  * {@link R.styleable#ElasticDragLayout_elasticScrollViewHeader}
- * <br/>
+ * </li>
+ * </ul>
+ * <ul>
+ * <li>
  * {@link R.styleable#ElasticDragLayout_elasticScrollViewFooter}
+ * </li>
+ * </ul>
  * <br/>
  */
 public class ElasticDragLayout extends CoordinatorLayout {
@@ -81,7 +105,8 @@ public class ElasticDragLayout extends CoordinatorLayout {
      */
     protected float mDragOverMaxDistance = 244f;
     /**
-     * The distance that the dismiss callback is called when over dragging.
+     * The distance that the {@link OnElasticDragCallback#onDragOver(float)}
+     * callback is called when over dragging.
      * <br/>
      * Attribute:
      * <br/>
@@ -225,6 +250,29 @@ public class ElasticDragLayout extends CoordinatorLayout {
         }
     }
 
+    @Override
+    public boolean onNestedPreFling(View target,
+                                    float velocityX,
+                                    float velocityY) {
+        Log.d("xyz", "ElasticDragLayout#onNestedPreFling(target=" + target +
+                     ", velocityX=" + velocityX +
+                     ", velocityY=" + velocityY);
+        return super.onNestedPreFling(target, velocityX, velocityY);
+    }
+
+    @Override
+    public boolean onNestedFling(View target,
+                                 float velocityX,
+                                 float velocityY,
+                                 boolean consumed) {
+        Log.d("xyz", "ElasticDragLayout#onNestedFling(target=" + target +
+                     ", velocityX=" + velocityX +
+                     ", velocityY=" + velocityY +
+                     ", consumed=" + consumed);
+        return super.onNestedFling(target, velocityX, velocityY, consumed);
+    }
+
+    @SuppressWarnings("unused")
     public void addOnElasticDragDismissListener(OnElasticDragCallback listener) {
         if (mCallbacks == null) {
             mCallbacks = new ArrayList<>();
@@ -232,12 +280,14 @@ public class ElasticDragLayout extends CoordinatorLayout {
         mCallbacks.add(listener);
     }
 
+    @SuppressWarnings("unused")
     public void removeOnElasticDragDismissListener(OnElasticDragCallback listener) {
         if (mCallbacks != null && mCallbacks.size() > 0) {
             mCallbacks.remove(listener);
         }
     }
 
+    @SuppressWarnings("unused")
     public void removeAllOnElasticDragDismissListeners() {
         while (!mCallbacks.isEmpty()) {
             removeOnElasticDragDismissListener(mCallbacks.get(0));
@@ -306,10 +356,16 @@ public class ElasticDragLayout extends CoordinatorLayout {
 
             if (params.isElasticScrollView) {
                 mElasticScrollView = child;
+                // Ensure the nested-scrolling is enabled.
+                ViewCompat.setNestedScrollingEnabled(child, true);
             } else if (params.isElasticScrollViewHeader) {
                 mElasticScrollViewHeader = child;
+                // Ensure the nested-scrolling is enabled.
+                ViewCompat.setNestedScrollingEnabled(child, true);
             } else if (params.isElasticScrollViewFooter) {
                 mElasticScrollViewFooter = child;
+                // Ensure the nested-scrolling is enabled.
+                ViewCompat.setNestedScrollingEnabled(child, true);
             }
         }
 

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <declare-styleable name="CheckableImageCardView">
+    <declare-styleable name="CheckableView">
         <attr name="checkable" format="boolean"/>
         <attr name="isChecked" format="boolean"/>
         <attr name="aspectRatio" format="float"/>
         <attr name="fixedDimension" format="enum">
-            <enum name="isWidth" value="0"/>
-            <enum name="isHeight" value="1"/>
+            <enum name="width" value="0"/>
+            <enum name="height" value="1"/>
         </attr>
     </declare-styleable>
 </resources>

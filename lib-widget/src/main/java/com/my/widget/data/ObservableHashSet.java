@@ -2,13 +2,17 @@ package com.my.widget.data;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ObservableHashSet<T> extends HashSet<T> {
+
+    private final Object mutex = new Object();
 
     private Handler mHandler;
     private List<OnSetChangedListener<T>> mCallbacks;
@@ -38,55 +42,88 @@ public class ObservableHashSet<T> extends HashSet<T> {
     }
 
     @Override
-    public boolean add(T t) {
-        final boolean changed = super.add(t);
-
-        if (changed) {
-            dispatchOnSetChangedCallbacks();
+    public int size() {
+        synchronized (mutex) {
+            return super.size();
         }
+    }
 
-        return changed;
+    @Override
+    public boolean isEmpty() {
+        synchronized (mutex) {
+            return super.isEmpty();
+        }
+    }
+
+    @Override
+    public boolean contains(Object o) {
+        synchronized (mutex) {
+            return super.contains(o);
+        }
+    }
+
+    @Override
+    public boolean add(T t) {
+        synchronized (mutex) {
+            final boolean changed = super.add(t);
+
+            if (changed) {
+                dispatchOnSetChangedCallbacks();
+            }
+
+            return changed;
+        }
     }
 
     @Override
     public boolean remove(Object o) {
-        final boolean changed = super.remove(o);
+        synchronized (mutex) {
+            final boolean changed = super.remove(o);
 
-        if (changed) {
-            dispatchOnSetChangedCallbacks();
+            if (changed) {
+                dispatchOnSetChangedCallbacks();
+            }
+
+            return changed;
         }
-
-        return changed;
     }
 
     @Override
     public void clear() {
-        super.clear();
-        dispatchOnSetChangedCallbacks();
+        synchronized (mutex) {
+            super.clear();
+            dispatchOnSetChangedCallbacks();
+        }
     }
 
     @SuppressWarnings("unused")
     public void addOnSetChangedListener(OnSetChangedListener<T> listener) {
-        // Ensure the list.
-        if (mCallbacks == null) {
-            mCallbacks = new CopyOnWriteArrayList<>();
-        }
+        synchronized (mutex) {
+            // Ensure the list.
+            if (mCallbacks == null) {
+                mCallbacks = new CopyOnWriteArrayList<>();
+            }
 
-        mCallbacks.add(listener);
+            mCallbacks.add(listener);
+        }
     }
 
     @SuppressWarnings("unused")
     public void removeOnSetChangedListener(OnSetChangedListener<T> listener) {
-        if (mCallbacks == null) return;
+        synchronized (mutex) {
+            if (mCallbacks == null) return;
 
-        mCallbacks.remove(listener);
+            mCallbacks.remove(listener);
+        }
     }
 
     @SuppressWarnings("unused")
     public void removeAllOnSetChangedListener() {
-        if (mCallbacks == null) return;
+        synchronized (mutex) {
+            if (mCallbacks == null) return;
 
-        mCallbacks.clear();
+            mCallbacks.clear();
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -103,6 +140,8 @@ public class ObservableHashSet<T> extends HashSet<T> {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
+                if (mCallbacks == null) return;
+
                 for (OnSetChangedListener<T> callback : mCallbacks) {
                     callback.onSetChanged(thiz);
                 }
@@ -113,7 +152,11 @@ public class ObservableHashSet<T> extends HashSet<T> {
     ///////////////////////////////////////////////////////////////////////////
     // Clazz //////////////////////////////////////////////////////////////////
 
+    public interface Provider<E> {
+        ObservableHashSet<E> getObservableSet();
+    }
+
     public interface OnSetChangedListener<T> {
-        void onSetChanged(ObservableHashSet<T> thiz);
+        void onSetChanged(final ObservableHashSet<T> set);
     }
 }

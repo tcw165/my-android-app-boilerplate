@@ -9,6 +9,8 @@
 
     <!-- Menu -->
     <string name="menu_take_photo">Camera</string>
+    <string name="menu_done">Done</string>
+    <string name="menu_skip">Skip</string>
 
     <!-- In-App-Purchase -->
 </resources>

@@ -20,11 +20,15 @@
 
 package com.my.boilerplate.util;
 
+import android.graphics.Matrix;
 import android.graphics.PointF;
 
 import java.util.List;
 
-public class SvgUtil {
+/**
+ * 2D util class.
+ */
+public class TwoDimenUtil {
 
     public static final int RAY_CASTING_BY_EVEN_ODD = 0;
     public static final int RAY_CASTING_BY_NON_ZERO = 1;
@@ -237,5 +241,51 @@ public class SvgUtil {
         }
 
         return windingCounter;
+    }
+
+    /**
+     * Get the scaleX from an affine transform matrix.
+     *
+     * @param matrix The affine transform matrix.
+     */
+    @SuppressWarnings("unused")
+    public static float getScaleX(Matrix matrix) {
+        if (matrix == null) return 0.f;
+
+        final float[] values = new float[9];
+        matrix.getValues(values);
+
+        // [a, b, tx]
+        // [c, d, ty]
+        // [0, 0,  1]
+        //  ^  ^   ^
+        //  i  j   k hat (axis vector)
+        final float a = values[Matrix.MSCALE_X];
+        final float b = values[Matrix.MSKEW_X];
+        // TODO: Has to take the negative scale into account.
+        return (float) Math.hypot(a, b);
+    }
+
+    /**
+     * Get the scaleY from an affine transform matrix.
+     *
+     * @param matrix The affine transform matrix.
+     */
+    @SuppressWarnings("unused")
+    public static float getScaleY(Matrix matrix) {
+        if (matrix == null) return 0.f;
+
+        final float[] values = new float[9];
+        matrix.getValues(values);
+
+        // [a, b, tx]
+        // [c, d, ty]
+        // [0, 0,  1]
+        //  ^  ^   ^
+        //  i  j   k hat (axis vector)
+        final float c = values[Matrix.MSKEW_Y];
+        final float d = values[Matrix.MSCALE_Y];
+        // TODO: Has to take the negative scale into account.
+        return (float) Math.hypot(c, d);
     }
 }

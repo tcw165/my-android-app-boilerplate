@@ -81,13 +81,13 @@ dependencies {
     compile(name: "lib-photo-collage-release", ext: "aar")
     // My lib-widget
 //    compile project(":lib-widget")
-    compile(name: "lib-widget-release", ext: "aar")
+//    compile(name: "lib-widget-release", ext: "aar")
     // My lib-component
-//    compile project(":lib-component")
-    compile(name: "lib-component-release", ext: "aar")
+    compile project(":lib-component")
+//    compile(name: "lib-component-release", ext: "aar")
     // My lib-ml.
 //    compile project(":lib-ml")
-    compile(name: "lib-ml-release", ext: "aar")
+//    compile(name: "lib-ml-release", ext: "aar")
 
     // Transition extension.
     compile "com.andkulikov:transitionseverywhere:1.7.0"
@@ -103,7 +103,7 @@ dependencies {
 //    compile "com.jakewharton.rxbinding:rxbinding:1.0.0"
 
     // JSON.
-    compile "com.google.code.gson:gson:2.6.2"
+    compile "com.google.code.gson:gson:2.7"
 
     // HTTP.
     compile "com.squareup.retrofit2:retrofit:${RETROFIT_VER}"
@@ -111,9 +111,9 @@ dependencies {
     compile "com.squareup.retrofit2:converter-gson:${RETROFIT_VER}"
     compile "com.squareup.okhttp3:okhttp:3.6.0"
 
-    // Image loader.
-    compile "com.facebook.fresco:fresco:0.14.1"
-    compile "com.github.bumptech.glide:glide:3.7.0"
+    // Image loader (declared in the "lib-component" module).
+//    compile "com.facebook.fresco:fresco:0.14.1"
+//    compile "com.github.bumptech.glide:glide:3.7.0"
 
     // Fabric crashlytics.
     compile("com.crashlytics.sdk.android:crashlytics:2.6.2@aar") {
