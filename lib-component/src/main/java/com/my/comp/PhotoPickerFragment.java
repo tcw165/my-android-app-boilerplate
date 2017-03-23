@@ -67,7 +67,7 @@ import io.reactivex.functions.Function;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
-// TODO: We could actually make it a ViewGroup and be used by a ViewPager.
+// TODO: Make it a ViewGroup and be used by a ViewPager.
 public class PhotoPickerFragment extends SupportRequestManagerFragment
     implements IProgressBarView {
 

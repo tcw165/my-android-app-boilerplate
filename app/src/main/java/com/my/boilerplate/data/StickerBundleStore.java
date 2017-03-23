@@ -40,7 +40,7 @@ public class StickerBundleStore extends AbstractContentProviderStore<StickerBund
              QUERY_LV_PART_MEDIUM,
              QUERY_LV_PART_BIG})
     public @interface QUERY_LEVEL {
-        /** enum **/
+        // enum alternative
     }
 
     public static final int QUERY_LV_FULL = (1 << 1);
