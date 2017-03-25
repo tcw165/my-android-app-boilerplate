@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.comp.widget;
+package com.my.widget.adapter;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -184,6 +184,7 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
         return oldCursor;
     }
 
+    // FIXME: Seems not work.
     final private DataSetObserver mDataSetObserver = new DataSetObserver() {
         @Override
         public void onChanged() {

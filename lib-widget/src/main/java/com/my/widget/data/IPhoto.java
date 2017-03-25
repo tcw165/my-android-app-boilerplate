@@ -18,14 +18,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.comp.data;
+package com.my.widget.data;
 
-public interface IPhotoAlbum extends IPhoto {
-    String id();
-    String name();
-    int photoNum();
+public interface IPhoto {
+    float width();
+    float height();
+    float thumbnailWidth();
+    float thumbnailHeight();
+    String thumbnailPath();
+    String fullSizePath();
 
-    void setId(String id);
-    void setName(String name);
-    void setPhotoNum(int num);
+    void setWidth(float width);
+    void setHeight(float height);
+    void setThumbnailWidth(float width);
+    void setThumbnailHeight(float height);
+    void setThumbnailPath(String path);
+    void setFullSizePath(String path);
 }

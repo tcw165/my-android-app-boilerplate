@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.comp.util;
+package com.my.widget.util;
 
 import android.content.ContentResolver;
 import android.database.Cursor;
@@ -28,8 +28,8 @@ import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.my.comp.data.IPhoto;
-import com.my.comp.data.IPhotoAlbum;
+import com.my.widget.data.IPhoto;
+import com.my.widget.data.IPhotoAlbum;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -18,20 +18,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.comp.data;
+package com.my.widget.protocol;
 
-public interface IPhoto {
-    float width();
-    float height();
-    float thumbnailWidth();
-    float thumbnailHeight();
-    String thumbnailPath();
-    String fullSizePath();
+import android.widget.Checkable;
 
-    void setWidth(float width);
-    void setHeight(float height);
-    void setThumbnailWidth(float width);
-    void setThumbnailHeight(float height);
-    void setThumbnailPath(String path);
-    void setFullSizePath(String path);
+import com.my.widget.data.IPhoto;
+
+public interface IPhotoPicker {
+
+    boolean isPhotoSelected(IPhoto photo);
+
+    void onClickPhoto(Checkable view,
+                      IPhoto photo,
+                      int position);
 }
