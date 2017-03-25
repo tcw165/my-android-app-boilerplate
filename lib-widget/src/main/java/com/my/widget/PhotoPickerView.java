@@ -47,7 +47,7 @@ import com.bumptech.glide.Priority;
 import com.my.widget.adapter.CursorRecyclerViewAdapter;
 import com.my.widget.data.IPhoto;
 import com.my.widget.data.IPhotoAlbum;
-import com.my.widget.data.ObservableHashSet;
+import com.my.widget.data.ObservableArrayList;
 import com.my.widget.protocol.IPhotoPicker;
 import com.my.widget.util.MediaStoreUtil;
 import com.tbruyelle.rxpermissions2.RxPermissions;
@@ -90,7 +90,7 @@ public class PhotoPickerView extends FrameLayout
     // State.
     // FIXME: Temporarily here.
     // FIXME: Make it order sensitive.
-    ObservableHashSet.Provider<IPhoto> mSelectionProvider;
+    ObservableArrayList.Provider<IPhoto> mSelectionProvider;
 
     public PhotoPickerView(@NonNull Context context) {
         this(context, null);
@@ -170,16 +170,16 @@ public class PhotoPickerView extends FrameLayout
         }
     }
 
-    public void setSelection(ObservableHashSet.Provider<IPhoto> provider) {
-        if (provider == null || provider.getObservableSet() == null) {
+    public void setSelection(ObservableArrayList.Provider<IPhoto> provider) {
+        if (provider == null || provider.getObservableList() == null) {
             throw new IllegalArgumentException("Given provider is invalid");
         }
 
         mSelectionProvider = provider;
     }
 
-    public ObservableHashSet<IPhoto> getSelection() {
-        return mSelectionProvider.getObservableSet();
+    public List<IPhoto> getSelection() {
+        return mSelectionProvider.getObservableList();
     }
 
     public void loadDefaultAlbumAndPhotos() {

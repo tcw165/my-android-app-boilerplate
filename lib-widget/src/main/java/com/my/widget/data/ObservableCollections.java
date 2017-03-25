@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+// TODO: Remove it because it's so far useless.
 public class ObservableCollections {
 
     public static <T> IObservableCollection<T> makeCollection(Collection<T> c) {
