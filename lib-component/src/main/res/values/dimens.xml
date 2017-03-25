@@ -2,7 +2,6 @@
 <resources>
     <!-- Common -->
     <dimen name="toolbar_height">56dp</dimen>
-    <dimen name="spinner_height">36dp</dimen>
 
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>

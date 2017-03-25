@@ -32,8 +32,12 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.Build;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.os.ParcelableCompat;
+import android.support.v4.os.ParcelableCompatCreatorCallbacks;
 import android.support.v4.view.NestedScrollingChild;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
@@ -117,6 +121,24 @@ public class ElasticDragDismissLayout extends ElasticDragLayout {
     public void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         setOnClickListener(null);
+    }
+
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        final SavedState state = new SavedState(super.onSaveInstanceState());
+
+        state.coveredFadeAlpha = mBgFadePaint.getAlpha();
+
+        return state;
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        final SavedState savedState = (SavedState) state;
+
+        super.onRestoreInstanceState(savedState.getSuperState());
+
+        mBgFadePaint.setAlpha(savedState.coveredFadeAlpha);
     }
 
     public boolean isOpened() {
@@ -490,5 +512,41 @@ public class ElasticDragDismissLayout extends ElasticDragLayout {
         public void onDismissByBgPressed() {
             ActivityCompat.finishAfterTransition(activity);
         }
+    }
+
+    private static class SavedState extends CoordinatorLayout.SavedState {
+
+        int coveredFadeAlpha = BG_FADE_PAINT_ALPHA;
+
+        SavedState(Parcel source, ClassLoader loader) {
+            super(source, loader);
+
+            coveredFadeAlpha = source.readInt();
+        }
+
+        SavedState(Parcelable superState) {
+            super(superState);
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            super.writeToParcel(dest, flags);
+
+            dest.writeInt(coveredFadeAlpha);
+        }
+
+        public static final Parcelable.Creator<SavedState> CREATOR
+            = ParcelableCompat.newCreator(new ParcelableCompatCreatorCallbacks<SavedState>() {
+
+            @Override
+            public SavedState createFromParcel(Parcel in, ClassLoader loader) {
+                return new SavedState(in, loader);
+            }
+
+            @Override
+            public SavedState[] newArray(int size) {
+                return new SavedState[size];
+            }
+        });
     }
 }

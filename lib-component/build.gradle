@@ -44,7 +44,7 @@ repositories {
 }
 
 dependencies {
-    def SUPPORT_LIB_VER = "25.2.0"
+    def SUPPORT_LIB_VER = "25.3.0"
 
     compile fileTree(dir: "libs", include: ["*.jar"])
 
@@ -60,15 +60,4 @@ dependencies {
     // My lib-widget
     compile project(":lib-widget")
 //    compile(name: "lib-widget-release", ext: "aar")
-
-    // Rx-Android.
-    compile "io.reactivex.rxjava2:rxandroid:2.0.1"
-    compile "io.reactivex.rxjava2:rxjava:2.0.1"
-
-    // Rx-Permissions.
-    compile "com.tbruyelle.rxpermissions2:rxpermissions:0.8.2@aar"
-
-    // Image loader.
-    compile "com.facebook.fresco:fresco:0.14.1"
-    compile "com.github.bumptech.glide:glide:3.7.0"
 }

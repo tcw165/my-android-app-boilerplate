@@ -31,7 +31,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import com.my.comp.data.IPhoto;
+import com.my.widget.PhotoPickerView;
+import com.my.widget.data.IPhoto;
 import com.my.widget.data.ObservableHashSet;
 
 import java.util.Locale;
@@ -45,6 +46,7 @@ public class PhotoPickerActivity
 
     // View.
     Toolbar mToolbarView;
+    PhotoPickerView mPhotoPicker;
     TextView mSelectionNumView;
     MenuItem mTakePhotoButtonView;
     MenuItem mDoneButtonView;
@@ -59,6 +61,7 @@ public class PhotoPickerActivity
 
         setContentView(R.layout.activity_photo_picker);
 
+        // Toolbar.
         mToolbarView = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbarView);
         if (getSupportActionBar() != null) {
@@ -69,11 +72,12 @@ public class PhotoPickerActivity
         mSelectedPhotos = new ObservableHashSet<>();
         mSelectedPhotos.addOnSetChangedListener(onPhotoSelectionChanged());
 
-        // Launch the delegate Fragment.
-        getSupportFragmentManager()
-            .beginTransaction()
-            .replace(R.id.frame, PhotoPickerFragment.newInstance())
-            .commit();
+        // Photo picker.
+        mPhotoPicker = (PhotoPickerView) findViewById(R.id.photo_picker);
+        // Initialize the selection pool.
+        mPhotoPicker.setSelection(this);
+        // Load the default album and photos.
+        mPhotoPicker.loadDefaultAlbumAndPhotos();
     }
 
     @Override

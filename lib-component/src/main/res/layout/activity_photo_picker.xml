@@ -17,8 +17,8 @@
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:titleTextColor="@color/colorAccent"/>
 
-    <FrameLayout
-        android:id="@+id/frame"
+    <com.my.widget.PhotoPickerView
+        android:id="@+id/photo_picker"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 </LinearLayout>

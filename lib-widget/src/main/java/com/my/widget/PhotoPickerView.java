@@ -18,18 +18,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.comp;
+package com.my.widget;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,21 +37,19 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Checkable;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.Priority;
-import com.bumptech.glide.manager.SupportRequestManagerFragment;
-import com.my.comp.data.IPhoto;
-import com.my.comp.data.IPhotoAlbum;
-import com.my.comp.util.MediaStoreUtil;
-import com.my.comp.widget.CursorRecyclerViewAdapter;
-import com.my.widget.CheckableImageView;
-import com.my.widget.GridItemDecoration;
-import com.my.widget.IProgressBarView;
+import com.my.widget.adapter.CursorRecyclerViewAdapter;
+import com.my.widget.data.IPhoto;
+import com.my.widget.data.IPhotoAlbum;
 import com.my.widget.data.ObservableHashSet;
+import com.my.widget.protocol.IPhotoPicker;
+import com.my.widget.util.MediaStoreUtil;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.util.ArrayList;
@@ -67,9 +65,20 @@ import io.reactivex.functions.Function;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
-// TODO: We could actually make it a ViewGroup and be used by a ViewPager.
-public class PhotoPickerFragment extends SupportRequestManagerFragment
-    implements IProgressBarView {
+/**
+ * <br/>
+ * Usage:
+ * <pre>
+ * mPhotoPicker = (PhotoPickerView) findViewById(R.id.photo_picker);
+ * // Initialize the selection pool.
+ * mPhotoPicker.setSelection(this);
+ * // Load the default album and photos.
+ * mPhotoPicker.loadDefaultAlbumAndPhotos();
+ * </pre>
+ */
+public class PhotoPickerView extends FrameLayout
+    implements IPhotoPicker,
+               IProgressBarView {
 
     // View.
     AppCompatSpinner mAlbumList;
@@ -81,58 +90,28 @@ public class PhotoPickerFragment extends SupportRequestManagerFragment
     // State.
     // FIXME: Temporarily here.
     // FIXME: Make it order sensitive.
-    ObservableHashSet<IPhoto> mSelectedPhotos;
+    ObservableHashSet.Provider<IPhoto> mSelectionProvider;
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @return A new instance of fragment PhotoPickerFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static PhotoPickerFragment newInstance() {
-        final PhotoPickerFragment fragment = new PhotoPickerFragment();
-        final Bundle args = new Bundle();
-
-        // Custom arguments.
-        fragment.setArguments(args);
-
-        return fragment;
+    public PhotoPickerView(@NonNull Context context) {
+        this(context, null);
     }
 
-    public PhotoPickerFragment() {
-        // Required empty public constructor
-    }
+    public PhotoPickerView(@NonNull Context context,
+                           @Nullable AttributeSet attrs) {
+        super(context, attrs);
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-
-        if (activity instanceof ObservableHashSet.Provider) {
-            mSelectedPhotos = ((ObservableHashSet.Provider<IPhoto>) activity).getObservableSet();
-        }
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater,
-                             ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View layout = inflater.inflate(R.layout.fragment_photo_picker,
-                                       container, false);
+        // Inflate the layout.
+        inflate(context, R.layout.view_photo_picker, this);
 
         // The album list.
-        mAlbumListAdapter = new MyAlbumAdapter(getActivity());
-        mAlbumList = (AppCompatSpinner) layout.findViewById(R.id.album_list);
+        mAlbumListAdapter = new MyAlbumAdapter(getContext());
+        mAlbumList = (AppCompatSpinner) findViewById(R.id.album_list);
         mAlbumList.setAdapter(mAlbumListAdapter);
         mAlbumList.setOnItemSelectedListener(onClickAlbum());
 
         // The photo list of the selected album.
-        mPhotoListAdapter = new MyAlbumPhotoAdapter(
-            getContext(), mSelectedPhotos,
-            onClickPhoto());
-        mPhotoList = (RecyclerView) layout.findViewById(R.id.photo_list);
+        mPhotoListAdapter = new MyAlbumPhotoAdapter(getContext(), this);
+        mPhotoList = (RecyclerView) findViewById(R.id.photo_list);
         mPhotoList.setHasFixedSize(true);
         mPhotoList.setAdapter(mPhotoListAdapter);
         mPhotoList.setLayoutManager(new GridLayoutManager(
@@ -143,26 +122,9 @@ public class PhotoPickerFragment extends SupportRequestManagerFragment
             getResources().getInteger(R.integer.photo_picker_grid_column_num)));
 
         // The photo list's parent view.
-        mPhotoListParent = (SwipeRefreshLayout) layout.findViewById(R.id.photo_list_parent);
+        mPhotoListParent = (SwipeRefreshLayout) findViewById(R.id.photo_list_parent);
         // Disable the "Swipe" gesture and the animation.
         mPhotoListParent.setEnabled(false);
-
-        // The selection pool.
-        mSelectedPhotos.addOnSetChangedListener(onPhotoSelectionUpdate());
-
-        // Load the albums.
-        loadDefaultAlbumAndPhotos();
-
-        return layout;
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-
-        // Recycler the cursor.
-        mPhotoListAdapter.setData(null);
-        // TODO: Support "don't keep Activity".
     }
 
     @Override
@@ -186,59 +148,54 @@ public class PhotoPickerFragment extends SupportRequestManagerFragment
         mPhotoListParent.setRefreshing(true);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    // Protected / Private Methods ////////////////////////////////////////////
-
-    Observable<List<IPhotoAlbum>> loadAlbumList() {
-        return Observable
-            .create(new ObservableOnSubscribe<List<IPhotoAlbum>>() {
-                @Override
-                public void subscribe(ObservableEmitter<List<IPhotoAlbum>> emitter)
-                    throws Exception {
-                    Log.d("xyz", "loadAlbumList");
-                    // TODO: Return cursor instead of the list so that we know
-                    // TODO: the cursor change.
-
-                    // TODO: Handle #dispose by using the validToken parameter.
-
-                    // Emit to downstream if not disposed.
-                    if (!emitter.isDisposed()) {
-                        emitter.onNext(MediaStoreUtil.getAlbums(
-                            getActivity().getContentResolver(),
-                            new AtomicBoolean(true)));
-                    }
-                    emitter.onComplete();
-                }
-            })
-            .subscribeOn(Schedulers.io());
+    @Override
+    public boolean isPhotoSelected(IPhoto photo) {
+        return photo != null && getSelection().contains(photo);
     }
 
-    Observable<Cursor> loadAlbumPhotoCursor(final String albumId) {
-        return Observable
-            .create(new ObservableOnSubscribe<Cursor>() {
-                @Override
-                public void subscribe(ObservableEmitter<Cursor> emitter)
-                    throws Exception {
-                    Log.d("xyz", "loadAlbumPhotoCursor, albumId=" + albumId);
-                    // Emit to downstream if not disposed.
-                    if (!emitter.isDisposed()) {
-                        emitter.onNext(MediaStoreUtil.getPhotosOfAlbum(
-                            getActivity().getContentResolver(),
-                            albumId));
-                    }
-                    emitter.onComplete();
-                }
-            })
-            .subscribeOn(Schedulers.io());
+    @Override
+    public void onClickPhoto(Checkable view,
+                             IPhoto photo,
+                             int position) {
+        // Update the checkable state.
+        view.toggle();
+
+        // Update the selection pool.
+        if (view.isChecked()) {
+            getSelection().add(photo);
+        } else {
+            if (getSelection().contains(photo)) {
+                getSelection().remove(photo);
+            }
+        }
     }
 
-    void loadDefaultAlbumAndPhotos() {
+    public void setSelection(ObservableHashSet.Provider<IPhoto> provider) {
+        if (provider == null || provider.getObservableSet() == null) {
+            throw new IllegalArgumentException("Given provider is invalid");
+        }
+
+        mSelectionProvider = provider;
+    }
+
+    public ObservableHashSet<IPhoto> getSelection() {
+        return mSelectionProvider.getObservableSet();
+    }
+
+    public void loadDefaultAlbumAndPhotos() {
+        if (mSelectionProvider == null ||
+            getSelection() == null) {
+            throw new IllegalStateException(
+                "The selection set is not initialized. Call setSelection " +
+                "before calling this method.");
+        }
+
         // FIXME: Figure out the way of Observable.chain(ob1, ob2, ob3, ...)
         // FIXME: And make showing/hiding the progress bar automatically.
         showProgressBar();
         // Ask for read/write permission first.
         RxPermissions
-            .getInstance(getActivity())
+            .getInstance(getContext())
             .request(Manifest.permission.READ_EXTERNAL_STORAGE,
                      Manifest.permission.WRITE_EXTERNAL_STORAGE)
             .observeOn(AndroidSchedulers.mainThread())
@@ -254,7 +211,7 @@ public class PhotoPickerFragment extends SupportRequestManagerFragment
                                            "WRITE_EXTERNAL_STORAGE are " +
                                            "not granted.";
                         // Show a toast.
-                        Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT)
+                        Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT)
                              .show();
 
                         return Observable.error(new SecurityException(msg));
@@ -283,27 +240,50 @@ public class PhotoPickerFragment extends SupportRequestManagerFragment
             });
     }
 
-    void loadPhotoListByAlbum(String albumId) {
-        loadAlbumPhotoCursor(albumId)
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(new DisposableObserver<Cursor>() {
-                @Override
-                public void onNext(Cursor cursor) {
-                    mPhotoListAdapter.setData(cursor);
-                    // Show the top most one.
-                    mPhotoList.scrollToPosition(0);
-                }
+    ///////////////////////////////////////////////////////////////////////////
+    // Protected / Private Methods ////////////////////////////////////////////
 
+    Observable<List<IPhotoAlbum>> loadAlbumList() {
+        return Observable
+            .create(new ObservableOnSubscribe<List<IPhotoAlbum>>() {
                 @Override
-                public void onError(Throwable e) {
-                    // DO NOTHING.
-                }
+                public void subscribe(ObservableEmitter<List<IPhotoAlbum>> emitter)
+                    throws Exception {
+                    Log.d("xyz", "loadAlbumList");
+                    // TODO: Return cursor instead of the list so that we know
+                    // TODO: the cursor change.
 
-                @Override
-                public void onComplete() {
-                    // DO NOTHING.
+                    // TODO: Handle #dispose by using the validToken parameter.
+
+                    // Emit to downstream if not disposed.
+                    if (!emitter.isDisposed()) {
+                        emitter.onNext(MediaStoreUtil.getAlbums(
+                            getContext().getContentResolver(),
+                            new AtomicBoolean(true)));
+                    }
+                    emitter.onComplete();
                 }
-            });
+            })
+            .subscribeOn(Schedulers.io());
+    }
+
+    Observable<Cursor> loadAlbumPhotoCursor(final String albumId) {
+        return Observable
+            .create(new ObservableOnSubscribe<Cursor>() {
+                @Override
+                public void subscribe(ObservableEmitter<Cursor> emitter)
+                    throws Exception {
+                    Log.d("xyz", "loadAlbumPhotoCursor, albumId=" + albumId);
+                    // Emit to downstream if not disposed.
+                    if (!emitter.isDisposed()) {
+                        emitter.onNext(MediaStoreUtil.getPhotosOfAlbum(
+                            getContext().getContentResolver(),
+                            albumId));
+                    }
+                    emitter.onComplete();
+                }
+            })
+            .subscribeOn(Schedulers.io());
     }
 
     AdapterView.OnItemSelectedListener onClickAlbum() {
@@ -314,9 +294,27 @@ public class PhotoPickerFragment extends SupportRequestManagerFragment
                                        long id) {
                 if (mAlbumListAdapter.getCount() == 0) return;
 
-                loadPhotoListByAlbum(mAlbumListAdapter
-                                         .getItem(position)
-                                         .id());
+                final String albumId = mAlbumListAdapter.getItem(position).id();
+                loadAlbumPhotoCursor(albumId)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new DisposableObserver<Cursor>() {
+                        @Override
+                        public void onNext(Cursor cursor) {
+                            mPhotoListAdapter.setData(cursor);
+                            // Show the top most one.
+                            mPhotoList.scrollToPosition(0);
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            // DO NOTHING.
+                        }
+
+                        @Override
+                        public void onComplete() {
+                            // DO NOTHING.
+                        }
+                    });
             }
 
             @Override
@@ -326,48 +324,8 @@ public class PhotoPickerFragment extends SupportRequestManagerFragment
         };
     }
 
-    private OnClickPhotoListener onClickPhoto() {
-        return new OnClickPhotoListener() {
-            @Override
-            public void onClickPhoto(Checkable view,
-                                     IPhoto photo,
-                                     int position) {
-                // Update the checkable state.
-                view.toggle();
-
-                // Update the selection pool.
-                if (view.isChecked()) {
-                    mSelectedPhotos.add(photo);
-                } else {
-                    if (mSelectedPhotos.contains(photo)) {
-                        mSelectedPhotos.remove(photo);
-                    }
-                }
-            }
-        };
-    }
-
-    private ObservableHashSet.OnSetChangedListener<IPhoto> onPhotoSelectionUpdate() {
-        return new ObservableHashSet.OnSetChangedListener<IPhoto>() {
-            @Override
-            public void onSetChanged(ObservableHashSet<IPhoto> set) {
-                Log.d("xyz", "select " + set.size() + " photos.");
-            }
-        };
-    }
-
     ///////////////////////////////////////////////////////////////////////////
     // Clazz //////////////////////////////////////////////////////////////////
-
-    /**
-     * The callback.
-     */
-    interface OnClickPhotoListener {
-
-        void onClickPhoto(Checkable view,
-                          IPhoto photo,
-                          int position);
-    }
 
     /**
      * The album adapter class.
@@ -423,21 +381,21 @@ public class PhotoPickerFragment extends SupportRequestManagerFragment
                                    View convertView,
                                    ViewGroup parent) {
             // Using view-holder is to avoid often finding view ID.
-            MyAlbumAdapter.AlbumViewHolder holder;
+            MyAlbumViewHolder holder;
 
             if (convertView == null) {
                 convertView = mInflater.inflate(R.layout.view_spinner_album_item,
                                                 parent,
                                                 false);
 
-                holder = new MyAlbumAdapter.AlbumViewHolder();
+                holder = new MyAlbumViewHolder();
                 holder.albumCover = (ImageView) convertView.findViewById(R.id.album_cover);
                 holder.albumName = (TextView) convertView.findViewById(R.id.album_name);
                 holder.albumPhotoNum = (TextView) convertView.findViewById(R.id.album_photo_num);
 
                 convertView.setTag(holder);
             } else {
-                holder = (MyAlbumAdapter.AlbumViewHolder) convertView.getTag();
+                holder = (MyAlbumViewHolder) convertView.getTag();
             }
 
             IPhotoAlbum album = getItem(position);
@@ -451,12 +409,6 @@ public class PhotoPickerFragment extends SupportRequestManagerFragment
 
             return convertView;
         }
-
-        static class AlbumViewHolder {
-            ImageView albumCover;
-            TextView albumName;
-            TextView albumPhotoNum;
-        }
     }
 
     /**
@@ -465,22 +417,23 @@ public class PhotoPickerFragment extends SupportRequestManagerFragment
     private static class MyAlbumPhotoAdapter
         extends CursorRecyclerViewAdapter<RecyclerView.ViewHolder> {
 
-        final ObservableHashSet<IPhoto> mSelectedPhotos;
-        final OnClickPhotoListener mListener;
+        final IPhotoPicker mListener;
 
         MyAlbumPhotoAdapter(Context context,
-                            ObservableHashSet<IPhoto> selectedPhotos,
-                            OnClickPhotoListener listener) {
+                            IPhotoPicker listener) {
             super(context);
 
-            mSelectedPhotos = selectedPhotos;
+            if (listener == null) {
+                throw new IllegalArgumentException("Given listener is null");
+            }
+
             mListener = listener;
         }
 
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent,
                                                           int viewType) {
-            return new MyAlbumPhotoAdapter.AlbumPhotoViewHolder(
+            return new MyPhotoViewHolder(
                 getInflater().inflate(R.layout.view_photo_grid_item,
                                       parent, false));
         }
@@ -508,15 +461,13 @@ public class PhotoPickerFragment extends SupportRequestManagerFragment
             final int position = viewHolder.getAdapterPosition();
             final IPhoto photo = MediaStoreUtil.getPhotoInfo(cursor);
 
-            imageView.setChecked(mSelectedPhotos.contains(photo));
+            imageView.setChecked(mListener.isPhotoSelected(photo));
             imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (mListener != null) {
-                        mListener.onClickPhoto(imageView,
-                                               photo,
-                                               position);
-                    }
+                    mListener.onClickPhoto(imageView,
+                                           photo,
+                                           position);
                 }
             });
 
@@ -529,12 +480,18 @@ public class PhotoPickerFragment extends SupportRequestManagerFragment
 //                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                  .into(imageView);
         }
+    }
 
-        static class AlbumPhotoViewHolder extends RecyclerView.ViewHolder {
+    private static class MyAlbumViewHolder {
+        ImageView albumCover;
+        TextView albumName;
+        TextView albumPhotoNum;
+    }
 
-            AlbumPhotoViewHolder(View view) {
-                super(view);
-            }
+    private static class MyPhotoViewHolder extends RecyclerView.ViewHolder {
+
+        MyPhotoViewHolder(View view) {
+            super(view);
         }
     }
 }
