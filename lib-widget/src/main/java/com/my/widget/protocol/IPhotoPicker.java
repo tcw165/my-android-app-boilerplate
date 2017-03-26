@@ -24,11 +24,20 @@ import android.widget.Checkable;
 
 import com.my.widget.data.IPhoto;
 
+import java.util.List;
+
+/**
+ * The generic photo picker.
+ * <br/>
+ * See: {@link com.my.widget.PhotoPickerView}.
+ */
 public interface IPhotoPicker {
 
     boolean isPhotoSelected(IPhoto photo);
 
-    void onClickPhoto(Checkable view,
-                      IPhoto photo,
-                      int position);
+    List<IPhoto> getSelectedPhoto();
+
+    void onSelectPhoto(Checkable view,
+                       IPhoto photo,
+                       int position);
 }

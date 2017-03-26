@@ -36,6 +36,9 @@ public class CheckableImageView
     extends AppCompatImageView
     implements Checkable {
 
+    public static final int FIXED_WIDTH = 0;
+    public static final int FIXED_HEIGHT = 1;
+
     /**
      * Enable the checkable mode and change the UI.
      * <br/>
@@ -57,11 +60,11 @@ public class CheckableImageView
      */
     private float mAspectRatio;
     /**
-     * 0 indicates the fixed dimension is width;
+     * {@link #FIXED_WIDTH} indicates the fixed dimension is width;
      * <br/>
-     * 1 indicates the fixed dimension is height;
+     * {@link #FIXED_HEIGHT}  indicates the fixed dimension is height;
      * <br/>
-     * By default is 0.
+     * By default is {@link #FIXED_WIDTH}.
      */
     private int mFixedDimension;
 
@@ -87,7 +90,7 @@ public class CheckableImageView
         mIsChecked = array.getBoolean(R.styleable.CheckableView_isChecked, false);
         mIsCheckable = array.getBoolean(R.styleable.CheckableView_checkable, false);
         mAspectRatio = array.getFloat(R.styleable.CheckableView_aspectRatio, 0.f);
-        mFixedDimension = array.getInt(R.styleable.CheckableView_fixedDimension, 0);
+        mFixedDimension = array.getInt(R.styleable.CheckableView_fixedDimension, FIXED_WIDTH);
         array.recycle();
 
         // For the IDE preview, show the checkable state.
@@ -101,6 +104,21 @@ public class CheckableImageView
         // The checkbox drawable.
         mCheckboxDrawable = ContextCompat.getDrawable(
             context, R.drawable.icon_checkmark_55c3c5);
+    }
+
+    // FIXME: Make it an interface.
+    public int getFixedDimension() {
+        return mFixedDimension;
+    }
+
+    // FIXME: Make it an interface.
+    public void setFixedDimension(int dimen) {
+        if (dimen < FIXED_WIDTH || dimen > FIXED_HEIGHT) {
+            throw new IllegalArgumentException(
+                "The given dimen should either be FIXED_WIDTH or FIXED_HEIGHT");
+        }
+
+        mFixedDimension = dimen;
     }
 
     @SuppressWarnings("unused")
@@ -149,7 +167,7 @@ public class CheckableImageView
     @Override
     protected void onMeasure(int widthSpec,
                              int heightSpec) {
-        if (mAspectRatio == 0 || mFixedDimension >= 2) {
+        if (mAspectRatio == 0 || mFixedDimension > FIXED_HEIGHT) {
             super.onMeasure(widthSpec, heightSpec);
         } else {
             // We ignored padding or many other cases.
@@ -157,10 +175,10 @@ public class CheckableImageView
             int height = MeasureSpec.getSize(heightSpec);
             // Determine the fixed dimension and calculate the other.
             // See {@link R.styleable#CheckableCardView_fixedDimension}
-            if (mFixedDimension == 0) {
+            if (mFixedDimension == FIXED_WIDTH) {
                 // Fixed width.
                 height = (int) (width / mAspectRatio);
-            } else if (mFixedDimension == 1) {
+            } else if (mFixedDimension == FIXED_HEIGHT) {
                 // Fixed height.
                 width = (int) (height * mAspectRatio);
             }

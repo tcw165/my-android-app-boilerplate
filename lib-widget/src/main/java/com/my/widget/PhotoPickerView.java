@@ -28,6 +28,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -45,6 +46,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.Priority;
 import com.my.widget.adapter.CursorRecyclerViewAdapter;
+import com.my.widget.data.IObservableList;
 import com.my.widget.data.IPhoto;
 import com.my.widget.data.IPhotoAlbum;
 import com.my.widget.data.ObservableArrayList;
@@ -71,7 +73,7 @@ import io.reactivex.schedulers.Schedulers;
  * <pre>
  * mPhotoPicker = (PhotoPickerView) findViewById(R.id.photo_picker);
  * // Initialize the selection pool.
- * mPhotoPicker.setSelection(this);
+ * mPhotoPicker.setSelection(getSelectionProvider());
  * // Load the default album and photos.
  * mPhotoPicker.loadDefaultAlbumAndPhotos();
  * </pre>
@@ -86,6 +88,8 @@ public class PhotoPickerView extends FrameLayout
     RecyclerView mPhotoList;
     MyAlbumPhotoAdapter mPhotoListAdapter;
     SwipeRefreshLayout mPhotoListParent;
+    MySelectionAdapter mSelectionListAdapter;
+    RecyclerView mSelectionList;
 
     // State.
     // FIXME: Temporarily here.
@@ -116,10 +120,22 @@ public class PhotoPickerView extends FrameLayout
         mPhotoList.setAdapter(mPhotoListAdapter);
         mPhotoList.setLayoutManager(new GridLayoutManager(
             getContext(),
-            getResources().getInteger(R.integer.photo_picker_grid_column_num)));
+            getResources().getInteger(R.integer.photo_picker_grid_column_num),
+            GridLayoutManager.VERTICAL,
+            false));
         mPhotoList.addItemDecoration(new GridItemDecoration(
             (int) getResources().getDimension(R.dimen.grid_item_spacing),
             getResources().getInteger(R.integer.photo_picker_grid_column_num)));
+
+        // The selection list.
+        mSelectionListAdapter = new MySelectionAdapter(getContext(), this);
+        mSelectionList = (RecyclerView) findViewById(R.id.selection_list);
+        mSelectionList.setHasFixedSize(true);
+        mSelectionList.setAdapter(mSelectionListAdapter);
+        mSelectionList.setLayoutManager(new LinearLayoutManager(
+            getContext(),
+            LinearLayoutManager.HORIZONTAL,
+            false));
 
         // The photo list's parent view.
         mPhotoListParent = (SwipeRefreshLayout) findViewById(R.id.photo_list_parent);
@@ -154,9 +170,14 @@ public class PhotoPickerView extends FrameLayout
     }
 
     @Override
-    public void onClickPhoto(Checkable view,
-                             IPhoto photo,
-                             int position) {
+    public List<IPhoto> getSelectedPhoto() {
+        return getSelection();
+    }
+
+    @Override
+    public void onSelectPhoto(Checkable view,
+                              IPhoto photo,
+                              int position) {
         // Update the checkable state.
         view.toggle();
 
@@ -175,7 +196,17 @@ public class PhotoPickerView extends FrameLayout
             throw new IllegalArgumentException("Given provider is invalid");
         }
 
+        // Swap provider.
+        if (mSelectionProvider != null) {
+            mSelectionProvider
+                .getObservableList()
+                .removeListener(mOnSelectionChangeListener);
+        }
+
         mSelectionProvider = provider;
+        mSelectionProvider
+            .getObservableList()
+            .addListener(mOnSelectionChangeListener);
     }
 
     public List<IPhoto> getSelection() {
@@ -242,6 +273,68 @@ public class PhotoPickerView extends FrameLayout
 
     ///////////////////////////////////////////////////////////////////////////
     // Protected / Private Methods ////////////////////////////////////////////
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec,
+                             int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+    }
+
+    @Override
+    protected void onLayout(boolean changed,
+                            int left,
+                            int top,
+                            int right,
+                            int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+
+        final int parentLeft = getPaddingLeft();
+        final int parentRight = right - left - getPaddingRight();
+        final int parentBottom = bottom - top - getPaddingBottom();
+
+        // Place the selection list at the bottom.
+        if (mSelectionList != null) {
+            final FrameLayout.LayoutParams params =
+                (FrameLayout.LayoutParams) mSelectionList.getLayoutParams();
+            final int childHeight = mSelectionList.getMeasuredHeight();
+
+            // We have custom behavior for this child view.
+            mSelectionList.layout(parentLeft + params.leftMargin,
+                                  parentBottom - params.bottomMargin,
+                                  parentRight - params.rightMargin,
+                                  parentBottom - params.bottomMargin + childHeight);
+            // TODO: Use dimens.xml instead.
+            mSelectionList.setTranslationY(-mSelectionList.getMeasuredHeight() / 2);
+        }
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+
+        // Because the selection is provided by the provider, so previously
+        // registering listener would let the provider have the reference of
+        // this class.
+        // Make sure to remove the selection listener to avoid from leaking.
+        if (mSelectionProvider != null) {
+            mSelectionProvider
+                .getObservableList()
+                .removeListener(mOnSelectionChangeListener);
+        }
+    }
+
+    ObservableArrayList.ListChangeListener<IPhoto> mOnSelectionChangeListener =
+        new IObservableList.ListChangeListener<IPhoto>() {
+        @Override
+        public void onListUpdate(List<IPhoto> list) {
+            mSelectionListAdapter.notifyDataSetChanged();
+
+            final int newPosition = mSelectionListAdapter.getItemCount() - 1;
+            if (newPosition > 0) {
+                mSelectionList.smoothScrollToPosition(newPosition);
+            }
+        }
+    };
 
     Observable<List<IPhotoAlbum>> loadAlbumList() {
         return Observable
@@ -411,30 +504,36 @@ public class PhotoPickerView extends FrameLayout
         }
     }
 
+    private static class MyAlbumViewHolder {
+        ImageView albumCover;
+        TextView albumName;
+        TextView albumPhotoNum;
+    }
+
     /**
      * The album photo adapter class.
      */
     private static class MyAlbumPhotoAdapter
         extends CursorRecyclerViewAdapter<RecyclerView.ViewHolder> {
 
-        final IPhotoPicker mListener;
+        final IPhotoPicker mPicker;
 
         MyAlbumPhotoAdapter(Context context,
-                            IPhotoPicker listener) {
+                            IPhotoPicker picker) {
             super(context);
 
-            if (listener == null) {
+            if (picker == null) {
                 throw new IllegalArgumentException("Given listener is null");
             }
 
-            mListener = listener;
+            mPicker = picker;
         }
 
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent,
                                                           int viewType) {
             return new MyPhotoViewHolder(
-                getInflater().inflate(R.layout.view_photo_grid_item,
+                getInflater().inflate(R.layout.view_checkable_square_imageview,
                                       parent, false));
         }
 
@@ -461,13 +560,13 @@ public class PhotoPickerView extends FrameLayout
             final int position = viewHolder.getAdapterPosition();
             final IPhoto photo = MediaStoreUtil.getPhotoInfo(cursor);
 
-            imageView.setChecked(mListener.isPhotoSelected(photo));
+            imageView.setChecked(mPicker.isPhotoSelected(photo));
             imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mListener.onClickPhoto(imageView,
-                                           photo,
-                                           position);
+                    mPicker.onSelectPhoto(imageView,
+                                          photo,
+                                          position);
                 }
             });
 
@@ -482,16 +581,68 @@ public class PhotoPickerView extends FrameLayout
         }
     }
 
-    private static class MyAlbumViewHolder {
-        ImageView albumCover;
-        TextView albumName;
-        TextView albumPhotoNum;
-    }
-
     private static class MyPhotoViewHolder extends RecyclerView.ViewHolder {
 
         MyPhotoViewHolder(View view) {
             super(view);
+
+            // Here, we need its fixed dimension to be width.
+            final CheckableImageView imgView = (CheckableImageView) view;
+            imgView.setFixedDimension(CheckableImageView.FIXED_WIDTH);
+        }
+    }
+
+    private static class MySelectionAdapter
+        extends RecyclerView.Adapter<MySelectionViewHolder> {
+
+        final private Context mContext;
+        final private LayoutInflater mInflater;
+        final private IPhotoPicker mPicker;
+
+        MySelectionAdapter(final Context context,
+                           final IPhotoPicker picker) {
+            mContext = context;
+            mInflater = LayoutInflater.from(context);
+            mPicker = picker;
+        }
+
+        @Override
+        public MySelectionViewHolder onCreateViewHolder(ViewGroup parent,
+                                                        int viewType) {
+            return new MySelectionViewHolder(
+                mInflater.inflate(R.layout.view_deletable_square_imageview, parent, false));
+        }
+
+        @Override
+        public void onBindViewHolder(MySelectionViewHolder holder,
+                                     int position) {
+            final ImageView imgView = (ImageView) holder.itemView;
+            final IPhoto photo = mPicker.getSelectedPhoto().get(position);
+
+            Glide.with(mContext)
+                 .load(photo.thumbnailPath())
+                 .priority(Priority.IMMEDIATE)
+                 // FIXME: Animation causes ghost images.
+                 .dontAnimate()
+//                 .skipMemoryCache(true)
+//                 .diskCacheStrategy(DiskCacheStrategy.NONE)
+                 .into(imgView);
+        }
+
+        @Override
+        public int getItemCount() {
+            return mPicker.getSelectedPhoto().size();
+        }
+    }
+
+    private static class MySelectionViewHolder extends RecyclerView.ViewHolder {
+
+        MySelectionViewHolder(View view) {
+            super(view);
+
+            // Here, we need its fixed dimension to be height.
+            final CheckableImageView imgView = (CheckableImageView) view;
+            imgView.setFixedDimension(CheckableImageView.FIXED_HEIGHT);
         }
     }
 }
