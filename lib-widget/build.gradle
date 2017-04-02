@@ -24,7 +24,7 @@ android {
 }
 
 dependencies {
-    def SUPPORT_LIB_VER = "25.3.0"
+    def SUPPORT_LIB_VER = "25.3.1"
 
     compile fileTree(dir: "libs", include: ["*.jar"])
 

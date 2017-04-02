@@ -23,10 +23,13 @@ package com.my.widget;
 import android.Manifest;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.MotionEventCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.AppCompatSpinner;
@@ -36,7 +39,9 @@ import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
@@ -96,6 +101,13 @@ public class PhotoPickerView extends FrameLayout
     RecyclerView mSelectionList;
 
     // State.
+    // FIXME:
+    final int mEdgeSlop;
+    final int mTouchSlop;
+    final PointF mActionDownPoint = new PointF();
+    boolean mIsSelectionListExpanded;
+
+    // Selection.
     ObservableArrayList.Provider<IPhoto> mSelectionProvider;
 
     public PhotoPickerView(@NonNull Context context) {
@@ -119,30 +131,86 @@ public class PhotoPickerView extends FrameLayout
         mPhotoListAdapter = new MyAlbumPhotoAdapter(getContext(), this);
         mPhotoList = (RecyclerView) findViewById(R.id.photo_list);
         mPhotoList.setHasFixedSize(true);
-        mPhotoList.setAdapter(mPhotoListAdapter);
         mPhotoList.setLayoutManager(new GridLayoutManager(
             getContext(),
             getResources().getInteger(R.integer.photo_picker_grid_column_num),
             GridLayoutManager.VERTICAL,
             false));
-        mPhotoList.addItemDecoration(new GridItemDecoration(
-            (int) getResources().getDimension(R.dimen.grid_item_spacing),
-            getResources().getInteger(R.integer.photo_picker_grid_column_num)));
+        mPhotoList.addItemDecoration(new GridSpacingDecoration(
+            mPhotoList,
+            (int) getResources().getDimension(R.dimen.grid_item_spacing_big)));
+        mPhotoList.setAdapter(mPhotoListAdapter);
 
         // The selection list.
         mSelectionListAdapter = new MySelectionAdapter(getContext());
         mSelectionList = (RecyclerView) findViewById(R.id.selection_list);
         mSelectionList.setHasFixedSize(true);
-        mSelectionList.setAdapter(mSelectionListAdapter);
         mSelectionList.setLayoutManager(new LinearLayoutManager(
             getContext(),
             LinearLayoutManager.HORIZONTAL,
             false));
+        mSelectionList.addItemDecoration(new GridSpacingDecoration(
+            mSelectionList,
+            (int) getResources().getDimension(R.dimen.grid_item_spacing_medium)));
+        mSelectionList.setAdapter(mSelectionListAdapter);
 
         // The photo list's parent view.
         mPhotoListParent = (SwipeRefreshLayout) findViewById(R.id.photo_list_parent);
         // Disable the "Swipe" gesture and the animation.
         mPhotoListParent.setEnabled(false);
+
+        final ViewConfiguration cfg = ViewConfiguration.get(context);
+        // Edge slop.
+        mEdgeSlop = 2 * cfg.getScaledEdgeSlop();
+        mTouchSlop = cfg.getScaledTouchSlop();
+    }
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent evt) {
+        final int bottom = getHeight() - getPaddingBottom();
+        final int act = MotionEventCompat.getActionMasked(evt);
+        final boolean isInterceptDefault = super.onInterceptTouchEvent(evt);
+
+        // Record the dragging start.
+        if (act == MotionEvent.ACTION_DOWN) {
+            mActionDownPoint.set(evt.getX(),  evt.getY());
+
+            return isInterceptDefault;
+        } else if (act == MotionEvent.ACTION_MOVE) {
+            // TODO: Check out the history #0.
+            final boolean hasSelected = mSelectionListAdapter.getItemCount() > 0;
+            final boolean isWithinEdgeSlop = Math.abs(mActionDownPoint.y - bottom) < mEdgeSlop;
+            final boolean isDraggingV = Math.abs(evt.getY() - mActionDownPoint.y) > mTouchSlop;
+            final boolean isIntercept = (hasSelected && isWithinEdgeSlop && isDraggingV) ||
+                                        isInterceptDefault;
+
+            Log.d("xyz", "hasSelected=" + hasSelected +
+                         ", isWithinEdgeSlop=" + isWithinEdgeSlop +
+                         ", isDraggingV=" + isDraggingV);
+
+            return isIntercept;
+        } else {
+            return isInterceptDefault;
+        }
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent evt) {
+        final boolean ret = super.onTouchEvent(evt);
+        final int act = MotionEventCompat.getActionMasked(evt);
+
+        if (act == MotionEvent.ACTION_MOVE) {
+            final float ty = constraintTranslationY(
+                evt.getY() - mActionDownPoint.y);
+
+            Log.d("xyz", "ty=" + ty);
+
+            ViewCompat.setTranslationY(mSelectionList, ty);
+
+            return true;
+        } else {
+            return ret;
+        }
     }
 
     @Override
@@ -306,7 +374,7 @@ public class PhotoPickerView extends FrameLayout
                                   parentRight - params.rightMargin,
                                   parentBottom - params.bottomMargin + childHeight);
             // TODO: Use dimens.xml instead.
-            mSelectionList.setTranslationY(-mSelectionList.getMeasuredHeight() / 2);
+//            mSelectionList.setTranslationY(-mSelectionList.getMeasuredHeight() / 2);
         }
     }
 
@@ -329,7 +397,30 @@ public class PhotoPickerView extends FrameLayout
         new IObservableList.ListChangeListener<IPhoto>() {
         @Override
         public void onListUpdate(List<IPhoto> list) {
+            // Assign new data (will apply to DiffUtil).
             mSelectionListAdapter.setData(list);
+
+            if (mSelectionListAdapter.getItemCount() > 0) {
+                if (mIsSelectionListExpanded) {
+                    // Expand the selection list.
+                    ViewCompat.animate(mSelectionList)
+                              .translationY(-mSelectionList.getHeight())
+                              .start();
+                } else {
+                    // Show part of the selection list.
+                    ViewCompat.animate(mSelectionList)
+                              .translationY(-mEdgeSlop)
+                              .start();
+                }
+            } else {
+                mIsSelectionListExpanded = false;
+
+                // Hide the selection list.
+                ViewCompat.animate(mSelectionList)
+                          .setDuration(200)
+                          .translationY(0)
+                          .start();
+            }
 
             // TODO: Scroll to the latest update one.
             final int newPosition = mSelectionListAdapter.getItemCount() - 1;
@@ -420,6 +511,15 @@ public class PhotoPickerView extends FrameLayout
         };
     }
 
+    float constraintTranslationY(float value) {
+        final float min = mAlbumListAdapter.getCount() > 0 ? -mEdgeSlop : 0;
+
+        value = Math.min(min, value);
+        value = Math.max(-mSelectionList.getHeight(), value);
+
+        return value;
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // Clazz //////////////////////////////////////////////////////////////////
 
@@ -498,6 +598,9 @@ public class PhotoPickerView extends FrameLayout
             // TODO: Load the cover image.
             Glide.with(parent.getContext())
                  .load(mAlbums.get(position).thumbnailPath())
+                 .placeholder(ContextCompat.getDrawable(
+                     convertView.getContext(),
+                     R.drawable.bg_borderless_rect_light_gray))
                  .into(holder.albumCover);
             // Update the album name.
             holder.albumName.setText(album.name());
@@ -545,12 +648,9 @@ public class PhotoPickerView extends FrameLayout
                                      final Cursor cursor,
                                      List<Object> payloads) {
             final CheckableImageView imageView = (CheckableImageView) viewHolder.itemView;
-            final Drawable drawable = ContextCompat.getDrawable(
-                getContext(), R.drawable.bg_borderless_rect_light_gray);
             final int position = viewHolder.getAdapterPosition();
             final IPhoto photo = MediaStoreUtil.getPhotoInfo(cursor);
 
-            imageView.setImageDrawable(drawable);
             imageView.setChecked(mPicker.isPhotoSelected(photo));
             imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -563,7 +663,8 @@ public class PhotoPickerView extends FrameLayout
 
             Glide.with(getContext())
                  .load(photo.thumbnailPath())
-                 .placeholder(drawable)
+                 .placeholder(ContextCompat.getDrawable(
+                     getContext(), R.drawable.bg_borderless_rect_light_gray))
                  .priority(Priority.IMMEDIATE)
                  .into(imageView);
         }
