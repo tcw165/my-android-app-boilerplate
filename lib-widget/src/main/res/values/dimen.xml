@@ -1,6 +1,11 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Common -->
     <dimen name="spinner_height">36dp</dimen>
+
     <dimen name="grid_item_spacing_big">6dp</dimen>
     <dimen name="grid_item_spacing_medium">3dp</dimen>
     <dimen name="grid_item_spacing_small">1dp</dimen>
+
+    <!-- PhotoPicker -->
+    <dimen name="partially_revealing_height">20dp</dimen>
 </resources>

@@ -37,7 +37,13 @@ public interface IPhotoPicker {
 
     List<IPhoto> getSelectedPhoto();
 
-    void onSelectPhoto(Checkable view,
-                       IPhoto photo,
+    void onClickPhoto(Checkable view,
+                      IPhoto photo,
+                      int position);
+
+    void onSelectPhoto(IPhoto photo,
                        int position);
+
+    void onDeselectPhoto(IPhoto photo,
+                         int position);
 }
