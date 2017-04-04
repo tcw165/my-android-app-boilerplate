@@ -27,8 +27,6 @@ import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.OvershootInterpolator;
 import android.widget.Checkable;
 
 /**
@@ -147,18 +145,6 @@ public class CheckableImageView
 
         mIsChecked = checked;
 
-        // Cancel animation.
-        animate().cancel();
-
-        // Update the scale effect.
-        if (isChecked()) {
-            setScaleX(0.95f);
-            setScaleY(0.95f);
-        } else {
-            setScaleX(1f);
-            setScaleY(1f);
-        }
-
         // Update the border and checkbox.
         invalidate();
     }
@@ -172,25 +158,7 @@ public class CheckableImageView
     public void toggle() {
         if (!mIsCheckable) return;
 
-        mIsChecked = !mIsChecked;
-
-        // Update the scale effect.
-        if (isChecked()) {
-            animate().setDuration(150)
-                     .scaleX(0.95f)
-                     .scaleY(0.95f)
-                     .setInterpolator(new OvershootInterpolator(10f))
-                     .start();
-        } else {
-            animate().setDuration(150)
-                     .scaleX(1f)
-                     .scaleY(1f)
-                     .setInterpolator(new AccelerateInterpolator())
-                     .start();
-        }
-
-        // Update the border and checkbox.
-        invalidate();
+        setChecked(!isChecked());
     }
 
     ///////////////////////////////////////////////////////////////////////////

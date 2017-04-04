@@ -33,7 +33,6 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.my.widget.PhotoPickerView;
-import com.my.widget.data.IObservableList;
 import com.my.widget.data.IPhoto;
 import com.my.widget.data.ObservableArrayList;
 
@@ -42,7 +41,8 @@ import java.util.Locale;
 
 public class PhotoPickerActivity
     extends AppCompatActivity
-    implements ObservableArrayList.Provider<IPhoto> {
+    implements ObservableArrayList.Provider<IPhoto>,
+               ObservableArrayList.ListChangeListener<IPhoto> {
 
     public static final String RESULT_PHOTOS =
         PhotoPickerActivity.class.getCanonicalName() + ".RESULT_PHOTOS";
@@ -73,7 +73,7 @@ public class PhotoPickerActivity
 
         // The photo selection pool.
         mSelectedPhotos = new ObservableArrayList<>(Looper.getMainLooper());
-        mSelectedPhotos.addListener(onPhotoSelectionChanged());
+        mSelectedPhotos.addListener(this);
 
         // Photo picker.
         mPhotoPicker = (PhotoPickerView) findViewById(R.id.photo_picker);
@@ -117,6 +117,30 @@ public class PhotoPickerActivity
     }
 
     @Override
+    public void onItemAdded(List<IPhoto> list,
+                            IPhoto item) {
+        mDoneButtonView.setVisible(true);
+        mSkipButtonView.setVisible(false);
+        mSelectionNumView.setText(
+            String.format(Locale.ENGLISH, "%d", list.size()));
+    }
+
+    @Override
+    public void onItemRemoved(List<IPhoto> list,
+                              IPhoto item) {
+        if (list.isEmpty()) {
+            mDoneButtonView.setVisible(false);
+            mSkipButtonView.setVisible(true);
+        }
+    }
+
+    @Override
+    public void onItemChanged(List<IPhoto> list,
+                              IPhoto item) {
+        // DO NOTHING.
+    }
+
+    @Override
     public ObservableArrayList<IPhoto> getObservableList() {
         return mSelectedPhotos;
     }
@@ -153,23 +177,6 @@ public class PhotoPickerActivity
                 setResult(RESULT_OK, new Intent()
                     .putExtra(RESULT_PHOTOS, mSelectedPhotos.toArray()));
                 finish();
-            }
-        };
-    }
-
-    private IObservableList.ListChangeListener<IPhoto> onPhotoSelectionChanged() {
-        return new IObservableList.ListChangeListener<IPhoto>() {
-            @Override
-            public void onListUpdate(List<IPhoto> list) {
-                if (list == null || list.isEmpty()) {
-                    mDoneButtonView.setVisible(false);
-                    mSkipButtonView.setVisible(true);
-                } else {
-                    mDoneButtonView.setVisible(true);
-                    mSkipButtonView.setVisible(false);
-                    mSelectionNumView.setText(
-                        String.format(Locale.ENGLISH, "%d", list.size()));
-                }
             }
         };
     }

@@ -45,6 +45,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.OvershootInterpolator;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Checkable;
@@ -54,6 +56,9 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.Priority;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.my.widget.adapter.CursorRecyclerViewAdapter;
 import com.my.widget.data.IObservableList;
 import com.my.widget.data.IPhoto;
@@ -93,21 +98,24 @@ import io.reactivex.schedulers.Schedulers;
  * </pre>
  */
 // FIXME: The elastic-drag doesn't work.
+// FIXME: Update selection list when the cursor is changed.
 public class PhotoPickerView extends CoordinatorLayout
     implements IPhotoPicker,
-               IProgressBarView {
+               IProgressBarView,
+               IObservableList.ListChangeListener<IPhoto> {
 
     // View.
     AppCompatSpinner mAlbumList;
     MyAlbumAdapter mAlbumListAdapter;
     RecyclerView mPhotoList;
     MyAlbumPhotoAdapter mPhotoListAdapter;
+    GridLayoutManager mPhotoListLayoutMgr;
     SwipeRefreshLayout mPhotoListParent;
     MySelectionAdapter mSelectionListAdapter;
     RecyclerView mSelectionList;
 
     // State.
-    final MyGestureHelper mGestureHelper;
+    final MySelectionViewHelper mSelectionViewHelper;
 
     // Selection.
     ObservableArrayList.Provider<IPhoto> mSelectionProvider;
@@ -131,13 +139,14 @@ public class PhotoPickerView extends CoordinatorLayout
 
         // The photo list of the selected album.
         mPhotoListAdapter = new MyAlbumPhotoAdapter(getContext(), this);
-        mPhotoList = (RecyclerView) findViewById(R.id.photo_list);
-        mPhotoList.setHasFixedSize(true);
-        mPhotoList.setLayoutManager(new GridLayoutManager(
+        mPhotoListLayoutMgr = new GridLayoutManager(
             getContext(),
             getResources().getInteger(R.integer.photo_picker_grid_column_num),
             GridLayoutManager.VERTICAL,
-            false));
+            false);
+        mPhotoList = (RecyclerView) findViewById(R.id.photo_list);
+        mPhotoList.setHasFixedSize(true);
+        mPhotoList.setLayoutManager(mPhotoListLayoutMgr);
         mPhotoList.addItemDecoration(new GridSpacingDecoration(
             mPhotoList,
             (int) getResources().getDimension(R.dimen.grid_item_spacing_big)));
@@ -163,7 +172,7 @@ public class PhotoPickerView extends CoordinatorLayout
 
         final ViewGroup.LayoutParams params = mSelectionList.getLayoutParams();
         // Helper.
-        mGestureHelper = new MyGestureHelper(
+        mSelectionViewHelper = new MySelectionViewHelper(
             getContext(),
             // The selection list.
             mSelectionList,
@@ -186,20 +195,38 @@ public class PhotoPickerView extends CoordinatorLayout
         if (mSelectionProvider != null) {
             mSelectionProvider
                 .getObservableList()
-                .removeListener(mOnSelectionChangeListener);
+                .removeListener(this);
         }
     }
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent evt) {
-        return mGestureHelper.onInterceptTouchEvent(evt) ||
+        return mSelectionViewHelper.onInterceptTouchEvent(evt) ||
                super.onInterceptTouchEvent(evt);
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent evt) {
-        return mGestureHelper.onTouchEvent(evt) ||
+        return mSelectionViewHelper.onTouchEvent(evt) ||
                super.onTouchEvent(evt);
+    }
+
+    @Override
+    public void onItemAdded(List<IPhoto> list,
+                            IPhoto item) {
+        onSelectionChanged(list, item, null, null);
+    }
+
+    @Override
+    public void onItemRemoved(List<IPhoto> list,
+                              IPhoto item) {
+        onSelectionChanged(list, null, item, null);
+    }
+
+    @Override
+    public void onItemChanged(List<IPhoto> list,
+                              IPhoto item) {
+        onSelectionChanged(list, null, null, item);
     }
 
     @Override
@@ -237,20 +264,17 @@ public class PhotoPickerView extends CoordinatorLayout
     public void onClickPhoto(Checkable view,
                              IPhoto photo,
                              int position) {
-        // Update the checkable mState.
-        view.toggle();
-
-        // Update the selection pool.
-        if (view.isChecked()) {
-            onSelectPhoto(photo, position);
-        } else {
+        if (isPhotoSelected(photo)) {
             onDeselectPhoto(photo, position);
+        } else {
+            onSelectPhoto(photo, position);
         }
     }
 
     @Override
     public void onSelectPhoto(IPhoto photo,
                               int position) {
+        // Will trigger onSelectionChanged();
         getSelection().add(photo);
     }
 
@@ -258,6 +282,7 @@ public class PhotoPickerView extends CoordinatorLayout
     public void onDeselectPhoto(IPhoto photo,
                                 int position) {
         if (getSelection().contains(photo)) {
+            // Will trigger onSelectionChanged();
             getSelection().remove(photo);
         }
     }
@@ -271,13 +296,13 @@ public class PhotoPickerView extends CoordinatorLayout
         if (mSelectionProvider != null) {
             mSelectionProvider
                 .getObservableList()
-                .removeListener(mOnSelectionChangeListener);
+                .removeListener(this);
         }
         // Swap provider.
         mSelectionProvider = provider;
         mSelectionProvider
             .getObservableList()
-            .addListener(mOnSelectionChangeListener);
+            .addListener(this);
     }
 
     public List<IPhoto> getSelection() {
@@ -374,8 +399,6 @@ public class PhotoPickerView extends CoordinatorLayout
                                   parentBottom - params.bottomMargin,
                                   parentRight - params.rightMargin,
                                   parentBottom - params.bottomMargin + childHeight);
-            // TODO: Use dimens.xml instead.
-//            mSelectionList.setTranslationY(-mSelectionList.getMeasuredHeight() / 2);
         }
     }
 
@@ -390,21 +413,6 @@ public class PhotoPickerView extends CoordinatorLayout
     protected void onRestoreInstanceState(Parcelable state) {
         super.onRestoreInstanceState(state);
     }
-
-    ObservableArrayList.ListChangeListener<IPhoto> mOnSelectionChangeListener =
-        new IObservableList.ListChangeListener<IPhoto>() {
-            @Override
-            public void onListUpdate(List<IPhoto> list) {
-                // Assign new data (will apply to DiffUtil).
-                mSelectionListAdapter.setData(list);
-
-                // FIXME: Use DiffUtil.
-                mPhotoListAdapter.notifyDataSetChanged();
-
-                // Gesture helper want to update view position.
-                mGestureHelper.onListUpdate();
-            }
-        };
 
     Observable<List<IPhotoAlbum>> loadAlbumList() {
         return Observable
@@ -485,6 +493,37 @@ public class PhotoPickerView extends CoordinatorLayout
                 // DO NOTHING.
             }
         };
+    }
+
+    void onSelectionChanged(List<IPhoto> list,
+                            IPhoto added,
+                            IPhoto removed,
+                            IPhoto updated) {
+        // Assign new data (will apply to DiffUtil).
+        mSelectionListAdapter.setData(list);
+        // Update the position of selection view.
+        mSelectionViewHelper.onListUpdate();
+
+        // Notify the checked state change to the photo list.
+        // (cannot use DiffUtil because the adapter is a cursor-adapter).
+        final int start = mPhotoListLayoutMgr.findFirstVisibleItemPosition();
+        final int end = mPhotoListLayoutMgr.findLastVisibleItemPosition();
+        final Cursor cursor = mPhotoListAdapter.getCursor();
+        if (cursor.moveToPosition(start)) {
+            do {
+                IPhoto photo1 = MediaStoreUtil.getPhotoInfo(cursor);
+                if (photo1.equals(added)) {
+                    mPhotoListAdapter.notifyItemChanged(
+                        cursor.getPosition(),
+                        MyAlbumPhotoAdapter.PAYLOAD_ITEM_CHECKED);
+                } else if (photo1.equals(removed)) {
+                    mPhotoListAdapter.notifyItemChanged(
+                        cursor.getPosition(),
+                        MyAlbumPhotoAdapter.PAYLOAD_ITEM_UNCHECKED);
+                }
+            } while (cursor.moveToNext() &&
+                     cursor.getPosition() <= end);
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -593,6 +632,9 @@ public class PhotoPickerView extends CoordinatorLayout
     private static class MyAlbumPhotoAdapter
         extends CursorRecyclerViewAdapter<RecyclerView.ViewHolder> {
 
+        static final int PAYLOAD_ITEM_CHECKED = 0;
+        static final int PAYLOAD_ITEM_UNCHECKED = 1;
+
         final IPhotoPicker mPicker;
 
         MyAlbumPhotoAdapter(Context context,
@@ -621,22 +663,87 @@ public class PhotoPickerView extends CoordinatorLayout
             final CheckableImageView imageView = (CheckableImageView) viewHolder.itemView;
             final IPhoto photo = MediaStoreUtil.getPhotoInfo(cursor);
 
-            imageView.setChecked(mPicker.isPhotoSelected(photo));
-            imageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mPicker.onClickPhoto(imageView,
-                                         photo,
-                                         viewHolder.getAdapterPosition());
-                }
-            });
+            // Checked or unchecked.
+            if (payloads == null || payloads.isEmpty()) {
+                imageView.setChecked(mPicker.isPhotoSelected(photo));
 
-            Glide.with(getContext())
-                 .load(photo.thumbnailPath())
-                 .placeholder(ContextCompat.getDrawable(
-                     getContext(), R.drawable.bg_borderless_rect_light_gray))
-                 .priority(Priority.IMMEDIATE)
-                 .into(imageView);
+                // Cancel animation.
+                ViewCompat.animate(imageView).cancel();
+
+                // FIXME: Buggy.
+                // Update the scale effect.
+//                if (imageView.isChecked()) {
+//                    ViewCompat.setScaleX(imageView, 0.8f);
+//                    ViewCompat.setScaleY(imageView, 0.8f);
+//                } else {
+//                    ViewCompat.setScaleX(imageView, 1f);
+//                    ViewCompat.setScaleY(imageView, 1f);
+//                }
+
+                // Clear old onClick listener.
+                imageView.setOnClickListener(null);
+                final View.OnClickListener listener = new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mPicker.onClickPhoto(imageView,
+                                             photo,
+                                             viewHolder.getAdapterPosition());
+                    }
+                };
+
+                Glide.with(getContext())
+                     .load(photo.thumbnailPath())
+                     .listener(new RequestListener<String, GlideDrawable>() {
+                         @Override
+                         public boolean onException(Exception e,
+                                                    String model,
+                                                    Target<GlideDrawable> target,
+                                                    boolean isFirstResource) {
+                             return false;
+                         }
+
+                         @Override
+                         public boolean onResourceReady(GlideDrawable resource,
+                                                        String model,
+                                                        Target<GlideDrawable> target,
+                                                        boolean isFromMemoryCache,
+                                                        boolean isFirstResource) {
+                             // onClick listener.
+                             imageView.setOnClickListener(listener);
+                             return false;
+                         }
+                     })
+                     .placeholder(ContextCompat.getDrawable(
+                         getContext(), R.drawable.bg_borderless_rect_light_gray))
+                     .priority(Priority.IMMEDIATE)
+                     .into(imageView);
+            } else {
+                for (Object payload : payloads) {
+                    if ((Integer) payload == PAYLOAD_ITEM_CHECKED) {
+                        imageView.setChecked(true);
+
+                        // FIXME: Buggy.
+                        // Update the scale effect.
+//                        ViewCompat.animate(imageView)
+//                                  .setDuration(150)
+//                                  .scaleX(0.8f)
+//                                  .scaleY(0.8f)
+//                                  .setInterpolator(new OvershootInterpolator(10f))
+//                                  .start();
+                    } else if ((Integer) payload == PAYLOAD_ITEM_UNCHECKED) {
+                        imageView.setChecked(false);
+
+                        // FIXME: Buggy.
+                        // Update the scale effect.
+//                        ViewCompat.animate(imageView)
+//                                  .setDuration(150)
+//                                  .scaleX(1f)
+//                                  .scaleY(1f)
+//                                  .setInterpolator(new AccelerateInterpolator())
+//                                  .start();
+                    }
+                }
+            }
         }
     }
 
@@ -790,7 +897,7 @@ public class PhotoPickerView extends CoordinatorLayout
     /**
      * For handling show/hide the target view.
      */
-    private static class MyGestureHelper {
+    private static class MySelectionViewHelper {
 
         private static final int STATE_SETTLING = 0;
         private static final int STATE_PARTIALLY_REVEALING = 1;
@@ -832,11 +939,11 @@ public class PhotoPickerView extends CoordinatorLayout
          * @param tyForCompletelyRevealing The translationY of targetView for
          *                                 completely revealing state.
          */
-        MyGestureHelper(Context context,
-                        RecyclerView targetView,
-                        float tyForCompletelyHidden,
-                        float tyForPartiallyRevealing,
-                        float tyForCompletelyRevealing) {
+        MySelectionViewHelper(Context context,
+                              RecyclerView targetView,
+                              float tyForCompletelyHidden,
+                              float tyForPartiallyRevealing,
+                              float tyForCompletelyRevealing) {
             final ViewConfiguration cfg = ViewConfiguration.get(context);
             mTouchSlop = cfg.getScaledTouchSlop();
 
@@ -846,6 +953,9 @@ public class PhotoPickerView extends CoordinatorLayout
             mTyForCompletelyRevealing = tyForCompletelyRevealing;
         }
 
+        /**
+         * Called in caller's {@link ViewGroup#onInterceptTouchEvent(MotionEvent)}.
+         */
         boolean onInterceptTouchEvent(MotionEvent evt) {
             final int act = MotionEventCompat.getActionMasked(evt);
 
@@ -863,7 +973,7 @@ public class PhotoPickerView extends CoordinatorLayout
 
                 if (mState == STATE_PARTIALLY_REVEALING) {
                     // Enlarge the hit rect.
-                    mHitRect.inset(0, (int) (-10f * mTouchSlop));
+                    mHitRect.inset(0, (int) (-3f * mTouchSlop));
 
                     // TODO: Check out the history #0.
                     // Try to initiate the gesture.
@@ -897,6 +1007,9 @@ public class PhotoPickerView extends CoordinatorLayout
             return mIsHandling;
         }
 
+        /**
+         * Called in caller's {@link View#onTouchEvent(MotionEvent)}.
+         */
         boolean onTouchEvent(MotionEvent evt) {
             final int act = MotionEventCompat.getActionMasked(evt);
 
@@ -938,9 +1051,16 @@ public class PhotoPickerView extends CoordinatorLayout
             return mIsHandling;
         }
 
+        /**
+         * Called in caller's {@link IObservableList.ListChangeListener}.
+         */
         void onListUpdate() {
-            if (hasSelected() && mState == STATE_COMPLETELY_HIDDEN) {
-                mState = STATE_PARTIALLY_REVEALING;
+            if (hasSelected()) {
+                if (mState == STATE_COMPLETELY_HIDDEN) {
+                    mState = STATE_PARTIALLY_REVEALING;
+                }
+            } else {
+                mState = STATE_COMPLETELY_HIDDEN;
             }
 
             ViewCompat.animate(mTargetView)
@@ -948,10 +1068,10 @@ public class PhotoPickerView extends CoordinatorLayout
                       .start();
 
             // TODO: Scroll to the latest update one.
-            final int newPosition = mTargetView.getAdapter().getItemCount() - 1;
-            if (newPosition > 0) {
-                mTargetView.smoothScrollToPosition(newPosition);
-            }
+//            final int newPosition = mTargetView.getAdapter().getItemCount() - 1;
+//            if (newPosition > 0) {
+//                mTargetView.smoothScrollToPosition(newPosition);
+//            }
         }
 
         private boolean hasSelected() {

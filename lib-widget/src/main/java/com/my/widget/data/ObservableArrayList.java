@@ -7,23 +7,26 @@ import android.support.annotation.NonNull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-public class ObservableArrayList<E> extends ArrayList<E>
-    implements IObservableList<E>,
-               Runnable {
+// FIXME: This is temporary because not all the methods would notify the
+// FIXME: observers about the change.
+public class ObservableArrayList<E> extends CopyOnWriteArrayList<E>
+    implements IObservableList<E> {
 
     private final Handler mHandler;
     private final List<ListChangeListener<E>> mCallbacks = new ArrayList<>();
 
-    public ObservableArrayList(int initialCapacity,
-                               Looper looper) {
-        super(initialCapacity);
+    public ObservableArrayList(Looper looper) {
+        super();
 
         // Ensure the handler.
         mHandler = new Handler(looper);
     }
 
-    public ObservableArrayList(Looper looper) {
+    public ObservableArrayList(@NonNull E[] array,
+                               Looper looper) {
+        super(array);
 
         // Ensure the handler.
         mHandler = new Handler(looper);
@@ -41,7 +44,7 @@ public class ObservableArrayList<E> extends ArrayList<E>
     public E set(int index, E element) {
         E ret = super.set(index, element);
 
-        dispatchCallbacks();
+        dispatchCallbacks(null, null, ret);
 
         return ret;
     }
@@ -51,7 +54,7 @@ public class ObservableArrayList<E> extends ArrayList<E>
         boolean ret = super.add(e);
 
         if (ret) {
-            dispatchCallbacks();
+            dispatchCallbacks(e, null, null);
         }
 
         return ret;
@@ -60,81 +63,20 @@ public class ObservableArrayList<E> extends ArrayList<E>
     @Override
     public void add(int index, E element) {
         super.add(index, element);
-        dispatchCallbacks();
+        dispatchCallbacks(element, null, null);
     }
 
     @Override
     public E remove(int index) {
-        E ret = super.remove(index);
-        dispatchCallbacks();
-        return ret;
-    }
-
-    @Override
-    public boolean remove(Object o) {
-        boolean ret = super.remove(o);
-
-        if (ret) {
-            dispatchCallbacks();
-        }
-
-        return ret;
+        E removed = super.remove(index);
+        dispatchCallbacks(null, removed, null);
+        return removed;
     }
 
     @Override
     public void clear() {
         super.clear();
-        dispatchCallbacks();
-    }
-
-    @Override
-    public boolean addAll(Collection<? extends E> c) {
-        boolean ret = super.addAll(c);
-
-        if (ret) {
-            dispatchCallbacks();
-        }
-
-        return ret;
-    }
-
-    @Override
-    public boolean addAll(int index, Collection<? extends E> c) {
-        boolean ret = super.addAll(index, c);
-
-        if (ret) {
-            dispatchCallbacks();
-        }
-
-        return ret;
-    }
-
-    @Override
-    protected void removeRange(int fromIndex, int toIndex) {
-        super.removeRange(fromIndex, toIndex);
-        dispatchCallbacks();
-    }
-
-    @Override
-    public boolean removeAll(Collection<?> c) {
-        boolean ret = super.removeAll(c);
-
-        if (ret) {
-            dispatchCallbacks();
-        }
-
-        return ret;
-    }
-
-    @Override
-    public boolean retainAll(Collection<?> c) {
-        boolean ret = super.retainAll(c);
-
-        if (ret) {
-            dispatchCallbacks();
-        }
-
-        return ret;
+        dispatchCallbacks(null, null, null);
     }
 
     @Override
@@ -154,21 +96,31 @@ public class ObservableArrayList<E> extends ArrayList<E>
     ///////////////////////////////////////////////////////////////////////////
     // Protected / Private Methods ////////////////////////////////////////////
 
-    private void dispatchCallbacks() {
+    private void dispatchCallbacks(final E added,
+                                   final E removed,
+                                   final E updated) {
         synchronized (mCallbacks) {
             if (mCallbacks.isEmpty()) return;
-
-            mHandler.post(this);
         }
-    }
 
-    @Override
-    public void run() {
-        synchronized (mCallbacks) {
-            for (ListChangeListener<E> callback : mCallbacks) {
-                callback.onListUpdate(this);
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (mCallbacks) {
+                    for (ListChangeListener<E> callback : mCallbacks) {
+                        if (added != null) {
+                            callback.onItemAdded(ObservableArrayList.this, added);
+                        }
+                        if (removed != null) {
+                            callback.onItemRemoved(ObservableArrayList.this, removed);
+                        }
+                        if (updated != null) {
+                            callback.onItemChanged(ObservableArrayList.this, updated);
+                        }
+                    }
+                }
             }
-        }
+        });
     }
 
     ///////////////////////////////////////////////////////////////////////////

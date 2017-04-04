@@ -23,6 +23,8 @@ public interface IObservableList<E> {
     // Clazz //////////////////////////////////////////////////////////////////
 
     interface ListChangeListener<T> {
-        void onListUpdate(List<T> list);
+        void onItemAdded(List<T> list, T item);
+        void onItemRemoved(List<T> list, T item);
+        void onItemChanged(List<T> list, T item);
     }
 }
