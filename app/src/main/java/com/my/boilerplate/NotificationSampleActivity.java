@@ -70,7 +70,7 @@ public class NotificationSampleActivity extends AppCompatActivity {
                            "the click."),
                 new Pair<>("A notification redirecting to an Activity",
                            "The notification that lead you to the Activity " +
-                           "with back stack to the StartActivity."),
+                           "with back stack to the LoginActivity."),
                 new Pair<>("A notification redirecting to a new Task",
                            "The notification that lead you to a new Task " +
                            "along with an Activity.")

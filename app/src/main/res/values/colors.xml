@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Common -->
-    <color name="colorPrimary">#FFFFFF</color>
+    <color name="colorPrimary">#F7EB37</color>
     <color name="colorPrimaryDark">#F2F2F2</color>
-    <color name="colorAccent">#666666</color>
+    <color name="colorAccent">#00C2FF</color>
 
     <!-- Background -->
     <color name="bg_splash_screen">#FFFFFF</color>

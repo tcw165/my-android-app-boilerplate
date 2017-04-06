@@ -1,38 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.my.boilerplate.StartActivity">
+    tools:context="com.my.boilerplate.LoginActivity">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
+    <TextView
         android:layout_width="match_parent"
-        android:layout_height="@dimen/toolbar_height"
+        android:layout_height="100dp"
+        android:gravity="center"
+        android:text="Choose your avatar"
+        android:textSize="34sp"/>
+
+    <com.yarolegovich.discretescrollview.DiscreteScrollView
+        android:id="@+id/avatar_list"
+        android:layout_width="match_parent"
+        android:layout_height="350dp"
+        android:layout_gravity="center"/>
+
+    <TextView
+        android:id="@+id/btn_done"
+        android:layout_width="match_parent"
+        android:layout_height="68dp"
+        android:layout_gravity="bottom"
+        android:gravity="center"
+        android:textColor="@color/colorAccent"
         android:background="@color/colorPrimary"
-        app:navigationIcon="@drawable/ic_toolbar_close"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-        app:titleTextColor="@color/colorAccent"/>
-
-    <FrameLayout
-        android:id="@+id/frame"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#E5E5E5">
-
-        <!--<com.my.boilerplate.view.CollageLayout-->
-        <!--android:id="@+id/collage_editor"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:layout_gravity="center"-->
-        <!--android:background="#FFFFFF"/>-->
-        <ListView
-            android:id="@+id/menu"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:descendantFocusability="beforeDescendants"/>
-    </FrameLayout>
-</LinearLayout>
+        android:text="Done"
+        android:textSize="30sp"/>
+</FrameLayout>

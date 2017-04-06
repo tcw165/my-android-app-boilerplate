@@ -18,17 +18,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.boilerplate;
+package com.my.boilerplate.protocol;
 
-public class Const {
+import android.view.View;
 
-    public final static String TAG = "xyz";
+public interface IOnClickObjectListener {
 
-    public final static String PREF_AVATAR_IMAGE_PATH = "avatar_image_path";
-
-    public final static String DB_ACTION_KEY = "action";
-    public final static String DB_ACTION_VALUE_INSERT = "insert";
-    public final static String DB_ACTION_VALUE_DELETE = "delete";
-    public final static String DB_ACTION_VALUE_UPDATE = "update";
-    public final static String DB_ACTION_VALUE_QUERY = "query";
+    void onClickObject(View view,
+                       Object data);
 }

@@ -25,11 +25,12 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 import com.crashlytics.android.Crashlytics;
+
+import java.util.concurrent.TimeUnit;
+
 import io.fabric.sdk.android.Fabric;
 import io.reactivex.Observable;
 import io.reactivex.functions.Consumer;
-
-import java.util.concurrent.TimeUnit;
 
 public class SplashScreenActivity extends AppCompatActivity {
 
@@ -40,23 +41,24 @@ public class SplashScreenActivity extends AppCompatActivity {
         // Init Fabric crashlytics.
         Fabric.with(this, new Crashlytics());
 
-        setContentView(R.layout.activity_splash_screen);
+//        setContentView(R.layout.activity_splash_screen);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        // Do nothing but wait 3 seconds and luanch the start page.
         Observable
             .just(true)
-            .delay(500, TimeUnit.MILLISECONDS)
+            .delay(0, TimeUnit.MILLISECONDS)
             .subscribe(new Consumer<Boolean>() {
                 @Override
                 public void accept(Boolean ignored) throws Exception {
-                    startActivity(new Intent(SplashScreenActivity.this, StartActivity.class));
+                    startActivity(new Intent(SplashScreenActivity.this, LoginActivity.class));
                     finish();
                 }
             });
+//        startActivity(new Intent(SplashScreenActivity.this, LoginActivity.class));
+//        finish();
     }
 }

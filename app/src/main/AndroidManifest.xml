@@ -50,7 +50,7 @@
         </activity>
 
         <!-- Start Page -->
-        <activity android:name=".StartActivity">
+        <activity android:name=".LoginActivity">
         </activity>
 
         <!-- Other pages -->
@@ -84,12 +84,12 @@
         <activity
             android:name=".NotificationResultSampleActivity1"
             android:label="@string/title_notification_result_sample"
-            android:parentActivityName=".StartActivity">
+            android:parentActivityName=".LoginActivity">
 
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".StartActivity"/>
+                android:value=".LoginActivity"/>
         </activity>
         <!-- Transient notification result activity -->
         <activity
