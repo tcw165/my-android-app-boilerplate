@@ -636,6 +636,7 @@ public class PhotoPickerView extends CoordinatorLayout
         static final int PAYLOAD_ITEM_UNCHECKED = 1;
 
         final IPhotoPicker mPicker;
+        int viewHoldCount = 0;
 
         MyAlbumPhotoAdapter(Context context,
                             IPhotoPicker picker) {
@@ -651,16 +652,24 @@ public class PhotoPickerView extends CoordinatorLayout
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent,
                                                           int viewType) {
+            ++viewHoldCount;
             return new MyPhotoViewHolder(
                 getInflater().inflate(R.layout.view_checkable_square_imageview,
                                       parent, false));
         }
 
         @Override
-        public void onBindViewHolder(final RecyclerView.ViewHolder viewHolder,
+        public void onViewDetachedFromWindow(RecyclerView.ViewHolder holder) {
+            super.onViewDetachedFromWindow(holder);
+            Log.d("xyz", "detach " + holder.getAdapterPosition() + ", holder=" + holder);
+        }
+
+        @Override
+        public void onBindViewHolder(final RecyclerView.ViewHolder holder,
                                      final Cursor cursor,
                                      final List<Object> payloads) {
-            final CheckableImageView imageView = (CheckableImageView) viewHolder.itemView;
+            Log.d("xyz", "bind " + holder.getAdapterPosition() + " (cursor=" + cursor.getPosition() + "), holder=" + holder);
+            final CheckableImageView imageView = (CheckableImageView) holder.itemView;
             final IPhoto photo = MediaStoreUtil.getPhotoInfo(cursor);
 
             // Checked or unchecked.
@@ -687,7 +696,7 @@ public class PhotoPickerView extends CoordinatorLayout
                     public void onClick(View v) {
                         mPicker.onClickPhoto(imageView,
                                              photo,
-                                             viewHolder.getAdapterPosition());
+                                             holder.getAdapterPosition());
                     }
                 };
 
