@@ -120,9 +120,9 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
      * @param payloads   A list of merged payloads (could be null). Can be
      *                   empty list if requires full update.
      */
-    public abstract void onBindViewHolder(VH viewHolder,
-                                          Cursor cursor,
-                                          List<Object> payloads);
+    public abstract void onBindViewHolder(final VH viewHolder,
+                                          final Cursor cursor,
+                                          final List<Object> payloads);
 
     @SuppressWarnings("unused")
     final public Context getContext() {

@@ -13,6 +13,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.my.boilerplate.view.SampleMenuAdapter;
+import com.my.comp.PhotoPickerActivity;
 
 /**
  * The start menu of the {@code ViewSampleActivity}.
@@ -75,7 +76,9 @@ public class ViewSampleFragment extends Fragment {
                 new Pair<>("ElasticDragMenuLayout (ElasticDragLayout)",
                            "A child class inheriting from ElasticDragDismissLayout. " +
                            "The layout allows a NestedScrollingChild child view " +
-                           "being over dragged.")
+                           "being over dragged."),
+                new Pair<>("PhotoPickerView",
+                           "A google-photo like picker.")
             });
     }
 
@@ -129,6 +132,10 @@ public class ViewSampleFragment extends Fragment {
                             .replace(R.id.frame, new ViewOfElasticDragMenuLayoutSampleFragment())
                             .addToBackStack(null)
                             .commit();
+                        break;
+                    case 5:
+                        startActivityForResult(
+                            new Intent(getActivity(), PhotoPickerActivity.class), 0);
                         break;
                 }
             }

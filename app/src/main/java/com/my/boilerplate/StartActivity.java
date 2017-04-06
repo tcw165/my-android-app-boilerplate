@@ -160,40 +160,36 @@ public class StartActivity
                            "The experiments of custom View/ViewGroup."),
                 // TODO: Move to the custom view exp.
                 // item 2.
-                new Pair<>("RecyclerView",
-                           "Add/Remove/Reposition the items in the RecyclerView " +
-                           "with animation. (on-going)"),
-                // item 3.
                 new Pair<>("Notification",
                            "Fire notifications and lead the user to the Activity " +
                            "in the current task or in a new task."),
-                // item 4.
+                // item 3.
                 new Pair<>("Services",
                            "Use the service to do a long operation in the background " +
                            "and notify the binding Activity the processing status.\n" +
                            "The service might be still alive when the task is moved " +
                            "to the background."),
-                // item 5.
+                // item 4.
                 new Pair<>("DownloadManager",
                            "Use DownloadManager (a system service) to download files."),
-                // item 6.
+                // item 5.
                 new Pair<>("FileProvider",
                            "Share file URI through FileProvider."),
-                // item 7.
+                // item 6.
                 new Pair<>("In-App-Purchase",
                            "A sticker store page using combined technologies of " +
                            "Retrofit, RxJava2, Gson, ContentProvider, SQLite and " +
                            "more."),
-                // item 8.
+                // item 7.
                 new Pair<>("AlertManager",
                            "(constructing)"),
-                // item 9.
+                // item 8.
                 new Pair<>("BroadcastReceiver",
                            "(constructing)"),
-                // item 10.
+                // item 9.
                 new Pair<>("RxJava-2",
                            "(constructing)."),
-                // item 11.
+                // item 10.
                 new Pair<>("OkHttp",
                            "(constructing)."),
                 });
@@ -219,30 +215,25 @@ public class StartActivity
                         break;
                     case 2:
                         startActivity(new Intent(StartActivity.this,
-                                                 PhotoPickerActivity.class)
+                                                 NotificationSampleActivity.class)
                                           .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                         break;
                     case 3:
                         startActivity(new Intent(StartActivity.this,
-                                                 NotificationSampleActivity.class)
+                                                 ServiceSampleActivity.class)
                                           .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                         break;
                     case 4:
                         startActivity(new Intent(StartActivity.this,
-                                                 ServiceSampleActivity.class)
+                                                 DownloadManagerSampleActivity.class)
                                           .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                         break;
                     case 5:
                         startActivity(new Intent(StartActivity.this,
-                                                 DownloadManagerSampleActivity.class)
-                                          .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-                        break;
-                    case 6:
-                        startActivity(new Intent(StartActivity.this,
                                                  FileProviderActivity.class)
                                           .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                         break;
-                    case 7:
+                    case 6:
                         startActivity(new Intent(StartActivity.this,
                                                  IapSampleActivity.class)
                                           .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));

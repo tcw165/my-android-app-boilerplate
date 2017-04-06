@@ -23,36 +23,53 @@ package com.my.widget;
 import android.Manifest;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.PointF;
+import android.graphics.Rect;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.view.MotionEventCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.OvershootInterpolator;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Checkable;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.Priority;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.my.widget.adapter.CursorRecyclerViewAdapter;
+import com.my.widget.data.IObservableList;
 import com.my.widget.data.IPhoto;
 import com.my.widget.data.IPhotoAlbum;
-import com.my.widget.data.ObservableHashSet;
+import com.my.widget.data.ObservableArrayList;
 import com.my.widget.protocol.IPhotoPicker;
 import com.my.widget.util.MediaStoreUtil;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -69,28 +86,39 @@ import io.reactivex.schedulers.Schedulers;
  * <br/>
  * Usage:
  * <pre>
+ *
  * mPhotoPicker = (PhotoPickerView) findViewById(R.id.photo_picker);
+ *
  * // Initialize the selection pool.
- * mPhotoPicker.setSelection(this);
+ * mPhotoPicker.setSelection(getSelectionProvider());
+ *
  * // Load the default album and photos.
  * mPhotoPicker.loadDefaultAlbumAndPhotos();
+ *
  * </pre>
  */
-public class PhotoPickerView extends FrameLayout
+// FIXME: The elastic-drag doesn't work.
+// FIXME: Update selection list when the cursor is changed.
+public class PhotoPickerView extends CoordinatorLayout
     implements IPhotoPicker,
-               IProgressBarView {
+               IProgressBarView,
+               IObservableList.ListChangeListener<IPhoto> {
 
     // View.
     AppCompatSpinner mAlbumList;
     MyAlbumAdapter mAlbumListAdapter;
     RecyclerView mPhotoList;
     MyAlbumPhotoAdapter mPhotoListAdapter;
+    GridLayoutManager mPhotoListLayoutMgr;
     SwipeRefreshLayout mPhotoListParent;
+    MySelectionAdapter mSelectionListAdapter;
+    RecyclerView mSelectionList;
 
     // State.
-    // FIXME: Temporarily here.
-    // FIXME: Make it order sensitive.
-    ObservableHashSet.Provider<IPhoto> mSelectionProvider;
+    final MySelectionViewHelper mSelectionViewHelper;
+
+    // Selection.
+    ObservableArrayList.Provider<IPhoto> mSelectionProvider;
 
     public PhotoPickerView(@NonNull Context context) {
         this(context, null);
@@ -111,20 +139,94 @@ public class PhotoPickerView extends FrameLayout
 
         // The photo list of the selected album.
         mPhotoListAdapter = new MyAlbumPhotoAdapter(getContext(), this);
+        mPhotoListLayoutMgr = new GridLayoutManager(
+            getContext(),
+            getResources().getInteger(R.integer.photo_picker_grid_column_num),
+            GridLayoutManager.VERTICAL,
+            false);
         mPhotoList = (RecyclerView) findViewById(R.id.photo_list);
         mPhotoList.setHasFixedSize(true);
+        mPhotoList.setLayoutManager(mPhotoListLayoutMgr);
+        mPhotoList.addItemDecoration(new GridSpacingDecoration(
+            mPhotoList,
+            (int) getResources().getDimension(R.dimen.grid_item_spacing_big)));
         mPhotoList.setAdapter(mPhotoListAdapter);
-        mPhotoList.setLayoutManager(new GridLayoutManager(
+
+        // The selection list.
+        mSelectionListAdapter = new MySelectionAdapter(getContext(), this);
+        mSelectionList = (RecyclerView) findViewById(R.id.selection_list);
+        mSelectionList.setHasFixedSize(true);
+        mSelectionList.setLayoutManager(new LinearLayoutManager(
             getContext(),
-            getResources().getInteger(R.integer.photo_picker_grid_column_num)));
-        mPhotoList.addItemDecoration(new GridItemDecoration(
-            (int) getResources().getDimension(R.dimen.grid_item_spacing),
-            getResources().getInteger(R.integer.photo_picker_grid_column_num)));
+            LinearLayoutManager.HORIZONTAL,
+            false));
+        mSelectionList.addItemDecoration(new GridSpacingDecoration(
+            mSelectionList,
+            (int) getResources().getDimension(R.dimen.grid_item_spacing_medium)));
+        mSelectionList.setAdapter(mSelectionListAdapter);
 
         // The photo list's parent view.
         mPhotoListParent = (SwipeRefreshLayout) findViewById(R.id.photo_list_parent);
         // Disable the "Swipe" gesture and the animation.
         mPhotoListParent.setEnabled(false);
+
+        final ViewGroup.LayoutParams params = mSelectionList.getLayoutParams();
+        // Helper.
+        mSelectionViewHelper = new MySelectionViewHelper(
+            getContext(),
+            // The selection list.
+            mSelectionList,
+            // ty for completely hidden.
+            0,
+            // ty for partially revealing.
+            -getResources().getDimension(R.dimen.partially_revealing_height),
+            // ty for completely revealing.
+            -params.height);
+    }
+
+    @Override
+    public void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+
+        // Because the selection is provided by the provider, so previously
+        // registering listener would let the provider have the reference of
+        // this class.
+        // Make sure to remove the selection listener to avoid from leaking.
+        if (mSelectionProvider != null) {
+            mSelectionProvider
+                .getObservableList()
+                .removeListener(this);
+        }
+    }
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent evt) {
+        return mSelectionViewHelper.onInterceptTouchEvent(evt) ||
+               super.onInterceptTouchEvent(evt);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent evt) {
+        return mSelectionViewHelper.onTouchEvent(evt) ||
+               super.onTouchEvent(evt);
+    }
+
+    @Override
+    public void onItemAdded(List<IPhoto> list,
+                            IPhoto item) {
+        onSelectionChanged(list, item, null, null);
+    }
+
+    @Override
+    public void onItemRemoved(List<IPhoto> list,
+                              IPhoto item) {
+        onSelectionChanged(list, null, item, null);
+    }
+
+    @Override
+    public void onItemChanged(List<IPhoto> list,
+                              IPhoto item) {
+        onSelectionChanged(list, null, null, item);
     }
 
     @Override
@@ -154,32 +256,57 @@ public class PhotoPickerView extends FrameLayout
     }
 
     @Override
+    public List<IPhoto> getSelectedPhoto() {
+        return getSelection();
+    }
+
+    @Override
     public void onClickPhoto(Checkable view,
                              IPhoto photo,
                              int position) {
-        // Update the checkable state.
-        view.toggle();
-
-        // Update the selection pool.
-        if (view.isChecked()) {
-            getSelection().add(photo);
+        if (isPhotoSelected(photo)) {
+            onDeselectPhoto(photo, position);
         } else {
-            if (getSelection().contains(photo)) {
-                getSelection().remove(photo);
-            }
+            onSelectPhoto(photo, position);
         }
     }
 
-    public void setSelection(ObservableHashSet.Provider<IPhoto> provider) {
-        if (provider == null || provider.getObservableSet() == null) {
+    @Override
+    public void onSelectPhoto(IPhoto photo,
+                              int position) {
+        // Will trigger onSelectionChanged();
+        getSelection().add(photo);
+    }
+
+    @Override
+    public void onDeselectPhoto(IPhoto photo,
+                                int position) {
+        if (getSelection().contains(photo)) {
+            // Will trigger onSelectionChanged();
+            getSelection().remove(photo);
+        }
+    }
+
+    public void setSelection(ObservableArrayList.Provider<IPhoto> provider) {
+        if (provider == null || provider.getObservableList() == null) {
             throw new IllegalArgumentException("Given provider is invalid");
         }
 
+        // Unregister the old listener.
+        if (mSelectionProvider != null) {
+            mSelectionProvider
+                .getObservableList()
+                .removeListener(this);
+        }
+        // Swap provider.
         mSelectionProvider = provider;
+        mSelectionProvider
+            .getObservableList()
+            .addListener(this);
     }
 
-    public ObservableHashSet<IPhoto> getSelection() {
-        return mSelectionProvider.getObservableSet();
+    public List<IPhoto> getSelection() {
+        return mSelectionProvider.getObservableList();
     }
 
     public void loadDefaultAlbumAndPhotos() {
@@ -242,6 +369,50 @@ public class PhotoPickerView extends FrameLayout
 
     ///////////////////////////////////////////////////////////////////////////
     // Protected / Private Methods ////////////////////////////////////////////
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec,
+                             int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+    }
+
+    @Override
+    protected void onLayout(boolean changed,
+                            int left,
+                            int top,
+                            int right,
+                            int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+
+        final int parentLeft = getPaddingLeft();
+        final int parentRight = right - left - getPaddingRight();
+        final int parentBottom = bottom - top - getPaddingBottom();
+
+        // Place the selection list at the bottom.
+        if (mSelectionList != null) {
+            final ViewGroup.MarginLayoutParams params =
+                (ViewGroup.MarginLayoutParams) mSelectionList.getLayoutParams();
+            final int childHeight = mSelectionList.getMeasuredHeight();
+
+            // We have custom behavior for this child view.
+            mSelectionList.layout(parentLeft + params.leftMargin,
+                                  parentBottom - params.bottomMargin,
+                                  parentRight - params.rightMargin,
+                                  parentBottom - params.bottomMargin + childHeight);
+        }
+    }
+
+    // TODO: Complete the save-state.
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        return super.onSaveInstanceState();
+    }
+
+    // TODO: Complete the restore-state.
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        super.onRestoreInstanceState(state);
+    }
 
     Observable<List<IPhotoAlbum>> loadAlbumList() {
         return Observable
@@ -324,11 +495,42 @@ public class PhotoPickerView extends FrameLayout
         };
     }
 
+    void onSelectionChanged(List<IPhoto> list,
+                            IPhoto added,
+                            IPhoto removed,
+                            IPhoto updated) {
+        // Assign new data (will apply to DiffUtil).
+        mSelectionListAdapter.setData(list);
+        // Update the position of selection view.
+        mSelectionViewHelper.onListUpdate();
+
+        // Notify the checked state change to the photo list.
+        // (cannot use DiffUtil because the adapter is a cursor-adapter).
+        final int start = mPhotoListLayoutMgr.findFirstVisibleItemPosition();
+        final int end = mPhotoListLayoutMgr.findLastVisibleItemPosition();
+        final Cursor cursor = mPhotoListAdapter.getCursor();
+        if (cursor.moveToPosition(start)) {
+            do {
+                IPhoto photo1 = MediaStoreUtil.getPhotoInfo(cursor);
+                if (photo1.equals(added)) {
+                    mPhotoListAdapter.notifyItemChanged(
+                        cursor.getPosition(),
+                        MyAlbumPhotoAdapter.PAYLOAD_ITEM_CHECKED);
+                } else if (photo1.equals(removed)) {
+                    mPhotoListAdapter.notifyItemChanged(
+                        cursor.getPosition(),
+                        MyAlbumPhotoAdapter.PAYLOAD_ITEM_UNCHECKED);
+                }
+            } while (cursor.moveToNext() &&
+                     cursor.getPosition() <= end);
+        }
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // Clazz //////////////////////////////////////////////////////////////////
 
     /**
-     * The album adapter class.
+     * The album mTargetAdapter class.
      */
     private static class MyAlbumAdapter extends BaseAdapter {
 
@@ -402,6 +604,9 @@ public class PhotoPickerView extends FrameLayout
             // TODO: Load the cover image.
             Glide.with(parent.getContext())
                  .load(mAlbums.get(position).thumbnailPath())
+                 .placeholder(ContextCompat.getDrawable(
+                     convertView.getContext(),
+                     R.drawable.bg_borderless_rect_light_gray))
                  .into(holder.albumCover);
             // Update the album name.
             holder.albumName.setText(album.name());
@@ -411,87 +616,499 @@ public class PhotoPickerView extends FrameLayout
         }
     }
 
+    private static class MyAlbumViewHolder {
+        ImageView albumCover;
+        TextView albumName;
+        TextView albumPhotoNum;
+
+        MyAlbumViewHolder() {
+            // DO NOTHING.
+        }
+    }
+
     /**
-     * The album photo adapter class.
+     * The album photo mTargetAdapter class.
      */
     private static class MyAlbumPhotoAdapter
         extends CursorRecyclerViewAdapter<RecyclerView.ViewHolder> {
 
-        final IPhotoPicker mListener;
+        static final int PAYLOAD_ITEM_CHECKED = 0;
+        static final int PAYLOAD_ITEM_UNCHECKED = 1;
+
+        final IPhotoPicker mPicker;
+        int viewHoldCount = 0;
 
         MyAlbumPhotoAdapter(Context context,
-                            IPhotoPicker listener) {
+                            IPhotoPicker picker) {
             super(context);
 
-            if (listener == null) {
+            if (picker == null) {
                 throw new IllegalArgumentException("Given listener is null");
             }
 
-            mListener = listener;
+            mPicker = picker;
         }
 
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent,
                                                           int viewType) {
+            ++viewHoldCount;
             return new MyPhotoViewHolder(
-                getInflater().inflate(R.layout.view_photo_grid_item,
+                getInflater().inflate(R.layout.view_checkable_square_imageview,
                                       parent, false));
         }
 
-        // FIXME: These two functions will cause Glide loading incorrectly.
-//        @Override
-//        public void onViewRecycled(RecyclerView.ViewHolder holder) {
-//            super.onViewRecycled(holder);
-//            Log.d("xyz", "onViewRecycled");
-//            Glide.clear(holder.itemView);
-//        }
-//
-//        @Override
-//        public void onViewDetachedFromWindow(RecyclerView.ViewHolder holder) {
-//            super.onViewDetachedFromWindow(holder);
-//            Log.d("xyz", "onViewDetachedFromWindow");
-//            Glide.clear(holder.itemView);
-//        }
+        @Override
+        public void onViewDetachedFromWindow(RecyclerView.ViewHolder holder) {
+            super.onViewDetachedFromWindow(holder);
+            Log.d("xyz", "detach " + holder.getAdapterPosition() + ", holder=" + holder);
+        }
 
         @Override
-        public void onBindViewHolder(final RecyclerView.ViewHolder viewHolder,
+        public void onBindViewHolder(final RecyclerView.ViewHolder holder,
                                      final Cursor cursor,
-                                     List<Object> payloads) {
-            final CheckableImageView imageView = (CheckableImageView) viewHolder.itemView;
-            final int position = viewHolder.getAdapterPosition();
+                                     final List<Object> payloads) {
+            Log.d("xyz", "bind " + holder.getAdapterPosition() + " (cursor=" + cursor.getPosition() + "), holder=" + holder);
+            final CheckableImageView imageView = (CheckableImageView) holder.itemView;
             final IPhoto photo = MediaStoreUtil.getPhotoInfo(cursor);
 
-            imageView.setChecked(mListener.isPhotoSelected(photo));
-            imageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mListener.onClickPhoto(imageView,
-                                           photo,
-                                           position);
+            // Checked or unchecked.
+            if (payloads == null || payloads.isEmpty()) {
+                imageView.setChecked(mPicker.isPhotoSelected(photo));
+
+                // Cancel animation.
+                ViewCompat.animate(imageView).cancel();
+
+                // FIXME: Buggy.
+                // Update the scale effect.
+//                if (imageView.isChecked()) {
+//                    ViewCompat.setScaleX(imageView, 0.8f);
+//                    ViewCompat.setScaleY(imageView, 0.8f);
+//                } else {
+//                    ViewCompat.setScaleX(imageView, 1f);
+//                    ViewCompat.setScaleY(imageView, 1f);
+//                }
+
+                // Clear old onClick listener.
+                imageView.setOnClickListener(null);
+                final View.OnClickListener listener = new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mPicker.onClickPhoto(imageView,
+                                             photo,
+                                             holder.getAdapterPosition());
+                    }
+                };
+
+                Glide.with(getContext())
+                     .load(photo.thumbnailPath())
+                     .listener(new RequestListener<String, GlideDrawable>() {
+                         @Override
+                         public boolean onException(Exception e,
+                                                    String model,
+                                                    Target<GlideDrawable> target,
+                                                    boolean isFirstResource) {
+                             return false;
+                         }
+
+                         @Override
+                         public boolean onResourceReady(GlideDrawable resource,
+                                                        String model,
+                                                        Target<GlideDrawable> target,
+                                                        boolean isFromMemoryCache,
+                                                        boolean isFirstResource) {
+                             // onClick listener.
+                             imageView.setOnClickListener(listener);
+                             return false;
+                         }
+                     })
+                     .placeholder(ContextCompat.getDrawable(
+                         getContext(), R.drawable.bg_borderless_rect_light_gray))
+                     .priority(Priority.IMMEDIATE)
+                     .into(imageView);
+            } else {
+                for (Object payload : payloads) {
+                    if ((Integer) payload == PAYLOAD_ITEM_CHECKED) {
+                        imageView.setChecked(true);
+
+                        // FIXME: Buggy.
+                        // Update the scale effect.
+//                        ViewCompat.animate(imageView)
+//                                  .setDuration(150)
+//                                  .scaleX(0.8f)
+//                                  .scaleY(0.8f)
+//                                  .setInterpolator(new OvershootInterpolator(10f))
+//                                  .start();
+                    } else if ((Integer) payload == PAYLOAD_ITEM_UNCHECKED) {
+                        imageView.setChecked(false);
+
+                        // FIXME: Buggy.
+                        // Update the scale effect.
+//                        ViewCompat.animate(imageView)
+//                                  .setDuration(150)
+//                                  .scaleX(1f)
+//                                  .scaleY(1f)
+//                                  .setInterpolator(new AccelerateInterpolator())
+//                                  .start();
+                    }
                 }
-            });
-
-            Glide.with(getContext())
-                 .load(photo.thumbnailPath())
-                 .priority(Priority.IMMEDIATE)
-                 // FIXME: Animation causes ghost images.
-                 .dontAnimate()
-//                 .skipMemoryCache(true)
-//                 .diskCacheStrategy(DiskCacheStrategy.NONE)
-                 .into(imageView);
+            }
         }
-    }
-
-    private static class MyAlbumViewHolder {
-        ImageView albumCover;
-        TextView albumName;
-        TextView albumPhotoNum;
     }
 
     private static class MyPhotoViewHolder extends RecyclerView.ViewHolder {
 
         MyPhotoViewHolder(View view) {
             super(view);
+
+            // Here, we need its fixed dimension to be width.
+            final CheckableImageView imgView = (CheckableImageView) view;
+            imgView.setFixedDimension(CheckableImageView.FIXED_WIDTH);
+        }
+    }
+
+    // TODO: Apply DiffUtil.
+    private static class MySelectionAdapter
+        extends RecyclerView.Adapter<MySelectionViewHolder> {
+
+        final private Context mContext;
+        final private LayoutInflater mInflater;
+
+        final IPhotoPicker mPicker;
+
+        private List<IPhoto> mData = Collections.emptyList();
+
+        MySelectionAdapter(final Context context,
+                           final IPhotoPicker picker) {
+            mContext = context;
+            mInflater = LayoutInflater.from(context);
+            mPicker = picker;
+        }
+
+        @Override
+        public MySelectionViewHolder onCreateViewHolder(ViewGroup parent,
+                                                        int viewType) {
+            return new MySelectionViewHolder(
+                mInflater.inflate(R.layout.view_deletable_square_imageview, parent, false));
+        }
+
+        @Override
+        public void onBindViewHolder(MySelectionViewHolder holder,
+                                     int position) {
+            this.onBindViewHolder(holder, position, null);
+        }
+
+        @Override
+        public void onBindViewHolder(final MySelectionViewHolder holder,
+                                     final int position,
+                                     final List<Object> payloads) {
+            final ImageView imgView = (ImageView) holder.itemView;
+            final IPhoto photo = mData.get(position);
+
+            imgView.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mPicker.onDeselectPhoto(photo, holder.getAdapterPosition());
+                }
+            });
+
+            Glide.with(mContext)
+                 .load(photo.thumbnailPath())
+                 .placeholder(ContextCompat.getDrawable(
+                     mContext, R.drawable.bg_borderless_rect_light_gray))
+                 .priority(Priority.IMMEDIATE)
+                 .into(imgView);
+        }
+
+        @Override
+        public int getItemCount() {
+            return mData.size();
+        }
+
+        public void setData(List<IPhoto> data) {
+            if (data == null) {
+                throw new IllegalArgumentException("Given list is null");
+            }
+
+            // Compare old data and new data.
+            final List<IPhoto> oldData = mData;
+            mData = new ArrayList<>(data);
+
+            // Leverage diff-util.
+            DiffUtil.DiffResult diff = DiffUtil.calculateDiff(
+                new MySelectionDiff(oldData, mData));
+
+            diff.dispatchUpdatesTo(this);
+        }
+    }
+
+    private static class MySelectionViewHolder extends RecyclerView.ViewHolder {
+
+        MySelectionViewHolder(View view) {
+            super(view);
+
+            // Here, we need its fixed dimension to be height.
+            final CheckableImageView imgView = (CheckableImageView) view;
+            imgView.setFixedDimension(CheckableImageView.FIXED_HEIGHT);
+        }
+    }
+
+    /**
+     * Selection list comparator.
+     */
+    private static class MySelectionDiff extends DiffUtil.Callback {
+
+        final List<IPhoto> mOld;
+        final List<IPhoto> mNew;
+
+        MySelectionDiff(List<IPhoto> oldList,
+                        List<IPhoto> newList) {
+            mOld = oldList;
+            mNew = newList;
+        }
+
+        @Override
+        public int getOldListSize() {
+            return mOld.size();
+        }
+
+        @Override
+        public int getNewListSize() {
+            return mNew.size();
+        }
+
+        @Override
+        public boolean areItemsTheSame(int oldItemPosition,
+                                       int newItemPosition) {
+            final IPhoto o = mOld.get(oldItemPosition);
+            final IPhoto n = mNew.get(newItemPosition);
+            return o.fullSizePath().equals(n.fullSizePath());
+        }
+
+        @Override
+        public boolean areContentsTheSame(int oldItemPosition,
+                                          int newItemPosition) {
+            final IPhoto o = mOld.get(oldItemPosition);
+            final IPhoto n = mNew.get(newItemPosition);
+            return o.fullSizePath().equals(n.fullSizePath()) &&
+                   o.width() == n.width() &&
+                   o.height() == n.height();
+        }
+
+        @Nullable
+        @Override
+        public Object getChangePayload(int oldItemPosition,
+                                       int newItemPosition) {
+            return super.getChangePayload(oldItemPosition, newItemPosition);
+        }
+    }
+
+    /**
+     * For handling show/hide the target view.
+     */
+    private static class MySelectionViewHelper {
+
+        private static final int STATE_SETTLING = 0;
+        private static final int STATE_PARTIALLY_REVEALING = 1;
+        private static final int STATE_COMPLETELY_REVEALING = 2;
+        private static final int STATE_COMPLETELY_HIDDEN = 3;
+
+        private int mState = STATE_COMPLETELY_HIDDEN;
+        private boolean mIsHandling = false;
+        private float mTouchSlop;
+
+        private final RecyclerView mTargetView;
+
+        private final float mTyForCompletelyHidden;
+        private final float mTyForPartiallyRevealing;
+        private final float mTyForCompletelyRevealing;
+
+        private final PointF mActionDownPoint = new PointF();
+
+        private final PointF mStartPoint = new PointF();
+        private final PointF mCurrentPoint = new PointF();
+        private final PointF mStartTranslationY = new PointF();
+
+        private final Rect mHitRect = new Rect();
+
+        /**
+         * For handling show/hide the target view.
+         * <br/>
+         * <ul>
+         *     <li>See {@link #onInterceptTouchEvent(MotionEvent)}</li>
+         *     <li>See {@link #onTouchEvent(MotionEvent)}</li>
+         *     <li>See {@link #onListUpdate()}</li>
+         * </ul>
+         *
+         * @param targetView               The target {@link RecyclerView}
+         * @param tyForCompletelyHidden    The translationY of targetView for
+         *                                 completely hidden state.
+         * @param tyForPartiallyRevealing  The translationY of targetView for
+         *                                 partially revealing state.
+         * @param tyForCompletelyRevealing The translationY of targetView for
+         *                                 completely revealing state.
+         */
+        MySelectionViewHelper(Context context,
+                              RecyclerView targetView,
+                              float tyForCompletelyHidden,
+                              float tyForPartiallyRevealing,
+                              float tyForCompletelyRevealing) {
+            final ViewConfiguration cfg = ViewConfiguration.get(context);
+            mTouchSlop = cfg.getScaledTouchSlop();
+
+            mTargetView = targetView;
+            mTyForCompletelyHidden = tyForCompletelyHidden;
+            mTyForPartiallyRevealing = tyForPartiallyRevealing;
+            mTyForCompletelyRevealing = tyForCompletelyRevealing;
+        }
+
+        /**
+         * Called in caller's {@link ViewGroup#onInterceptTouchEvent(MotionEvent)}.
+         */
+        boolean onInterceptTouchEvent(MotionEvent evt) {
+            final int act = MotionEventCompat.getActionMasked(evt);
+
+            if (act == MotionEvent.ACTION_DOWN) {
+                mActionDownPoint.set(evt.getX(), evt.getY());
+            }
+
+            // Record the dragging start.
+            if (act == MotionEvent.ACTION_MOVE && hasSelected()) {
+                // Cache the boolean for determining the state later.
+                final boolean wasHandling = mIsHandling;
+
+                // Get the hit boundary.
+                mTargetView.getHitRect(mHitRect);
+
+                if (mState == STATE_PARTIALLY_REVEALING) {
+                    // Enlarge the hit rect.
+                    mHitRect.inset(0, (int) (-3f * mTouchSlop));
+
+                    // TODO: Check out the history #0.
+                    // Try to initiate the gesture.
+                    mIsHandling =
+                        // Is touching the view.
+                        mHitRect.contains((int) evt.getX(), (int) evt.getY()) &&
+                        // Is dragging up.
+                        (mActionDownPoint.y - evt.getY()) > mTouchSlop;
+                } else if (mState == STATE_COMPLETELY_REVEALING) {
+                    // Enlarge the hit rect.
+                    mHitRect.inset(0, (int) -mTouchSlop);
+
+                    // TODO: Check out the history #0.
+                    // Try to initiate the gesture.
+                    mIsHandling =
+                        // Is touching the view.
+                        mHitRect.contains((int) evt.getX(), (int) evt.getY()) &&
+                        // Is dragging down.
+                        (evt.getY() - mActionDownPoint.y) > mTouchSlop;
+                }
+
+                if (wasHandling != mIsHandling) {
+                    // Cache the starting state if it is from partially revealing
+                    // to completely revealing.
+                    mStartPoint.set(evt.getX(), evt.getY());
+                    mStartTranslationY.set(mTargetView.getTranslationX(),
+                                           mTargetView.getTranslationY());
+                }
+            }
+
+            return mIsHandling;
+        }
+
+        /**
+         * Called in caller's {@link View#onTouchEvent(MotionEvent)}.
+         */
+        boolean onTouchEvent(MotionEvent evt) {
+            final int act = MotionEventCompat.getActionMasked(evt);
+
+            if (act == MotionEvent.ACTION_MOVE) {
+                // Cancel the animation if it is present.
+                ViewCompat.animate(mTargetView).cancel();
+
+                // Update the translationY.
+                mState = STATE_SETTLING;
+                mCurrentPoint.set(evt.getX(), evt.getY());
+
+                // Animate the target view.
+                ViewCompat.setTranslationY(mTargetView, getTranslationY());
+            } else if (act == MotionEvent.ACTION_UP ||
+                       act == MotionEvent.ACTION_CANCEL) {
+                final float ty = mTargetView.getTranslationY();
+
+                // Determine the gesture state.
+                if (hasSelected()) {
+                    if (Math.abs(ty) > mTargetView.getHeight() / 2) {
+                        mState = STATE_COMPLETELY_REVEALING;
+                    } else {
+                        mState = STATE_PARTIALLY_REVEALING;
+                    }
+                } else {
+                    mState = STATE_COMPLETELY_HIDDEN;
+                }
+
+                // Animate the target view.
+                ViewCompat.animate(mTargetView)
+                          .setDuration(150)
+                          .translationY(getTranslationY())
+                          .start();
+
+                // Terminate the gesture.
+                mIsHandling = false;
+            }
+
+            return mIsHandling;
+        }
+
+        /**
+         * Called in caller's {@link IObservableList.ListChangeListener}.
+         */
+        void onListUpdate() {
+            if (hasSelected()) {
+                if (mState == STATE_COMPLETELY_HIDDEN) {
+                    mState = STATE_PARTIALLY_REVEALING;
+                }
+            } else {
+                mState = STATE_COMPLETELY_HIDDEN;
+            }
+
+            ViewCompat.animate(mTargetView)
+                      .translationY(getTranslationY())
+                      .start();
+
+            // TODO: Scroll to the latest update one.
+//            final int newPosition = mTargetView.getAdapter().getItemCount() - 1;
+//            if (newPosition > 0) {
+//                mTargetView.smoothScrollToPosition(newPosition);
+//            }
+        }
+
+        private boolean hasSelected() {
+            return mTargetView.getAdapter().getItemCount() > 0;
+        }
+
+        private float getTranslationY() {
+            if (hasSelected()) {
+                if (mState == STATE_COMPLETELY_REVEALING) {
+                    return mTyForCompletelyRevealing;
+                } else if (mState == STATE_PARTIALLY_REVEALING) {
+                    return mTyForPartiallyRevealing;
+                } else if (mState == STATE_SETTLING) {
+                    float ty = mStartTranslationY.y + (mCurrentPoint.y - mStartPoint.y);
+
+                    // Constraint ty.
+                    ty = Math.min(mTyForPartiallyRevealing, ty);
+                    ty = Math.max(mTyForCompletelyRevealing, ty);
+
+                    return ty;
+                } else {
+                    throw new IllegalStateException(
+                        "State(=" + mState + ") is not valid when " +
+                        "hasSelected()=" + hasSelected());
+                }
+            } else {
+                return mTyForCompletelyHidden;
+            }
         }
     }
 }

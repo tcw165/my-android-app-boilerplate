@@ -465,7 +465,6 @@ public class MediaStoreUtil {
             return Float.compare(photo.mWidth, mWidth) == 0 &&
                    Float.compare(photo.mHeight, mHeight) == 0 &&
                    mFullSizePath.equals(photo.mFullSizePath);
-
         }
 
         @Override

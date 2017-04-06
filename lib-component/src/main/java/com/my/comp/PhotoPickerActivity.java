@@ -22,6 +22,7 @@ package com.my.comp;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Looper;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -33,13 +34,15 @@ import android.widget.TextView;
 
 import com.my.widget.PhotoPickerView;
 import com.my.widget.data.IPhoto;
-import com.my.widget.data.ObservableHashSet;
+import com.my.widget.data.ObservableArrayList;
 
+import java.util.List;
 import java.util.Locale;
 
 public class PhotoPickerActivity
     extends AppCompatActivity
-    implements ObservableHashSet.Provider<IPhoto> {
+    implements ObservableArrayList.Provider<IPhoto>,
+               ObservableArrayList.ListChangeListener<IPhoto> {
 
     public static final String RESULT_PHOTOS =
         PhotoPickerActivity.class.getCanonicalName() + ".RESULT_PHOTOS";
@@ -53,7 +56,7 @@ public class PhotoPickerActivity
     MenuItem mSkipButtonView;
 
     // State.
-    ObservableHashSet<IPhoto> mSelectedPhotos;
+    ObservableArrayList<IPhoto> mSelectedPhotos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,8 +72,8 @@ public class PhotoPickerActivity
         }
 
         // The photo selection pool.
-        mSelectedPhotos = new ObservableHashSet<>();
-        mSelectedPhotos.addOnSetChangedListener(onPhotoSelectionChanged());
+        mSelectedPhotos = new ObservableArrayList<>(Looper.getMainLooper());
+        mSelectedPhotos.addListener(this);
 
         // Photo picker.
         mPhotoPicker = (PhotoPickerView) findViewById(R.id.photo_picker);
@@ -114,7 +117,31 @@ public class PhotoPickerActivity
     }
 
     @Override
-    public ObservableHashSet<IPhoto> getObservableSet() {
+    public void onItemAdded(List<IPhoto> list,
+                            IPhoto item) {
+        mDoneButtonView.setVisible(true);
+        mSkipButtonView.setVisible(false);
+        mSelectionNumView.setText(
+            String.format(Locale.ENGLISH, "%d", list.size()));
+    }
+
+    @Override
+    public void onItemRemoved(List<IPhoto> list,
+                              IPhoto item) {
+        if (list.isEmpty()) {
+            mDoneButtonView.setVisible(false);
+            mSkipButtonView.setVisible(true);
+        }
+    }
+
+    @Override
+    public void onItemChanged(List<IPhoto> list,
+                              IPhoto item) {
+        // DO NOTHING.
+    }
+
+    @Override
+    public ObservableArrayList<IPhoto> getObservableList() {
         return mSelectedPhotos;
     }
 
@@ -150,23 +177,6 @@ public class PhotoPickerActivity
                 setResult(RESULT_OK, new Intent()
                     .putExtra(RESULT_PHOTOS, mSelectedPhotos.toArray()));
                 finish();
-            }
-        };
-    }
-
-    private ObservableHashSet.OnSetChangedListener<IPhoto> onPhotoSelectionChanged() {
-        return new ObservableHashSet.OnSetChangedListener<IPhoto>() {
-            @Override
-            public void onSetChanged(ObservableHashSet<IPhoto> set) {
-                if (set == null || set.isEmpty()) {
-                    mDoneButtonView.setVisible(false);
-                    mSkipButtonView.setVisible(true);
-                } else {
-                    mDoneButtonView.setVisible(true);
-                    mSkipButtonView.setVisible(false);
-                    mSelectionNumView.setText(
-                        String.format(Locale.ENGLISH, "%d", set.size()));
-                }
             }
         };
     }
