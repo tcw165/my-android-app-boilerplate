@@ -18,15 +18,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.boilerplate;
+package com.my.boilerplate.util;
 
-public class Const {
+import android.content.Context;
+import android.content.SharedPreferences;
 
-    public final static String TAG = "xyz";
+import com.my.boilerplate.R;
 
-    public final static String DB_ACTION_KEY = "action";
-    public final static String DB_ACTION_VALUE_INSERT = "insert";
-    public final static String DB_ACTION_VALUE_DELETE = "delete";
-    public final static String DB_ACTION_VALUE_UPDATE = "update";
-    public final static String DB_ACTION_VALUE_QUERY = "query";
+public class PrefUtil {
+
+    public final static String PREF_AVATAR_IMAGE_PATH = "avatar_image_path";
+
+    public static String getString(final Context context,
+                                   final String key) {
+        final SharedPreferences prefs = getPrefs(context);
+
+        return prefs.getString(key, null);
+    }
+
+    public static void setString(final Context context,
+                                 final String key,
+                                 final String value) {
+        final SharedPreferences prefs = getPrefs(context);
+
+        prefs.edit()
+             .putString(key, value)
+             .apply();
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Protected / Private Methods ////////////////////////////////////////////
+
+    private static SharedPreferences getPrefs(final Context context) {
+        return context.getSharedPreferences(
+            context.getString(R.string.app_name), 0);
+    }
 }

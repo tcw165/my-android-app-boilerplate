@@ -52,8 +52,14 @@
         <!-- Start Page -->
         <activity android:name=".LoginActivity">
         </activity>
+        <activity android:name=".StartActivity">
+        </activity>
 
         <!-- Other pages -->
+        <activity
+            android:name=".RequestsActivity"
+            android:label="@string/title_requests">
+        </activity>
         <activity
             android:name=".SettingsActivity"
             android:label="@string/menu_settings">

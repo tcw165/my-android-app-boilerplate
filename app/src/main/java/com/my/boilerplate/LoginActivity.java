@@ -21,6 +21,7 @@
 package com.my.boilerplate;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -28,18 +29,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
-import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.Priority;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 import com.my.boilerplate.protocol.IOnClickObjectListener;
+import com.my.boilerplate.util.PrefUtil;
 import com.my.widget.CheckableImageView;
 import com.my.widget.IProgressBarView;
 import com.my.widget.util.ViewUtil;
@@ -74,7 +73,7 @@ public class LoginActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_start);
+        setContentView(R.layout.activity_login);
 
         // List menu.
         mAvatarListAdapter = new MyAvatarAdapter(this, this);
@@ -91,15 +90,12 @@ public class LoginActivity
             public void onCurrentItemChanged(@NonNull RecyclerView.ViewHolder viewHolder,
                                              int adapterPosition) {
                 final String avatar = mAvatarListAdapter.mData.get(adapterPosition);
-                final SharedPreferences preferences = getSharedPreferences(
-                    getString(R.string.app_name), 0);
 
                 mSelectedAvatar = avatar;
 
-                preferences
-                    .edit()
-                    .putString(Const.PREF_AVATAR_IMAGE_PATH, mSelectedAvatar)
-                    .apply();
+                PrefUtil.setString(getApplicationContext(),
+                                   PrefUtil.PREF_AVATAR_IMAGE_PATH,
+                                   mSelectedAvatar);
             }
         });
 
@@ -110,7 +106,9 @@ public class LoginActivity
             public void onClick(View v) {
                 if (TextUtils.isEmpty(mSelectedAvatar)) return;
 
-                // TODO: Go to .
+                startActivity(new Intent(LoginActivity.this,
+                                         StartActivity.class));
+                finish();
             }
         });
 

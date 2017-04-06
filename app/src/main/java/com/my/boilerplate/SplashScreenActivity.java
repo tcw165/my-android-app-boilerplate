@@ -23,8 +23,10 @@ package com.my.boilerplate;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 
 import com.crashlytics.android.Crashlytics;
+import com.my.boilerplate.util.PrefUtil;
 
 import java.util.concurrent.TimeUnit;
 
@@ -54,11 +56,18 @@ public class SplashScreenActivity extends AppCompatActivity {
             .subscribe(new Consumer<Boolean>() {
                 @Override
                 public void accept(Boolean ignored) throws Exception {
-                    startActivity(new Intent(SplashScreenActivity.this, LoginActivity.class));
+                    if (TextUtils.isEmpty(
+                        PrefUtil.getString(getApplicationContext(),
+                                           PrefUtil.PREF_AVATAR_IMAGE_PATH))) {
+                        // If not login.
+                        startActivity(new Intent(SplashScreenActivity.this,
+                                                 LoginActivity.class));
+                    } else {
+                        startActivity(new Intent(SplashScreenActivity.this,
+                                                 StartActivity.class));
+                    }
                     finish();
                 }
             });
-//        startActivity(new Intent(SplashScreenActivity.this, LoginActivity.class));
-//        finish();
     }
 }
