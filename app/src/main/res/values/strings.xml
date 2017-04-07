@@ -14,8 +14,8 @@
     <string name="btn_iap_reset">Reset</string>
 
     <!-- Activity title -->
-    <string name="title_my_requests">My Requests</string>
-    <string name="title_new_requests">New Requests</string>
+    <string name="title_my_requests">My Questions</string>
+    <string name="title_new_requests">New Questions</string>
     <string name="title_collage_editor_sample" tools:ignore="MissingTranslation">Collage Editor</string>
     <string name="title_view_sample" tools:ignore="MissingTranslation">Custom View Sample</string>
     <string name="title_camera_sample">Camera Sample</string>

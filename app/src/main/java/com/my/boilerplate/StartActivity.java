@@ -178,7 +178,7 @@ public class StartActivity
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(StartActivity.this,
-                                         MyRequestsActivity.class));
+                                         MyQuestionsActivity.class));
             }
         });
         // Load avatar.
@@ -195,7 +195,7 @@ public class StartActivity
 
                 // Pass address info
                 startActivity(new Intent(StartActivity.this,
-                                         NewRequestsActivity.class)
+                                         NewQuestionActivity.class)
                                   .putExtra(Const.PARAMS_TARGET_PLACE, mTargetPlace));
             }
         });

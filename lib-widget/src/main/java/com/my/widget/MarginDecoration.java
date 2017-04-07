@@ -18,19 +18,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.boilerplate.data;
+package com.my.widget;
 
-public class MyRequest {
+import android.graphics.Rect;
+import android.support.v7.widget.RecyclerView;
+import android.view.View;
 
-    public final GeoPlace requestPlace;
-    public final int requestId;
-    public final String requestDescription;
+public class MarginDecoration extends RecyclerView.ItemDecoration {
 
-    public MyRequest(GeoPlace requestPlace,
-                     int requestId,
-                     String requestDescription) {
-        this.requestPlace = requestPlace;
-        this.requestId = requestId;
-        this.requestDescription = requestDescription;
+    private final int mGridSpacingPx;
+
+    public MarginDecoration(int gridSpacingPx) {
+        mGridSpacingPx = gridSpacingPx / 2;
+    }
+
+    @Override
+    public void getItemOffsets(Rect outRect,
+                               View view,
+                               RecyclerView parent,
+                               RecyclerView.State state) {
+        outRect.set(mGridSpacingPx, mGridSpacingPx,
+                    mGridSpacingPx, mGridSpacingPx);
     }
 }

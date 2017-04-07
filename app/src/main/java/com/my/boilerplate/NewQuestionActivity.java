@@ -33,21 +33,19 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import com.my.boilerplate.data.GeoPlace;
-import com.my.boilerplate.data.MyRequest;
+import com.my.boilerplate.data.MyQuestion;
+import com.my.boilerplate.data.MyQuestionStore;
 import com.my.widget.IProgressBarView;
 import com.my.widget.util.ViewUtil;
 
-import java.io.InputStreamReader;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Callable;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.internal.operators.flowable.FlowableOnErrorReturn;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
-import io.reactivex.schedulers.TestScheduler;
 
-public class NewRequestsActivity
+public class NewQuestionActivity
     extends AppCompatActivity
     implements IProgressBarView {
 
@@ -62,7 +60,7 @@ public class NewRequestsActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_new_requests);
+        setContentView(R.layout.activity_new_question);
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
@@ -104,9 +102,9 @@ public class NewRequestsActivity
 
                 // TODO: Send request to the server.
                 sendRequestToServer(
-                    new MyRequest(mTargetPlace,
-                                  requestId,
-                                  option.getText().toString()));
+                    new MyQuestion(mTargetPlace,
+                                   requestId,
+                                   option.getText().toString()));
             }
         });
     }
@@ -162,28 +160,35 @@ public class NewRequestsActivity
     ///////////////////////////////////////////////////////////////////////////
     // Protected / Private Methods ////////////////////////////////////////////
 
-    void sendRequestToServer(final MyRequest request) {
+    void sendRequestToServer(final MyQuestion request) {
         showProgressBar();
 
         // FIXME: Really send to the server.
         Observable
-            .just(request)
-            .delay(1000, TimeUnit.MILLISECONDS)
+            .fromCallable(new Callable<Boolean>() {
+                @Override
+                public Boolean call() throws Exception {
+                    return MyQuestionStore
+                        .with(getApplicationContext())
+                        .add(request)
+                        .blockingSingle();
+                }
+            })
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(new DisposableObserver<MyRequest>() {
+            .subscribe(new DisposableObserver<Boolean>() {
                 @Override
-                public void onNext(MyRequest value) {
+                public void onNext(Boolean value) {
                     hideProgressBar();
 
                     // Show greeting.
-                    new AlertDialog.Builder(NewRequestsActivity.this)
+                    new AlertDialog.Builder(NewQuestionActivity.this)
                         .setMessage("Request is sent, please wait for a while. :)")
                         .setPositiveButton("Close", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                startActivity(new Intent(NewRequestsActivity.this,
-                                                         MyRequestsActivity.class));
+                                startActivity(new Intent(NewQuestionActivity.this,
+                                                         MyQuestionsActivity.class));
                                 finish();
                             }
                         })

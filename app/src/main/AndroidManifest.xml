@@ -71,11 +71,11 @@
 
         <!-- Other pages -->
         <activity
-            android:name=".MyRequestsActivity"
+            android:name=".MyQuestionsActivity"
             android:label="@string/title_my_requests">
         </activity>
         <activity
-            android:name=".NewRequestsActivity"
+            android:name=".NewQuestionActivity"
             android:label="@string/title_new_requests">
         </activity>
         <activity
@@ -177,12 +177,16 @@
 
         <!-- ContentProviders ///////////////////////////////////////////// -->
 
-
         <!-- Already defined in the lib-component -->
         <!-- <provider android:name="android.support.v4.content.FileProvider"> -->
         <!-- </provider> -->
+        <!--<provider-->
+            <!--android:name=".StickerBundleProvider"-->
+            <!--android:authorities="${applicationId}.provider"-->
+            <!--android:exported="false">-->
+        <!--</provider>-->
         <provider
-            android:name=".StickerBundleProvider"
+            android:name=".MyQuestionsProvider"
             android:authorities="${applicationId}.provider"
             android:exported="false">
         </provider>
