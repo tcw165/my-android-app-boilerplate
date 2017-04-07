@@ -18,17 +18,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.boilerplate;
+package com.my.boilerplate.data;
 
-public class Const {
+public class MyRequest {
 
-    public final static String TAG = "xyz";
+    public final GeoPlace requestPlace;
+    public final int requestId;
+    public final String requestDescription;
 
-    public final static String PARAMS_TARGET_PLACE = "target_place";
-
-    public final static String DB_ACTION_KEY = "action";
-    public final static String DB_ACTION_VALUE_INSERT = "insert";
-    public final static String DB_ACTION_VALUE_DELETE = "delete";
-    public final static String DB_ACTION_VALUE_UPDATE = "update";
-    public final static String DB_ACTION_VALUE_QUERY = "query";
+    public MyRequest(GeoPlace requestPlace,
+                     int requestId,
+                     String requestDescription) {
+        this.requestPlace = requestPlace;
+        this.requestId = requestId;
+        this.requestDescription = requestDescription;
+    }
 }

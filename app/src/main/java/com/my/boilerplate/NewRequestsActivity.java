@@ -20,34 +20,95 @@
 
 package com.my.boilerplate;
 
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.TextView;
 
-import com.my.boilerplate.protocol.IOnClickObjectListener;
+import com.my.boilerplate.data.GeoPlace;
+import com.my.boilerplate.data.MyRequest;
 import com.my.widget.IProgressBarView;
 import com.my.widget.util.ViewUtil;
 
+import java.io.InputStreamReader;
+import java.util.concurrent.TimeUnit;
+
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.internal.operators.flowable.FlowableOnErrorReturn;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.schedulers.TestScheduler;
+
 public class NewRequestsActivity
     extends AppCompatActivity
-    implements IProgressBarView,
-               IOnClickObjectListener {
+    implements IProgressBarView {
+
+    GeoPlace mTargetPlace;
 
     Toolbar mToolbar;
+    TextView mAddress;
+    RadioGroup mRequestsView;
+    TextView mBtnDone;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_requests);
+        setContentView(R.layout.activity_new_requests);
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
+
+        final Bundle extra = getIntent().getExtras();
+
+        mTargetPlace = extra.getParcelable(Const.PARAMS_TARGET_PLACE);
+        if (mTargetPlace == null) {
+            throw new IllegalArgumentException("Given place is null");
+        }
+
+        // Address.
+        mAddress = (TextView) findViewById(R.id.address);
+        mAddress.setText(mTargetPlace.fullAddress);
+
+        // Requests.
+        mRequestsView = (RadioGroup) findViewById(R.id.requests);
+
+        // Button.
+        mBtnDone = (TextView) findViewById(R.id.btn_done);
+        mBtnDone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int requestId = -1;
+                RadioButton option = null;
+                for (int i = 0; i < mRequestsView.getChildCount(); ++i) {
+                    final RadioButton child = (RadioButton) mRequestsView.getChildAt(i);
+
+                    if (child.isChecked()) {
+                        requestId = i;
+                        option = child;
+                        break;
+                    }
+                }
+                if (requestId == -1) return;
+
+                // TODO: Send request to the server.
+                sendRequestToServer(
+                    new MyRequest(mTargetPlace,
+                                  requestId,
+                                  option.getText().toString()));
+            }
+        });
     }
 
     @Override
@@ -81,15 +142,64 @@ public class NewRequestsActivity
         showProgressBar();
     }
 
-    @Override
-    public void onClickObject(View view,
-                              Object data) {
-//        final String imagePath = (String) data;
-//
-        // DO NOTHING.
+    public void onRadioButtonClicked(View view) {
+        // Is the button now checked?
+        boolean checked = ((RadioButton) view).isChecked();
+
+//        // Check which radio button was clicked
+//        switch(view.getId()) {
+//            case R.id.radio_pirates:
+//                if (checked)
+//                    // Pirates are the best
+//                    break;
+//            case R.id.radio_ninjas:
+//                if (checked)
+//                    // Ninjas rule
+//                    break;
+//        }
     }
 
     ///////////////////////////////////////////////////////////////////////////
     // Protected / Private Methods ////////////////////////////////////////////
 
+    void sendRequestToServer(final MyRequest request) {
+        showProgressBar();
+
+        // FIXME: Really send to the server.
+        Observable
+            .just(request)
+            .delay(1000, TimeUnit.MILLISECONDS)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(new DisposableObserver<MyRequest>() {
+                @Override
+                public void onNext(MyRequest value) {
+                    hideProgressBar();
+
+                    // Show greeting.
+                    new AlertDialog.Builder(NewRequestsActivity.this)
+                        .setMessage("Request is sent, please wait for a while. :)")
+                        .setPositiveButton("Close", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                startActivity(new Intent(NewRequestsActivity.this,
+                                                         MyRequestsActivity.class));
+                                finish();
+                            }
+                        })
+                        .create()
+                        .show();
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    // DO NOTHING.
+                }
+
+                @Override
+                public void onComplete() {
+                    // DO NOTHING.
+                }
+            });
+    }
 }
