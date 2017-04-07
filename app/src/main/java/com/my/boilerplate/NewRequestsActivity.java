@@ -30,7 +30,7 @@ import com.my.boilerplate.protocol.IOnClickObjectListener;
 import com.my.widget.IProgressBarView;
 import com.my.widget.util.ViewUtil;
 
-public class RequestsActivity
+public class NewRequestsActivity
     extends AppCompatActivity
     implements IProgressBarView,
                IOnClickObjectListener {

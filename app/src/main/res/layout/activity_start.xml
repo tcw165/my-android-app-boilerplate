@@ -4,38 +4,60 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".StartActivity">
 
-    <RelativeLayout
+    <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_marginBottom="68dp"/>
+
+    <!-- Search Bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:layout_marginRight="58dp"
+        android:layout_marginTop="8dp">
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/avatar_image"
             android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="12dp"
-            android:layout_marginTop="12dp"
+            android:layout_height="match_parent"
             android:src="@android:color/white"
             app:civ_border_color="@color/colorAccent"
             app:civ_border_width="2dp"/>
 
         <android.support.v7.widget.CardView
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_alignParentLeft="true"
-            android:layout_margin="12dp"
-            android:layout_toLeftOf="@id/avatar_image">
+            android:layout_height="match_parent"
+            app:cardCornerRadius="6dp">
 
-            <TextView
+            <!-- Search -->
+            <EditText
                 android:id="@+id/search_text"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="left|center"
-                android:padding="6dp"
-                android:text="Search"
+                android:hint="Search"
+                android:imeOptions="actionGo"
+                android:inputType="textAutoCorrect|textPostalAddress"
+                android:paddingLeft="8dp"
                 android:textSize="18sp"/>
         </android.support.v7.widget.CardView>
-    </RelativeLayout>
+    </LinearLayout>
+
+    <!-- Bottom Navigation -->
+    <TextView
+        android:id="@+id/btn_done"
+        android:layout_width="match_parent"
+        android:layout_height="68dp"
+        android:layout_gravity="bottom"
+        android:background="@color/colorPrimary"
+        android:foreground="?attr/selectableItemBackgroundBorderless"
+        android:gravity="center"
+        android:text="Done"
+        android:textColor="@color/colorAccent"
+        android:textSize="30sp"/>
 </FrameLayout>
