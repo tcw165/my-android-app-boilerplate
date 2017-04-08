@@ -51,6 +51,6 @@ public class PrefUtil {
 
     private static SharedPreferences getPrefs(final Context context) {
         return context.getSharedPreferences(
-            context.getString(R.string.app_name), 0);
+            context.getApplicationContext().getPackageName(), 0);
     }
 }
