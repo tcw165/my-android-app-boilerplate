@@ -26,7 +26,7 @@ import android.content.Context;
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import com.my.boilerplate.json.JsonWhatever;
 import com.my.boilerplate.net.IWhateverApiService;
-import com.my.widget.IProgressBarView;
+import com.my.core.protocol.IProgressBarView;
 
 import java.lang.ref.WeakReference;
 import java.util.concurrent.TimeUnit;

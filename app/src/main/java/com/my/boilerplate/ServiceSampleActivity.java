@@ -31,8 +31,8 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
-import com.my.widget.IProgressBarView;
-import com.my.widget.util.ViewUtil;
+import com.my.core.protocol.IProgressBarView;
+import com.my.core.util.ViewUtil;
 import com.my.boilerplate.LongOperationReceiver.ILongOperation;
 import com.my.boilerplate.view.SampleMenuAdapter;
 

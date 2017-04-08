@@ -29,7 +29,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.annotation.NonNull;
 
-import com.my.widget.IProgressBarView;
+import com.my.core.protocol.IProgressBarView;
 
 import java.lang.ref.WeakReference;
 

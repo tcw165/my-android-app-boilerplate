@@ -1,0 +1,6 @@
+<manifest
+    package="com.my.core"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application/>
+</manifest>

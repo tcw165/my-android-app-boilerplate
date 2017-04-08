@@ -42,7 +42,8 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 
-import com.my.widget.util.ScrollableViewUtil;
+import com.my.core.util.ScrollableViewUtil;
+import com.my.core.protocol.IDrawerViewLayout;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -14,7 +14,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.my.widget.DropDownMenuLayout;
-import com.my.widget.IDrawerViewLayout;
+import com.my.core.protocol.IDrawerViewLayout;
 
 public class ViewOfDropDownMenuLayoutSampleFragment extends Fragment {
 

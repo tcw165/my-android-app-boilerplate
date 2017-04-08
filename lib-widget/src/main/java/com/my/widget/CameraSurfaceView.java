@@ -29,7 +29,7 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-import com.my.widget.util.CameraUtil;
+import com.my.core.util.CameraUtil;
 
 import java.io.IOException;
 

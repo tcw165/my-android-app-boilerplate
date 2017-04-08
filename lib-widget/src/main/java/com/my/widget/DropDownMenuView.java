@@ -34,6 +34,8 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
+import com.my.core.protocol.IDrawerViewLayout;
+
 import java.util.ArrayList;
 import java.util.List;
 

@@ -36,13 +36,12 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.my.comp.PhotoPickerActivity;
 import com.my.comp.TakePhotoDelegateActivity;
-import com.my.widget.IProgressBarView;
-import com.my.widget.util.ViewUtil;
+import com.my.core.protocol.IProgressBarView;
+import com.my.core.util.ViewUtil;
 import com.my.boilerplate.view.SampleMenuAdapter;
 import com.my.boilerplate.view.ScrapView;
-import com.my.widget.IDrawerViewLayout;
+import com.my.core.protocol.IDrawerViewLayout;
 
 import java.util.Locale;
 

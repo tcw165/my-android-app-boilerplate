@@ -33,8 +33,8 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.my.widget.PhotoPickerView;
-import com.my.widget.data.IPhoto;
-import com.my.widget.data.ObservableArrayList;
+import com.my.core.protocol.IPhoto;
+import com.my.core.data.ObservableArrayList;
 
 import java.util.List;
 import java.util.Locale;

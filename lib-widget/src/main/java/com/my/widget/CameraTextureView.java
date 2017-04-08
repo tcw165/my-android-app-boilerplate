@@ -31,7 +31,7 @@ import android.util.Log;
 import android.view.TextureView;
 import android.widget.Toast;
 
-import com.my.widget.util.CameraUtil;
+import com.my.core.util.CameraUtil;
 
 import org.tensorflow.contrib.android.Classifier;
 import org.tensorflow.contrib.android.Classifier.Recognition;

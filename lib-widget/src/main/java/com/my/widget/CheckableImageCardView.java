@@ -10,7 +10,7 @@ import android.view.View;
 import android.widget.Checkable;
 import android.widget.ImageView;
 
-import com.my.widget.data.ObservableCheckableState;
+import com.my.core.data.ObservableCheckableState;
 
 /**
  * A checkable image-card view with the ability to constraint the aspect-ratio.

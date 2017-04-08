@@ -20,11 +20,11 @@
 
 package com.my.boilerplate;
 
-import android.app.Application;
+import android.support.multidex.MultiDexApplication;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
 
-public class MyApplication extends Application {
+public class MyApplication extends MultiDexApplication {
 
     @Override
     public void onCreate() {
