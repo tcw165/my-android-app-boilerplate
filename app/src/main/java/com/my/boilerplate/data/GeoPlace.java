@@ -26,47 +26,47 @@ import android.os.Parcelable;
 /**
  * Holder for Places Geo Data Autocomplete API results.
  */
-public class GeoPlace implements Parcelable {
-
-    public final String placeId;
-    public final String fullAddress;
-
-    public GeoPlace(String placeId,
-                    String fullAddress) {
-        this.placeId = placeId;
-        this.fullAddress = fullAddress;
-    }
-
-    GeoPlace(Parcel in) {
-        this.placeId = in.readString();
-        this.fullAddress = in.readString();
-    }
-
-    @Override
-    public String toString() {
-        return fullAddress;
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.placeId);
-        dest.writeString(this.fullAddress);
-    }
-
-    public static final Parcelable.Creator<GeoPlace> CREATOR = new Parcelable.Creator<GeoPlace>() {
-        @Override
-        public GeoPlace createFromParcel(Parcel source) {
-            return new GeoPlace(source);
-        }
-
-        @Override
-        public GeoPlace[] newArray(int size) {
-            return new GeoPlace[size];
-        }
-    };
-}
+//public class GeoPlace implements Parcelable {
+//
+//    public final String placeId;
+//    public final String fullAddress;
+//
+//    public GeoPlace(String placeId,
+//                    String fullAddress) {
+//        this.placeId = placeId;
+//        this.fullAddress = fullAddress;
+//    }
+//
+//    GeoPlace(Parcel in) {
+//        this.placeId = in.readString();
+//        this.fullAddress = in.readString();
+//    }
+//
+//    @Override
+//    public String toString() {
+//        return fullAddress;
+//    }
+//
+//    @Override
+//    public int describeContents() {
+//        return 0;
+//    }
+//
+//    @Override
+//    public void writeToParcel(Parcel dest, int flags) {
+//        dest.writeString(this.placeId);
+//        dest.writeString(this.fullAddress);
+//    }
+//
+//    public static final Parcelable.Creator<GeoPlace> CREATOR = new Parcelable.Creator<GeoPlace>() {
+//        @Override
+//        public GeoPlace createFromParcel(Parcel source) {
+//            return new GeoPlace(source);
+//        }
+//
+//        @Override
+//        public GeoPlace[] newArray(int size) {
+//            return new GeoPlace[size];
+//        }
+//    };
+//}
