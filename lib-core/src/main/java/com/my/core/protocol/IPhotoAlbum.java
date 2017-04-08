@@ -21,11 +21,12 @@
 package com.my.core.protocol;
 
 public interface IPhotoAlbum extends IPhoto {
-    String id();
+
+    String bucketId();
     String name();
     int photoNum();
 
-    void setId(String id);
+    void setBucketId(String id);
     void setName(String name);
     void setPhotoNum(int num);
 }

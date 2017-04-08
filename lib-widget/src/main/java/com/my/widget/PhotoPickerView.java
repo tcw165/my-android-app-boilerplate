@@ -45,6 +45,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.OvershootInterpolator;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Checkable;
@@ -465,7 +467,7 @@ public class PhotoPickerView extends CoordinatorLayout
                                        long id) {
                 if (mAlbumListAdapter.getCount() == 0) return;
 
-                final String albumId = mAlbumListAdapter.getItem(position).id();
+                final String albumId = mAlbumListAdapter.getItem(position).bucketId();
                 loadAlbumPhotoCursor(albumId)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new DisposableObserver<Cursor>() {
@@ -499,31 +501,30 @@ public class PhotoPickerView extends CoordinatorLayout
                             IPhoto added,
                             IPhoto removed,
                             IPhoto updated) {
+        // Notify the checked state change to the photo list.
+        // (cannot use DiffUtil because the adapter is a cursor-adapter).
+        final int first = mPhotoListLayoutMgr.findFirstVisibleItemPosition();
+        final int last = mPhotoListLayoutMgr.findLastVisibleItemPosition();
+        final int range = last - first;
+        final int start = Math.max(0, first - range);
+        final int end = Math.min(mPhotoListAdapter.getItemCount() - 1, last + range);
+        for (int i = start; i <= end; ++i) {
+            final IPhoto photo = mPhotoListAdapter.getItemAt(i);
+
+            if (added != null && added.equals(photo)) {
+                mPhotoListAdapter.notifyItemChanged(
+                    i, MyAlbumPhotoAdapter.PAYLOAD_ITEM_CHECKED);
+            }
+            if (removed != null && removed.equals(photo)) {
+                mPhotoListAdapter.notifyItemChanged(
+                    i, MyAlbumPhotoAdapter.PAYLOAD_ITEM_UNCHECKED);
+            }
+        }
+
         // Assign new data (will apply to DiffUtil).
         mSelectionListAdapter.setData(list);
         // Update the position of selection view.
         mSelectionViewHelper.onListUpdate();
-
-        // Notify the checked state change to the photo list.
-        // (cannot use DiffUtil because the adapter is a cursor-adapter).
-        final int start = mPhotoListLayoutMgr.findFirstVisibleItemPosition();
-        final int end = mPhotoListLayoutMgr.findLastVisibleItemPosition();
-        final Cursor cursor = mPhotoListAdapter.getCursor();
-        if (cursor.moveToPosition(start)) {
-            do {
-                IPhoto photo1 = MediaStoreUtil.getPhotoInfo(cursor);
-                if (photo1.equals(added)) {
-                    mPhotoListAdapter.notifyItemChanged(
-                        cursor.getPosition(),
-                        MyAlbumPhotoAdapter.PAYLOAD_ITEM_CHECKED);
-                } else if (photo1.equals(removed)) {
-                    mPhotoListAdapter.notifyItemChanged(
-                        cursor.getPosition(),
-                        MyAlbumPhotoAdapter.PAYLOAD_ITEM_UNCHECKED);
-                }
-            } while (cursor.moveToNext() &&
-                     cursor.getPosition() <= end);
-        }
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -659,21 +660,18 @@ public class PhotoPickerView extends CoordinatorLayout
         }
 
         @Override
-        public void onViewDetachedFromWindow(RecyclerView.ViewHolder holder) {
-            super.onViewDetachedFromWindow(holder);
-            Log.d("xyz", "detach " + holder.getAdapterPosition() + ", holder=" + holder);
-        }
-
-        @Override
         public void onBindViewHolder(final RecyclerView.ViewHolder holder,
                                      final Cursor cursor,
                                      final List<Object> payloads) {
-            Log.d("xyz", "bind " + holder.getAdapterPosition() + " (cursor=" + cursor.getPosition() + "), holder=" + holder);
             final CheckableImageView imageView = (CheckableImageView) holder.itemView;
-            final IPhoto photo = MediaStoreUtil.getPhotoInfo(cursor);
+            final IPhoto photo = MediaStoreUtil.getPhoto(cursor);
 
             // Checked or unchecked.
             if (payloads == null || payloads.isEmpty()) {
+                Log.d("xyz", "bind " + holder.getAdapterPosition() + " without payload" +
+                             " (cursor=" + cursor.getPosition() + "), holder=" + holder +
+                             ", item id=" + getItemId(cursor.getPosition()));
+
                 imageView.setChecked(mPicker.isPhotoSelected(photo));
 
                 // Cancel animation.
@@ -681,13 +679,13 @@ public class PhotoPickerView extends CoordinatorLayout
 
                 // FIXME: Buggy.
                 // Update the scale effect.
-//                if (imageView.isChecked()) {
-//                    ViewCompat.setScaleX(imageView, 0.8f);
-//                    ViewCompat.setScaleY(imageView, 0.8f);
-//                } else {
-//                    ViewCompat.setScaleX(imageView, 1f);
-//                    ViewCompat.setScaleY(imageView, 1f);
-//                }
+                if (imageView.isChecked()) {
+                    ViewCompat.setScaleX(imageView, 0.8f);
+                    ViewCompat.setScaleY(imageView, 0.8f);
+                } else {
+                    ViewCompat.setScaleX(imageView, 1f);
+                    ViewCompat.setScaleY(imageView, 1f);
+                }
 
                 // Clear old onClick listener.
                 imageView.setOnClickListener(null);
@@ -727,31 +725,44 @@ public class PhotoPickerView extends CoordinatorLayout
                      .priority(Priority.IMMEDIATE)
                      .into(imageView);
             } else {
+                Log.d("xyz", "bind " + holder.getAdapterPosition() + " with payload" +
+                             " (cursor=" + cursor.getPosition() + "), holder=" + holder +
+                             ", item id=" + getItemId(cursor.getPosition()));
                 for (Object payload : payloads) {
                     if ((Integer) payload == PAYLOAD_ITEM_CHECKED) {
                         imageView.setChecked(true);
 
                         // FIXME: Buggy.
                         // Update the scale effect.
-//                        ViewCompat.animate(imageView)
-//                                  .setDuration(150)
-//                                  .scaleX(0.8f)
-//                                  .scaleY(0.8f)
+                        ViewCompat.animate(imageView)
+                                  .setDuration(150)
+                                  .scaleX(0.8f)
+                                  .scaleY(0.8f)
 //                                  .setInterpolator(new OvershootInterpolator(10f))
-//                                  .start();
+                                  .start();
                     } else if ((Integer) payload == PAYLOAD_ITEM_UNCHECKED) {
                         imageView.setChecked(false);
 
                         // FIXME: Buggy.
                         // Update the scale effect.
-//                        ViewCompat.animate(imageView)
-//                                  .setDuration(150)
-//                                  .scaleX(1f)
-//                                  .scaleY(1f)
+                        ViewCompat.animate(imageView)
+                                  .setDuration(150)
+                                  .scaleX(1f)
+                                  .scaleY(1f)
 //                                  .setInterpolator(new AccelerateInterpolator())
-//                                  .start();
+                                  .start();
                     }
                 }
+            }
+        }
+
+        public IPhoto getItemAt(int position) {
+            final Cursor cursor = getCursor();
+
+            if (cursor.moveToPosition(position)) {
+                return MediaStoreUtil.getPhoto(cursor);
+            } else {
+                return null;
             }
         }
     }
