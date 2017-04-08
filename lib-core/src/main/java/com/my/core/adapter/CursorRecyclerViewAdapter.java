@@ -36,6 +36,9 @@ import java.util.List;
 public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHolder>
     extends RecyclerView.Adapter<VH> {
 
+    public static final int PAYLOAD_ITEM_CHECKED = 0;
+    public static final int PAYLOAD_ITEM_UNCHECKED = 1;
+
     final private WeakReference<Context> mContext;
     final private WeakReference<LayoutInflater> mInflater;
 

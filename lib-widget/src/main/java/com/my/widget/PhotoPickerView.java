@@ -60,14 +60,14 @@ import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.my.core.adapter.CursorRecyclerViewAdapter;
+import com.my.core.data.ObservableArrayList;
 import com.my.core.protocol.IObservableList;
 import com.my.core.protocol.IPhoto;
 import com.my.core.protocol.IPhotoAlbum;
-import com.my.core.data.ObservableArrayList;
 import com.my.core.protocol.IPhotoPicker;
+import com.my.core.protocol.IProgressBarView;
 import com.my.core.util.MediaStoreUtil;
 import com.my.widget.decoration.GridSpacingDecoration;
-import com.my.core.protocol.IProgressBarView;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.util.ArrayList;
@@ -514,8 +514,7 @@ public class PhotoPickerView extends CoordinatorLayout
             if (added != null && added.equals(photo)) {
                 mPhotoListAdapter.notifyItemChanged(
                     i, MyAlbumPhotoAdapter.PAYLOAD_ITEM_CHECKED);
-            }
-            if (removed != null && removed.equals(photo)) {
+            } else if (removed != null && removed.equals(photo)) {
                 mPhotoListAdapter.notifyItemChanged(
                     i, MyAlbumPhotoAdapter.PAYLOAD_ITEM_UNCHECKED);
             }
@@ -633,9 +632,6 @@ public class PhotoPickerView extends CoordinatorLayout
     private static class MyAlbumPhotoAdapter
         extends CursorRecyclerViewAdapter<RecyclerView.ViewHolder> {
 
-        static final int PAYLOAD_ITEM_CHECKED = 0;
-        static final int PAYLOAD_ITEM_UNCHECKED = 1;
-
         final IPhotoPicker mPicker;
         int viewHoldCount = 0;
 
@@ -674,17 +670,19 @@ public class PhotoPickerView extends CoordinatorLayout
 
                 imageView.setChecked(mPicker.isPhotoSelected(photo));
 
-                // Cancel animation.
-                ViewCompat.animate(imageView).cancel();
-
-                // FIXME: Buggy.
                 // Update the scale effect.
                 if (imageView.isChecked()) {
-                    ViewCompat.setScaleX(imageView, 0.8f);
-                    ViewCompat.setScaleY(imageView, 0.8f);
+                    ViewCompat.animate(imageView)
+                              .setDuration(0)
+                              .scaleX(0.95f)
+                              .scaleY(0.95f)
+                              .start();
                 } else {
-                    ViewCompat.setScaleX(imageView, 1f);
-                    ViewCompat.setScaleY(imageView, 1f);
+                    ViewCompat.animate(imageView)
+                              .setDuration(0)
+                              .scaleX(1f)
+                              .scaleY(1f)
+                              .start();
                 }
 
                 // Clear old onClick listener.
@@ -735,10 +733,10 @@ public class PhotoPickerView extends CoordinatorLayout
                         // FIXME: Buggy.
                         // Update the scale effect.
                         ViewCompat.animate(imageView)
-                                  .setDuration(150)
-                                  .scaleX(0.8f)
-                                  .scaleY(0.8f)
-//                                  .setInterpolator(new OvershootInterpolator(10f))
+                                  .setDuration(0)
+                                  .scaleX(0.95f)
+                                  .scaleY(0.95f)
+                                  .setInterpolator(new OvershootInterpolator(10f))
                                   .start();
                     } else if ((Integer) payload == PAYLOAD_ITEM_UNCHECKED) {
                         imageView.setChecked(false);
@@ -746,10 +744,10 @@ public class PhotoPickerView extends CoordinatorLayout
                         // FIXME: Buggy.
                         // Update the scale effect.
                         ViewCompat.animate(imageView)
-                                  .setDuration(150)
+                                  .setDuration(0)
                                   .scaleX(1f)
                                   .scaleY(1f)
-//                                  .setInterpolator(new AccelerateInterpolator())
+                                  .setInterpolator(new AccelerateInterpolator())
                                   .start();
                     }
                 }
