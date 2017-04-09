@@ -110,34 +110,36 @@ public class MediaStoreUtil {
 
         List<IPhotoAlbum> photos = new ArrayList<>();
         try {
-            cursor.moveToFirst();
-            int albumIdColumn = cursor.getColumnIndexOrThrow(
-                MediaStore.Images.Media.BUCKET_ID);
-            int thumbnailPathColumn = cursor.getColumnIndexOrThrow(
-                MediaStore.Images.Media.DATA);
-            int albumNameColumn = cursor.getColumnIndexOrThrow(
-                MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
-            int countColumn = cursor.getColumnIndexOrThrow("_COUNT");
+            if (cursor.moveToFirst()) {
+                final int albumIdColumn = cursor.getColumnIndexOrThrow(
+                    MediaStore.Images.Media.BUCKET_ID);
+                final int thumbnailPathColumn = cursor.getColumnIndexOrThrow(
+                    MediaStore.Images.Media.DATA);
+                final int albumNameColumn = cursor.getColumnIndexOrThrow(
+                    MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
+                final int countColumn = cursor.getColumnIndexOrThrow("_COUNT");
 
-            do {
-                final String albumId = cursor.getString(albumIdColumn);
-                final String albumName = cursor.getString(albumNameColumn);
-                final String thumbnailPath = cursor.getString(thumbnailPathColumn);
-                final int photoNum = cursor.getInt(countColumn);
+                do {
+                    final String albumId = cursor.getString(albumIdColumn);
+                    final String albumName = cursor.getString(albumNameColumn);
+                    final String thumbnailPath = cursor.getString(thumbnailPathColumn);
+                    final int photoNum = cursor.getInt(countColumn);
 
-                // If no data for Image, just skip this one
-                if (TextUtils.isEmpty(albumId) ||
-                    TextUtils.isEmpty(albumName) ||
-                    TextUtils.isEmpty(thumbnailPath) ||
-                    photoNum == 0) {
-                    continue;
-                }
+                    // If no data for Image, just skip this one
+                    if (TextUtils.isEmpty(albumId) ||
+                        TextUtils.isEmpty(albumName) ||
+                        TextUtils.isEmpty(thumbnailPath) ||
+                        photoNum == 0) {
+                        continue;
+                    }
 
-                photos.add(new Album(albumId,
-                                     albumName,
-                                     thumbnailPath,
-                                     photoNum));
-            } while (validToken.get() && cursor.moveToNext());
+                    photos.add(new Album(0,
+                                         albumId,
+                                         albumName,
+                                         thumbnailPath,
+                                         photoNum));
+                } while (validToken.get() && cursor.moveToNext());
+            }
         } finally {
             cursor.close();
         }
@@ -176,7 +178,7 @@ public class MediaStoreUtil {
         return cursor.getString(thumbColumn);
     }
 
-    public static IPhoto getPhotoInfo(Cursor cursor) {
+    public static IPhoto getPhoto(Cursor cursor) {
         // Validation check.
         if (cursor == null) {
             throw new IllegalArgumentException("The given cursor is null.");
@@ -186,6 +188,10 @@ public class MediaStoreUtil {
 
         final Photo photo = new Photo();
 
+        // Id.
+        final int idCol = cursor.getColumnIndexOrThrow(
+            MediaStore.Images.Media._ID);
+        photo.setId(cursor.getLong(idCol));
         // Full-sized path.
         final int fullSizedPathCol = cursor.getColumnIndexOrThrow(
             MediaStore.Images.Media.DATA);
@@ -232,7 +238,8 @@ public class MediaStoreUtil {
 
     private static class Album implements IPhotoAlbum {
 
-        private String mId = null;
+        private long mId;
+        private String mBucketId = null;
         private String mName = null;
         private String mFullSizePath = null;
         private String mThumbnailPath = null;
@@ -244,19 +251,26 @@ public class MediaStoreUtil {
         private float mThumbWidth = 0;
         private float mThumbHeight = 0;
 
-        Album(String id,
+        Album(long id,
+              String bucketId,
               String name,
               String thumbPath,
               int photoNum) {
             mId = id;
+            mBucketId = bucketId;
             mName = name;
             mThumbnailPath = thumbPath;
             mPhotoNum = photoNum;
         }
 
         @Override
-        public String id() {
+        public long id() {
             return mId;
+        }
+
+        @Override
+        public String bucketId() {
+            return mBucketId;
         }
 
         @Override
@@ -300,8 +314,13 @@ public class MediaStoreUtil {
         }
 
         @Override
-        public void setId(String id) {
+        public void setId(long id) {
             mId = id;
+        }
+
+        @Override
+        public void setBucketId(String id) {
+            mBucketId = id;
         }
 
         @Override
@@ -347,6 +366,7 @@ public class MediaStoreUtil {
 
     static class Photo implements IPhoto, Parcelable {
 
+        private long mId;
         private String mFullSizePath = null;
         private String mThumbnailPath = null;
 
@@ -355,29 +375,23 @@ public class MediaStoreUtil {
         private float mThumbWidth = 0;
         private float mThumbHeight = 0;
 
-        public static final Creator<Photo> CREATOR = new Creator<Photo>() {
-            @Override
-            public Photo createFromParcel(Parcel in) {
-                return new Photo(in);
-            }
-
-            @Override
-            public Photo[] newArray(int size) {
-                return new Photo[size];
-            }
-        };
-
         Photo() {
             // DO NOTHING.
         }
 
         Photo(Parcel in) {
-            mFullSizePath = in.readString();
-            mThumbnailPath = in.readString();
-            mWidth = in.readFloat();
-            mHeight = in.readFloat();
-            mThumbWidth = in.readFloat();
-            mThumbHeight = in.readFloat();
+            this.mId = in.readLong();
+            this.mFullSizePath = in.readString();
+            this.mThumbnailPath = in.readString();
+            this.mWidth = in.readFloat();
+            this.mHeight = in.readFloat();
+            this.mThumbWidth = in.readFloat();
+            this.mThumbHeight = in.readFloat();
+        }
+
+        @Override
+        public long id() {
+            return mId;
         }
 
         @Override
@@ -411,6 +425,11 @@ public class MediaStoreUtil {
         }
 
         @Override
+        public void setId(long id) {
+            mId = id;
+        }
+
+        @Override
         public void setWidth(float width) {
             mWidth = width;
         }
@@ -441,18 +460,19 @@ public class MediaStoreUtil {
         }
 
         @Override
-        public void writeToParcel(Parcel dest, int flags) {
-            dest.writeString(mFullSizePath);
-            dest.writeString(mThumbnailPath);
-            dest.writeFloat(mWidth);
-            dest.writeFloat(mHeight);
-            dest.writeFloat(mThumbWidth);
-            dest.writeFloat(mThumbHeight);
+        public int describeContents() {
+            return 0;
         }
 
         @Override
-        public int describeContents() {
-            return 0;
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeLong(this.mId);
+            dest.writeString(this.mFullSizePath);
+            dest.writeString(this.mThumbnailPath);
+            dest.writeFloat(this.mWidth);
+            dest.writeFloat(this.mHeight);
+            dest.writeFloat(this.mThumbWidth);
+            dest.writeFloat(this.mThumbHeight);
         }
 
         @Override
@@ -462,17 +482,38 @@ public class MediaStoreUtil {
 
             Photo photo = (Photo) o;
 
-            return Float.compare(photo.mWidth, mWidth) == 0 &&
-                   Float.compare(photo.mHeight, mHeight) == 0 &&
-                   mFullSizePath.equals(photo.mFullSizePath);
+            if (mId != photo.mId) return false;
+            if (Float.compare(photo.mWidth, mWidth) != 0) return false;
+            if (Float.compare(photo.mHeight, mHeight) != 0) return false;
+            if (Float.compare(photo.mThumbWidth, mThumbWidth) != 0) return false;
+            if (Float.compare(photo.mThumbHeight, mThumbHeight) != 0) return false;
+            if (mFullSizePath != null ? !mFullSizePath.equals(photo.mFullSizePath) : photo.mFullSizePath != null)
+                return false;
+            return mThumbnailPath != null ? mThumbnailPath.equals(photo.mThumbnailPath) : photo.mThumbnailPath == null;
         }
 
         @Override
         public int hashCode() {
-            int result = mFullSizePath.hashCode();
+            int result = (int) (mId ^ (mId >>> 32));
+            result = 31 * result + (mFullSizePath != null ? mFullSizePath.hashCode() : 0);
+            result = 31 * result + (mThumbnailPath != null ? mThumbnailPath.hashCode() : 0);
             result = 31 * result + (mWidth != +0.0f ? Float.floatToIntBits(mWidth) : 0);
             result = 31 * result + (mHeight != +0.0f ? Float.floatToIntBits(mHeight) : 0);
+            result = 31 * result + (mThumbWidth != +0.0f ? Float.floatToIntBits(mThumbWidth) : 0);
+            result = 31 * result + (mThumbHeight != +0.0f ? Float.floatToIntBits(mThumbHeight) : 0);
             return result;
         }
+
+        public static final Creator<Photo> CREATOR = new Creator<Photo>() {
+            @Override
+            public Photo createFromParcel(Parcel source) {
+                return new Photo(source);
+            }
+
+            @Override
+            public Photo[] newArray(int size) {
+                return new Photo[size];
+            }
+        };
     }
 }

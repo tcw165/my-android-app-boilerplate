@@ -21,6 +21,8 @@
 package com.my.core.protocol;
 
 public interface IPhoto {
+
+    long id();
     float width();
     float height();
     float thumbnailWidth();
@@ -28,6 +30,7 @@ public interface IPhoto {
     String thumbnailPath();
     String fullSizePath();
 
+    void setId(long id);
     void setWidth(float width);
     void setHeight(float height);
     void setThumbnailWidth(float width);

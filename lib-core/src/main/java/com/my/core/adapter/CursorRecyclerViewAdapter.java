@@ -36,8 +36,13 @@ import java.util.List;
 public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHolder>
     extends RecyclerView.Adapter<VH> {
 
+    public static final int PAYLOAD_ITEM_CHECKED = 0;
+    public static final int PAYLOAD_ITEM_UNCHECKED = 1;
+
     final private WeakReference<Context> mContext;
     final private WeakReference<LayoutInflater> mInflater;
+
+    private RecyclerView mRecyclerView;
     private Cursor mCursor;
 
     // State.
@@ -49,6 +54,8 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
         mInflater = new WeakReference<>(LayoutInflater.from(context));
         mDataValid = false;
         mRowIdColumn = -1;
+
+        setHasStableIds(true);
     }
 
     @Override
@@ -69,11 +76,6 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
         } else {
             return -1;
         }
-    }
-
-    @Override
-    public void setHasStableIds(boolean hasStableIds) {
-        super.setHasStableIds(true);
     }
 
     @Override
@@ -124,6 +126,20 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
                                           final Cursor cursor,
                                           final List<Object> payloads);
 
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+
+        mRecyclerView = recyclerView;
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView);
+
+        mRecyclerView = null;
+    }
+
     @SuppressWarnings("unused")
     final public Context getContext() {
         return mContext.get();
@@ -137,6 +153,50 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
     @SuppressWarnings("unused")
     final public Cursor getCursor() {
         return mCursor;
+    }
+
+    @SuppressWarnings("unused")
+    final public RecyclerView getRecyclerView() {
+        return mRecyclerView;
+    }
+
+    /**
+     * Return the ViewHolder for the item with the given id. The RecyclerView
+     * must use an Adapter with
+     * {@link RecyclerView.Adapter#setHasStableIds(boolean) stableIds}
+     * to return a non-null value.
+     * <p>
+     * This method checks only the children of RecyclerView. If the item with
+     * the given <code>id</code> is not laid out, it <em>will not</em> create
+     * a new one.
+     * <p>
+     * When the ItemAnimator is running a change animation, there might be 2
+     * ViewHolders with the same id. In this case, the updated ViewHolder will
+     * be returned.
+     *
+     * @param id The id for the requested item
+     *
+     * @return The ViewHolder with the given <code>id</code> or null if there
+     * is no such item
+     */
+    @SuppressWarnings("unused")
+    final public RecyclerView.ViewHolder findViewHolderForItemId(final long id) {
+        if (mRecyclerView == null) {
+            throw new IllegalStateException(
+                "No RecyclerView is observing this adapter.");
+        }
+
+        return mRecyclerView.findViewHolderForItemId(id);
+    }
+
+    @SuppressWarnings("unused")
+    final public RecyclerView.ViewHolder findViewHolderForAdapterPosition(final int position) {
+        if (mRecyclerView == null) {
+            throw new IllegalStateException(
+                "No RecyclerView is observing this adapter.");
+        }
+
+        return mRecyclerView.findViewHolderForAdapterPosition(position);
     }
 
     /**
