@@ -14,10 +14,10 @@ android {
         applicationId "com.my.boilerplate"
         minSdkVersion 16
         targetSdkVersion 25
-        multiDexEnabled true
         versionCode 1
         versionName "1.0"
 
+        multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
 
         ndk {

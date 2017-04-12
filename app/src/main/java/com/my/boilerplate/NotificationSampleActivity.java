@@ -15,7 +15,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
-import com.my.boilerplate.view.SampleMenuAdapter;
+import com.my.core.adapter.SampleMenuAdapter;
 
 public class NotificationSampleActivity extends AppCompatActivity {
 

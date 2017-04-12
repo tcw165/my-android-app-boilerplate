@@ -1,4 +1,4 @@
-package com.my.boilerplate;
+package com.my.demo.widget;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -13,8 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.my.widget.DropDownMenuLayout;
 import com.my.core.protocol.IDrawerViewLayout;
+import com.my.widget.DropDownMenuLayout;
 
 public class ViewOfDropDownMenuLayoutSampleFragment extends Fragment {
 

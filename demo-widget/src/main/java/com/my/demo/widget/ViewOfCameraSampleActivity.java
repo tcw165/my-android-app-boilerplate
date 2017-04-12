@@ -1,4 +1,4 @@
-package com.my.boilerplate;
+package com.my.demo.widget;
 
 import android.Manifest;
 import android.content.pm.PackageManager;

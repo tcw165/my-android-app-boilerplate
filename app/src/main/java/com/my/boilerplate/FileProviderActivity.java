@@ -35,7 +35,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
 import com.my.boilerplate.view.ImagePreviewerDialogFragment;
-import com.my.boilerplate.view.SampleMenuAdapter;
+import com.my.core.adapter.SampleMenuAdapter;
 import com.my.comp.TakePhotoDelegateActivity;
 
 import java.io.File;

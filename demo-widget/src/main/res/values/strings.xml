@@ -1,0 +1,20 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Common -->
+    <string name="app_name" tools:ignore="MissingTranslation">My Widget Demo</string>
+    <string name="loading" tools:ignore="MissingTranslation">Loading</string>
+    <string name="receive_notification" tools:ignore="MissingTranslation">Receive a notification</string>
+
+    <!-- Menu -->
+    <string name="menu_take_photo">Camera</string>
+    <string name="menu_done">Done</string>
+    <string name="menu_skip">Skip</string>
+    <string name="menu_search" tools:ignore="MissingTranslation">Search</string>
+    <string name="menu_next" tools:ignore="MissingTranslation">Next</string>
+    <string name="menu_settings" tools:ignore="MissingTranslation">Settings</string>
+    <string name="menu_help_and_feedback" tools:ignore="MissingTranslation"><![CDATA[Help & Feedback]]></string>
+
+    <!-- Activity title -->
+    <string name="title_view_sample" tools:ignore="MissingTranslation">Custom View Sample</string>
+    <string name="title_camera_sample">Camera Sample</string>
+    <string name="title_elastic_drag_dismiss_layout_sample">ElasticDragDismissFrameLayout</string>
+</resources>

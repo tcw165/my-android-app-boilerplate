@@ -1,0 +1,95 @@
+apply plugin: "com.android.application"
+// Fabric crashlytics.
+//apply plugin: "io.fabric"
+
+// Gradle doc:
+// http://google.github.io/android-gradle-dsl/
+android {
+    compileSdkVersion 25
+    buildToolsVersion "25.0.2"
+
+    defaultConfig {
+        // Overwrite the "package" attribute defined in the
+        // AndroidManifest.xml.
+        applicationId "com.my.demo.widget"
+        minSdkVersion 16
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        multiDexEnabled true
+        vectorDrawables.useSupportLibrary = true
+
+        ndk {
+            // Options: "x86", "x86_64", "armeabi", "armeabi-v7a", "arm64-v8a"
+            abiFilters "armeabi", "armeabi-v7a"
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+        }
+    }
+
+    lintOptions {
+        disable "MissingTranslation"
+    }
+}
+
+repositories {
+    maven { url "https://maven.fabric.io/public" }
+    // Support AAR file.
+    flatDir { dirs "libs" }
+}
+
+dependencies {
+    compile fileTree(dir: "libs", include: ["*.jar"])
+
+    def SUPPORT_LIB_VER = "25.3.1"
+    compile "com.android.support:appcompat-v7:${SUPPORT_LIB_VER}"
+//    compile "com.android.support.constraint:constraint-layout:${SUPPORT_LIB_VER}"
+    compile "com.android.support:design:${SUPPORT_LIB_VER}"
+    compile "com.android.support:support-vector-drawable:${SUPPORT_LIB_VER}"
+    compile "com.android.support:recyclerview-v7:${SUPPORT_LIB_VER}"
+    compile "com.android.support:percent:${SUPPORT_LIB_VER}"
+    compile "com.android.support:cardview-v7:${SUPPORT_LIB_VER}"
+    compile "com.android.support:gridlayout-v7:${SUPPORT_LIB_VER}"
+    // Multi-dex.
+    compile "com.android.support:multidex:1.0.1"
+
+    // Rx-Android.
+    compile "io.reactivex.rxjava2:rxandroid:2.0.1"
+    compile "io.reactivex.rxjava2:rxjava:2.0.1"
+    // Rx-Permissions.
+    compile "com.tbruyelle.rxpermissions2:rxpermissions:0.8.2@aar"
+    // Rx-Binding.
+//    compile "com.jakewharton.rxbinding:rxbinding:1.0.0"
+
+    // JSON.
+    compile "com.google.code.gson:gson:2.7"
+
+    // HTTP.
+    def RETROFIT_VER = "2.1.0"
+    compile "com.squareup.retrofit2:retrofit:${RETROFIT_VER}"
+    compile "com.jakewharton.retrofit:retrofit2-rxjava2-adapter:1.0.0"
+    compile "com.squareup.retrofit2:converter-gson:${RETROFIT_VER}"
+    compile "com.squareup.okhttp3:okhttp:3.6.0"
+
+    // Image loader (declared in the "lib-component" module).
+//    compile "com.facebook.fresco:fresco:0.14.1"
+    compile "com.github.bumptech.glide:glide:3.7.0"
+
+    compile project(":lib-core")
+    compile project(":lib-widget")
+    compile project(":lib-component")
+
+    testCompile "junit:junit:4.12"
+
+    androidTestCompile("com.android.support.test.espresso:espresso-core:2.2.2", {
+        exclude group: "com.android.support", module: "support-annotations"
+    })
+}

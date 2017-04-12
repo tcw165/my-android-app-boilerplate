@@ -1,4 +1,4 @@
-// Copyright (c) 2016 boyw165
+// Copyright (c) 2016-present boyw165
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,36 +18,52 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.boilerplate;
+package com.my.demo.widget;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 
-public class ViewSampleActivity extends AppCompatActivity {
+import com.my.widget.ElasticDragLayout;
+
+public class ViewOfElasticDragLayoutSampleFragment extends Fragment {
 
     Toolbar mToolbar;
+    ElasticDragLayout mLayout;
+
+    public ViewOfElasticDragLayoutSampleFragment() {
+        // Required empty public constructor
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        mLayout = (ElasticDragLayout) inflater.inflate(
+            R.layout.fragment_view_of_elastic_drag_layout_sample,
+            container,
+            false);
+
+        // Set back icon of the toolbar.
+        mToolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
+        mToolbar.setNavigationIcon(R.drawable.ic_back);
+        mToolbar.setTitle("ElasticDragLayout");
+
+        // It wants to contribute the menu option.
+        setHasOptionsMenu(true);
+
+        return mLayout;
+    }
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        setContentView(R.layout.activity_drawer_sample);
-
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(mToolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
-
-        // Show the default menu.
-        getSupportFragmentManager()
-            .beginTransaction()
-            .replace(R.id.frame, new ViewSampleFragment())
-            .commit();
+    public void onDestroyView() {
+        super.onDestroyView();
     }
 
     @Override
@@ -63,27 +79,8 @@ public class ViewSampleActivity extends AppCompatActivity {
         return true;
     }
 
-    @Override
-    public void onBackPressed() {
-        boolean isHandled = false;
-        Fragment fragment = getSupportFragmentManager()
-            .findFragmentById(R.id.frame);
-        if (fragment instanceof ViewOfDropDownMenuLayoutSampleFragment) {
-            // Need to ensure the drawer is dismissed.
-            isHandled = ((ViewOfDropDownMenuLayoutSampleFragment) fragment)
-                .onBackPressed();
-        } else if (fragment instanceof ViewOfElasticDragLayoutSampleFragment) {
-            isHandled = ((ViewOfElasticDragLayoutSampleFragment) fragment)
-                .onBackPressed();
-        } else if (fragment instanceof ViewOfElasticDragMenuLayoutSampleFragment) {
-            // Need to ensure the drawer is dismissed.
-            isHandled = ((ViewOfElasticDragMenuLayoutSampleFragment) fragment)
-                .onBackPressed();
-        }
-
-        if (!isHandled) {
-            super.onBackPressed();
-        }
+    public boolean onBackPressed() {
+        return false;
     }
 
     ///////////////////////////////////////////////////////////////////////////

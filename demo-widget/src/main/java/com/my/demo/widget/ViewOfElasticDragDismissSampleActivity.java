@@ -1,4 +1,4 @@
-package com.my.boilerplate;
+package com.my.demo.widget;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;

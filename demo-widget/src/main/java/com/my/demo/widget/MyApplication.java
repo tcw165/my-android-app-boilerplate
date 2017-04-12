@@ -1,4 +1,4 @@
-// Copyright (c) 2017-present boyw165
+// Copyright (c) 2016-present boyw165
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,26 +18,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.widget;
+package com.my.demo.widget;
 
-import android.graphics.Rect;
-import android.support.v7.widget.RecyclerView;
-import android.view.View;
+import android.support.multidex.MultiDexApplication;
 
-public class MarginDecoration extends RecyclerView.ItemDecoration {
-
-    private final int mGridSpacingPx;
-
-    public MarginDecoration(int gridSpacingPx) {
-        mGridSpacingPx = gridSpacingPx / 2;
-    }
+public class MyApplication extends MultiDexApplication {
 
     @Override
-    public void getItemOffsets(Rect outRect,
-                               View view,
-                               RecyclerView parent,
-                               RecyclerView.State state) {
-        outRect.set(mGridSpacingPx, mGridSpacingPx,
-                    mGridSpacingPx, mGridSpacingPx);
+    public void onCreate() {
+        super.onCreate();
+
+        // Image util (Fresco).
+//        Fresco.initialize(this);
     }
 }

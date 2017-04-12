@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.boilerplate;
+package com.my.demo.widget;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;

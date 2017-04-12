@@ -39,7 +39,7 @@ import android.widget.Toast;
 import com.my.comp.TakePhotoDelegateActivity;
 import com.my.core.protocol.IProgressBarView;
 import com.my.core.util.ViewUtil;
-import com.my.boilerplate.view.SampleMenuAdapter;
+import com.my.core.adapter.SampleMenuAdapter;
 import com.my.boilerplate.view.ScrapView;
 import com.my.core.protocol.IDrawerViewLayout;
 

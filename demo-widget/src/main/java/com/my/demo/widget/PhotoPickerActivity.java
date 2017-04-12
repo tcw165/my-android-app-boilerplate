@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.comp;
+package com.my.demo.widget;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -32,9 +32,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import com.my.widget.PhotoPickerView;
-import com.my.core.protocol.IPhoto;
+import com.my.comp.TakePhotoDelegateActivity;
 import com.my.core.data.ObservableArrayList;
+import com.my.core.protocol.IPhoto;
+import com.my.widget.PhotoPickerView;
 
 import java.util.List;
 import java.util.Locale;

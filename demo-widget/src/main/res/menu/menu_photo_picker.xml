@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- Camera -->
+    <item
+        android:id="@+id/item_take_photo"
+        android:icon="@drawable/ic_toolbar_camera"
+        android:title="@string/menu_take_photo"
+        app:showAsAction="always"/>
+
+    <!-- Call-to-action button to confirm adding photos -->
+    <item
+        android:id="@+id/item_done"
+        android:orderInCategory="200"
+        android:title="@string/menu_done"
+        app:actionLayout="@layout/view_numbered_button"
+        app:showAsAction="always"/>
+
+    <!-- Call-to-action button to skip -->
+    <item
+        android:id="@+id/item_skip"
+        android:orderInCategory="200"
+        android:title="@string/menu_skip"
+        app:showAsAction="ifRoom"
+        tools:visible="true"/>
+</menu>

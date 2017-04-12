@@ -34,7 +34,7 @@ import android.widget.ListView;
 import com.my.core.protocol.IProgressBarView;
 import com.my.core.util.ViewUtil;
 import com.my.boilerplate.LongOperationReceiver.ILongOperation;
-import com.my.boilerplate.view.SampleMenuAdapter;
+import com.my.core.adapter.SampleMenuAdapter;
 
 public class ServiceSampleActivity
     extends AppCompatActivity
