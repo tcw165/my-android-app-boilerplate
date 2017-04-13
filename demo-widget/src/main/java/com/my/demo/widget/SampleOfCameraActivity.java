@@ -24,7 +24,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 
-public class ViewOfCameraSampleActivity
+public class SampleOfCameraActivity
     extends AppCompatActivity
     implements CameraTextureView.OnImageClassifiedCallback {
 
@@ -44,7 +44,7 @@ public class ViewOfCameraSampleActivity
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_view_of_camera_sample);
+        setContentView(R.layout.activity_sample_of_camera);
         // Disable the default window transition and let mLayout to handle it.
         overridePendingTransition(0, 0);
 
@@ -123,7 +123,7 @@ public class ViewOfCameraSampleActivity
         // Check the permission and open the camera.
         if (!mPermSettling) {
             final int permCheck = ContextCompat.checkSelfPermission(
-                ViewOfCameraSampleActivity.this,
+                SampleOfCameraActivity.this,
                 Manifest.permission.CAMERA);
             if (permCheck != PackageManager.PERMISSION_GRANTED) {
                 mPermSettling = true;
@@ -137,7 +137,7 @@ public class ViewOfCameraSampleActivity
                             public ObservableSource<Boolean> apply(Boolean ignored)
                                 throws Exception {
                                 return RxPermissions
-                                    .getInstance(ViewOfCameraSampleActivity.this)
+                                    .getInstance(SampleOfCameraActivity.this)
                                     .request(Manifest.permission.CAMERA);
                             }
                         })

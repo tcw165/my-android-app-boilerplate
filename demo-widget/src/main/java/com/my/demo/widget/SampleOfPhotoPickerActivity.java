@@ -40,13 +40,13 @@ import com.my.widget.PhotoPickerView;
 import java.util.List;
 import java.util.Locale;
 
-public class PhotoPickerActivity
+public class SampleOfPhotoPickerActivity
     extends AppCompatActivity
     implements ObservableArrayList.Provider<IPhoto>,
                ObservableArrayList.ListChangeListener<IPhoto> {
 
     public static final String RESULT_PHOTOS =
-        PhotoPickerActivity.class.getCanonicalName() + ".RESULT_PHOTOS";
+        SampleOfPhotoPickerActivity.class.getCanonicalName() + ".RESULT_PHOTOS";
 
     // View.
     Toolbar mToolbarView;
@@ -63,7 +63,7 @@ public class PhotoPickerActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_photo_picker);
+        setContentView(R.layout.activity_sample_of_photo_picker);
 
         // Toolbar.
         mToolbarView = (Toolbar) findViewById(R.id.toolbar);
@@ -154,7 +154,7 @@ public class PhotoPickerActivity
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 startActivity(new Intent(
-                    PhotoPickerActivity.this, TakePhotoDelegateActivity.class));
+                    SampleOfPhotoPickerActivity.this, TakePhotoDelegateActivity.class));
                 return true;
             }
         };

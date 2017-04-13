@@ -27,7 +27,6 @@ import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -94,27 +93,93 @@ public class StartActivity
     protected SampleMenuAdapter onMenuCreate() {
         return new SampleMenuAdapter(
             this,
-            new Pair[]{
-                new Pair<>("CameraTextureView",
-                           "Use TextureView or SurfaceView to provide the " +
-                           "camera feature."),
-                new Pair<>("DropDownMenuLayout",
-                           "The ViewGroup is responsible for intercepting the " +
-                           "touch event."),
-                new Pair<>("ElasticDragLayout",
-                           "Inheriting from CoordinatorLayout and support elastic " +
-                           "drag UX like iOS's scroll-view."),
-                new Pair<>("ElasticDragDismissLayout (ElasticDragLayout)",
-                           "Idea inspired from the sample code of Plaid app. It " +
-                           "inherits from the CoordinatorLayout and is using a " +
-                           "translucent Activity to implement the drag-to-dismiss " +
-                           "gesture."),
-                new Pair<>("ElasticDragMenuLayout (ElasticDragLayout)",
-                           "A child class inheriting from ElasticDragDismissLayout. " +
-                           "The layout allows a NestedScrollingChild child view " +
-                           "being over dragged."),
-                new Pair<>("PhotoPickerView",
-                           "A google-photo like picker.")
+            new MenuItem[]{
+                new MenuItem("CameraTextureView",
+                             "Use TextureView or SurfaceView to provide the " +
+                             "camera feature.",
+                             new View.OnClickListener() {
+                                 @Override
+                                 public void onClick(View v) {
+                                     startActivity(
+                                         new Intent(StartActivity.this,
+                                                    SampleOfCameraActivity.class));
+                                 }
+                             }),
+                new MenuItem("DropDownMenuLayout",
+                             "The ViewGroup is responsible for intercepting the " +
+                             "touch event.",
+                             new View.OnClickListener() {
+                                 @Override
+                                 public void onClick(View v) {
+//                                     getActivity()
+//                                         .getSupportFragmentManager()
+//                                         .beginTransaction()
+//                                         .replace(R.id.frame, new ViewOfDropDownMenuLayoutSampleFragment())
+//                                         .addToBackStack(null)
+//                                         .commit();
+                                 }
+                             }),
+                new MenuItem("ElasticDragLayout",
+                             "Inheriting from CoordinatorLayout and support elastic " +
+                             "drag UX like iOS's scroll-view.",
+                             new View.OnClickListener() {
+                                 @Override
+                                 public void onClick(View v) {
+//                                     getActivity()
+//                                         .getSupportFragmentManager()
+//                                         .beginTransaction()
+//                                         .replace(R.id.frame, new ViewOfElasticDragLayoutSampleFragment())
+//                                         .addToBackStack(null)
+//                                         .commit();
+                                 }
+                             }),
+                new MenuItem("ElasticDragDismissLayout (ElasticDragLayout)",
+                             "Idea inspired from the sample code of Plaid app. It " +
+                             "inherits from the CoordinatorLayout and is using a " +
+                             "translucent Activity to implement the drag-to-dismiss " +
+                             "gesture.",
+                             new View.OnClickListener() {
+                                 @Override
+                                 public void onClick(View v) {
+//                                     startActivity(
+//                                         new Intent(getActivity(),
+//                                                    ViewOfElasticDragDismissSampleActivity.class),
+//                                         // Necessary option to enable the scene transition.
+//                                         ActivityOptionsCompat
+//                                             .makeSceneTransitionAnimation(
+//                                                 getActivity(),
+//                                                 (android.support.v4.util.Pair<View, String>[]) null)
+//                                             .toBundle());
+//                                     startActivity(
+//                                         new Intent(this,
+//                                                    ViewOfElasticDragDismissSampleActivity.class));
+                                 }
+                             }),
+                new MenuItem("ElasticDragMenuLayout (ElasticDragLayout)",
+                             "A child class inheriting from ElasticDragDismissLayout. " +
+                             "The layout allows a NestedScrollingChild child view " +
+                             "being over dragged.",
+                             new View.OnClickListener() {
+                                 @Override
+                                 public void onClick(View v) {
+//                                     getActivity()
+//                                         .getSupportFragmentManager()
+//                                         .beginTransaction()
+//                                         .replace(R.id.frame, new ViewOfElasticDragMenuLayoutSampleFragment())
+//                                         .addToBackStack(null)
+//                                         .commit();
+                                 }
+                             }),
+                new MenuItem("PhotoPickerView",
+                             "A google-photo like picker.",
+                             new View.OnClickListener() {
+                                 @Override
+                                 public void onClick(View v) {
+                                     startActivityForResult(
+                                         new Intent(StartActivity.this,
+                                                    SampleOfPhotoPickerActivity.class), 0);
+                                 }
+                             })
             });
     }
 
@@ -125,55 +190,9 @@ public class StartActivity
                                     View view,
                                     int position,
                                     long id) {
-                switch (position) {
-                    case 0:
-//                        startActivity(
-//                            new Intent(this,
-//                                       ViewOfCameraSampleActivity.class));
-                        break;
-                    case 1:
-//                        getActivity()
-//                            .getSupportFragmentManager()
-//                            .beginTransaction()
-//                            .replace(R.id.frame, new ViewOfDropDownMenuLayoutSampleFragment())
-//                            .addToBackStack(null)
-//                            .commit();
-                        break;
-                    case 2:
-//                        getActivity()
-//                            .getSupportFragmentManager()
-//                            .beginTransaction()
-//                            .replace(R.id.frame, new ViewOfElasticDragLayoutSampleFragment())
-//                            .addToBackStack(null)
-//                            .commit();
-                        break;
-                    case 3:
-//                        startActivity(
-//                            new Intent(getActivity(),
-//                                       ViewOfElasticDragDismissSampleActivity.class),
-//                            // Necessary option to enable the scene transition.
-//                            ActivityOptionsCompat
-//                                .makeSceneTransitionAnimation(
-//                                    getActivity(),
-//                                    (android.support.v4.util.Pair<View, String>[]) null)
-//                                .toBundle());
-//                        startActivity(
-//                            new Intent(this,
-//                                       ViewOfElasticDragDismissSampleActivity.class));
-                        break;
-                    case 4:
-//                        getActivity()
-//                            .getSupportFragmentManager()
-//                            .beginTransaction()
-//                            .replace(R.id.frame, new ViewOfElasticDragMenuLayoutSampleFragment())
-//                            .addToBackStack(null)
-//                            .commit();
-                        break;
-                    case 5:
-//                        startActivityForResult(
-//                            new Intent(this, PhotoPickerActivity.class), 0);
-                        break;
-                }
+                final MenuItem item = (MenuItem) parent.getAdapter()
+                                                       .getItem(position);
+                item.onClickListener.onClick(view);
             }
         };
     }
@@ -181,7 +200,9 @@ public class StartActivity
     ///////////////////////////////////////////////////////////////////////////
     // Clazz //////////////////////////////////////////////////////////////////
 
-    private static class SampleMenuAdapter extends ArrayAdapter<Pair<String, String>> {
+    private static class SampleMenuAdapter extends ArrayAdapter<MenuItem> {
+
+        private final LayoutInflater mInflater;
 
         /**
          * A common adapter for displaying the sample menu.
@@ -191,8 +212,10 @@ public class StartActivity
          * @param items   Array containing pairs of title and caption.
          */
         SampleMenuAdapter(Context context,
-                          Pair<String, String>[] items) {
+                          MenuItem[] items) {
             super(context, 0, items);
+
+            mInflater = LayoutInflater.from(context);
         }
 
         @NonNull
@@ -200,12 +223,11 @@ public class StartActivity
         public View getView(int position,
                             View convertView,
                             @NonNull ViewGroup parent) {
-            LayoutInflater inflater = LayoutInflater.from(getContext());
             ViewHolder viewHolder;
 
             // Check if an existing view is being reused, otherwise inflate the view.
             if (convertView == null) {
-                convertView = inflater.inflate(R.layout.sample_card_menu_item, parent, false);
+                convertView = mInflater.inflate(R.layout.sample_card_menu_item, parent, false);
                 viewHolder = new ViewHolder(convertView,
                                             R.id.caption,
                                             R.id.description);
@@ -217,10 +239,10 @@ public class StartActivity
                 viewHolder = (ViewHolder) convertView.getTag();
             }
 
-            Pair<String, String> item = getItem(position);
+            final MenuItem item = getItem(position);
             if (viewHolder.caption.get() != null && item != null) {
-                viewHolder.caption.get().setText(item.first);
-                viewHolder.description.get().setText(item.second);
+                viewHolder.caption.get().setText(item.title);
+                viewHolder.description.get().setText(item.description);
             }
 
             return convertView;
@@ -236,6 +258,21 @@ public class StartActivity
                    @IdRes int descriptionRes) {
             this.caption = new WeakReference<>((TextView) view.findViewById(captionRes));
             this.description = new WeakReference<>((TextView) view.findViewById(descriptionRes));
+        }
+    }
+
+    private static class MenuItem {
+
+        final String title;
+        final String description;
+        final View.OnClickListener onClickListener;
+
+        public MenuItem(String title,
+                        String description,
+                        View.OnClickListener onClickListener) {
+            this.title = title;
+            this.description = description;
+            this.onClickListener = onClickListener;
         }
     }
 }
