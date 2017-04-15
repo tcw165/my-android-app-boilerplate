@@ -94,53 +94,54 @@ public class StartActivity
         return new SampleMenuAdapter(
             this,
             new MenuItem[]{
-                new MenuItem("CameraTextureView",
-                             "Use TextureView or SurfaceView to provide the " +
-                             "camera feature.",
-                             new View.OnClickListener() {
-                                 @Override
-                                 public void onClick(View v) {
-                                     startActivity(
-                                         new Intent(StartActivity.this,
-                                                    SampleOfCameraActivity.class));
-                                 }
-                             }),
-                new MenuItem("DropDownMenuLayout",
-                             "The ViewGroup is responsible for intercepting the " +
-                             "touch event.",
-                             new View.OnClickListener() {
-                                 @Override
-                                 public void onClick(View v) {
-//                                     getActivity()
-//                                         .getSupportFragmentManager()
-//                                         .beginTransaction()
-//                                         .replace(R.id.frame, new ViewOfDropDownMenuLayoutSampleFragment())
-//                                         .addToBackStack(null)
-//                                         .commit();
-                                 }
-                             }),
-                new MenuItem("ElasticDragLayout",
-                             "Inheriting from CoordinatorLayout and support elastic " +
-                             "drag UX like iOS's scroll-view.",
-                             new View.OnClickListener() {
-                                 @Override
-                                 public void onClick(View v) {
+                new MenuItem(
+                    "CameraTextureView",
+                    "Use TextureView or SurfaceView to provide the " +
+                    "camera feature.",
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startActivity(
+                                new Intent(StartActivity.this,
+                                           SampleOfCameraActivity.class));
+                        }
+                    }),
+                new MenuItem(
+                    "DropDownMenuLayout",
+                    "The ViewGroup is responsible for intercepting the " +
+                    "touch event.",
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startActivity(
+                                new Intent(StartActivity.this,
+                                           SampleOfDropDownMenuLayoutActivity.class));
+                        }
+                    }),
+                new MenuItem(
+                    "ElasticDragLayout",
+                    "Inheriting from CoordinatorLayout and support elastic " +
+                    "drag UX like iOS's scroll-view.",
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
 //                                     getActivity()
 //                                         .getSupportFragmentManager()
 //                                         .beginTransaction()
 //                                         .replace(R.id.frame, new ViewOfElasticDragLayoutSampleFragment())
 //                                         .addToBackStack(null)
 //                                         .commit();
-                                 }
-                             }),
-                new MenuItem("ElasticDragDismissLayout (ElasticDragLayout)",
-                             "Idea inspired from the sample code of Plaid app. It " +
-                             "inherits from the CoordinatorLayout and is using a " +
-                             "translucent Activity to implement the drag-to-dismiss " +
-                             "gesture.",
-                             new View.OnClickListener() {
-                                 @Override
-                                 public void onClick(View v) {
+                        }
+                    }),
+                new MenuItem(
+                    "ElasticDragDismissLayout (ElasticDragLayout)",
+                    "Idea inspired from the sample code of Plaid app. It " +
+                    "inherits from the CoordinatorLayout and is using a " +
+                    "translucent Activity to implement the drag-to-dismiss " +
+                    "gesture.",
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
 //                                     startActivity(
 //                                         new Intent(getActivity(),
 //                                                    ViewOfElasticDragDismissSampleActivity.class),
@@ -153,33 +154,35 @@ public class StartActivity
 //                                     startActivity(
 //                                         new Intent(this,
 //                                                    ViewOfElasticDragDismissSampleActivity.class));
-                                 }
-                             }),
-                new MenuItem("ElasticDragMenuLayout (ElasticDragLayout)",
-                             "A child class inheriting from ElasticDragDismissLayout. " +
-                             "The layout allows a NestedScrollingChild child view " +
-                             "being over dragged.",
-                             new View.OnClickListener() {
-                                 @Override
-                                 public void onClick(View v) {
+                        }
+                    }),
+                new MenuItem(
+                    "ElasticDragMenuLayout (ElasticDragLayout)",
+                    "A child class inheriting from ElasticDragDismissLayout. " +
+                    "The layout allows a NestedScrollingChild child view " +
+                    "being over dragged.",
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
 //                                     getActivity()
 //                                         .getSupportFragmentManager()
 //                                         .beginTransaction()
 //                                         .replace(R.id.frame, new ViewOfElasticDragMenuLayoutSampleFragment())
 //                                         .addToBackStack(null)
 //                                         .commit();
-                                 }
-                             }),
-                new MenuItem("PhotoPickerView",
-                             "A google-photo like picker.",
-                             new View.OnClickListener() {
-                                 @Override
-                                 public void onClick(View v) {
-                                     startActivityForResult(
-                                         new Intent(StartActivity.this,
-                                                    SampleOfPhotoPickerActivity.class), 0);
-                                 }
-                             })
+                        }
+                    }),
+                new MenuItem(
+                    "PhotoPickerView",
+                    "A google-photo like picker.",
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startActivityForResult(
+                                new Intent(StartActivity.this,
+                                           SampleOfPhotoPickerActivity.class), 0);
+                        }
+                    })
             });
     }
 

@@ -39,6 +39,8 @@
         <activity android:name=".StartActivity">
         </activity>
 
-
+        <!-- Demo Activity -->
+        <activity android:name=".SampleOfDropDownMenuLayoutActivity">
+        </activity>
     </application>
 </manifest>

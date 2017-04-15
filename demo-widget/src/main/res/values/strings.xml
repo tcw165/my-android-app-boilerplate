@@ -5,6 +5,7 @@
     <string name="receive_notification" tools:ignore="MissingTranslation">Receive a notification</string>
 
     <!-- Menu -->
+    <string name="menu_toggle_drawer">Menu</string>
     <string name="menu_take_photo">Camera</string>
     <string name="menu_done">Done</string>
     <string name="menu_skip">Skip</string>

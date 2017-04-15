@@ -39,7 +39,6 @@ import android.widget.Toast;
 import com.my.comp.TakePhotoDelegateActivity;
 import com.my.core.protocol.IProgressBarView;
 import com.my.core.util.ViewUtil;
-import com.my.core.adapter.SampleMenuAdapter;
 import com.my.boilerplate.view.ScrapView;
 import com.my.core.protocol.IDrawerViewLayout;
 
@@ -208,9 +207,9 @@ public class StartActivity
                                           .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                         break;
                     case 1:
-                        startActivity(new Intent(StartActivity.this,
-                                                 ViewSampleActivity.class)
-                                          .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+//                        startActivity(new Intent(StartActivity.this,
+//                                                 ViewSampleActivity.class)
+//                                          .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                         break;
                     case 2:
                         startActivity(new Intent(StartActivity.this,
