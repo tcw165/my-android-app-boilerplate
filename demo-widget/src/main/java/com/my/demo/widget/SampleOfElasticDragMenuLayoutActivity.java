@@ -22,57 +22,44 @@ package com.my.demo.widget;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 
 import com.my.widget.ElasticDragMenuLayout;
 
-public class ViewOfElasticDragMenuLayoutSampleFragment extends Fragment {
+public class SampleOfElasticDragMenuLayoutActivity
+    extends AppCompatActivity {
 
     Toolbar mToolbar;
     ElasticDragMenuLayout mLayout;
 
-    public ViewOfElasticDragMenuLayoutSampleFragment() {
-        // Required empty public constructor
-    }
-
-    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        mLayout = (ElasticDragMenuLayout) inflater.inflate(
-            R.layout.fragment_view_of_elastic_drag_menu_layout_sample,
-            container,
-            false);
+    protected void onCreate(@Nullable Bundle savedState) {
+        super.onCreate(savedState);
 
-        // Set back icon of the toolbar.
-        mToolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
-        mToolbar.setNavigationIcon(R.drawable.ic_back);
-        mToolbar.setTitle("ElasticDragMenuLayout");
+        setContentView(R.layout.activity_sample_of_elastic_drag_menu_layout);
 
-        // It wants to contribute the menu option.
-        setHasOptionsMenu(true);
+        // Toolbar
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
-        return mLayout;
+        // Layout.
+        mLayout = (ElasticDragMenuLayout) findViewById(R.id.elastic_drag_menu_layout);
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-    }
+    public boolean onCreateOptionsMenu(Menu menu) {
+        final MenuInflater inflater = getMenuInflater();
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu,
-                                    MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.menu_drawer_sample, menu);
+
+        return true;
     }
 
     @Override
@@ -88,14 +75,14 @@ public class ViewOfElasticDragMenuLayoutSampleFragment extends Fragment {
         return true;
     }
 
-    public boolean onBackPressed() {
-        if (mLayout == null) return false;
+    @Override
+    public void onBackPressed() {
+        if (mLayout == null) return;
 
         if (mLayout.isMenuOpened()) {
             mLayout.closeMenu();
-            return true;
         } else {
-            return false;
+            super.onBackPressed();
         }
     }
 

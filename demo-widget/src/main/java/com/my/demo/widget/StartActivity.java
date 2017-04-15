@@ -125,12 +125,9 @@ public class StartActivity
                     new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-//                                     getActivity()
-//                                         .getSupportFragmentManager()
-//                                         .beginTransaction()
-//                                         .replace(R.id.frame, new ViewOfElasticDragLayoutSampleFragment())
-//                                         .addToBackStack(null)
-//                                         .commit();
+                            startActivity(
+                                new Intent(StartActivity.this,
+                                           SampleOfElasticDragLayoutActivity.class));
                         }
                     }),
                 new MenuItem(
@@ -142,18 +139,18 @@ public class StartActivity
                     new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-//                                     startActivity(
-//                                         new Intent(getActivity(),
-//                                                    ViewOfElasticDragDismissSampleActivity.class),
-//                                         // Necessary option to enable the scene transition.
-//                                         ActivityOptionsCompat
-//                                             .makeSceneTransitionAnimation(
-//                                                 getActivity(),
-//                                                 (android.support.v4.util.Pair<View, String>[]) null)
-//                                             .toBundle());
-//                                     startActivity(
-//                                         new Intent(this,
-//                                                    ViewOfElasticDragDismissSampleActivity.class));
+//                            startActivity(
+//                                new Intent(StartActivity.this,
+//                                           SampleOfElasticDragDismissLayoutActivity.class),
+//                                // Necessary option to enable the scene transition.
+//                                ActivityOptionsCompat
+//                                    .makeSceneTransitionAnimation(
+//                                        getActivity(),
+//                                        (android.support.v4.util.Pair<View, String>[]) null)
+//                                    .toBundle());
+                            startActivity(
+                                new Intent(StartActivity.this,
+                                           SampleOfElasticDragDismissLayoutActivity.class));
                         }
                     }),
                 new MenuItem(
@@ -164,12 +161,9 @@ public class StartActivity
                     new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-//                                     getActivity()
-//                                         .getSupportFragmentManager()
-//                                         .beginTransaction()
-//                                         .replace(R.id.frame, new ViewOfElasticDragMenuLayoutSampleFragment())
-//                                         .addToBackStack(null)
-//                                         .commit();
+                            startActivity(
+                                new Intent(StartActivity.this,
+                                           SampleOfElasticDragMenuLayoutActivity.class));
                         }
                     }),
                 new MenuItem(

@@ -18,7 +18,7 @@ public class SampleOfDropDownMenuLayoutActivity
     extends AppCompatActivity {
 
     Toolbar mToolbar;
-    DropDownMenuLayout mMenuLayout;
+    DropDownMenuLayout mLayout;
 
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
@@ -26,15 +26,15 @@ public class SampleOfDropDownMenuLayoutActivity
 
         setContentView(R.layout.activity_sample_of_drop_down_menu_layout);
 
+        // Toolbar
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-            getSupportActionBar().setDisplayShowHomeEnabled(false);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        mMenuLayout = (DropDownMenuLayout) findViewById(R.id.menu_layout);
-        mMenuLayout.addOnDrawerStateChangeListener(onMenuStateChange());
+        mLayout = (DropDownMenuLayout) findViewById(R.id.menu_layout);
+        mLayout.addOnDrawerStateChangeListener(onMenuStateChange());
     }
 
     @Override
@@ -49,6 +49,9 @@ public class SampleOfDropDownMenuLayoutActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                break;
             case R.id.menu_toggle_drawer:
                 toggleDrawerMenu();
                 break;
@@ -59,16 +62,25 @@ public class SampleOfDropDownMenuLayoutActivity
         return true;
     }
 
+    @Override
+    public void onBackPressed() {
+        if (mLayout.isDrawerOpened()) {
+            mLayout.closeDrawer();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // Protected / Private Methods ////////////////////////////////////////////
 
     private void toggleDrawerMenu() {
-        if (mMenuLayout == null) return;
+        if (mLayout == null) return;
 
-        if (mMenuLayout.isDrawerOpened()) {
-            mMenuLayout.closeDrawer();
+        if (mLayout.isDrawerOpened()) {
+            mLayout.closeDrawer();
         } else {
-            mMenuLayout.openDrawer();
+            mLayout.openDrawer();
         }
     }
 

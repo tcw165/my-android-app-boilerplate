@@ -8,7 +8,8 @@ import android.util.Log;
 
 import com.my.widget.ElasticDragDismissLayout;
 
-public class ViewOfElasticDragDismissSampleActivity extends AppCompatActivity {
+public class SampleOfElasticDragDismissLayoutActivity
+    extends AppCompatActivity {
 
     ElasticDragDismissLayout mLayout;
 
@@ -16,7 +17,7 @@ public class ViewOfElasticDragDismissSampleActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_view_of_elastic_drag_dismiss_sample);
+        setContentView(R.layout.activity_sample_of_elastic_drag_dismiss_layout);
         // Disable the default window transition and let mLayout to handle it.
         overridePendingTransition(0, 0);
 

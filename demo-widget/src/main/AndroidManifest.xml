@@ -40,7 +40,34 @@
         </activity>
 
         <!-- Demo Activity -->
-        <activity android:name=".SampleOfDropDownMenuLayoutActivity">
+        <activity
+            android:name=".SampleOfCameraActivity"
+            android:label="@string/title_sample_of_camera">
+        </activity>
+
+        <activity
+            android:name=".SampleOfDropDownMenuLayoutActivity"
+            android:label="@string/title_sample_of_drop_down_menu_layout">
+        </activity>
+
+        <activity
+            android:name=".SampleOfElasticDragLayoutActivity"
+            android:label="@string/title_sample_of_elastic_drag_layout">
+        </activity>
+
+        <activity
+            android:name=".SampleOfElasticDragDismissLayoutActivity"
+            android:label="@string/title_sample_of_elastic_drag_dismiss_layout">
+        </activity>
+
+        <activity
+            android:name=".SampleOfElasticDragMenuLayoutActivity"
+            android:label="@string/title_sample_of_elastic_drag_menu_layout">
+        </activity>
+
+        <activity
+            android:name=".SampleOfPhotoPickerActivity"
+            android:label="@string/title_sample_of_photo_picker">
         </activity>
     </application>
 </manifest>

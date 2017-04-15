@@ -15,7 +15,10 @@
     <string name="menu_help_and_feedback" tools:ignore="MissingTranslation"><![CDATA[Help & Feedback]]></string>
 
     <!-- Activity title -->
-    <string name="title_view_sample" tools:ignore="MissingTranslation">Custom View Sample</string>
-    <string name="title_camera_sample">Camera Sample</string>
-    <string name="title_elastic_drag_dismiss_layout_sample">ElasticDragDismissFrameLayout</string>
+    <string name="title_sample_of_drop_down_menu_layout">DropDownMenuLayout</string>
+    <string name="title_sample_of_elastic_drag_layout">ElasticDragLayout</string>
+    <string name="title_sample_of_elastic_drag_menu_layout">ElasticDragMenuLayout</string>
+    <string name="title_sample_of_photo_picker">PhotoPicker</string>
+    <string name="title_sample_of_camera">Camera Sample</string>
+    <string name="title_sample_of_elastic_drag_dismiss_layout">ElasticDragDismissLayout</string>
 </resources>

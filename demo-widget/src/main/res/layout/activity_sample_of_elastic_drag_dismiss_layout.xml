@@ -9,7 +9,7 @@
     app:dragOverDistance="122dp"
     app:dragOverMaxDistance="344dp"
     app:dragScale="0.89"
-    tools:context=".ViewOfElasticDragDismissSampleActivity">
+    tools:context=".SampleOfElasticDragDismissLayoutActivity">
 
     <!-- This layout isPhotoSelected one child view only -->
     <android.support.v4.widget.NestedScrollView

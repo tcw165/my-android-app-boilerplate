@@ -22,48 +22,33 @@ package com.my.demo.widget;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 
 import com.my.widget.ElasticDragLayout;
 
-public class ViewOfElasticDragLayoutSampleFragment extends Fragment {
+public class SampleOfElasticDragLayoutActivity
+    extends AppCompatActivity {
 
     Toolbar mToolbar;
     ElasticDragLayout mLayout;
 
-    public ViewOfElasticDragLayoutSampleFragment() {
-        // Required empty public constructor
-    }
-
-    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        mLayout = (ElasticDragLayout) inflater.inflate(
-            R.layout.fragment_view_of_elastic_drag_layout_sample,
-            container,
-            false);
+    protected void onCreate(@Nullable Bundle savedState) {
+        super.onCreate(savedState);
 
-        // Set back icon of the toolbar.
-        mToolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
-        mToolbar.setNavigationIcon(R.drawable.ic_back);
-        mToolbar.setTitle("ElasticDragLayout");
+        setContentView(R.layout.activity_sample_of_elastic_drag_layout);
 
-        // It wants to contribute the menu option.
-        setHasOptionsMenu(true);
+        // Toolbar
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
-        return mLayout;
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
+        // ElasticDragLayout
+        mLayout = (ElasticDragLayout) findViewById(R.id.elastic_drag_layout);
     }
 
     @Override
@@ -77,10 +62,6 @@ public class ViewOfElasticDragLayoutSampleFragment extends Fragment {
         }
 
         return true;
-    }
-
-    public boolean onBackPressed() {
-        return false;
     }
 
     ///////////////////////////////////////////////////////////////////////////
