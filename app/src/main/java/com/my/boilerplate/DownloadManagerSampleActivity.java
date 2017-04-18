@@ -29,14 +29,13 @@ import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.util.Pair;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
-import com.my.core.adapter.SampleMenuAdapter;
+import com.my.widget.adapter.SampleMenuAdapter;
+import com.my.widget.adapter.SampleMenuAdapter.SampleMenuItem;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import io.reactivex.observers.DisposableObserver;
@@ -61,8 +60,8 @@ public class DownloadManagerSampleActivity extends AppCompatActivity {
         }
 
         mMenu = (ListView) findViewById(R.id.menu);
-        mMenu.setAdapter(onSampleMenuCreate());
-        mMenu.setOnItemClickListener(onClickMenuItem());
+        mMenu.setAdapter(onCreateSampleMenu());
+        mMenu.setOnItemClickListener(onClickSampleMenuItem());
 
         // Init the download manager.
         mDownloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
@@ -102,29 +101,34 @@ public class DownloadManagerSampleActivity extends AppCompatActivity {
     // Protected / Private Methods ////////////////////////////////////////////
 
     @SuppressWarnings({"unchecked"})
-    protected SampleMenuAdapter onSampleMenuCreate() {
+    private SampleMenuAdapter onCreateSampleMenu() {
         return new SampleMenuAdapter(
             this,
-            new Pair[]{
-                new Pair<>("Download a large file ",
-                           "The downloading is still alive when the app is in " +
-                           "the background and there's also a progress bar in " +
-                           "the activity. Everything should be synchronized.")
+            new SampleMenuItem[]{
+                new SampleMenuItem(
+                    "Download a large file ",
+                    "The downloading is still alive when the app is in " +
+                    "the background and there's also a progress bar in " +
+                    "the activity. Everything should be synchronized.",
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startDownloading();
+                        }
+                    })
             });
     }
 
-    protected OnItemClickListener onClickMenuItem() {
-        return new OnItemClickListener() {
+    private AdapterView.OnItemClickListener onClickSampleMenuItem() {
+        return new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent,
                                     View view,
                                     int position,
                                     long id) {
-                switch (position) {
-                    case 0:
-                        startDownloading();
-                        break;
-                }
+                final SampleMenuItem item = (SampleMenuItem) parent.getAdapter()
+                                                                   .getItem(position);
+                item.onClickListener.onClick(view);
             }
         };
     }

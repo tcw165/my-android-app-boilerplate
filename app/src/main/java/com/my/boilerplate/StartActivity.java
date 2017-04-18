@@ -25,30 +25,28 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.my.boilerplate.view.ScrapView;
 import com.my.comp.TakePhotoDelegateActivity;
+import com.my.core.protocol.IDrawerViewLayout;
 import com.my.core.protocol.IProgressBarView;
 import com.my.core.util.ViewUtil;
-import com.my.boilerplate.view.ScrapView;
-import com.my.core.protocol.IDrawerViewLayout;
+import com.my.widget.adapter.SampleMenuAdapter;
+import com.my.widget.adapter.SampleMenuAdapter.SampleMenuItem;
 
 import java.util.Locale;
 
 public class StartActivity
     extends AppCompatActivity
     implements IProgressBarView {
-
-    final static String TAG = StartActivity.class.getCanonicalName();
 
     Toolbar mToolbar;
     ListView mStartMenu;
@@ -68,8 +66,8 @@ public class StartActivity
 
         // List menu.
         mStartMenu = (ListView) findViewById(R.id.menu);
-        mStartMenu.setAdapter(onStartMenuCreate());
-        mStartMenu.setOnItemClickListener(onClickStartMenuItem());
+        mStartMenu.setAdapter(onCreateSampleMenu());
+        mStartMenu.setOnItemClickListener(onClickSampleMenuItem());
 
 //        // The collage editor.
 //        mCollageEditor = (CollageLayout) findViewById(R.id.collage_editor);
@@ -146,99 +144,132 @@ public class StartActivity
     }
 
     @SuppressWarnings({"unchecked"})
-    protected SampleMenuAdapter onStartMenuCreate() {
+    private SampleMenuAdapter onCreateSampleMenu() {
         return new SampleMenuAdapter(
             this,
-            new Pair[]{
-                // item 0.
-                new Pair<>("CollageEditor",
-                           "A view-based collage editor (on-going)."),
-                // item 1.
-                new Pair<>("Custom View Experiments",
-                           "The experiments of custom View/ViewGroup."),
+            new SampleMenuItem[]{
+                new SampleMenuItem(
+                    "CollageEditor",
+                    "A view-based collage editor (on-going).",
+                    new OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startActivity(new Intent(StartActivity.this,
+                                                     CollageEditorActivity.class)
+                                              .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                        }
+                    }),
                 // TODO: Move to the custom view exp.
-                // item 2.
-                new Pair<>("Notification",
-                           "Fire notifications and lead the user to the Activity " +
-                           "in the current task or in a new task."),
-                // item 3.
-                new Pair<>("Services",
-                           "Use the service to do a long operation in the background " +
-                           "and notify the binding Activity the processing status.\n" +
-                           "The service might be still alive when the task is moved " +
-                           "to the background."),
-                // item 4.
-                new Pair<>("DownloadManager",
-                           "Use DownloadManager (a system service) to download files."),
-                // item 5.
-                new Pair<>("FileProvider",
-                           "Share file URI through FileProvider."),
-                // item 6.
-                new Pair<>("In-App-Purchase",
-                           "A sticker store page using combined technologies of " +
-                           "Retrofit, RxJava2, Gson, ContentProvider, SQLite and " +
-                           "more."),
-                // item 7.
-                new Pair<>("AlertManager",
-                           "(constructing)"),
-                // item 8.
-                new Pair<>("BroadcastReceiver",
-                           "(constructing)"),
-                // item 9.
-                new Pair<>("RxJava-2",
-                           "(constructing)."),
-                // item 10.
-                new Pair<>("OkHttp",
-                           "(constructing)."),
+                new SampleMenuItem(
+                    "Notification",
+                    "Fire notifications and lead the user to the Activity " +
+                    "in the current task or in a new task.",
+                    new OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startActivity(new Intent(StartActivity.this,
+                                                     NotificationSampleActivity.class)
+                                              .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                        }
+                    }),
+                new SampleMenuItem(
+                    "Services",
+                    "Use the service to do a long operation in the background " +
+                    "and notify the binding Activity the processing status.\n" +
+                    "The service might be still alive when the task is moved " +
+                    "to the background.",
+                    new OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startActivity(new Intent(StartActivity.this,
+                                                     ServiceSampleActivity.class)
+                                              .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                        }
+                    }),
+                new SampleMenuItem(
+                    "DownloadManager",
+                    "Use DownloadManager (a system service) to download files.",
+                    new OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startActivity(new Intent(StartActivity.this,
+                                                     DownloadManagerSampleActivity.class)
+                                              .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                        }
+                    }),
+                new SampleMenuItem(
+                    "FileProvider",
+                    "Share file URI through FileProvider.",
+                    new OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startActivity(new Intent(StartActivity.this,
+                                                     FileProviderActivity.class)
+                                              .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                        }
+                    }),
+                new SampleMenuItem(
+                    "In-App-Purchase",
+                    "A sticker store page using combined technologies of " +
+                    "Retrofit, RxJava2, Gson, ContentProvider, SQLite and " +
+                    "more.",
+                    new OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startActivity(new Intent(StartActivity.this,
+                                                     IapSampleActivity.class)
+                                              .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                        }
+                    }),
+                new SampleMenuItem(
+                    "AlertManager",
+                    "(constructing)",
+                    new OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+
+                        }
+                    }),
+                new SampleMenuItem(
+                    "BroadcastReceiver",
+                    "(constructing)",
+                    new OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+
+                        }
+                    }),
+                new SampleMenuItem(
+                    "RxJava-2",
+                    "(constructing).",
+                    new OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+
+                        }
+                    }),
+                new SampleMenuItem(
+                    "OkHttp",
+                    "(constructing).",
+                    new OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+
+                        }
+                    }),
                 });
     }
 
-    private OnItemClickListener onClickStartMenuItem() {
-        return new OnItemClickListener() {
+    private AdapterView.OnItemClickListener onClickSampleMenuItem() {
+        return new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent,
                                     View view,
                                     int position,
                                     long id) {
-                switch (position) {
-                    case 0:
-                        startActivity(new Intent(StartActivity.this,
-                                                 CollageEditorActivity.class)
-                                          .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-                        break;
-                    case 1:
-//                        startActivity(new Intent(StartActivity.this,
-//                                                 ViewSampleActivity.class)
-//                                          .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-                        break;
-                    case 2:
-                        startActivity(new Intent(StartActivity.this,
-                                                 NotificationSampleActivity.class)
-                                          .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-                        break;
-                    case 3:
-                        startActivity(new Intent(StartActivity.this,
-                                                 ServiceSampleActivity.class)
-                                          .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-                        break;
-                    case 4:
-                        startActivity(new Intent(StartActivity.this,
-                                                 DownloadManagerSampleActivity.class)
-                                          .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-                        break;
-                    case 5:
-                        startActivity(new Intent(StartActivity.this,
-                                                 FileProviderActivity.class)
-                                          .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-                        break;
-                    case 6:
-                        startActivity(new Intent(StartActivity.this,
-                                                 IapSampleActivity.class)
-                                          .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-                        break;
-                    default:
-                        // DO NOTHING.
-                }
+                final SampleMenuItem item = (SampleMenuItem) parent.getAdapter()
+                                                                   .getItem(position);
+                item.onClickListener.onClick(view);
             }
         };
     }

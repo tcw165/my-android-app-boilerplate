@@ -20,25 +20,18 @@
 
 package com.my.demo.widget;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.IdRes;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.my.core.protocol.IProgressBarView;
 import com.my.core.util.ViewUtil;
-
-import java.lang.ref.WeakReference;
+import com.my.widget.adapter.SampleMenuAdapter;
+import com.my.widget.adapter.SampleMenuAdapter.SampleMenuItem;
 
 public class StartActivity
     extends AppCompatActivity
@@ -62,8 +55,8 @@ public class StartActivity
 
         // List menu.
         mStartMenu = (ListView) findViewById(R.id.menu);
-        mStartMenu.setAdapter(onMenuCreate());
-        mStartMenu.setOnItemClickListener(onClickMenuItem());
+        mStartMenu.setAdapter(onCreateSampleMenu());
+        mStartMenu.setOnItemClickListener(onClickSampleMenuItem());
     }
 
     @Override
@@ -90,11 +83,11 @@ public class StartActivity
     // Protected / Private Methods ////////////////////////////////////////////
 
     @SuppressWarnings({"unchecked"})
-    protected SampleMenuAdapter onMenuCreate() {
+    protected SampleMenuAdapter onCreateSampleMenu() {
         return new SampleMenuAdapter(
             this,
-            new MenuItem[]{
-                new MenuItem(
+            new SampleMenuItem[]{
+                new SampleMenuItem(
                     "CameraTextureView",
                     "Use TextureView or SurfaceView to provide the " +
                     "camera feature.",
@@ -106,7 +99,7 @@ public class StartActivity
                                            SampleOfCameraActivity.class));
                         }
                     }),
-                new MenuItem(
+                new SampleMenuItem(
                     "DropDownMenuLayout",
                     "The ViewGroup is responsible for intercepting the " +
                     "touch event.",
@@ -118,7 +111,7 @@ public class StartActivity
                                            SampleOfDropDownMenuLayoutActivity.class));
                         }
                     }),
-                new MenuItem(
+                new SampleMenuItem(
                     "ElasticDragLayout",
                     "Inheriting from CoordinatorLayout and support elastic " +
                     "drag UX like iOS's scroll-view.",
@@ -130,7 +123,7 @@ public class StartActivity
                                            SampleOfElasticDragLayoutActivity.class));
                         }
                     }),
-                new MenuItem(
+                new SampleMenuItem(
                     "ElasticDragDismissLayout (ElasticDragLayout)",
                     "Idea inspired from the sample code of Plaid app. It " +
                     "inherits from the CoordinatorLayout and is using a " +
@@ -153,7 +146,7 @@ public class StartActivity
                                            SampleOfElasticDragDismissLayoutActivity.class));
                         }
                     }),
-                new MenuItem(
+                new SampleMenuItem(
                     "ElasticDragMenuLayout (ElasticDragLayout)",
                     "A child class inheriting from ElasticDragDismissLayout. " +
                     "The layout allows a NestedScrollingChild child view " +
@@ -166,7 +159,7 @@ public class StartActivity
                                            SampleOfElasticDragMenuLayoutActivity.class));
                         }
                     }),
-                new MenuItem(
+                new SampleMenuItem(
                     "PhotoPickerView",
                     "A google-photo like picker.",
                     new View.OnClickListener() {
@@ -180,15 +173,15 @@ public class StartActivity
             });
     }
 
-    protected AdapterView.OnItemClickListener onClickMenuItem() {
+    protected AdapterView.OnItemClickListener onClickSampleMenuItem() {
         return new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent,
                                     View view,
                                     int position,
                                     long id) {
-                final MenuItem item = (MenuItem) parent.getAdapter()
-                                                       .getItem(position);
+                final SampleMenuItem item = (SampleMenuItem) parent.getAdapter()
+                                                                   .getItem(position);
                 item.onClickListener.onClick(view);
             }
         };
@@ -196,80 +189,4 @@ public class StartActivity
 
     ///////////////////////////////////////////////////////////////////////////
     // Clazz //////////////////////////////////////////////////////////////////
-
-    private static class SampleMenuAdapter extends ArrayAdapter<MenuItem> {
-
-        private final LayoutInflater mInflater;
-
-        /**
-         * A common adapter for displaying the sample menu.
-         *
-         * @param context Usually is an Activity, so that the it could get the
-         *                resource with correct theme.
-         * @param items   Array containing pairs of title and caption.
-         */
-        SampleMenuAdapter(Context context,
-                          MenuItem[] items) {
-            super(context, 0, items);
-
-            mInflater = LayoutInflater.from(context);
-        }
-
-        @NonNull
-        @Override
-        public View getView(int position,
-                            View convertView,
-                            @NonNull ViewGroup parent) {
-            ViewHolder viewHolder;
-
-            // Check if an existing view is being reused, otherwise inflate the view.
-            if (convertView == null) {
-                convertView = mInflater.inflate(R.layout.sample_card_menu_item, parent, false);
-                viewHolder = new ViewHolder(convertView,
-                                            R.id.caption,
-                                            R.id.description);
-
-                // View lookup cache stored in tag.
-                convertView.setTag(viewHolder);
-            } else {
-                // View is being recycled, retrieve the viewHolder object from tag.
-                viewHolder = (ViewHolder) convertView.getTag();
-            }
-
-            final MenuItem item = getItem(position);
-            if (viewHolder.caption.get() != null && item != null) {
-                viewHolder.caption.get().setText(item.title);
-                viewHolder.description.get().setText(item.description);
-            }
-
-            return convertView;
-        }
-    }
-
-    private static class ViewHolder {
-        WeakReference<TextView> caption;
-        WeakReference<TextView> description;
-
-        ViewHolder(View view,
-                   @IdRes int captionRes,
-                   @IdRes int descriptionRes) {
-            this.caption = new WeakReference<>((TextView) view.findViewById(captionRes));
-            this.description = new WeakReference<>((TextView) view.findViewById(descriptionRes));
-        }
-    }
-
-    private static class MenuItem {
-
-        final String title;
-        final String description;
-        final View.OnClickListener onClickListener;
-
-        public MenuItem(String title,
-                        String description,
-                        View.OnClickListener onClickListener) {
-            this.title = title;
-            this.description = description;
-            this.onClickListener = onClickListener;
-        }
-    }
 }

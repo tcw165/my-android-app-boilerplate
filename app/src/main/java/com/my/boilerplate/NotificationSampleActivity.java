@@ -2,20 +2,19 @@ package com.my.boilerplate;
 
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.support.v4.app.NotificationCompat;
 import android.support.v7.widget.Toolbar;
-import android.util.Pair;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
-import com.my.core.adapter.SampleMenuAdapter;
+import com.my.widget.adapter.SampleMenuAdapter;
+import com.my.widget.adapter.SampleMenuAdapter.SampleMenuItem;
 
 public class NotificationSampleActivity extends AppCompatActivity {
 
@@ -35,8 +34,8 @@ public class NotificationSampleActivity extends AppCompatActivity {
         }
 
         mMenu = (ListView) findViewById(R.id.menu);
-        mMenu.setAdapter(onSampleMenuCreate());
-        mMenu.setOnItemClickListener(onClickMenuItem());
+        mMenu.setAdapter(onCreateSampleMenu());
+        mMenu.setOnItemClickListener(onClickSampleMenuItem());
     }
 
     @Override
@@ -61,40 +60,53 @@ public class NotificationSampleActivity extends AppCompatActivity {
     // Protected / Private Methods ////////////////////////////////////////////
 
     @SuppressWarnings({"unchecked"})
-    protected SampleMenuAdapter onSampleMenuCreate() {
+    private SampleMenuAdapter onCreateSampleMenu() {
         return new SampleMenuAdapter(
             this,
-            new Pair[] {
-                new Pair<>("A simple notification",
-                           "The simplest notification that don't respond to " +
-                           "the click."),
-                new Pair<>("A notification redirecting to an Activity",
-                           "The notification that lead you to the Activity " +
-                           "with back stack to the StartActivity."),
-                new Pair<>("A notification redirecting to a new Task",
-                           "The notification that lead you to a new Task " +
-                           "along with an Activity.")
+            new SampleMenuItem[]{
+                new SampleMenuItem(
+                    "A simple notification",
+                    "The simplest notification that don't respond to " +
+                    "the click.",
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            createSimpleNotification();
+                        }
+                    }),
+                new SampleMenuItem(
+                    "A notification redirecting to an Activity",
+                    "The notification that lead you to the Activity " +
+                    "with back stack to the StartActivity.",
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            createNotificationDirectingToActivityWithBackStack();
+                        }
+                    }),
+                new SampleMenuItem(
+                    "A notification redirecting to a new Task",
+                    "The notification that lead you to a new Task " +
+                    "along with an Activity.",
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            createNotificationDirectingToTransientActivity();
+                        }
+                    })
             });
     }
 
-    protected OnItemClickListener onClickMenuItem() {
-        return new OnItemClickListener() {
+    private AdapterView.OnItemClickListener onClickSampleMenuItem() {
+        return new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent,
                                     View view,
                                     int position,
                                     long id) {
-                switch (position) {
-                    case 0:
-                        createSimpleNotification();
-                        break;
-                    case 1:
-                        createNotificationDirectingToActivityWithBackStack();
-                        break;
-                    case 2:
-                        createNotificationDirectingToTransientActivity();
-                        break;
-                }
+                final SampleMenuItem item = (SampleMenuItem) parent.getAdapter()
+                                                                   .getItem(position);
+                item.onClickListener.onClick(view);
             }
         };
     }

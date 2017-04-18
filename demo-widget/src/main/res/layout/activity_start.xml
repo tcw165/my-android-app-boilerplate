@@ -12,10 +12,9 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="@dimen/toolbar_height"
-        android:background="@color/colorPrimary"
         app:navigationIcon="@drawable/ic_toolbar_close"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-        app:titleTextColor="@color/colorAccent"/>
+        app:titleTextColor="@color/textColorPrimary"/>
 
     <ListView
         android:id="@+id/menu"

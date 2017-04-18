@@ -24,17 +24,16 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Pair;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
+import com.my.boilerplate.LongOperationReceiver.ILongOperation;
 import com.my.core.protocol.IProgressBarView;
 import com.my.core.util.ViewUtil;
-import com.my.boilerplate.LongOperationReceiver.ILongOperation;
-import com.my.core.adapter.SampleMenuAdapter;
+import com.my.widget.adapter.SampleMenuAdapter;
+import com.my.widget.adapter.SampleMenuAdapter.SampleMenuItem;
 
 public class ServiceSampleActivity
     extends AppCompatActivity
@@ -58,8 +57,8 @@ public class ServiceSampleActivity
         }
 
         mMenu = (ListView) findViewById(R.id.menu);
-        mMenu.setAdapter(onSampleMenuCreate());
-        mMenu.setOnItemClickListener(onClickMenuItem());
+        mMenu.setAdapter(onCreateSampleMenu());
+        mMenu.setOnItemClickListener(onClickSampleMenuItem());
 
         mLongOperationReceiver = new LongOperationReceiver(onReceiveLongOperation());
     }
@@ -124,41 +123,50 @@ public class ServiceSampleActivity
     // Protected / Private Methods ////////////////////////////////////////////
 
     @SuppressWarnings({"unchecked"})
-    protected SampleMenuAdapter onSampleMenuCreate() {
+    private SampleMenuAdapter onCreateSampleMenu() {
         return new SampleMenuAdapter(
             this,
-            new Pair[] {
-                new Pair<>("Launch an immortal Service",
-                           "Let's see how long could the service last and " +
-                           "see what the Services lifecycle is like."),
-                new Pair<>("Launch a long operation Service",
-                           "It will show the progress when it's processing " +
-                           "the long operation and terminate itself when " +
-                           "done. The DialogFragment will be present when " +
-                           "the task is under processing and be hidden " +
-                           "when the task is completed.\n" +
-                           "Bug: The activity should be in the foreground " +
-                           "in case it misses to receive the complete notification.")
+            new SampleMenuItem[]{
+                new SampleMenuItem(
+                    "Launch an immortal Service",
+                    "Let's see how long could the service last and " +
+                    "see what the Services lifecycle is like.",
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startService(new Intent(ServiceSampleActivity.this,
+                                                    ImmortalService.class));
+                        }
+                    }),
+                new SampleMenuItem(
+                    "Launch a long operation Service",
+                    "It will show the progress when it's processing " +
+                    "the long operation and terminate itself when " +
+                    "done. The DialogFragment will be present when " +
+                    "the task is under processing and be hidden " +
+                    "when the task is completed.\n" +
+                    "Bug: The activity should be in the foreground " +
+                    "in case it misses to receive the complete notification.",
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startService(new Intent(ServiceSampleActivity.this,
+                                                    LongOperationService.class));
+                        }
+                    })
             });
     }
 
-    protected OnItemClickListener onClickMenuItem() {
-        return new OnItemClickListener() {
+    private AdapterView.OnItemClickListener onClickSampleMenuItem() {
+        return new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent,
                                     View view,
                                     int position,
                                     long id) {
-                switch (position) {
-                    case 0:
-                        startService(new Intent(ServiceSampleActivity.this,
-                                                ImmortalService.class));
-                        break;
-                    case 1:
-                        startService(new Intent(ServiceSampleActivity.this,
-                                                LongOperationService.class));
-                        break;
-                }
+                final SampleMenuItem item = (SampleMenuItem) parent.getAdapter()
+                                                                   .getItem(position);
+                item.onClickListener.onClick(view);
             }
         };
     }
