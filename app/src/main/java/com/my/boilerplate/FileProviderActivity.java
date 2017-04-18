@@ -27,16 +27,15 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Pair;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
 import com.my.boilerplate.view.ImagePreviewerDialogFragment;
-import com.my.boilerplate.view.SampleMenuAdapter;
 import com.my.comp.TakePhotoDelegateActivity;
+import com.my.widget.adapter.SampleMenuAdapter;
+import com.my.widget.adapter.SampleMenuAdapter.SampleMenuItem;
 
 import java.io.File;
 
@@ -68,8 +67,8 @@ public class FileProviderActivity
         }
 
         mMenu = (ListView) findViewById(R.id.menu);
-        mMenu.setAdapter(onSampleMenuCreate());
-        mMenu.setOnItemClickListener(onClickMenuItem());
+        mMenu.setAdapter(onCreateSampleMenu());
+        mMenu.setOnItemClickListener(onClickSampleMenuItem());
     }
 
     @Override
@@ -118,34 +117,39 @@ public class FileProviderActivity
     // Protected / Private Methods ////////////////////////////////////////////
 
     @SuppressWarnings({"unchecked"})
-    private SampleMenuAdapter onSampleMenuCreate() {
+    private SampleMenuAdapter onCreateSampleMenu() {
         return new SampleMenuAdapter(
             this,
-            new Pair[]{
-                new Pair<>("Take a photo through other camera app",
-                           "After Android API 24, passing file:// URIs outside " +
-                           "the package domain may leave the receiver with an " +
-                           "unaccessible path. So in this example, it uses the " +
-                           "FileProvider to grant the permission for other Apps " +
-                           "to access the file.")
+            new SampleMenuItem[]{
+                new SampleMenuItem(
+                    "Take a photo through other camera app",
+                    "After Android API 24, passing file:// URIs outside " +
+                    "the package domain may leave the receiver with an " +
+                    "unaccessible path. So in this example, it uses the " +
+                    "FileProvider to grant the permission for other Apps " +
+                    "to access the file.",
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startActivityForResult(
+                                new Intent(FileProviderActivity.this,
+                                           TakePhotoDelegateActivity.class),
+                                REQ_TAKE_PHOTO);
+                        }
+                    })
             });
     }
 
-    private OnItemClickListener onClickMenuItem() {
-        return new OnItemClickListener() {
+    private AdapterView.OnItemClickListener onClickSampleMenuItem() {
+        return new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent,
                                     View view,
                                     int position,
                                     long id) {
-                switch (position) {
-                    case 0:
-                        startActivityForResult(
-                            new Intent(FileProviderActivity.this,
-                                       TakePhotoDelegateActivity.class),
-                            REQ_TAKE_PHOTO);
-                        break;
-                }
+                final SampleMenuItem item = (SampleMenuItem) parent.getAdapter()
+                                                                   .getItem(position);
+                item.onClickListener.onClick(view);
             }
         };
     }

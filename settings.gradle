@@ -1,4 +1,4 @@
-include ':app',
+include ':app', ':demo-widget',
         ':lib-core',
         ':lib-photo-collage',
         ':lib-widget',

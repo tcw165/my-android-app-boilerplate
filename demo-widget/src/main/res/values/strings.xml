@@ -1,0 +1,24 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Common -->
+    <string name="app_name" tools:ignore="MissingTranslation">My Widget Demo</string>
+    <string name="loading" tools:ignore="MissingTranslation">Loading</string>
+    <string name="receive_notification" tools:ignore="MissingTranslation">Receive a notification</string>
+
+    <!-- Menu -->
+    <string name="menu_toggle_drawer">Menu</string>
+    <string name="menu_take_photo">Camera</string>
+    <string name="menu_done">Done</string>
+    <string name="menu_skip">Skip</string>
+    <string name="menu_search" tools:ignore="MissingTranslation">Search</string>
+    <string name="menu_next" tools:ignore="MissingTranslation">Next</string>
+    <string name="menu_settings" tools:ignore="MissingTranslation">Settings</string>
+    <string name="menu_help_and_feedback" tools:ignore="MissingTranslation"><![CDATA[Help & Feedback]]></string>
+
+    <!-- Activity title -->
+    <string name="title_sample_of_drop_down_menu_layout">DropDownMenuLayout</string>
+    <string name="title_sample_of_elastic_drag_layout">ElasticDragLayout</string>
+    <string name="title_sample_of_elastic_drag_menu_layout">ElasticDragMenuLayout</string>
+    <string name="title_sample_of_photo_picker">PhotoPicker</string>
+    <string name="title_sample_of_camera">Camera Sample</string>
+    <string name="title_sample_of_elastic_drag_dismiss_layout">ElasticDragDismissLayout</string>
+</resources>

@@ -6,7 +6,7 @@ source runCompileProto.sh
 # TODO: Could we provide text-based UI so that tester could chose what test
 # TODO: to test.
 # Generate Makefile and then run build and all the unit-tests.
-cmake . && make && ./UnitTest -l
+mkdir build && cd build && cmake .. && cmake --build . && ./UnitTest -l
 
 # Force to return 0 so that "&&" can be processed.
 echo ""
