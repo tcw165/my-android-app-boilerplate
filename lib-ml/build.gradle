@@ -18,7 +18,6 @@ model {
         }
 
         def CPP_SOURCES = "src/main/jni/cpp"
-
         ndk {
             platformVersion = 16
             // The name of the native library recognized by JNI.

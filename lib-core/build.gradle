@@ -22,11 +22,10 @@ android {
 }
 
 dependencies {
-    def SUPPORT_LIB_VER = "25.3.1"
-
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
     // Google Support Library.
+    def SUPPORT_LIB_VER = "25.3.1"
     compile "com.android.support:appcompat-v7:${SUPPORT_LIB_VER}"
     compile "com.android.support:recyclerview-v7:${SUPPORT_LIB_VER}"
 

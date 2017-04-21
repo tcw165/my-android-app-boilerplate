@@ -1,0 +1,64 @@
+apply plugin: "com.android.library"
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "25.0.2"
+
+    defaultConfig {
+        minSdkVersion 16
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        ndk {
+            // "x86", "x86_64", "armeabi", "armeabi-v7a", "arm64-v8a"
+            abiFilters "armeabi-v7a"
+        }
+        externalNativeBuild {
+            cmake {
+                arguments "-DANDROID_PLATFORM=android-16",
+                        "-DANDROID_TOOLCHAIN=clang",
+                        "-DANDROID_STL=gnustl_shared",
+                        "-DANDROID_CPP_FEATURES=rtti exceptions"
+            }
+        }
+    }
+
+    // Let gradle pack the shared library into apk.
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['src/main/cppLibs/dlib/lib']
+        }
+    }
+    externalNativeBuild {
+        cmake {
+            path 'src/main/cpp/CMakeLists.txt'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: "libs", include: ["*.jar"])
+
+    // Google Support Library.
+    def SUPPORT_LIB_VER = "25.3.1"
+    compile "com.android.support:appcompat-v7:${SUPPORT_LIB_VER}"
+
+    // My Library.
+    compile project(":lib-core")
+
+    testCompile "junit:junit:4.12"
+
+    androidTestCompile("com.android.support.test.espresso:espresso-core:2.2.2", {
+        exclude group: "com.android.support", module: "support-annotations"
+    })
+}

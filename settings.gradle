@@ -1,6 +1,8 @@
-include ':app', ':demo-widget',
+include ':app',
+        ':demo-widget',
         ':lib-core',
         ':lib-photo-collage',
         ':lib-widget',
         ':lib-component',
+        ':lib-dlib',
         ':lib-ml'
