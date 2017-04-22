@@ -7,7 +7,7 @@
     <!-- Camera -->
     <item
         android:id="@+id/item_take_photo"
-        android:icon="@drawable/ic_toolbar_camera"
+        android:icon="@drawable/icon_toolbar_camera"
         android:title="@string/menu_take_photo"
         app:showAsAction="always"/>
 

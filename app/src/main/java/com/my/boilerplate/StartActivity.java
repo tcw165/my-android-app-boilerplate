@@ -133,12 +133,12 @@ public class StartActivity
         return new IDrawerViewLayout.OnDrawerStateChange() {
             @Override
             public void onOpenDrawer() {
-                mToolbar.setNavigationIcon(R.drawable.ic_toolbar_close);
+                mToolbar.setNavigationIcon(R.drawable.icon_toolbar_close);
             }
 
             @Override
             public void onCloseDrawer() {
-                mToolbar.setNavigationIcon(R.drawable.ic_list_black_24px);
+                mToolbar.setNavigationIcon(R.drawable.icon_list_black_24px);
             }
         };
     }

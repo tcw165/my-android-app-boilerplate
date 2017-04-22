@@ -12,7 +12,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="@dimen/toolbar_height"
-        app:navigationIcon="@drawable/ic_toolbar_close"
+        app:navigationIcon="@drawable/icon_toolbar_close"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:titleTextColor="@color/textColorPrimary"/>
 

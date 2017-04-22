@@ -20,7 +20,7 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:tint="@color/colorAccent"
-        app:srcCompat="@drawable/ic_list_black_24px"/>
+        app:srcCompat="@drawable/icon_list_black_24px"/>
 
     <ImageButton
         android:id="@+id/menu_arrow_left"

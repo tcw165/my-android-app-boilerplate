@@ -20,8 +20,10 @@ android {
             cmake {
                 arguments "-DANDROID_PLATFORM=android-16",
                         "-DANDROID_TOOLCHAIN=clang",
-                        "-DANDROID_STL=gnustl_shared",
+                        "-DANDROID_STL=c++_shared",
                         "-DANDROID_CPP_FEATURES=rtti exceptions"
+                // Enables exception-handling support.
+//                cppFlags "-fexceptions -std=c++11"
             }
         }
     }

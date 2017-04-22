@@ -5,7 +5,7 @@
 
     <item
         android:id="@+id/menu_toggle_drawer"
-        android:icon="@drawable/ic_list_black_24px"
+        android:icon="@drawable/icon_list_black_24px"
         android:title="@string/menu_toggle_drawer"
         app:showAsAction="always"/>
 </menu>
