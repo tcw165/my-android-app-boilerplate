@@ -21,6 +21,7 @@
 package com.my.jni.dlib;
 
 import android.content.res.AssetManager;
+import android.graphics.Bitmap;
 
 public class FaceLandmarksDetector {
 
@@ -80,4 +81,8 @@ public class FaceLandmarksDetector {
     // Protected / Private Methods ////////////////////////////////////////////
 
     public native void deserializeShapeDetector(String path);
+
+    public native void deserializeFaceDetector();
+
+    public native void findFaces(Bitmap bitmap);
 }

@@ -25,12 +25,13 @@
 #include <dlib/image_io.h>
 
 #define LOGI(...) \
-  ((void)__android_log_print(ANDROID_LOG_INFO, "hell-libs::", __VA_ARGS__))
+  ((void)__android_log_print(ANDROID_LOG_INFO, "dlib-jni::", __VA_ARGS__))
 
 #define JNI_METHOD(NAME) \
     Java_com_my_jni_dlib_FaceLandmarksDetector_##NAME
 
 dlib::shape_predictor sShapePredictor;
+dlib::frontal_face_detector sFaceDetector;
 
 extern "C" JNIEXPORT void JNICALL
 JNI_METHOD(deserializeShapeDetector)(JNIEnv *env,
@@ -48,14 +49,20 @@ JNI_METHOD(deserializeShapeDetector)(JNIEnv *env,
     env->ReleaseStringUTFChars(detectorPath, path);
 }
 
+extern "C" JNIEXPORT void JNICALL
+JNI_METHOD(deserializeFaceDetector)(JNIEnv *env,
+                                    jobject thiz) {
+    sFaceDetector = dlib::get_frontal_face_detector();
+}
+
 //// TODO: Implement a Java wrapper for it.
 extern "C" JNIEXPORT void JNICALL
 JNI_METHOD(findFaces)(JNIEnv *env,
                       jobject thiz,
                       jobject bitmap) {
-    // We need a face detector.  We will use this to get bounding boxes for
-    // each face in an image.
-    dlib::frontal_face_detector faceDetector = dlib::get_frontal_face_detector();
+//    // We need a face detector.  We will use this to get bounding boxes for
+//    // each face in an image.
+//    dlib::frontal_face_detector faceDetector = dlib::get_frontal_face_detector();
 
     // Convert bitmap to a list of rgb_pixel.
     dlib::array2d<dlib::rgb_pixel> img;
@@ -63,22 +70,22 @@ JNI_METHOD(findFaces)(JNIEnv *env,
     // Make the image larger so we can detect small faces.
     pyramid_up(img);
 
-//    // Now tell the face detector to give us a list of bounding boxes
-//    // around all the faces in the image.
-//    std::vector<dlib::rectangle> dets = faceDetector(img);
-//    LOGI("Number of faces detected: %d", dets.size());
-//
-//    // Now we will go ask the shape_predictor to tell us the pose of
-//    // each face we detected.
-//    std::vector<dlib::full_object_detection> shapes;
-//    for (unsigned long j = 0; j < dets.size(); ++j) {
-//        dlib::full_object_detection shape = sShapePredictor(img, dets[j]);
-//        LOGI("number of parts: %lu", shape.num_parts());
-////        LOGI("pixel position of first part: %s", shape.part(0));
-////        LOGI("pixel position of second part: %s", shape.part(1));
-//        // You get the idea, you can get all the face part locations if
-//        // you want them.  Here we just store them in shapes so we can
-//        // put them on the screen.
-//        shapes.push_back(shape);
-//    }
+    // Now tell the face detector to give us a list of bounding boxes
+    // around all the faces in the image.
+    std::vector<dlib::rectangle> dets = sFaceDetector(img);
+    LOGI("Number of faces detected: %d", dets.size());
+
+    // Now we will go ask the shape_predictor to tell us the pose of
+    // each face we detected.
+    std::vector<dlib::full_object_detection> shapes;
+    for (unsigned long j = 0; j < dets.size(); ++j) {
+        dlib::full_object_detection shape = sShapePredictor(img, dets[j]);
+        LOGI("number of parts: %lu", shape.num_parts());
+//        LOGI("pixel position of first part: %s", shape.part(0));
+//        LOGI("pixel position of second part: %s", shape.part(1));
+        // You get the idea, you can get all the face part locations if
+        // you want them.  Here we just store them in shapes so we can
+        // put them on the screen.
+        shapes.push_back(shape);
+    }
 }
