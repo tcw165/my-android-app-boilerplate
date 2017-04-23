@@ -22,9 +22,11 @@ package com.my.widget;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.PointF;
 import android.graphics.Rect;
+import android.os.Build;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -330,52 +332,90 @@ public class PhotoPickerView extends CoordinatorLayout
 
         // FIXME: Figure out the way of Observable.chain(ob1, ob2, ob3, ...)
         // FIXME: And make showing/hiding the progress bar automatically.
-        showProgressBar();
+        final String errorMessage = "READ_EXTERNAL_STORAGE or " +
+                                    "WRITE_EXTERNAL_STORAGE is " +
+                                    "not granted.";
         // Ask for read/write permission first.
-        RxPermissions
-            .getInstance(getContext())
-            .request(Manifest.permission.READ_EXTERNAL_STORAGE,
-                     Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            .observeOn(AndroidSchedulers.mainThread())
-            .flatMap(new Function<Boolean, ObservableSource<List<IPhotoAlbum>>>() {
-                @Override
-                public ObservableSource<List<IPhotoAlbum>> apply(Boolean granted)
-                    throws Exception {
-                    if (granted) {
-                        // Load album list.
-                        return loadAlbumList();
-                    } else {
-                        final String msg = "READ_EXTERNAL_STORAGE && " +
-                                           "WRITE_EXTERNAL_STORAGE are " +
-                                           "not granted.";
-                        // Show a toast.
-                        Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT)
-                             .show();
+        showProgressBar();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            RxPermissions
+                .getInstance(getContext())
+                .request(Manifest.permission.READ_EXTERNAL_STORAGE,
+                         Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                .observeOn(AndroidSchedulers.mainThread())
+                .flatMap(new Function<Boolean, ObservableSource<List<IPhotoAlbum>>>() {
+                    @Override
+                    public ObservableSource<List<IPhotoAlbum>> apply(Boolean granted)
+                        throws Exception {
+                        if (granted) {
+                            // Load album list.
+                            return loadAlbumList();
+                        } else {
+                            // Show a toast.
+                            Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT)
+                                 .show();
 
-                        return Observable.error(new SecurityException(msg));
+                            return Observable.error(new SecurityException(errorMessage));
+                        }
                     }
-                }
-            })
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(new DisposableObserver<List<IPhotoAlbum>>() {
-                @Override
-                public void onNext(List<IPhotoAlbum> albums) {
-                    // Update the album list.
-                    mAlbumListAdapter.setData(albums);
-                    // Set selection will trigger AdapterView#onItemSelected.
-                    mAlbumList.setSelection(0);
-                }
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new DisposableObserver<List<IPhotoAlbum>>() {
+                    @Override
+                    public void onNext(List<IPhotoAlbum> albums) {
+                        // Update the album list.
+                        mAlbumListAdapter.setData(albums);
+                        // Set selection will trigger AdapterView#onItemSelected.
+                        mAlbumList.setSelection(0);
+                    }
 
-                @Override
-                public void onError(Throwable e) {
-                    hideProgressBar();
-                }
+                    @Override
+                    public void onError(Throwable e) {
+                        hideProgressBar();
+                    }
 
-                @Override
-                public void onComplete() {
-                    hideProgressBar();
-                }
-            });
+                    @Override
+                    public void onComplete() {
+                        hideProgressBar();
+                    }
+                });
+        } else {
+            int permCheck1 = ContextCompat.checkSelfPermission(
+                getContext(),
+                Manifest.permission.READ_EXTERNAL_STORAGE);
+            int permCheck2 = ContextCompat.checkSelfPermission(
+                getContext(),
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+            if (permCheck1 == PackageManager.PERMISSION_GRANTED &&
+                permCheck2 == PackageManager.PERMISSION_GRANTED) {
+                // Load album list.
+                loadAlbumList()
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new DisposableObserver<List<IPhotoAlbum>>() {
+                        @Override
+                        public void onNext(List<IPhotoAlbum> albums) {
+                            // Update the album list.
+                            mAlbumListAdapter.setData(albums);
+                            // Set selection will trigger AdapterView#onItemSelected.
+                            mAlbumList.setSelection(0);
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            hideProgressBar();
+                        }
+
+                        @Override
+                        public void onComplete() {
+                            hideProgressBar();
+                        }
+                    });
+            } else {
+                Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT)
+                     .show();
+            }
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -953,9 +993,9 @@ public class PhotoPickerView extends CoordinatorLayout
          * For handling show/hide the target view.
          * <br/>
          * <ul>
-         *     <li>See {@link #onInterceptTouchEvent(MotionEvent)}</li>
-         *     <li>See {@link #onTouchEvent(MotionEvent)}</li>
-         *     <li>See {@link #onListUpdate()}</li>
+         * <li>See {@link #onInterceptTouchEvent(MotionEvent)}</li>
+         * <li>See {@link #onTouchEvent(MotionEvent)}</li>
+         * <li>See {@link #onListUpdate()}</li>
          * </ul>
          *
          * @param targetView               The target {@link RecyclerView}
