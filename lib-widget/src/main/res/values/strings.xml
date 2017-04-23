@@ -2,7 +2,6 @@
     <string name="menu_settings" tools:ignore="MissingTranslation">Settings</string>
 
     <!-- Warning -->
-    <string name="warning_not_support_hardware_acceleration">
-        Cannot preview the camera because it needs hardware acceleration support.
-    </string>
+    <string name="warning_not_support_hardware_acceleration">Cannot preview the camera because it needs hardware acceleration support.</string>
+    <string name="warning_reach_max_num_of_selection" formatted="false">Can\'t select more than %d %s.</string>
 </resources>

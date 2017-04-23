@@ -19,6 +19,8 @@ public class ObservableArrayList<E> extends CopyOnWriteArrayList<E>
     private final Handler mHandler;
     private final List<ListChangeListener<E>> mCallbacks = new ArrayList<>();
 
+    private int mMaxCapacity;
+
     public ObservableArrayList(Looper looper) {
         super();
 
@@ -53,7 +55,9 @@ public class ObservableArrayList<E> extends CopyOnWriteArrayList<E>
 
     @Override
     public boolean add(E e) {
-        boolean ret = super.add(e);
+        if (size() == mMaxCapacity) return false;
+
+        final boolean ret = super.add(e);
 
         if (ret) {
             dispatchCallbacks(e, null, null);
@@ -64,6 +68,8 @@ public class ObservableArrayList<E> extends CopyOnWriteArrayList<E>
 
     @Override
     public void add(int index, E element) {
+        if (size() == mMaxCapacity) return;
+
         super.add(index, element);
         dispatchCallbacks(element, null, null);
     }
@@ -93,6 +99,18 @@ public class ObservableArrayList<E> extends CopyOnWriteArrayList<E>
         synchronized (mCallbacks) {
             mCallbacks.remove(listener);
         }
+    }
+
+    public void setMaxCapacity(int capacity) {
+        if (capacity < 0) {
+            throw new IllegalArgumentException("Given capacity is negative.");
+        }
+
+        mMaxCapacity = capacity;
+    }
+
+    public int getMaxCapacity() {
+        return mMaxCapacity;
     }
 
     ///////////////////////////////////////////////////////////////////////////

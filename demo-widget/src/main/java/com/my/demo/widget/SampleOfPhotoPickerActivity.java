@@ -45,6 +45,10 @@ public class SampleOfPhotoPickerActivity
     implements ObservableArrayList.Provider<IPhoto>,
                ObservableArrayList.ListChangeListener<IPhoto> {
 
+    public static final String PARAMS_MAX_NUM_OF_SELECTION =
+        SampleOfPhotoPickerActivity.class.getCanonicalName() + ".PARAMS_MAX_NUM_OF_SELECTION";
+    public static final int DEFAULT_MAX_NUM_OF_SELECTION = 15;
+
     public static final String RESULT_PHOTOS =
         SampleOfPhotoPickerActivity.class.getCanonicalName() + ".RESULT_PHOTOS";
 
@@ -75,6 +79,9 @@ public class SampleOfPhotoPickerActivity
         // The photo selection pool.
         mSelectedPhotos = new ObservableArrayList<>(Looper.getMainLooper());
         mSelectedPhotos.addListener(this);
+        mSelectedPhotos.setMaxCapacity(
+            getIntent().getIntExtra(PARAMS_MAX_NUM_OF_SELECTION,
+                                    DEFAULT_MAX_NUM_OF_SELECTION));
 
         // Photo picker.
         mPhotoPicker = (PhotoPickerView) findViewById(R.id.photo_picker);

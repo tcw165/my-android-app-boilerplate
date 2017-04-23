@@ -277,7 +277,16 @@ public class PhotoPickerView extends CoordinatorLayout
     public void onSelectPhoto(IPhoto photo,
                               int position) {
         // Will trigger onSelectionChanged();
-        getSelection().add(photo);
+        final boolean successful = getSelection().add(photo);
+
+        if (!successful) {
+            final String message = String.format(
+                getResources().getString(R.string.warning_reach_max_num_of_selection),
+                getSelection().size(),
+                "photos");
+
+            Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
