@@ -66,9 +66,10 @@ JNI_METHOD(findFaces)(JNIEnv *env,
 
     // Convert bitmap to a list of rgb_pixel.
     dlib::array2d<dlib::rgb_pixel> img;
+    dlib::load_image(img, "asdf");
 
     // Make the image larger so we can detect small faces.
-    pyramid_up(img);
+    dlib::pyramid_up(img);
 
     // Now tell the face detector to give us a list of bounding boxes
     // around all the faces in the image.
