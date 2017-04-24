@@ -58,29 +58,6 @@ public class FaceLandmarksDetector {
         }
     }
 
-    /**
-     * Load default graph from assets.
-     * <br/>
-     * e.g.
-     * <br/>
-     * http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2
-     */
-    public void loadShapeDetector(final String path) {
-        deserializeShapeDetector(path);
-//        try {
-//            final InputStream is = mAssetManager.open(
-//                "shape_predictor_68_face_landmarks.dat");
-//            final byte[] data = new byte[is.available()];
-//            final int numBytesRead = is.read(data);
-//            final boolean loaded = numBytesRead == data.length && loadGraph(data);
-//            is.close();
-//
-//            return loaded;
-//        } catch (IOException error) {
-//            return false;
-//        }
-    }
-
     ///////////////////////////////////////////////////////////////////////////
     // Protected / Private Methods ////////////////////////////////////////////
 
@@ -88,5 +65,5 @@ public class FaceLandmarksDetector {
 
     public native void deserializeFaceDetector();
 
-    public native void findFaces(Bitmap bitmap);
+    public native void findFaces(String imagePath);
 }

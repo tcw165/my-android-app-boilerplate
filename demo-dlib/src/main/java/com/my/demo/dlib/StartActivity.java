@@ -247,6 +247,7 @@ public class StartActivity extends AppCompatActivity
                     mFaceDetector.deserializeFaceDetector();
                     mFaceDetector.deserializeShapeDetector(
                         config.shapeDetectorPath);
+                    mFaceDetector.findFaces(config.testPhotoPath);
                     return null;
                 }
             })
@@ -255,12 +256,10 @@ public class StartActivity extends AppCompatActivity
             .map(new Function<Object, Object>() {
                 @Override
                 public Object apply(Object o) throws Exception {
-                    hideProgressBar();
                     showProgressBar("Detecting face landmarks...");
                     return null;
                 }
-            })
-            .delay(1500, TimeUnit.MILLISECONDS);
+            });
     }
 
     ///////////////////////////////////////////////////////////////////////////
