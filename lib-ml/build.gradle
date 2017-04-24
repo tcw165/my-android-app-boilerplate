@@ -74,6 +74,9 @@ model {
 dependencies {
     compile fileTree(dir: "libs", include: ["*.jar", "*.so"])
 
+    // My Library.
+    compile project(":lib-core")
+
     // JSON.
     compile "com.google.code.gson:gson:2.7"
 }

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Warning -->
+    <string name="warning_not_support_hardware_acceleration">Cannot preview the camera because it needs hardware acceleration support.</string>
+</resources>

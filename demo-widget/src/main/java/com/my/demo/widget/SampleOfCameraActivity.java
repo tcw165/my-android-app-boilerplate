@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.TextView;
 
+import com.my.ml.CameraClassifierView;
 import com.my.widget.CameraTextureView;
 import com.my.widget.ElasticDragDismissLayout;
 import com.my.widget.ElasticDragDismissLayout.OnDragDismissCallback;
@@ -26,7 +27,7 @@ import io.reactivex.functions.Function;
 
 public class SampleOfCameraActivity
     extends AppCompatActivity
-    implements CameraTextureView.OnImageClassifiedCallback {
+    implements CameraClassifierView.OnImageClassifiedCallback {
 
     /**
      * Needed because it asks the permission in the onResume function and the
@@ -38,7 +39,7 @@ public class SampleOfCameraActivity
     ElasticDragDismissLayout mLayout;
     TextView mDescripView;
     //    CameraSurfaceView mCameraView;
-    CameraTextureView mCameraView;
+    CameraClassifierView mCameraView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -56,7 +57,7 @@ public class SampleOfCameraActivity
         // Use SurfaceView.
 //        mCameraView = (CameraSurfaceView) findViewById(R.id.cameraPreview);
         // Use TextureView.
-        mCameraView = (CameraTextureView) findViewById(R.id.cameraPreview);
+        mCameraView = (CameraClassifierView) findViewById(R.id.cameraPreview);
         mCameraView.setOnClassifyPreviewListener(this);
     }
 

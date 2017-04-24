@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.widget;
+package com.my.ml;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -33,6 +33,10 @@ import android.widget.Toast;
 
 import com.my.core.util.CameraUtil;
 
+import org.tensorflow.contrib.android.Classifier;
+import org.tensorflow.contrib.android.Classifier.Recognition;
+import org.tensorflow.contrib.android.TensorFlowImageClassifier;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Timer;
@@ -41,11 +45,18 @@ import java.util.TimerTask;
 // TODO: Need to change the TextureView size to match aspect-ratio of the
 // TODO: camera preview size.
 // TODO: Solve it in the View#onMeasure or SurfaceTexture#setDefaultBufferSize
-public class CameraTextureView
+public class CameraClassifierView
     extends TextureView
     implements TextureView.SurfaceTextureListener {
 
+    private static final String MODEL_FILE = "file:///android_asset/tensorflow_inception_graph.pb";
+    private static final String LABEL_FILE = "file:///android_asset/imagenet_comp_graph_label_strings.txt";
+    private static final int NUM_CLASSES = 1008;
     private static final int INPUT_SIZE = 224;
+    private static final int IMAGE_MEAN = 117;
+    private static final float IMAGE_STD = 1;
+    private static final String INPUT_NAME = "input:0";
+    private static final String OUTPUT_NAME = "output:0";
 
     // State.
     int mCameraId;
@@ -53,19 +64,25 @@ public class CameraTextureView
     boolean mIsPreviewing;
     Bitmap mBitmap;
 
-    static final String TAG = CameraTextureView.class.getSimpleName();
+    static final String TAG = CameraClassifierView.class.getSimpleName();
     // Because the Camera.open and Camera.setPreviewTexture take 100ms
     // individually, doing them in the other thread avoids
     Handler mHandler;
     Timer mPredictTimer;
     Camera mCamera;
 
-    public CameraTextureView(Context context) {
+    // The classifier.
+    Classifier mClassifier;
+
+    // Callbacks.
+    OnImageClassifiedCallback mCallback;
+
+    public CameraClassifierView(Context context) {
         this(context, null);
     }
 
-    public CameraTextureView(Context context,
-                             AttributeSet attrs) {
+    public CameraClassifierView(Context context,
+                                AttributeSet attrs) {
         super(context, attrs);
     }
 
@@ -180,6 +197,10 @@ public class CameraTextureView
             mHandler.getLooper().quit();
             mHandler = null;
         }
+    }
+
+    public void setOnClassifyPreviewListener(OnImageClassifiedCallback callback) {
+        mCallback = callback;
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -309,6 +330,17 @@ public class CameraTextureView
 
     synchronized void startTimer() {
         try {
+            mClassifier = TensorFlowImageClassifier.create(
+                getContext().getAssets(),
+                MODEL_FILE,
+                LABEL_FILE,
+                NUM_CLASSES,
+                INPUT_SIZE,
+                IMAGE_MEAN,
+                IMAGE_STD,
+                INPUT_NAME,
+                OUTPUT_NAME);
+
             if (mBitmap == null) {
                 mBitmap = Bitmap.createBitmap(INPUT_SIZE, INPUT_SIZE, Bitmap.Config.ARGB_8888);
             }
@@ -320,7 +352,7 @@ public class CameraTextureView
                     new TimerTask() {
                         @Override
                         public void run() {
-                            doSomethingWithCameraPreviewAsync();
+                            predictCameraPreviewAsync();
                         }
                     },
                     INTERVAL,
@@ -337,24 +369,73 @@ public class CameraTextureView
             mPredictTimer = null;
         }
 
+        try {
+            if (mClassifier != null) {
+                mClassifier.close();
+                mClassifier = null;
+            }
+        } catch (Exception e) {
+            // DO NOTHING.
+        }
+
         if (mBitmap != null) {
             mBitmap.recycle();
             mBitmap = null;
         }
     }
 
-    synchronized void doSomethingWithCameraPreviewAsync() {
+    synchronized void predictCameraPreviewAsync() {
         if (mHandler == null) return;
 
         mHandler.post(new Runnable() {
             @Override
             public void run() {
                 if (!isAvailable()) return;
+                if (mClassifier == null) return;
                 if (mBitmap == null) return;
 
                 // Get the current preview.
                 getBitmap(mBitmap);
+
+                try {
+                    final List<Recognition> results = mClassifier.recognizeImage(mBitmap);
+                    if (results != null && !results.isEmpty()) {
+                        String description = "";
+                        for (int i = 0; i < results.size(); ++i) {
+                            description += results.get(i).getTitle() +
+                                           "(" + results.get(i).getConfidence() + ")";
+
+                            if (i < results.size() - 1) {
+                                description += ", ";
+                            }
+                        }
+                        dispatchCallback(description);
+                        Log.d("xyz", "this is " + description);
+                    }
+                } catch (Throwable ignored) {
+                    Log.d("xyz", "error: " + ignored.toString());
+                }
             }
         });
+    }
+
+    void dispatchCallback(final String description) {
+        // Update on the UI thread.
+        post(new Runnable() {
+            @Override
+            public void run() {
+                if (mCallback == null) return;
+
+                mCallback.onImageClassified(description);
+            }
+        });
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Clazz //////////////////////////////////////////////////////////////////
+
+    // TODO: Should be independent.
+    public interface OnImageClassifiedCallback {
+        void onImageClassified(String description);
     }
 }
