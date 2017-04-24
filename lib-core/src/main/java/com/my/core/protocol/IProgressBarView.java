@@ -32,6 +32,11 @@ public interface IProgressBarView {
     void showProgressBar();
 
     /**
+     * Show the progress bar in certain way.
+     */
+    void showProgressBar(String msg);
+
+    /**
      * Hide the progress bar.
      */
     void hideProgressBar();

@@ -1,7 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Common -->
     <string name="app_name" tools:ignore="MissingTranslation">My Widget Demo</string>
-    <string name="loading" tools:ignore="MissingTranslation">Loading</string>
     <string name="receive_notification" tools:ignore="MissingTranslation">Receive a notification</string>
 
     <!-- Menu -->

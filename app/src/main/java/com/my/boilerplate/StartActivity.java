@@ -111,6 +111,11 @@ public class StartActivity
     }
 
     @Override
+    public void showProgressBar(String msg) {
+        showProgressBar();
+    }
+
+    @Override
     public void hideProgressBar() {
         ViewUtil
             .with(this)

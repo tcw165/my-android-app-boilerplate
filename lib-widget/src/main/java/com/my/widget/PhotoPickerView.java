@@ -241,6 +241,11 @@ public class PhotoPickerView extends CoordinatorLayout
     }
 
     @Override
+    public void showProgressBar(String msg) {
+        showProgressBar();
+    }
+
+    @Override
     public void hideProgressBar() {
         if (mPhotoListParent == null) return;
 
