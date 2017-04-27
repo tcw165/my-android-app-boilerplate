@@ -84,10 +84,10 @@ JNI_METHOD(findFaces)(JNIEnv *env,
     std::vector<dlib::full_object_detection> shapes;
     for (unsigned long j = 0; j < dets.size(); ++j) {
         dlib::full_object_detection shape = sShapePredictor(img, dets[j]);
-        LOGI("L%d: #%lu face, %d of parts detected",
+        LOGI("L%d: #%lu face, %lu of parts detected",
              __LINE__,
              j,
-             dets.size());
+             shape.num_parts());
 //        LOGI("pixel position of first part: %s", shape.part(0));
 //        LOGI("pixel position of second part: %s", shape.part(1));
         // You get the idea, you can get all the face part locations if

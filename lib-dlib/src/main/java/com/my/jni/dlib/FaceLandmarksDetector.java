@@ -21,7 +21,7 @@
 package com.my.jni.dlib;
 
 import android.content.res.AssetManager;
-import android.graphics.Bitmap;
+import android.util.Log;
 
 public class FaceLandmarksDetector {
 
@@ -33,15 +33,27 @@ public class FaceLandmarksDetector {
         // TODO: Load library in worker thread?
         try {
             System.loadLibrary("c++_shared");
+            Log.d("jni", "libc++_shared.so is loaded");
         } catch (UnsatisfiedLinkError error) {
             throw new RuntimeException(
-                "\"c++_shared\" not found; check that the correct native libraries " +
-                "are present in the APK.");
+                "\"c++_shared\" not found; check that the correct native " +
+                "libraries are present in the APK.");
+        }
+
+        // TODO: Load library in worker thread?
+        try {
+            System.loadLibrary("protobuf-lite-3.2.0");
+            Log.d("jni", "libprotobuf-lite-3.2.0.so is loaded");
+        } catch (UnsatisfiedLinkError error) {
+            throw new RuntimeException(
+                "\"protobuf-lite-3.2.0\" not found; check that the correct " +
+                "native libraries are present in the APK.");
         }
 
         // TODO: Load library in worker thread?
         try {
             System.loadLibrary("dlib");
+            Log.d("jni", "libdlib.so is loaded");
         } catch (UnsatisfiedLinkError error) {
             throw new RuntimeException(
                 "\"dlib\" not found; check that the correct native libraries " +
@@ -51,6 +63,7 @@ public class FaceLandmarksDetector {
         // TODO: Load library in worker thread?
         try {
             System.loadLibrary("dlib_jni");
+            Log.d("jni", "libdlib_jni.so is loaded");
         } catch (UnsatisfiedLinkError error) {
             throw new RuntimeException(
                 "\"dlib_jni\" not found; check that the correct native " +

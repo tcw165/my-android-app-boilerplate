@@ -4,6 +4,7 @@ include ':app',
         ':lib-core',
         ':lib-photo-collage',
         ':lib-widget',
+        ':lib-protobuf',
         ':lib-component',
         ':lib-dlib',
         ':lib-ml'
