@@ -78,5 +78,5 @@ public class FaceLandmarksDetector {
 
     public native void deserializeFaceDetector();
 
-    public native void findFaces(String imagePath);
+    public native byte[] findFaces(String imagePath);
 }

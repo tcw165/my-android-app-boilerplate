@@ -9,6 +9,7 @@ import android.os.Environment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
@@ -16,13 +17,16 @@ import com.my.core.protocol.IProgressBarView;
 import com.my.core.util.FileUtil;
 import com.my.core.util.ViewUtil;
 import com.my.jni.dlib.FaceLandmarksDetector;
+import com.my.jni.dlib.data.Face;
+import com.my.jni.dlib.data.Messages;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -240,23 +244,42 @@ public class StartActivity extends AppCompatActivity
             .subscribeOn(Schedulers.io())
             // Deserialize the detector.
             .observeOn(Schedulers.io())
-            .map(new Function<DetectorParams, Object>() {
+            .map(new Function<DetectorParams, List<Face>>() {
                 @Override
-                public Object apply(DetectorParams config)
+                public List<Face> apply(DetectorParams config)
                     throws Exception {
+                    // Prepare the detectors.
                     mFaceDetector.deserializeFaceDetector();
                     mFaceDetector.deserializeShapeDetector(
                         config.shapeDetectorPath);
-                    mFaceDetector.findFaces(config.testPhotoPath);
-                    return null;
+
+                    // Do the face landmarks detection.
+                    final byte[] rawData = mFaceDetector.findFaces(config.testPhotoPath);
+                    Messages.FaceList rawFaces = Messages.FaceList.parseFrom(rawData);
+                    Log.d("xyz", "Detect " + rawFaces.getFacesCount() +  " faces");
+
+                    // Convert raw data to my data structure.
+                    final List<Face> faces = new ArrayList<>();
+                    for (int i = 0; i < rawFaces.getFacesCount(); ++i) {
+                        final Messages.Face rawFace = rawFaces.getFaces(i);
+                        final Face face = new Face(rawFace);
+                        Log.d("xyz", "Face #" + i + "=" + face);
+
+                        faces.add(face);
+                    }
+
+                    return faces;
                 }
             })
             // Update texting of the progress bar.
             .observeOn(AndroidSchedulers.mainThread())
-            .map(new Function<Object, Object>() {
+            .map(new Function<List<Face>, Object>() {
                 @Override
-                public Object apply(Object o) throws Exception {
+                public Object apply(List<Face> faces) throws Exception {
                     showProgressBar("Detecting face landmarks...");
+
+                    // TODO: Render the landmarks.
+
                     return null;
                 }
             });

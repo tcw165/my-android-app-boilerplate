@@ -1,0 +1,23 @@
+// Whenever you make changes to this file, remember to run compile.sh.
+
+syntax = "proto3";
+package com.my.jni.dlib.data;
+
+option optimize_for = LITE_RUNTIME;
+//option cc_enable_arenas = false;
+
+//// For Java.
+//option java_outer_classname = "ProtoGridList";
+
+message Landmark {
+    uint32 x = 1;
+    uint32 y = 2;
+}
+
+message Face {
+    repeated Landmark landmarks = 1;
+}
+
+message FaceList {
+    repeated Face faces = 1;
+}

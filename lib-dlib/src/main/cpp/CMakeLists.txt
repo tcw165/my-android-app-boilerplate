@@ -22,9 +22,12 @@ set_target_properties(protobuf PROPERTIES IMPORTED_LOCATION
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexceptions -std=c++11")
 
 add_library(dlib_jni SHARED
-            dlib-jni.cpp)
+            dlib-jni.cpp
+            data/messages.pb.cc)
 
 target_include_directories(dlib_jni PRIVATE
+                           ${CMAKE_SOURCE_DIR}
+                           ${CMAKE_SOURCE_DIR}/../../../../lib-protobuf/cppLibs/include
                            ${lib_dir}/dlib/include)
 
 target_link_libraries(dlib_jni
