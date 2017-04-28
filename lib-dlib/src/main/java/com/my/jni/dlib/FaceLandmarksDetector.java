@@ -23,6 +23,13 @@ package com.my.jni.dlib;
 import android.content.res.AssetManager;
 import android.util.Log;
 
+import com.google.protobuf.InvalidProtocolBufferException;
+import com.my.jni.dlib.data.Face;
+import com.my.jni.dlib.data.Messages;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class FaceLandmarksDetector {
 
     final AssetManager mAssetManager;
@@ -69,6 +76,26 @@ public class FaceLandmarksDetector {
                 "\"dlib_jni\" not found; check that the correct native " +
                 "libraries are present in the APK.");
         }
+    }
+
+    public List<Face> getFaces(String imagePath)
+        throws InvalidProtocolBufferException {
+        // Do the face landmarks detection.
+        final byte[] rawData = findFaces(imagePath);
+        Messages.FaceList rawFaces = Messages.FaceList.parseFrom(rawData);
+        Log.d("xyz", "Detect " + rawFaces.getFacesCount() +  " faces");
+
+        // Convert raw data to my data structure.
+        final List<Face> faces = new ArrayList<>();
+        for (int i = 0; i < rawFaces.getFacesCount(); ++i) {
+            final Messages.Face rawFace = rawFaces.getFaces(i);
+            final Face face = new Face(rawFace);
+            Log.d("xyz", "Face #" + i + "=" + face);
+
+            faces.add(face);
+        }
+
+        return faces;
     }
 
     ///////////////////////////////////////////////////////////////////////////

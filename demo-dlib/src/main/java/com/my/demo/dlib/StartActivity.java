@@ -254,21 +254,7 @@ public class StartActivity extends AppCompatActivity
                         config.shapeDetectorPath);
 
                     // Do the face landmarks detection.
-                    final byte[] rawData = mFaceDetector.findFaces(config.testPhotoPath);
-                    Messages.FaceList rawFaces = Messages.FaceList.parseFrom(rawData);
-                    Log.d("xyz", "Detect " + rawFaces.getFacesCount() +  " faces");
-
-                    // Convert raw data to my data structure.
-                    final List<Face> faces = new ArrayList<>();
-                    for (int i = 0; i < rawFaces.getFacesCount(); ++i) {
-                        final Messages.Face rawFace = rawFaces.getFaces(i);
-                        final Face face = new Face(rawFace);
-                        Log.d("xyz", "Face #" + i + "=" + face);
-
-                        faces.add(face);
-                    }
-
-                    return faces;
+                    return mFaceDetector.getFaces(config.testPhotoPath);
                 }
             })
             // Update texting of the progress bar.
