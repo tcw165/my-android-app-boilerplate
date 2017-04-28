@@ -70,7 +70,10 @@ JNI_METHOD(findFaces)(JNIEnv *env,
     dlib::array2d<dlib::rgb_pixel> img;
     dlib::load_image(img, path);
     env->ReleaseStringUTFChars(imgPath, path);
-    LOGI("L%d: input image (w=%lu, h=%lu) is read.", __LINE__, img.nc(), img.nr());
+
+    const float width = (float) img.nc();
+    const float height = (float) img.nr();
+    LOGI("L%d: input image (w=%f, h=%f) is read.", __LINE__, width, height);
 
 //    // Make the image larger so we can detect small faces.
 //    dlib::pyramid_up(img);
@@ -98,11 +101,11 @@ JNI_METHOD(findFaces)(JNIEnv *env,
         for (u_long i = 0 ; i < shape.num_parts(); ++i) {
             dlib::point& pt = shape.part(i);
 
-            LOGI("L%d: point #%lu (x=%lu,y=%lu)",
-                 __LINE__, i, pt.x(), pt.y());
             Landmark* landmark = face->add_landmarks();
-            landmark->set_x((::google::protobuf::uint32) pt.x());
-            landmark->set_y((::google::protobuf::uint32) pt.y());
+            landmark->set_x((float) pt.x() / width);
+            landmark->set_y((float) pt.y() / height);
+            LOGI("L%d: point #%lu (x=%f,y=%f)",
+                 __LINE__, i, landmark->x(), landmark->y());
         }
 
         shapes.push_back(shape);

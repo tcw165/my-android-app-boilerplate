@@ -9,9 +9,10 @@ option optimize_for = LITE_RUNTIME;
 //// For Java.
 //option java_outer_classname = "ProtoGridList";
 
+// Normalized x and y.
 message Landmark {
-    uint32 x = 1;
-    uint32 y = 2;
+    float x = 1;
+    float y = 2;
 }
 
 message Face {

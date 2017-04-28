@@ -127,24 +127,24 @@ class Landmark : public ::google::protobuf::MessageLite /* @@protoc_insertion_po
 
   // accessors -------------------------------------------------------
 
-  // uint32 x = 1;
+  // float x = 1;
   void clear_x();
   static const int kXFieldNumber = 1;
-  ::google::protobuf::uint32 x() const;
-  void set_x(::google::protobuf::uint32 value);
+  float x() const;
+  void set_x(float value);
 
-  // uint32 y = 2;
+  // float y = 2;
   void clear_y();
   static const int kYFieldNumber = 2;
-  ::google::protobuf::uint32 y() const;
-  void set_y(::google::protobuf::uint32 value);
+  float y() const;
+  void set_y(float value);
 
   // @@protoc_insertion_point(class_scope:com.my.jni.dlib.data.Landmark)
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArenaLite _internal_metadata_;
-  ::google::protobuf::uint32 x_;
-  ::google::protobuf::uint32 y_;
+  float x_;
+  float y_;
   mutable int _cached_size_;
   friend struct  protobuf_messages_2eproto::TableStruct;
 };
@@ -320,29 +320,29 @@ class FaceList : public ::google::protobuf::MessageLite /* @@protoc_insertion_po
 #if !PROTOBUF_INLINE_NOT_IN_HEADERS
 // Landmark
 
-// uint32 x = 1;
+// float x = 1;
 inline void Landmark::clear_x() {
-  x_ = 0u;
+  x_ = 0;
 }
-inline ::google::protobuf::uint32 Landmark::x() const {
+inline float Landmark::x() const {
   // @@protoc_insertion_point(field_get:com.my.jni.dlib.data.Landmark.x)
   return x_;
 }
-inline void Landmark::set_x(::google::protobuf::uint32 value) {
+inline void Landmark::set_x(float value) {
   
   x_ = value;
   // @@protoc_insertion_point(field_set:com.my.jni.dlib.data.Landmark.x)
 }
 
-// uint32 y = 2;
+// float y = 2;
 inline void Landmark::clear_y() {
-  y_ = 0u;
+  y_ = 0;
 }
-inline ::google::protobuf::uint32 Landmark::y() const {
+inline float Landmark::y() const {
   // @@protoc_insertion_point(field_get:com.my.jni.dlib.data.Landmark.y)
   return y_;
 }
-inline void Landmark::set_y(::google::protobuf::uint32 value) {
+inline void Landmark::set_y(float value) {
   
   y_ = value;
   // @@protoc_insertion_point(field_set:com.my.jni.dlib.data.Landmark.y)

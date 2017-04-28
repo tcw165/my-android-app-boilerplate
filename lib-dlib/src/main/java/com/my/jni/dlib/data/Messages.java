@@ -13,16 +13,20 @@ public final class Messages {
       com.google.protobuf.MessageLiteOrBuilder {
 
     /**
-     * <code>uint32 x = 1;</code>
+     * <code>float x = 1;</code>
      */
-    int getX();
+    float getX();
 
     /**
-     * <code>uint32 y = 2;</code>
+     * <code>float y = 2;</code>
      */
-    int getY();
+    float getY();
   }
   /**
+   * <pre>
+   * Normalized x and y.
+   * </pre>
+   *
    * Protobuf type {@code com.my.jni.dlib.data.Landmark}
    */
   public  static final class Landmark extends
@@ -33,58 +37,58 @@ public final class Messages {
     private Landmark() {
     }
     public static final int X_FIELD_NUMBER = 1;
-    private int x_;
+    private float x_;
     /**
-     * <code>uint32 x = 1;</code>
+     * <code>float x = 1;</code>
      */
-    public int getX() {
+    public float getX() {
       return x_;
     }
     /**
-     * <code>uint32 x = 1;</code>
+     * <code>float x = 1;</code>
      */
-    private void setX(int value) {
+    private void setX(float value) {
       
       x_ = value;
     }
     /**
-     * <code>uint32 x = 1;</code>
+     * <code>float x = 1;</code>
      */
     private void clearX() {
       
-      x_ = 0;
+      x_ = 0F;
     }
 
     public static final int Y_FIELD_NUMBER = 2;
-    private int y_;
+    private float y_;
     /**
-     * <code>uint32 y = 2;</code>
+     * <code>float y = 2;</code>
      */
-    public int getY() {
+    public float getY() {
       return y_;
     }
     /**
-     * <code>uint32 y = 2;</code>
+     * <code>float y = 2;</code>
      */
-    private void setY(int value) {
+    private void setY(float value) {
       
       y_ = value;
     }
     /**
-     * <code>uint32 y = 2;</code>
+     * <code>float y = 2;</code>
      */
     private void clearY() {
       
-      y_ = 0;
+      y_ = 0F;
     }
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (x_ != 0) {
-        output.writeUInt32(1, x_);
+      if (x_ != 0F) {
+        output.writeFloat(1, x_);
       }
-      if (y_ != 0) {
-        output.writeUInt32(2, y_);
+      if (y_ != 0F) {
+        output.writeFloat(2, y_);
       }
     }
 
@@ -93,13 +97,13 @@ public final class Messages {
       if (size != -1) return size;
 
       size = 0;
-      if (x_ != 0) {
+      if (x_ != 0F) {
         size += com.google.protobuf.CodedOutputStream
-          .computeUInt32Size(1, x_);
+          .computeFloatSize(1, x_);
       }
-      if (y_ != 0) {
+      if (y_ != 0F) {
         size += com.google.protobuf.CodedOutputStream
-          .computeUInt32Size(2, y_);
+          .computeFloatSize(2, y_);
       }
       memoizedSerializedSize = size;
       return size;
@@ -174,6 +178,10 @@ public final class Messages {
     }
 
     /**
+     * <pre>
+     * Normalized x and y.
+     * </pre>
+     *
      * Protobuf type {@code com.my.jni.dlib.data.Landmark}
      */
     public static final class Builder extends
@@ -188,21 +196,21 @@ public final class Messages {
 
 
       /**
-       * <code>uint32 x = 1;</code>
+       * <code>float x = 1;</code>
        */
-      public int getX() {
+      public float getX() {
         return instance.getX();
       }
       /**
-       * <code>uint32 x = 1;</code>
+       * <code>float x = 1;</code>
        */
-      public Builder setX(int value) {
+      public Builder setX(float value) {
         copyOnWrite();
         instance.setX(value);
         return this;
       }
       /**
-       * <code>uint32 x = 1;</code>
+       * <code>float x = 1;</code>
        */
       public Builder clearX() {
         copyOnWrite();
@@ -211,21 +219,21 @@ public final class Messages {
       }
 
       /**
-       * <code>uint32 y = 2;</code>
+       * <code>float y = 2;</code>
        */
-      public int getY() {
+      public float getY() {
         return instance.getY();
       }
       /**
-       * <code>uint32 y = 2;</code>
+       * <code>float y = 2;</code>
        */
-      public Builder setY(int value) {
+      public Builder setY(float value) {
         copyOnWrite();
         instance.setY(value);
         return this;
       }
       /**
-       * <code>uint32 y = 2;</code>
+       * <code>float y = 2;</code>
        */
       public Builder clearY() {
         copyOnWrite();
@@ -254,10 +262,10 @@ public final class Messages {
         case VISIT: {
           Visitor visitor = (Visitor) arg0;
           com.my.jni.dlib.data.Messages.Landmark other = (com.my.jni.dlib.data.Messages.Landmark) arg1;
-          x_ = visitor.visitInt(x_ != 0, x_,
-              other.x_ != 0, other.x_);
-          y_ = visitor.visitInt(y_ != 0, y_,
-              other.y_ != 0, other.y_);
+          x_ = visitor.visitFloat(x_ != 0F, x_,
+              other.x_ != 0F, other.x_);
+          y_ = visitor.visitFloat(y_ != 0F, y_,
+              other.y_ != 0F, other.y_);
           if (visitor == com.google.protobuf.GeneratedMessageLite.MergeFromVisitor
               .INSTANCE) {
           }
@@ -282,14 +290,14 @@ public final class Messages {
                   }
                   break;
                 }
-                case 8: {
+                case 13: {
 
-                  x_ = input.readUInt32();
+                  x_ = input.readFloat();
                   break;
                 }
-                case 16: {
+                case 21: {
 
-                  y_ = input.readUInt32();
+                  y_ = input.readFloat();
                   break;
                 }
               }

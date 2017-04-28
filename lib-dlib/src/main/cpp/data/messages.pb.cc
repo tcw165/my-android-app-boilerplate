@@ -143,12 +143,12 @@ bool Landmark::MergePartialFromCodedStream(
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // uint32 x = 1;
+      // float x = 1;
       case 1: {
-        if (tag == 8u) {
+        if (tag == 13u) {
 
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
                  input, &x_)));
         } else {
           goto handle_unusual;
@@ -156,12 +156,12 @@ bool Landmark::MergePartialFromCodedStream(
         break;
       }
 
-      // uint32 y = 2;
+      // float y = 2;
       case 2: {
-        if (tag == 16u) {
+        if (tag == 21u) {
 
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
                  input, &y_)));
         } else {
           goto handle_unusual;
@@ -193,14 +193,14 @@ failure:
 void Landmark::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:com.my.jni.dlib.data.Landmark)
-  // uint32 x = 1;
+  // float x = 1;
   if (this->x() != 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32(1, this->x(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(1, this->x(), output);
   }
 
-  // uint32 y = 2;
+  // float y = 2;
   if (this->y() != 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32(2, this->y(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(2, this->y(), output);
   }
 
   // @@protoc_insertion_point(serialize_end:com.my.jni.dlib.data.Landmark)
@@ -210,18 +210,14 @@ size_t Landmark::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:com.my.jni.dlib.data.Landmark)
   size_t total_size = 0;
 
-  // uint32 x = 1;
+  // float x = 1;
   if (this->x() != 0) {
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::UInt32Size(
-        this->x());
+    total_size += 1 + 4;
   }
 
-  // uint32 y = 2;
+  // float y = 2;
   if (this->y() != 0) {
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::UInt32Size(
-        this->y());
+    total_size += 1 + 4;
   }
 
   int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
@@ -276,29 +272,29 @@ void Landmark::InternalSwap(Landmark* other) {
 #if PROTOBUF_INLINE_NOT_IN_HEADERS
 // Landmark
 
-// uint32 x = 1;
+// float x = 1;
 void Landmark::clear_x() {
-  x_ = 0u;
+  x_ = 0;
 }
-::google::protobuf::uint32 Landmark::x() const {
+float Landmark::x() const {
   // @@protoc_insertion_point(field_get:com.my.jni.dlib.data.Landmark.x)
   return x_;
 }
-void Landmark::set_x(::google::protobuf::uint32 value) {
+void Landmark::set_x(float value) {
   
   x_ = value;
   // @@protoc_insertion_point(field_set:com.my.jni.dlib.data.Landmark.x)
 }
 
-// uint32 y = 2;
+// float y = 2;
 void Landmark::clear_y() {
-  y_ = 0u;
+  y_ = 0;
 }
-::google::protobuf::uint32 Landmark::y() const {
+float Landmark::y() const {
   // @@protoc_insertion_point(field_get:com.my.jni.dlib.data.Landmark.y)
   return y_;
 }
-void Landmark::set_y(::google::protobuf::uint32 value) {
+void Landmark::set_y(float value) {
   
   y_ = value;
   // @@protoc_insertion_point(field_set:com.my.jni.dlib.data.Landmark.y)

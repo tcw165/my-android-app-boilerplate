@@ -25,7 +25,7 @@ import java.util.List;
 
 public class Face {
 
-    final List<Landmark> mLandmarks = new ArrayList<>();
+    private final List<Landmark> mLandmarks = new ArrayList<>();
 
     public Face(Messages.Face rawFace) {
         for (int i = 0; i < rawFace.getLandmarksCount(); ++i) {
@@ -70,11 +70,11 @@ public class Face {
 
     public static class Landmark {
 
-        public final int x;
-        public final int y;
+        public final float x;
+        public final float y;
 
-        public Landmark(int x,
-                        int y) {
+        public Landmark(float x,
+                        float y) {
             this.x = x;
             this.y = y;
         }
