@@ -2,29 +2,25 @@ package com.my.demo.dlib;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.my.core.protocol.IProgressBarView;
 import com.my.core.util.FileUtil;
 import com.my.core.util.ViewUtil;
+import com.my.demo.dlib.view.FaceLandmarksImageView;
 import com.my.jni.dlib.FaceLandmarksDetector;
 import com.my.jni.dlib.data.Face;
-import com.my.jni.dlib.data.Messages;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -48,10 +44,8 @@ public class StartActivity extends AppCompatActivity
     // View.
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
-    @BindView(R.id.img_input)
-    ImageView mImgInput;
-    @BindView(R.id.img_output)
-    ImageView mImgOutput;
+    @BindView(R.id.img_preview)
+    FaceLandmarksImageView mImgPreview;
 
     // Butter Knife.
     Unbinder mUnbinder;
@@ -74,12 +68,10 @@ public class StartActivity extends AppCompatActivity
             getSupportActionBar().setDisplayShowHomeEnabled(false);
         }
 
-        // Init the input image.
+        // Load image to preview.
         Glide.with(this)
-             .load(Uri.parse(String.format("file:///android_asset/%s", ASSET_TEST_PHOTO)))
-             .asBitmap()
-             .placeholder(R.color.black_70)
-             .into(mImgInput);
+             .load(String.format("file:///android_asset/%s", ASSET_TEST_PHOTO))
+             .into(mImgPreview);
 
         // Init the face detector.
         mFaceDetector = new FaceLandmarksDetector(getAssets());
@@ -91,6 +83,7 @@ public class StartActivity extends AppCompatActivity
                     throws Exception {
                     if (granted) {
                         showProgressBar("Preparing the data...");
+                        // Start face landmarks detection.
                         return processFaceLandmarksDetection();
                     } else {
                         return Observable.just(0);
@@ -174,7 +167,7 @@ public class StartActivity extends AppCompatActivity
         }
     }
 
-    private Observable<Object> processFaceLandmarksDetection() {
+    private Observable<Boolean> processFaceLandmarksDetection() {
         final String dirName = getApplicationContext().getPackageName();
         final File dir = Environment.getExternalStoragePublicDirectory(
             Environment.DIRECTORY_DOWNLOADS + "/" + dirName);
@@ -257,16 +250,19 @@ public class StartActivity extends AppCompatActivity
                     return mFaceDetector.getFaces(config.testPhotoPath);
                 }
             })
-            // Update texting of the progress bar.
+            // Update message of the progress bar.
             .observeOn(AndroidSchedulers.mainThread())
-            .map(new Function<List<Face>, Object>() {
+            .map(new Function<List<Face>, Boolean>() {
                 @Override
-                public Object apply(List<Face> faces) throws Exception {
+                public Boolean apply(List<Face> faces) throws Exception {
                     showProgressBar("Detecting face landmarks...");
 
                     // TODO: Render the landmarks.
+//                    mImgOutput.setimagepa
 
-                    return null;
+                    // TODO: Show the profiling.
+
+                    return true;
                 }
             });
     }
