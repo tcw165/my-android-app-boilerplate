@@ -21,11 +21,14 @@
 package com.my.demo.dlib.view;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
+import android.util.Log;
 
-import com.bumptech.glide.Glide;
 import com.my.jni.dlib.data.Face;
 
 import java.util.List;
@@ -33,7 +36,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class FaceLandmarksImageView extends AppCompatImageView {
 
-    final List<Face> mFaces = new CopyOnWriteArrayList<>();
+    private static final float WIDTH = 1f;
+    private final int mWidth;
+    private final Paint mPaint;
+
+    private final List<Face> mNormalizedFaces = new CopyOnWriteArrayList<>();
+    private final List<Face> mDenormalizedFaces = new CopyOnWriteArrayList<>();
 
     public FaceLandmarksImageView(Context context) {
         this(context, null);
@@ -48,25 +56,60 @@ public class FaceLandmarksImageView extends AppCompatImageView {
                                   AttributeSet attrs,
                                   int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+
+        final float density = getContext()
+            .getResources().getDisplayMetrics().density;
+
+        mWidth = (int) (density * WIDTH);
+        mPaint = new Paint();
+        mPaint.setColor(ContextCompat.getColor(getContext(), com.my.widget.R.color.red));
+        mPaint.setStyle(Paint.Style.FILL);
     }
 
-//    public void setImage(String path) {
-//        Glide.with(getContext())
-//             .load(path)
-//             .dontTransform()
-//             .into(this);
-//    }
-
     public void setFaces(List<Face> faces) {
-        mFaces.clear();
-        mFaces.addAll(faces);
+        if (getDrawable() == null) {
+            throw new IllegalStateException("The drawable is null");
+        }
+        Log.d("xyz", "drawable bound=" + getDrawable().getBounds());
+        Log.d("xyz", "getImageMatrix()=" + getImageMatrix());
 
-        // Invalidate if the drawable is present.
-        final Drawable drawable = getDrawable();
-        if (drawable != null &&
-            drawable.getIntrinsicHeight() > 0 &&
-            drawable.getIntrinsicHeight() > 0) {
-            invalidate();
+        final Rect bound = getDrawable().getBounds();
+        mNormalizedFaces.clear();
+        mNormalizedFaces.addAll(faces);
+
+        // Give the normalized landmarks real dimension.
+        mDenormalizedFaces.clear();
+        for (int i = 0; i < mNormalizedFaces.size(); ++i) {
+            // The normalized face.
+            final Face nFace = mNormalizedFaces.get(i);
+            // The denormalized face.
+            final Face dFace = new Face(nFace, bound.width(), bound.height());
+
+            mDenormalizedFaces.add(dFace);
+        }
+        invalidate();
+    }
+
+    @Override
+    public void onDrawForeground(Canvas canvas) {
+        super.onDrawForeground(canvas);
+
+        if (getDrawable() != null && !mDenormalizedFaces.isEmpty()) {
+            // Render faces.
+            canvas.save();
+            canvas.concat(getImageMatrix());
+            for (int i = 0; i < mDenormalizedFaces.size(); ++i) {
+                final Face face = mDenormalizedFaces.get(i);
+
+                for (int j = 0; j < face.getAllLandmarks().size(); ++j) {
+                    final Face.Landmark landmark = face.getAllLandmarks().get(j);
+
+                    canvas.drawRect((int) (landmark.x - mWidth), (int) (landmark.y - mWidth),
+                                    (int) (landmark.x + mWidth), (int) (landmark.y + mWidth),
+                                    mPaint);
+                }
+            }
+            canvas.restore();
         }
     }
 }

@@ -20,12 +20,12 @@
 
 package com.my.jni.dlib.data;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Face {
 
-    private final List<Landmark> mLandmarks = new ArrayList<>();
+    private final List<Landmark> mLandmarks = new CopyOnWriteArrayList<>();
 
     public Face(Messages.Face rawFace) {
         for (int i = 0; i < rawFace.getLandmarksCount(); ++i) {
@@ -33,6 +33,19 @@ public class Face {
 
             mLandmarks.add(new Landmark(rawLandmark.getX(),
                                         rawLandmark.getY()));
+        }
+    }
+
+    public Face(Face other) {
+        this(other, 1f, 1f);
+    }
+
+    public Face(Face other, float scaleX, float scaleY) {
+        for (int i = 0; i < other.getAllLandmarks().size(); ++i) {
+            final Face.Landmark landmark = other.getAllLandmarks().get(i);
+            mLandmarks.add(new Face.Landmark(
+                landmark.x * scaleX,
+                landmark.y * scaleY));
         }
     }
 
@@ -77,6 +90,11 @@ public class Face {
                         float y) {
             this.x = x;
             this.y = y;
+        }
+
+        public Landmark(Landmark other) {
+            this.x = other.x;
+            this.y = other.y;
         }
 
         @Override

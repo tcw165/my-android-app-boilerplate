@@ -23,6 +23,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -38,7 +39,8 @@ import io.reactivex.schedulers.Schedulers;
 public class StartActivity extends AppCompatActivity
     implements IProgressBarView {
 
-    private static final String ASSET_TEST_PHOTO = "boyw165-i-am-tyson-chandler.jpg";
+//    private static final String ASSET_TEST_PHOTO = "boyw165-i-am-tyson-chandler.jpg";
+    private static final String ASSET_TEST_PHOTO = "5-ppl.jpg";
     private static final String ASSET_SHAPE_DETECTOR_DATA = "shape_predictor_68_face_landmarks.dat";
 
     // View.
@@ -235,6 +237,9 @@ public class StartActivity extends AppCompatActivity
                      }
                  })
             .subscribeOn(Schedulers.io())
+            // FIXME: A workaround to make sure the drawable is ready before
+            // FIXME: the detection starts.
+            .delay(1000, TimeUnit.MILLISECONDS)
             // Deserialize the detector.
             .observeOn(Schedulers.io())
             .map(new Function<DetectorParams, List<Face>>() {
@@ -258,7 +263,7 @@ public class StartActivity extends AppCompatActivity
                     showProgressBar("Detecting face landmarks...");
 
                     // TODO: Render the landmarks.
-//                    mImgOutput.setimagepa
+                    mImgPreview.setFaces(faces);
 
                     // TODO: Show the profiling.
 
