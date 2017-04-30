@@ -70,8 +70,8 @@ public class FaceLandmarksImageView extends AppCompatImageView {
         if (getDrawable() == null) {
             throw new IllegalStateException("The drawable is null");
         }
-        Log.d("xyz", "drawable bound=" + getDrawable().getBounds());
-        Log.d("xyz", "getImageMatrix()=" + getImageMatrix());
+//        Log.d("xyz", "drawable bound=" + getDrawable().getBounds());
+//        Log.d("xyz", "getImageMatrix()=" + getImageMatrix());
 
         final Rect bound = getDrawable().getBounds();
         mNormalizedFaces.clear();

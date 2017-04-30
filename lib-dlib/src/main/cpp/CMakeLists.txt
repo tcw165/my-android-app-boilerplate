@@ -23,7 +23,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexceptions -std=c++11")
 
 add_library(dlib_jni SHARED
             dlib-jni.cpp
-            data/messages.pb.cc)
+            data/messages.pb.cc
+            util/profiler.cpp)
 
 target_include_directories(dlib_jni PRIVATE
                            ${CMAKE_SOURCE_DIR}
