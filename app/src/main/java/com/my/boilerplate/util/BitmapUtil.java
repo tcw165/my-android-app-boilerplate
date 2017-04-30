@@ -33,12 +33,13 @@ import android.net.Uri;
 import android.provider.MediaStore;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class ImageUtil {
+public class BitmapUtil {
 
-    private final static String TAG = ImageUtil.class.getSimpleName();
+    private final static String TAG = BitmapUtil.class.getSimpleName();
 
     /**
      * The maximum side length of the image to detect, to keep the size of image
@@ -64,49 +65,47 @@ public class ImageUtil {
      */
     public static Bitmap getSizeLimitedBitmapFromUri(ContentResolver resolver,
                                                      Uri imgUri,
-                                                     int expectedMaxSideLength) {
-        try {
-            // Load the image into InputStream.
-            InputStream imageInputStream = resolver.openInputStream(imgUri);
+                                                     int expectedMaxSideLength)
+        throws IOException {
+        // Load the image into InputStream.
+        InputStream imageInputStream = resolver.openInputStream(imgUri);
 
-            // For saving memory, only decode the image meta and get the side length.
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
-            Rect outPadding = new Rect();
-            BitmapFactory.decodeStream(imageInputStream, outPadding, options);
+        // For saving memory, only decode the image meta and get the side length.
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        Rect outPadding = new Rect();
+        BitmapFactory.decodeStream(imageInputStream, outPadding, options);
 
-            // Calculate shrink rate when loading the image into memory.
-            int maxSideLength = options.outWidth > options.outHeight ?
-                options.outWidth :
-                options.outHeight;
-            options.inSampleSize = calculateSampleSize(maxSideLength, expectedMaxSideLength);
-            options.inJustDecodeBounds = false;
-            if (imageInputStream != null) {
-                imageInputStream.close();
-            }
-
-            // Load the bitmap and resize it to the expected size length.
-            imageInputStream = resolver.openInputStream(imgUri);
-            Bitmap bitmap = BitmapFactory.decodeStream(imageInputStream, outPadding, options);
-            maxSideLength = bitmap.getWidth() > bitmap.getHeight()
-                ? bitmap.getWidth() : bitmap.getHeight();
-            double ratio = IMAGE_MAX_SIDE_LENGTH / (double) maxSideLength;
-            if (ratio < 1) {
-                bitmap = Bitmap.createScaledBitmap(
-                    bitmap,
-                    (int) (bitmap.getWidth() * ratio),
-                    (int) (bitmap.getHeight() * ratio),
-                    false);
-            }
-
-            return rotateBitmap(bitmap, getImageRotationAngleFromUri(resolver, imgUri));
-        } catch (Exception e) {
-            return null;
+        // Calculate shrink rate when loading the image into memory.
+        int maxSideLength = options.outWidth > options.outHeight ?
+            options.outWidth :
+            options.outHeight;
+        options.inSampleSize = calculateSampleSize(maxSideLength, expectedMaxSideLength);
+        options.inJustDecodeBounds = false;
+        if (imageInputStream != null) {
+            imageInputStream.close();
         }
+
+        // Load the bitmap and resize it to the expected size length.
+        imageInputStream = resolver.openInputStream(imgUri);
+        Bitmap bitmap = BitmapFactory.decodeStream(imageInputStream, outPadding, options);
+        maxSideLength = bitmap.getWidth() > bitmap.getHeight()
+            ? bitmap.getWidth() : bitmap.getHeight();
+        double ratio = IMAGE_MAX_SIDE_LENGTH / (double) maxSideLength;
+        if (ratio < 1) {
+            bitmap = Bitmap.createScaledBitmap(
+                bitmap,
+                (int) (bitmap.getWidth() * ratio),
+                (int) (bitmap.getHeight() * ratio),
+                false);
+        }
+
+        return rotateBitmap(bitmap, getImageRotationAngleFromUri(resolver, imgUri));
     }
 
     public static Bitmap getFullSizeBitmapFromUri(ContentResolver resolver,
-                                                  Uri imgUri) {
+                                                  Uri imgUri)
+    throws IOException {
         return getSizeLimitedBitmapFromUri(resolver, imgUri, IMAGE_FULL_SIZE_LENGTH);
     }
 
@@ -197,7 +196,8 @@ public class ImageUtil {
      * Get the rotation angle of the image taken.
      */
     private static int getImageRotationAngleFromUri(ContentResolver resolver,
-                                                    Uri imgUri) throws IOException {
+                                                    Uri imgUri)
+        throws IOException {
         int angle = 0;
         Cursor cursor = resolver.query(
             imgUri,
