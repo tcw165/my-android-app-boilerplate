@@ -259,11 +259,24 @@ public class StartActivity extends AppCompatActivity
 
                     final BitmapFactory.Options options = new BitmapFactory.Options();
                     options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+                    options.inJustDecodeBounds = true;
+
+                    // TODO: Make it a BitmapUtil function.
+                    // Pyramid down the image.
+                    BitmapFactory.decodeFile(config.testPhotoPath, options);
+                    final float scale = Math.max((float) options.outWidth / 800f,
+                                                 (float) options.outHeight / 800f);
+                    if (scale > 1f) {
+                        // Do logarithm with base 2 (not e).
+                        options.inSampleSize = 1 << (int) (Math.log(Math.ceil(scale)) / Math.log(2));
+                    }
+                    options.inJustDecodeBounds = false;
+                    final Bitmap resizedBitmap = BitmapFactory.decodeFile(
+                        config.testPhotoPath,
+                        options);
 
                     // Do the face landmarks detection.
-                    return mFaceDetector.getFaces(
-                        BitmapFactory.decodeFile(config.testPhotoPath,
-                                                 options));
+                    return mFaceDetector.findFacesAndLandmarks(resizedBitmap);
                 }
             })
             // Update message of the progress bar.

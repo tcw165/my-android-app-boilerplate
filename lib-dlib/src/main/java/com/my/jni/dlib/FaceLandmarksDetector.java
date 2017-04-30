@@ -75,10 +75,10 @@ public class FaceLandmarksDetector {
         }
     }
 
-    public List<Face> getFaces(Bitmap bitmap)
+    public List<Face> findFacesAndLandmarks(Bitmap bitmap)
         throws InvalidProtocolBufferException {
         // Do the face landmarks detection.
-        final byte[] rawData = findFaces(bitmap);
+        final byte[] rawData = detectFacesAndLandmarks(bitmap);
         final Messages.FaceList rawFaces = Messages.FaceList.parseFrom(rawData);
         Log.d("xyz", "Detect " + rawFaces.getFacesCount() + " faces");
 
@@ -123,5 +123,5 @@ public class FaceLandmarksDetector {
      * @param bitmap The bitmap.
      * @return The byte array of serialized list of {@link Face},
      */
-    public native byte[] findFaces(Bitmap bitmap);
+    public native byte[] detectFacesAndLandmarks(Bitmap bitmap);
 }

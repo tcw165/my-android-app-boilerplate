@@ -136,11 +136,10 @@ JNI_METHOD(prepareFaceLandmarksDetector)(JNIEnv *env,
     env->ReleaseStringUTFChars(detectorPath, path);
 }
 
-//// TODO: Implement a Java wrapper for it.
 extern "C" JNIEXPORT jbyteArray JNICALL
-JNI_METHOD(findFaces)(JNIEnv *env,
-                      jobject thiz,
-                      jobject bitmap) {
+JNI_METHOD(detectFacesAndLandmarks)(JNIEnv *env,
+                                    jobject thiz,
+                                    jobject bitmap) {
     if (sFaceDetector.num_detectors() == 0) {
         LOGI("L%d: sFaceDetector is not initialized!", __LINE__);
         throwException(env, "sFaceDetector is not initialized!");
