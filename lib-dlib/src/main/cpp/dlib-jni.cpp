@@ -25,7 +25,7 @@
 #include <dlib/image_processing.h>
 #include <dlib/image_io.h>
 #include <data/messages.pb.h>
-#include <util/profiler.h>
+#include <my/profiler.h>
 
 #define LOGI(...) \
   ((void)__android_log_print(ANDROID_LOG_INFO, "dlib-jni:", __VA_ARGS__))
@@ -192,7 +192,7 @@ JNI_METHOD(detectFacesAndLandmarks)(JNIEnv *env,
     // around all the faces in the image.
     std::vector<dlib::rectangle> dets = sFaceDetector(img);
     interval = profiler.stopAndGetInterval();
-    LOGI("L%d: Number of faces detected: %d (took %.3f ms)",
+    LOGI("L%d: Number of faces detected: %lu (took %.3f ms)",
          __LINE__, dets.size(), interval);
 
     // Protobuf message.
