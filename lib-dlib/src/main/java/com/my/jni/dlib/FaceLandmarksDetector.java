@@ -21,6 +21,7 @@
 package com.my.jni.dlib;
 
 import android.content.res.AssetManager;
+import android.graphics.Bitmap;
 import android.util.Log;
 
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -32,11 +33,7 @@ import java.util.List;
 
 public class FaceLandmarksDetector {
 
-    private final AssetManager mAssetManager;
-
     public FaceLandmarksDetector(final AssetManager manager) {
-        mAssetManager = manager;
-
         // TODO: Load library in worker thread?
         try {
             System.loadLibrary("c++_shared");
@@ -78,12 +75,12 @@ public class FaceLandmarksDetector {
         }
     }
 
-    public List<Face> getFaces(String imagePath)
+    public List<Face> findFacesAndLandmarks(Bitmap bitmap)
         throws InvalidProtocolBufferException {
         // Do the face landmarks detection.
-        final byte[] rawData = findFaces(imagePath);
-        Messages.FaceList rawFaces = Messages.FaceList.parseFrom(rawData);
-        Log.d("xyz", "Detect " + rawFaces.getFacesCount() +  " faces");
+        final byte[] rawData = detectFacesAndLandmarks(bitmap);
+        final Messages.FaceList rawFaces = Messages.FaceList.parseFrom(rawData);
+        Log.d("xyz", "Detect " + rawFaces.getFacesCount() + " faces");
 
         // Convert raw data to my data structure.
         final List<Face> faces = new ArrayList<>();
@@ -105,9 +102,26 @@ public class FaceLandmarksDetector {
 
     public native boolean isFaceLandmarksDetectorReady();
 
-    public native void deserializeFaceDetector();
+    /**
+     * Prepare (deserialize the graph) the face detector.
+     */
+    public native void prepareFaceDetector();
 
-    public native void deserializeFaceLandmarksDetector(String path);
+    /**
+     * Prepare the face landmarks detector.
+     *
+     * @param path The model (serialized graph) file.
+     */
+    public native void prepareFaceLandmarksDetector(String path);
 
-    public native byte[] findFaces(Bitmap bitmap);
+    /**
+     * Find the faces and landmarks from the given Bitmap.
+     * <br/>
+     * Before calling this method, make sure the face and landmarks detectors
+     * are both initialized. Otherwise a {@link RuntimeException} would be fired.
+     *
+     * @param bitmap The bitmap.
+     * @return The byte array of serialized list of {@link Face},
+     */
+    public native byte[] detectFacesAndLandmarks(Bitmap bitmap);
 }

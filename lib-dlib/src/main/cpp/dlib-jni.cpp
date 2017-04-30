@@ -20,10 +20,12 @@
 
 #include <jni.h>
 #include <android/log.h>
+#include <android/bitmap.h>
 #include <dlib/image_processing/frontal_face_detector.h>
 #include <dlib/image_processing.h>
 #include <dlib/image_io.h>
 #include <data/messages.pb.h>
+#include <util/profiler.h>
 
 #define LOGI(...) \
   ((void)__android_log_print(ANDROID_LOG_INFO, "dlib-jni:", __VA_ARGS__))
@@ -33,6 +35,56 @@
 
 using namespace ::com::my::jni::dlib::data;
 
+// TODO: Should be implemented in lib-core.
+void throwException(JNIEnv* env,
+                    const char* message) {
+    jclass Exception = env->FindClass("java/lang/RuntimeException");
+    env->ThrowNew(Exception, message);
+}
+
+// FIXME: Create a class inheriting from dlib::array2d<dlib::rgb_pixel>.
+void convertBitmapToArray2d(JNIEnv* env,
+                            jobject bitmap,
+                            dlib::array2d<dlib::rgb_pixel>& out) {
+    AndroidBitmapInfo bitmapInfo;
+    void* pixels;
+    int state;
+
+    if (0 > (state = AndroidBitmap_getInfo(env, bitmap, &bitmapInfo))) {
+        LOGI("L%d: AndroidBitmap_getInfo() failed! error=%d", __LINE__, state);
+        throwException(env, "AndroidBitmap_getInfo() failed!");
+        return;
+    } else if (bitmapInfo.format != ANDROID_BITMAP_FORMAT_RGBA_8888) {
+        LOGI("L%d: Bitmap format is not RGB_565!", __LINE__);
+        throwException(env, "Bitmap format is not RGB_565!");
+    }
+
+    // Lock the bitmap for copying the pixels safely.
+    if (0 > (state = AndroidBitmap_lockPixels(env, bitmap, &pixels))) {
+        LOGI("L%d: AndroidBitmap_lockPixels() failed! error=%d", __LINE__, state);
+        throwException(env, "AndroidBitmap_lockPixels() failed!");
+        return;
+    }
+
+    LOGI("L%d: info.width=%d, info.height=%d", __LINE__, bitmapInfo.width, bitmapInfo.height);
+    out.set_size((long) bitmapInfo.height, (long) bitmapInfo.width);
+
+    char* line = (char*) pixels;
+    for (int h = 0; h < bitmapInfo.height; ++h) {
+        for (int w = 0; w < bitmapInfo.width; ++w) {
+            uint32_t* color = (uint32_t*) (line + 4 * w);
+
+            out[h][w].red = (unsigned char) (0xFF & ((*color) >> 24));
+            out[h][w].green = (unsigned char) (0xFF & ((*color) >> 16));
+            out[h][w].blue = (unsigned char) (0xFF & ((*color) >> 8));
+        }
+
+        line = line + bitmapInfo.stride;
+    }
+
+    // Unlock the bitmap.
+    AndroidBitmap_unlockPixels(env, bitmap);
+}
 
 // JNI ////////////////////////////////////////////////////////////////////////
 
@@ -60,18 +112,30 @@ JNI_METHOD(isFaceLandmarksDetectorReady)(JNIEnv* env,
 }
 
 extern "C" JNIEXPORT void JNICALL
-JNI_METHOD(deserializeFaceDetector)(JNIEnv *env,
-                                    jobject thiz) {
+JNI_METHOD(prepareFaceDetector)(JNIEnv *env,
+                                jobject thiz) {
+    // Profiler.
+    Profiler profiler;
+    profiler.start();
+
+    // Prepare the detector.
     sFaceDetector = dlib::get_frontal_face_detector();
-    LOGI("L%d: face detector is initialized", __LINE__);
-    LOGI("L%d: sFaceDetector.num_detectors()=%d", __LINE__, sFaceDetector.num_detectors());
+
+    double interval = profiler.stopAndGetInterval();
+
+    LOGI("L%d: sFaceDetector is initialized (took %.3f ms)", __LINE__, interval);
+    LOGI("L%d: sFaceDetector.num_detectors()=%lu", __LINE__, sFaceDetector.num_detectors());
 }
 
 extern "C" JNIEXPORT void JNICALL
-JNI_METHOD(deserializeFaceLandmarksDetector)(JNIEnv *env,
-                                             jobject thiz,
-                                             jstring detectorPath) {
+JNI_METHOD(prepareFaceLandmarksDetector)(JNIEnv *env,
+                                         jobject thiz,
+                                         jstring detectorPath) {
     const char *path = env->GetStringUTFChars(detectorPath, JNI_FALSE);
+
+    // Profiler.
+    Profiler profiler;
+    profiler.start();
 
     // We need a shape_predictor. This is the tool that will predict face
     // landmark positions given an image and face bounding box.  Here we are just
@@ -79,35 +143,57 @@ JNI_METHOD(deserializeFaceLandmarksDetector)(JNIEnv *env,
     // as a command line argument.
     // Deserialize the shape detector.
     dlib::deserialize(path) >> sFaceLandmarksPredictor;
-    LOGI("L%d: shape predictor is initialized", __LINE__);
-    LOGI("L%d: sShapePredictor.num_parts()=%d", __LINE__, sFaceLandmarksPredictor.num_parts());
+
+    double interval = profiler.stopAndGetInterval();
+
+    LOGI("L%d: sFaceLandmarksPredictor is initialized (took %.3f ms)", __LINE__, interval);
+    LOGI("L%d: sFaceLandmarksPredictor.num_parts()=%lu", __LINE__, sFaceLandmarksPredictor.num_parts());
 
     env->ReleaseStringUTFChars(detectorPath, path);
 }
 
-//// TODO: Implement a Java wrapper for it.
 extern "C" JNIEXPORT jbyteArray JNICALL
-JNI_METHOD(findFaces)(JNIEnv *env,
-                      jobject thiz,
-                      jstring imgPath) {
-    // Convert bitmap to a list of rgb_pixel.
-    const char *path = env->GetStringUTFChars(imgPath, JNI_FALSE);
+JNI_METHOD(detectFacesAndLandmarks)(JNIEnv *env,
+                                    jobject thiz,
+                                    jobject bitmap) {
+    if (sFaceDetector.num_detectors() == 0) {
+        LOGI("L%d: sFaceDetector is not initialized!", __LINE__);
+        throwException(env, "sFaceDetector is not initialized!");
+        return NULL;
+    }
+    if (sFaceLandmarksPredictor.num_parts() == 0) {
+        LOGI("L%d: sFaceLandmarksPredictor is not initialized!", __LINE__);
+        throwException(env, "sFaceLandmarksPredictor is not initialized!");
+        return NULL;
+    }
+
+    // Profiler.
+    Profiler profiler;
+    profiler.start();
+
+    // Convert bitmap to dlib::array2d.
     dlib::array2d<dlib::rgb_pixel> img;
-    dlib::load_image(img, path);
-    env->ReleaseStringUTFChars(imgPath, path);
+    convertBitmapToArray2d(env, bitmap, img);
+
+    double interval = profiler.stopAndGetInterval();
 
     const float width = (float) img.nc();
     const float height = (float) img.nr();
-    LOGI("L%d: input image (w=%f, h=%f) is read.", __LINE__, width, height);
+    LOGI("L%d: input image (w=%f, h=%f) is read (took %.3f ms)",
+         __LINE__, width, height, interval);
 
 //    // Make the image larger so we can detect small faces.
 //    dlib::pyramid_up(img);
 //    LOGI("L%d: pyramid_up the input image (w=%lu, h=%lu).", __LINE__, img.nc(), img.nr());
 
+    profiler.start();
+
     // Now tell the face detector to give us a list of bounding boxes
     // around all the faces in the image.
     std::vector<dlib::rectangle> dets = sFaceDetector(img);
-    LOGI("L%d: Number of faces detected: %d", __LINE__, dets.size());
+    interval = profiler.stopAndGetInterval();
+    LOGI("L%d: Number of faces detected: %d (took %.3f ms)",
+         __LINE__, dets.size(), interval);
 
     // Protobuf message.
     FaceList faces;
@@ -115,9 +201,13 @@ JNI_METHOD(findFaces)(JNIEnv *env,
     // each face we detected.
     std::vector<dlib::full_object_detection> shapes;
     for (unsigned long j = 0; j < dets.size(); ++j) {
+        profiler.start();
         dlib::full_object_detection shape = sFaceLandmarksPredictor(img, dets[j]);
-        LOGI("L%d: #%lu face, %lu landmarks detected",
-             __LINE__, j, shape.num_parts());
+        interval = profiler.stopAndGetInterval();
+        LOGI("L%d: #%lu face, %lu landmarks detected (took %.3f ms)",
+             __LINE__, j, shape.num_parts(), interval);
+
+        profiler.start();
         // Protobuf message.
         Face* face = faces.add_faces();
         // You get the idea, you can get all the face part locations if
@@ -132,9 +222,14 @@ JNI_METHOD(findFaces)(JNIEnv *env,
 //            LOGI("L%d: point #%lu (x=%f,y=%f)",
 //                 __LINE__, i, landmark->x(), landmark->y());
         }
+        interval = profiler.stopAndGetInterval();
+        LOGI("L%d: Convert #%lu face to protobuf message (took %.3f ms)",
+             __LINE__, j, interval);
 
         shapes.push_back(shape);
     }
+
+    profiler.start();
 
     // Prepare the return message.
     int outSize = faces.ByteSize();
@@ -144,6 +239,10 @@ JNI_METHOD(findFaces)(JNIEnv *env,
     faces.SerializeToArray(buffer, outSize);
     env->SetByteArrayRegion(out, 0, outSize, buffer);
     delete[] buffer;
+
+    interval = profiler.stopAndGetInterval();
+    LOGI("L%d: Convert faces to protobuf message (took %.3f ms)",
+         __LINE__, interval);
 
     return out;
 }
