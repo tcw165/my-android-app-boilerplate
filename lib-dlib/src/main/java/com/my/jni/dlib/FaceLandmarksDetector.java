@@ -32,7 +32,7 @@ import java.util.List;
 
 public class FaceLandmarksDetector {
 
-    final AssetManager mAssetManager;
+    private final AssetManager mAssetManager;
 
     public FaceLandmarksDetector(final AssetManager manager) {
         mAssetManager = manager;
@@ -101,9 +101,13 @@ public class FaceLandmarksDetector {
     ///////////////////////////////////////////////////////////////////////////
     // Protected / Private Methods ////////////////////////////////////////////
 
-    public native void deserializeShapeDetector(String path);
+    public native boolean isFaceDetectorReady();
+
+    public native boolean isFaceLandmarksDetectorReady();
 
     public native void deserializeFaceDetector();
 
-    public native byte[] findFaces(String imagePath);
+    public native void deserializeFaceLandmarksDetector(String path);
+
+    public native byte[] findFaces(Bitmap bitmap);
 }

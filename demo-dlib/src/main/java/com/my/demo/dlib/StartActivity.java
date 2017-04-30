@@ -247,9 +247,13 @@ public class StartActivity extends AppCompatActivity
                 public List<Face> apply(DetectorParams config)
                     throws Exception {
                     // Prepare the detectors.
-                    mFaceDetector.deserializeFaceDetector();
-                    mFaceDetector.deserializeShapeDetector(
-                        config.shapeDetectorPath);
+                    if (!mFaceDetector.isFaceDetectorReady()) {
+                        mFaceDetector.deserializeFaceDetector();
+                    }
+                    if (!mFaceDetector.isFaceLandmarksDetectorReady()) {
+                        mFaceDetector.deserializeFaceLandmarksDetector(
+                            config.shapeDetectorPath);
+                    }
 
                     // Do the face landmarks detection.
                     return mFaceDetector.getFaces(config.testPhotoPath);

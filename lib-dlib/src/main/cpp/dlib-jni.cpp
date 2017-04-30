@@ -33,24 +33,30 @@
 
 using namespace ::com::my::jni::dlib::data;
 
-dlib::shape_predictor sShapePredictor;
+
+// JNI ////////////////////////////////////////////////////////////////////////
+
+dlib::shape_predictor sFaceLandmarksPredictor;
 dlib::frontal_face_detector sFaceDetector;
 
-extern "C" JNIEXPORT void JNICALL
-JNI_METHOD(deserializeShapeDetector)(JNIEnv *env,
-                                     jobject thiz,
-                                     jstring detectorPath) {
-    const char *path = env->GetStringUTFChars(detectorPath, JNI_FALSE);
+extern "C" JNIEXPORT jboolean JNICALL
+JNI_METHOD(isFaceDetectorReady)(JNIEnv* env,
+                                jobject thiz) {
+    if (sFaceDetector.num_detectors() > 0) {
+        return JNI_TRUE;
+    } else {
+        return JNI_FALSE;
+    }
+}
 
-    // We need a shape_predictor. This is the tool that will predict face
-    // landmark positions given an image and face bounding box.  Here we are just
-    // loading the model from the shape_predictor_68_face_landmarks.dat file you gave
-    // as a command line argument.
-    // Deserialize the shape detector.
-    dlib::deserialize(path) >> sShapePredictor;
-    LOGI("L%d: shape predictor is initialized", __LINE__);
-
-    env->ReleaseStringUTFChars(detectorPath, path);
+extern "C" JNIEXPORT jboolean JNICALL
+JNI_METHOD(isFaceLandmarksDetectorReady)(JNIEnv* env,
+                                         jobject thiz) {
+    if (sFaceLandmarksPredictor.num_parts() > 0) {
+        return JNI_TRUE;
+    } else {
+        return JNI_FALSE;
+    }
 }
 
 extern "C" JNIEXPORT void JNICALL
@@ -58,6 +64,25 @@ JNI_METHOD(deserializeFaceDetector)(JNIEnv *env,
                                     jobject thiz) {
     sFaceDetector = dlib::get_frontal_face_detector();
     LOGI("L%d: face detector is initialized", __LINE__);
+    LOGI("L%d: sFaceDetector.num_detectors()=%d", __LINE__, sFaceDetector.num_detectors());
+}
+
+extern "C" JNIEXPORT void JNICALL
+JNI_METHOD(deserializeFaceLandmarksDetector)(JNIEnv *env,
+                                             jobject thiz,
+                                             jstring detectorPath) {
+    const char *path = env->GetStringUTFChars(detectorPath, JNI_FALSE);
+
+    // We need a shape_predictor. This is the tool that will predict face
+    // landmark positions given an image and face bounding box.  Here we are just
+    // loading the model from the shape_predictor_68_face_landmarks.dat file you gave
+    // as a command line argument.
+    // Deserialize the shape detector.
+    dlib::deserialize(path) >> sFaceLandmarksPredictor;
+    LOGI("L%d: shape predictor is initialized", __LINE__);
+    LOGI("L%d: sShapePredictor.num_parts()=%d", __LINE__, sFaceLandmarksPredictor.num_parts());
+
+    env->ReleaseStringUTFChars(detectorPath, path);
 }
 
 //// TODO: Implement a Java wrapper for it.
@@ -90,8 +115,8 @@ JNI_METHOD(findFaces)(JNIEnv *env,
     // each face we detected.
     std::vector<dlib::full_object_detection> shapes;
     for (unsigned long j = 0; j < dets.size(); ++j) {
-        dlib::full_object_detection shape = sShapePredictor(img, dets[j]);
-        LOGI("L%d: #%lu face, %lu of parts detected",
+        dlib::full_object_detection shape = sFaceLandmarksPredictor(img, dets[j]);
+        LOGI("L%d: #%lu face, %lu landmarks detected",
              __LINE__, j, shape.num_parts());
         // Protobuf message.
         Face* face = faces.add_faces();
@@ -104,8 +129,8 @@ JNI_METHOD(findFaces)(JNIEnv *env,
             Landmark* landmark = face->add_landmarks();
             landmark->set_x((float) pt.x() / width);
             landmark->set_y((float) pt.y() / height);
-            LOGI("L%d: point #%lu (x=%f,y=%f)",
-                 __LINE__, i, landmark->x(), landmark->y());
+//            LOGI("L%d: point #%lu (x=%f,y=%f)",
+//                 __LINE__, i, landmark->x(), landmark->y());
         }
 
         shapes.push_back(shape);
