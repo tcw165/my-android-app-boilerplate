@@ -20,6 +20,7 @@
 
 #include <jni.h>
 #include <android/log.h>
+#include <android/bitmap.h>
 #include <dlib/image_processing/frontal_face_detector.h>
 #include <dlib/image_processing.h>
 #include <dlib/image_io.h>
@@ -33,6 +34,56 @@
 
 using namespace ::com::my::jni::dlib::data;
 
+// TODO: Should be implemented in lib-core.
+void throwException(JNIEnv* env,
+                    const char* message) {
+    jclass Exception = env->FindClass("java/lang/RuntimeException");
+    env->ThrowNew(Exception, message);
+}
+
+// FIXME: Create a class inheriting from dlib::array2d<dlib::rgb_pixel>.
+void convertBitmapToArray2d(JNIEnv* env,
+                            jobject bitmap,
+                            dlib::array2d<dlib::rgb_pixel>& out) {
+    AndroidBitmapInfo bitmapInfo;
+    void* pixels;
+    int state;
+
+    if (0 > (state = AndroidBitmap_getInfo(env, bitmap, &bitmapInfo))) {
+        LOGI("L%d, AndroidBitmap_getInfo() failed! error=%d", __LINE__, state);
+        throwException(env, "AndroidBitmap_getInfo() failed!");
+        return;
+    } else if (bitmapInfo.format != ANDROID_BITMAP_FORMAT_RGBA_8888) {
+        LOGI("L%d, Bitmap format is not RGB_565!", __LINE__);
+        throwException(env, "Bitmap format is not RGB_565!");
+    }
+
+    // Lock the bitmap for copying the pixels safely.
+    if (0 > (state = AndroidBitmap_lockPixels(env, bitmap, &pixels))) {
+        LOGI("L%d, AndroidBitmap_lockPixels() failed! error=%d", __LINE__, state);
+        throwException(env, "AndroidBitmap_lockPixels() failed!");
+        return;
+    }
+
+    LOGI("L%d, info.width=%d, info.height=%d", __LINE__, bitmapInfo.width, bitmapInfo.height);
+    out.set_size((long) bitmapInfo.height, (long) bitmapInfo.width);
+
+    char* line = (char*) pixels;
+    for (int h = 0; h < bitmapInfo.height; ++h) {
+        for (int w = 0; w < bitmapInfo.width; ++w) {
+            uint32_t* color = (uint32_t*) (line + 4 * w);
+
+            out[h][w].red = (unsigned char) (0xFF & ((*color) >> 24));
+            out[h][w].green = (unsigned char) (0xFF & ((*color) >> 16));
+            out[h][w].blue = (unsigned char) (0xFF & ((*color) >> 8));
+        }
+
+        line = line + bitmapInfo.stride;
+    }
+
+    // Unlock the bitmap.
+    AndroidBitmap_unlockPixels(env, bitmap);
+}
 
 // JNI ////////////////////////////////////////////////////////////////////////
 
@@ -60,17 +111,17 @@ JNI_METHOD(isFaceLandmarksDetectorReady)(JNIEnv* env,
 }
 
 extern "C" JNIEXPORT void JNICALL
-JNI_METHOD(deserializeFaceDetector)(JNIEnv *env,
-                                    jobject thiz) {
+JNI_METHOD(prepareFaceDetector)(JNIEnv *env,
+                                jobject thiz) {
     sFaceDetector = dlib::get_frontal_face_detector();
     LOGI("L%d: face detector is initialized", __LINE__);
     LOGI("L%d: sFaceDetector.num_detectors()=%d", __LINE__, sFaceDetector.num_detectors());
 }
 
 extern "C" JNIEXPORT void JNICALL
-JNI_METHOD(deserializeFaceLandmarksDetector)(JNIEnv *env,
-                                             jobject thiz,
-                                             jstring detectorPath) {
+JNI_METHOD(prepareFaceLandmarksDetector)(JNIEnv *env,
+                                         jobject thiz,
+                                         jstring detectorPath) {
     const char *path = env->GetStringUTFChars(detectorPath, JNI_FALSE);
 
     // We need a shape_predictor. This is the tool that will predict face
@@ -89,12 +140,21 @@ JNI_METHOD(deserializeFaceLandmarksDetector)(JNIEnv *env,
 extern "C" JNIEXPORT jbyteArray JNICALL
 JNI_METHOD(findFaces)(JNIEnv *env,
                       jobject thiz,
-                      jstring imgPath) {
-    // Convert bitmap to a list of rgb_pixel.
-    const char *path = env->GetStringUTFChars(imgPath, JNI_FALSE);
+                      jobject bitmap) {
+    if (sFaceDetector.num_detectors() == 0) {
+        LOGI("L%d: sFaceDetector is not initialized!", __LINE__);
+        throwException(env, "sFaceDetector is not initialized!");
+        return NULL;
+    }
+    if (sFaceLandmarksPredictor.num_parts() == 0) {
+        LOGI("L%d: sFaceLandmarksPredictor is not initialized!", __LINE__);
+        throwException(env, "sFaceLandmarksPredictor is not initialized!");
+        return NULL;
+    }
+
+    // Convert bitmap to dlib::array2d.
     dlib::array2d<dlib::rgb_pixel> img;
-    dlib::load_image(img, path);
-    env->ReleaseStringUTFChars(imgPath, path);
+    convertBitmapToArray2d(env, bitmap, img);
 
     const float width = (float) img.nc();
     const float height = (float) img.nr();

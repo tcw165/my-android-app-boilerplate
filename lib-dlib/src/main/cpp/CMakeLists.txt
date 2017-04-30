@@ -34,4 +34,5 @@ target_link_libraries(dlib_jni
                       dlib
                       protobuf
                       android
+                      jnigraphics
                       log)

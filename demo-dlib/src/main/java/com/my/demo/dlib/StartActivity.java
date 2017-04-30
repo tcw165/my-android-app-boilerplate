@@ -2,6 +2,8 @@ package com.my.demo.dlib;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -248,15 +250,20 @@ public class StartActivity extends AppCompatActivity
                     throws Exception {
                     // Prepare the detectors.
                     if (!mFaceDetector.isFaceDetectorReady()) {
-                        mFaceDetector.deserializeFaceDetector();
+                        mFaceDetector.prepareFaceDetector();
                     }
                     if (!mFaceDetector.isFaceLandmarksDetectorReady()) {
-                        mFaceDetector.deserializeFaceLandmarksDetector(
+                        mFaceDetector.prepareFaceLandmarksDetector(
                             config.shapeDetectorPath);
                     }
 
+                    final BitmapFactory.Options options = new BitmapFactory.Options();
+                    options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+
                     // Do the face landmarks detection.
-                    return mFaceDetector.getFaces(config.testPhotoPath);
+                    return mFaceDetector.getFaces(
+                        BitmapFactory.decodeFile(config.testPhotoPath,
+                                                 options));
                 }
             })
             // Update message of the progress bar.
