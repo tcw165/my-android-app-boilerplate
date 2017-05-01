@@ -242,28 +242,53 @@ public class StartActivity extends AppCompatActivity
             // FIXME: A workaround to make sure the drawable is ready before
             // FIXME: the detection starts.
             .delay(1000, TimeUnit.MILLISECONDS)
+            // Update progressbar message.
+            .observeOn(AndroidSchedulers.mainThread())
+            .map(new Function<DetectorParams, DetectorParams>() {
+                @Override
+                public DetectorParams apply(DetectorParams params) throws Exception {
+                    showProgressBar("Initializing face detectors...");
+                    return params;
+                }
+            })
             // Deserialize the detector.
             .observeOn(Schedulers.io())
-            .map(new Function<DetectorParams, List<Face>>() {
+            .map(new Function<DetectorParams, DetectorParams>() {
                 @Override
-                public List<Face> apply(DetectorParams config)
+                public DetectorParams apply(DetectorParams params)
                     throws Exception {
-                    // Prepare the detectors.
                     if (!mFaceDetector.isFaceDetectorReady()) {
                         mFaceDetector.prepareFaceDetector();
                     }
                     if (!mFaceDetector.isFaceLandmarksDetectorReady()) {
                         mFaceDetector.prepareFaceLandmarksDetector(
-                            config.shapeDetectorPath);
+                            params.shapeDetectorPath);
                     }
 
+                    return params;
+                }
+            })
+            // Update progressbar message.
+            .observeOn(AndroidSchedulers.mainThread())
+            .map(new Function<DetectorParams, DetectorParams>() {
+                @Override
+                public DetectorParams apply(DetectorParams params) throws Exception {
+                    showProgressBar("Detecting face and landmarks...");
+                    return params;
+                }
+            })
+            // Detect face and landmarks.
+            .observeOn(Schedulers.io())
+            .map(new Function<DetectorParams, List<Face>>() {
+                @Override
+                public List<Face> apply(DetectorParams params) throws Exception {
                     final BitmapFactory.Options options = new BitmapFactory.Options();
                     options.inPreferredConfig = Bitmap.Config.ARGB_8888;
                     options.inJustDecodeBounds = true;
 
                     // TODO: Make it a BitmapUtil function.
                     // Pyramid down the image.
-                    BitmapFactory.decodeFile(config.testPhotoPath, options);
+                    BitmapFactory.decodeFile(params.testPhotoPath, options);
                     final float scale = Math.max((float) options.outWidth / 800f,
                                                  (float) options.outHeight / 800f);
                     if (scale > 1f) {
@@ -272,10 +297,9 @@ public class StartActivity extends AppCompatActivity
                     }
                     options.inJustDecodeBounds = false;
                     final Bitmap resizedBitmap = BitmapFactory.decodeFile(
-                        config.testPhotoPath,
+                        params.testPhotoPath,
                         options);
 
-                    // Do the face landmarks detection.
                     return mFaceDetector.findFacesAndLandmarks(resizedBitmap);
                 }
             })
@@ -284,12 +308,10 @@ public class StartActivity extends AppCompatActivity
             .map(new Function<List<Face>, Boolean>() {
                 @Override
                 public Boolean apply(List<Face> faces) throws Exception {
-                    showProgressBar("Detecting face landmarks...");
+                    showProgressBar("Rendering...");
 
-                    // TODO: Render the landmarks.
+                    // Render the landmarks.
                     mImgPreview.setFaces(faces);
-
-                    // TODO: Show the profiling.
 
                     return true;
                 }

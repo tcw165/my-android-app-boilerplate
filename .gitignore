@@ -4,5 +4,7 @@
 **/local.properties
 **/.idea/**
 **/build
+**/lib-distribution
+**/.externalNativeBuild
 **/captures
 **crashlytics**

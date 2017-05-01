@@ -12,14 +12,14 @@ android {
 
         ndk {
             // "x86", "x86_64", "armeabi", "armeabi-v7a", "arm64-v8a"
-            abiFilters "armeabi", "armeabi-v7a"
+            abiFilters "x86", "x86_64", "armeabi", "armeabi-v7a", "arm64-v8a"
         }
         externalNativeBuild {
             cmake {
                 arguments "-DANDROID_PLATFORM=android-16",
-                        "-DANDROID_TOOLCHAIN=clang",
-                        "-DANDROID_STL=c++_shared",
-                        "-DANDROID_CPP_FEATURES=rtti exceptions"
+                          "-DANDROID_TOOLCHAIN=clang",
+                          "-DANDROID_STL=c++_shared",
+                          "-DANDROID_CPP_FEATURES=rtti exceptions"
                 // Enables exception-handling support.
 //                cppFlags "-fexceptions -std=c++11"
             }
@@ -29,13 +29,18 @@ android {
     // Let gradle pack the shared library into apk.
     sourceSets {
         main {
-            jniLibs.srcDirs = ['src/main/cppLibs/dlib/lib']
+            jniLibs.srcDirs = ["src/main/cppLibs/dlib/lib"]
         }
     }
     externalNativeBuild {
         cmake {
-            path 'src/main/cpp/CMakeLists.txt'
+            path "src/main/cpp/CMakeLists.txt"
         }
+    }
+    // Pick first STL shared library if there're duplicate files in the
+    // dependent module.
+    packagingOptions {
+        pickFirst  "**/libc++_shared.so"
     }
 
     buildTypes {

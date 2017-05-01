@@ -32,6 +32,12 @@ android {
     lintOptions {
         disable "MissingTranslation"
     }
+
+    // Pick first STL shared library if there're duplicate files in the
+    // dependent module.
+    packagingOptions {
+        pickFirst  "**/libc++_shared.so"
+    }
 }
 
 repositories {
