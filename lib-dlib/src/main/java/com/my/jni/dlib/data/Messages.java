@@ -346,21 +346,498 @@ public final class Messages {
     }
   }
 
+  public interface RectangleOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:com.my.jni.dlib.data.Rectangle)
+      com.google.protobuf.MessageLiteOrBuilder {
+
+    /**
+     * <code>float left = 1;</code>
+     */
+    float getLeft();
+
+    /**
+     * <code>float top = 2;</code>
+     */
+    float getTop();
+
+    /**
+     * <code>float right = 3;</code>
+     */
+    float getRight();
+
+    /**
+     * <code>float bottom = 4;</code>
+     */
+    float getBottom();
+  }
+  /**
+   * <pre>
+   * Normalized rectangle.
+   * </pre>
+   *
+   * Protobuf type {@code com.my.jni.dlib.data.Rectangle}
+   */
+  public  static final class Rectangle extends
+      com.google.protobuf.GeneratedMessageLite<
+          Rectangle, Rectangle.Builder> implements
+      // @@protoc_insertion_point(message_implements:com.my.jni.dlib.data.Rectangle)
+      RectangleOrBuilder {
+    private Rectangle() {
+    }
+    public static final int LEFT_FIELD_NUMBER = 1;
+    private float left_;
+    /**
+     * <code>float left = 1;</code>
+     */
+    public float getLeft() {
+      return left_;
+    }
+    /**
+     * <code>float left = 1;</code>
+     */
+    private void setLeft(float value) {
+      
+      left_ = value;
+    }
+    /**
+     * <code>float left = 1;</code>
+     */
+    private void clearLeft() {
+      
+      left_ = 0F;
+    }
+
+    public static final int TOP_FIELD_NUMBER = 2;
+    private float top_;
+    /**
+     * <code>float top = 2;</code>
+     */
+    public float getTop() {
+      return top_;
+    }
+    /**
+     * <code>float top = 2;</code>
+     */
+    private void setTop(float value) {
+      
+      top_ = value;
+    }
+    /**
+     * <code>float top = 2;</code>
+     */
+    private void clearTop() {
+      
+      top_ = 0F;
+    }
+
+    public static final int RIGHT_FIELD_NUMBER = 3;
+    private float right_;
+    /**
+     * <code>float right = 3;</code>
+     */
+    public float getRight() {
+      return right_;
+    }
+    /**
+     * <code>float right = 3;</code>
+     */
+    private void setRight(float value) {
+      
+      right_ = value;
+    }
+    /**
+     * <code>float right = 3;</code>
+     */
+    private void clearRight() {
+      
+      right_ = 0F;
+    }
+
+    public static final int BOTTOM_FIELD_NUMBER = 4;
+    private float bottom_;
+    /**
+     * <code>float bottom = 4;</code>
+     */
+    public float getBottom() {
+      return bottom_;
+    }
+    /**
+     * <code>float bottom = 4;</code>
+     */
+    private void setBottom(float value) {
+      
+      bottom_ = value;
+    }
+    /**
+     * <code>float bottom = 4;</code>
+     */
+    private void clearBottom() {
+      
+      bottom_ = 0F;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (left_ != 0F) {
+        output.writeFloat(1, left_);
+      }
+      if (top_ != 0F) {
+        output.writeFloat(2, top_);
+      }
+      if (right_ != 0F) {
+        output.writeFloat(3, right_);
+      }
+      if (bottom_ != 0F) {
+        output.writeFloat(4, bottom_);
+      }
+    }
+
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (left_ != 0F) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeFloatSize(1, left_);
+      }
+      if (top_ != 0F) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeFloatSize(2, top_);
+      }
+      if (right_ != 0F) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeFloatSize(3, right_);
+      }
+      if (bottom_ != 0F) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeFloatSize(4, bottom_);
+      }
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    public static com.my.jni.dlib.data.Messages.Rectangle parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static com.my.jni.dlib.data.Messages.Rectangle parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static com.my.jni.dlib.data.Messages.Rectangle parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static com.my.jni.dlib.data.Messages.Rectangle parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static com.my.jni.dlib.data.Messages.Rectangle parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input);
+    }
+    public static com.my.jni.dlib.data.Messages.Rectangle parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+    public static com.my.jni.dlib.data.Messages.Rectangle parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return parseDelimitedFrom(DEFAULT_INSTANCE, input);
+    }
+    public static com.my.jni.dlib.data.Messages.Rectangle parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return parseDelimitedFrom(DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+    public static com.my.jni.dlib.data.Messages.Rectangle parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input);
+    }
+    public static com.my.jni.dlib.data.Messages.Rectangle parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(com.my.jni.dlib.data.Messages.Rectangle prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+
+    /**
+     * <pre>
+     * Normalized rectangle.
+     * </pre>
+     *
+     * Protobuf type {@code com.my.jni.dlib.data.Rectangle}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageLite.Builder<
+          com.my.jni.dlib.data.Messages.Rectangle, Builder> implements
+        // @@protoc_insertion_point(builder_implements:com.my.jni.dlib.data.Rectangle)
+        com.my.jni.dlib.data.Messages.RectangleOrBuilder {
+      // Construct using com.my.jni.dlib.data.Messages.Rectangle.newBuilder()
+      private Builder() {
+        super(DEFAULT_INSTANCE);
+      }
+
+
+      /**
+       * <code>float left = 1;</code>
+       */
+      public float getLeft() {
+        return instance.getLeft();
+      }
+      /**
+       * <code>float left = 1;</code>
+       */
+      public Builder setLeft(float value) {
+        copyOnWrite();
+        instance.setLeft(value);
+        return this;
+      }
+      /**
+       * <code>float left = 1;</code>
+       */
+      public Builder clearLeft() {
+        copyOnWrite();
+        instance.clearLeft();
+        return this;
+      }
+
+      /**
+       * <code>float top = 2;</code>
+       */
+      public float getTop() {
+        return instance.getTop();
+      }
+      /**
+       * <code>float top = 2;</code>
+       */
+      public Builder setTop(float value) {
+        copyOnWrite();
+        instance.setTop(value);
+        return this;
+      }
+      /**
+       * <code>float top = 2;</code>
+       */
+      public Builder clearTop() {
+        copyOnWrite();
+        instance.clearTop();
+        return this;
+      }
+
+      /**
+       * <code>float right = 3;</code>
+       */
+      public float getRight() {
+        return instance.getRight();
+      }
+      /**
+       * <code>float right = 3;</code>
+       */
+      public Builder setRight(float value) {
+        copyOnWrite();
+        instance.setRight(value);
+        return this;
+      }
+      /**
+       * <code>float right = 3;</code>
+       */
+      public Builder clearRight() {
+        copyOnWrite();
+        instance.clearRight();
+        return this;
+      }
+
+      /**
+       * <code>float bottom = 4;</code>
+       */
+      public float getBottom() {
+        return instance.getBottom();
+      }
+      /**
+       * <code>float bottom = 4;</code>
+       */
+      public Builder setBottom(float value) {
+        copyOnWrite();
+        instance.setBottom(value);
+        return this;
+      }
+      /**
+       * <code>float bottom = 4;</code>
+       */
+      public Builder clearBottom() {
+        copyOnWrite();
+        instance.clearBottom();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:com.my.jni.dlib.data.Rectangle)
+    }
+    protected final Object dynamicMethod(
+        com.google.protobuf.GeneratedMessageLite.MethodToInvoke method,
+        Object arg0, Object arg1) {
+      switch (method) {
+        case NEW_MUTABLE_INSTANCE: {
+          return new com.my.jni.dlib.data.Messages.Rectangle();
+        }
+        case IS_INITIALIZED: {
+          return DEFAULT_INSTANCE;
+        }
+        case MAKE_IMMUTABLE: {
+          return null;
+        }
+        case NEW_BUILDER: {
+          return new Builder();
+        }
+        case VISIT: {
+          Visitor visitor = (Visitor) arg0;
+          com.my.jni.dlib.data.Messages.Rectangle other = (com.my.jni.dlib.data.Messages.Rectangle) arg1;
+          left_ = visitor.visitFloat(left_ != 0F, left_,
+              other.left_ != 0F, other.left_);
+          top_ = visitor.visitFloat(top_ != 0F, top_,
+              other.top_ != 0F, other.top_);
+          right_ = visitor.visitFloat(right_ != 0F, right_,
+              other.right_ != 0F, other.right_);
+          bottom_ = visitor.visitFloat(bottom_ != 0F, bottom_,
+              other.bottom_ != 0F, other.bottom_);
+          if (visitor == com.google.protobuf.GeneratedMessageLite.MergeFromVisitor
+              .INSTANCE) {
+          }
+          return this;
+        }
+        case MERGE_FROM_STREAM: {
+          com.google.protobuf.CodedInputStream input =
+              (com.google.protobuf.CodedInputStream) arg0;
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry =
+              (com.google.protobuf.ExtensionRegistryLite) arg1;
+          try {
+            boolean done = false;
+            while (!done) {
+              int tag = input.readTag();
+              switch (tag) {
+                case 0:
+                  done = true;
+                  break;
+                default: {
+                  if (!input.skipField(tag)) {
+                    done = true;
+                  }
+                  break;
+                }
+                case 13: {
+
+                  left_ = input.readFloat();
+                  break;
+                }
+                case 21: {
+
+                  top_ = input.readFloat();
+                  break;
+                }
+                case 29: {
+
+                  right_ = input.readFloat();
+                  break;
+                }
+                case 37: {
+
+                  bottom_ = input.readFloat();
+                  break;
+                }
+              }
+            }
+          } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+            throw new RuntimeException(e.setUnfinishedMessage(this));
+          } catch (java.io.IOException e) {
+            throw new RuntimeException(
+                new com.google.protobuf.InvalidProtocolBufferException(
+                    e.getMessage()).setUnfinishedMessage(this));
+          } finally {
+          }
+        }
+        case GET_DEFAULT_INSTANCE: {
+          return DEFAULT_INSTANCE;
+        }
+        case GET_PARSER: {
+          if (PARSER == null) {    synchronized (com.my.jni.dlib.data.Messages.Rectangle.class) {
+              if (PARSER == null) {
+                PARSER = new DefaultInstanceBasedParser(DEFAULT_INSTANCE);
+              }
+            }
+          }
+          return PARSER;
+        }
+      }
+      throw new UnsupportedOperationException();
+    }
+
+
+    // @@protoc_insertion_point(class_scope:com.my.jni.dlib.data.Rectangle)
+    private static final com.my.jni.dlib.data.Messages.Rectangle DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new Rectangle();
+      DEFAULT_INSTANCE.makeImmutable();
+    }
+
+    public static com.my.jni.dlib.data.Messages.Rectangle getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static volatile com.google.protobuf.Parser<Rectangle> PARSER;
+
+    public static com.google.protobuf.Parser<Rectangle> parser() {
+      return DEFAULT_INSTANCE.getParserForType();
+    }
+  }
+
   public interface FaceOrBuilder extends
       // @@protoc_insertion_point(interface_extends:com.my.jni.dlib.data.Face)
       com.google.protobuf.MessageLiteOrBuilder {
 
     /**
-     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+     * <code>.com.my.jni.dlib.data.Rectangle bound = 1;</code>
+     */
+    boolean hasBound();
+    /**
+     * <code>.com.my.jni.dlib.data.Rectangle bound = 1;</code>
+     */
+    com.my.jni.dlib.data.Messages.Rectangle getBound();
+
+    /**
+     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 2;</code>
      */
     java.util.List<com.my.jni.dlib.data.Messages.Landmark> 
         getLandmarksList();
     /**
-     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 2;</code>
      */
     com.my.jni.dlib.data.Messages.Landmark getLandmarks(int index);
     /**
-     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 2;</code>
      */
     int getLandmarksCount();
   }
@@ -375,35 +852,88 @@ public final class Messages {
     private Face() {
       landmarks_ = emptyProtobufList();
     }
-    public static final int LANDMARKS_FIELD_NUMBER = 1;
+    private int bitField0_;
+    public static final int BOUND_FIELD_NUMBER = 1;
+    private com.my.jni.dlib.data.Messages.Rectangle bound_;
+    /**
+     * <code>.com.my.jni.dlib.data.Rectangle bound = 1;</code>
+     */
+    public boolean hasBound() {
+      return bound_ != null;
+    }
+    /**
+     * <code>.com.my.jni.dlib.data.Rectangle bound = 1;</code>
+     */
+    public com.my.jni.dlib.data.Messages.Rectangle getBound() {
+      return bound_ == null ? com.my.jni.dlib.data.Messages.Rectangle.getDefaultInstance() : bound_;
+    }
+    /**
+     * <code>.com.my.jni.dlib.data.Rectangle bound = 1;</code>
+     */
+    private void setBound(com.my.jni.dlib.data.Messages.Rectangle value) {
+      if (value == null) {
+        throw new NullPointerException();
+      }
+      bound_ = value;
+      
+      }
+    /**
+     * <code>.com.my.jni.dlib.data.Rectangle bound = 1;</code>
+     */
+    private void setBound(
+        com.my.jni.dlib.data.Messages.Rectangle.Builder builderForValue) {
+      bound_ = builderForValue.build();
+      
+    }
+    /**
+     * <code>.com.my.jni.dlib.data.Rectangle bound = 1;</code>
+     */
+    private void mergeBound(com.my.jni.dlib.data.Messages.Rectangle value) {
+      if (bound_ != null &&
+          bound_ != com.my.jni.dlib.data.Messages.Rectangle.getDefaultInstance()) {
+        bound_ =
+          com.my.jni.dlib.data.Messages.Rectangle.newBuilder(bound_).mergeFrom(value).buildPartial();
+      } else {
+        bound_ = value;
+      }
+      
+    }
+    /**
+     * <code>.com.my.jni.dlib.data.Rectangle bound = 1;</code>
+     */
+    private void clearBound() {  bound_ = null;
+      
+    }
+
+    public static final int LANDMARKS_FIELD_NUMBER = 2;
     private com.google.protobuf.Internal.ProtobufList<com.my.jni.dlib.data.Messages.Landmark> landmarks_;
     /**
-     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 2;</code>
      */
     public java.util.List<com.my.jni.dlib.data.Messages.Landmark> getLandmarksList() {
       return landmarks_;
     }
     /**
-     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 2;</code>
      */
     public java.util.List<? extends com.my.jni.dlib.data.Messages.LandmarkOrBuilder> 
         getLandmarksOrBuilderList() {
       return landmarks_;
     }
     /**
-     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 2;</code>
      */
     public int getLandmarksCount() {
       return landmarks_.size();
     }
     /**
-     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 2;</code>
      */
     public com.my.jni.dlib.data.Messages.Landmark getLandmarks(int index) {
       return landmarks_.get(index);
     }
     /**
-     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 2;</code>
      */
     public com.my.jni.dlib.data.Messages.LandmarkOrBuilder getLandmarksOrBuilder(
         int index) {
@@ -417,7 +947,7 @@ public final class Messages {
     }
 
     /**
-     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 2;</code>
      */
     private void setLandmarks(
         int index, com.my.jni.dlib.data.Messages.Landmark value) {
@@ -428,7 +958,7 @@ public final class Messages {
       landmarks_.set(index, value);
     }
     /**
-     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 2;</code>
      */
     private void setLandmarks(
         int index, com.my.jni.dlib.data.Messages.Landmark.Builder builderForValue) {
@@ -436,7 +966,7 @@ public final class Messages {
       landmarks_.set(index, builderForValue.build());
     }
     /**
-     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 2;</code>
      */
     private void addLandmarks(com.my.jni.dlib.data.Messages.Landmark value) {
       if (value == null) {
@@ -446,7 +976,7 @@ public final class Messages {
       landmarks_.add(value);
     }
     /**
-     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 2;</code>
      */
     private void addLandmarks(
         int index, com.my.jni.dlib.data.Messages.Landmark value) {
@@ -457,7 +987,7 @@ public final class Messages {
       landmarks_.add(index, value);
     }
     /**
-     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 2;</code>
      */
     private void addLandmarks(
         com.my.jni.dlib.data.Messages.Landmark.Builder builderForValue) {
@@ -465,7 +995,7 @@ public final class Messages {
       landmarks_.add(builderForValue.build());
     }
     /**
-     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 2;</code>
      */
     private void addLandmarks(
         int index, com.my.jni.dlib.data.Messages.Landmark.Builder builderForValue) {
@@ -473,7 +1003,7 @@ public final class Messages {
       landmarks_.add(index, builderForValue.build());
     }
     /**
-     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 2;</code>
      */
     private void addAllLandmarks(
         java.lang.Iterable<? extends com.my.jni.dlib.data.Messages.Landmark> values) {
@@ -482,13 +1012,13 @@ public final class Messages {
           values, landmarks_);
     }
     /**
-     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 2;</code>
      */
     private void clearLandmarks() {
       landmarks_ = emptyProtobufList();
     }
     /**
-     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 2;</code>
      */
     private void removeLandmarks(int index) {
       ensureLandmarksIsMutable();
@@ -497,8 +1027,11 @@ public final class Messages {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
+      if (bound_ != null) {
+        output.writeMessage(1, getBound());
+      }
       for (int i = 0; i < landmarks_.size(); i++) {
-        output.writeMessage(1, landmarks_.get(i));
+        output.writeMessage(2, landmarks_.get(i));
       }
     }
 
@@ -507,9 +1040,13 @@ public final class Messages {
       if (size != -1) return size;
 
       size = 0;
+      if (bound_ != null) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1, getBound());
+      }
       for (int i = 0; i < landmarks_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(1, landmarks_.get(i));
+          .computeMessageSize(2, landmarks_.get(i));
       }
       memoizedSerializedSize = size;
       return size;
@@ -598,25 +1135,70 @@ public final class Messages {
 
 
       /**
-       * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+       * <code>.com.my.jni.dlib.data.Rectangle bound = 1;</code>
+       */
+      public boolean hasBound() {
+        return instance.hasBound();
+      }
+      /**
+       * <code>.com.my.jni.dlib.data.Rectangle bound = 1;</code>
+       */
+      public com.my.jni.dlib.data.Messages.Rectangle getBound() {
+        return instance.getBound();
+      }
+      /**
+       * <code>.com.my.jni.dlib.data.Rectangle bound = 1;</code>
+       */
+      public Builder setBound(com.my.jni.dlib.data.Messages.Rectangle value) {
+        copyOnWrite();
+        instance.setBound(value);
+        return this;
+        }
+      /**
+       * <code>.com.my.jni.dlib.data.Rectangle bound = 1;</code>
+       */
+      public Builder setBound(
+          com.my.jni.dlib.data.Messages.Rectangle.Builder builderForValue) {
+        copyOnWrite();
+        instance.setBound(builderForValue);
+        return this;
+      }
+      /**
+       * <code>.com.my.jni.dlib.data.Rectangle bound = 1;</code>
+       */
+      public Builder mergeBound(com.my.jni.dlib.data.Messages.Rectangle value) {
+        copyOnWrite();
+        instance.mergeBound(value);
+        return this;
+      }
+      /**
+       * <code>.com.my.jni.dlib.data.Rectangle bound = 1;</code>
+       */
+      public Builder clearBound() {  copyOnWrite();
+        instance.clearBound();
+        return this;
+      }
+
+      /**
+       * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 2;</code>
        */
       public java.util.List<com.my.jni.dlib.data.Messages.Landmark> getLandmarksList() {
         return java.util.Collections.unmodifiableList(
             instance.getLandmarksList());
       }
       /**
-       * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+       * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 2;</code>
        */
       public int getLandmarksCount() {
         return instance.getLandmarksCount();
       }/**
-       * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+       * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 2;</code>
        */
       public com.my.jni.dlib.data.Messages.Landmark getLandmarks(int index) {
         return instance.getLandmarks(index);
       }
       /**
-       * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+       * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 2;</code>
        */
       public Builder setLandmarks(
           int index, com.my.jni.dlib.data.Messages.Landmark value) {
@@ -625,7 +1207,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+       * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 2;</code>
        */
       public Builder setLandmarks(
           int index, com.my.jni.dlib.data.Messages.Landmark.Builder builderForValue) {
@@ -634,7 +1216,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+       * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 2;</code>
        */
       public Builder addLandmarks(com.my.jni.dlib.data.Messages.Landmark value) {
         copyOnWrite();
@@ -642,7 +1224,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+       * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 2;</code>
        */
       public Builder addLandmarks(
           int index, com.my.jni.dlib.data.Messages.Landmark value) {
@@ -651,7 +1233,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+       * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 2;</code>
        */
       public Builder addLandmarks(
           com.my.jni.dlib.data.Messages.Landmark.Builder builderForValue) {
@@ -660,7 +1242,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+       * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 2;</code>
        */
       public Builder addLandmarks(
           int index, com.my.jni.dlib.data.Messages.Landmark.Builder builderForValue) {
@@ -669,7 +1251,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+       * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 2;</code>
        */
       public Builder addAllLandmarks(
           java.lang.Iterable<? extends com.my.jni.dlib.data.Messages.Landmark> values) {
@@ -678,7 +1260,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+       * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 2;</code>
        */
       public Builder clearLandmarks() {
         copyOnWrite();
@@ -686,7 +1268,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+       * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 2;</code>
        */
       public Builder removeLandmarks(int index) {
         copyOnWrite();
@@ -716,9 +1298,11 @@ public final class Messages {
         case VISIT: {
           Visitor visitor = (Visitor) arg0;
           com.my.jni.dlib.data.Messages.Face other = (com.my.jni.dlib.data.Messages.Face) arg1;
+          bound_ = visitor.visitMessage(bound_, other.bound_);
           landmarks_= visitor.visitList(landmarks_, other.landmarks_);
           if (visitor == com.google.protobuf.GeneratedMessageLite.MergeFromVisitor
               .INSTANCE) {
+            bitField0_ |= other.bitField0_;
           }
           return this;
         }
@@ -742,6 +1326,19 @@ public final class Messages {
                   break;
                 }
                 case 10: {
+                  com.my.jni.dlib.data.Messages.Rectangle.Builder subBuilder = null;
+                  if (bound_ != null) {
+                    subBuilder = bound_.toBuilder();
+                  }
+                  bound_ = input.readMessage(com.my.jni.dlib.data.Messages.Rectangle.parser(), extensionRegistry);
+                  if (subBuilder != null) {
+                    subBuilder.mergeFrom(bound_);
+                    bound_ = subBuilder.buildPartial();
+                  }
+
+                  break;
+                }
+                case 18: {
                   if (!landmarks_.isModifiable()) {
                     landmarks_ =
                         com.google.protobuf.GeneratedMessageLite.mutableCopy(landmarks_);

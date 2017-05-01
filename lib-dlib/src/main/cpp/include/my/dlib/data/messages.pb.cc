@@ -21,6 +21,8 @@ namespace dlib {
 namespace data {
 class LandmarkDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<Landmark> {
 } _Landmark_default_instance_;
+class RectangleDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<Rectangle> {
+} _Rectangle_default_instance_;
 class FaceDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<Face> {
 } _Face_default_instance_;
 class FaceListDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<FaceList> {
@@ -31,6 +33,7 @@ namespace protobuf_messages_2eproto {
 
 void TableStruct::Shutdown() {
   _Landmark_default_instance_.Shutdown();
+  _Rectangle_default_instance_.Shutdown();
   _Face_default_instance_.Shutdown();
   _FaceList_default_instance_.Shutdown();
 }
@@ -40,8 +43,11 @@ void TableStruct::InitDefaultsImpl() {
 
   ::google::protobuf::internal::InitProtobufDefaults();
   _Landmark_default_instance_.DefaultConstruct();
+  _Rectangle_default_instance_.DefaultConstruct();
   _Face_default_instance_.DefaultConstruct();
   _FaceList_default_instance_.DefaultConstruct();
+  _Face_default_instance_.get_mutable()->bound_ = const_cast< ::com::my::jni::dlib::data::Rectangle*>(
+      ::com::my::jni::dlib::data::Rectangle::internal_default_instance());
 }
 
 void InitDefaults() {
@@ -305,6 +311,324 @@ void Landmark::set_y(float value) {
 // ===================================================================
 
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int Rectangle::kLeftFieldNumber;
+const int Rectangle::kTopFieldNumber;
+const int Rectangle::kRightFieldNumber;
+const int Rectangle::kBottomFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+Rectangle::Rectangle()
+  : ::google::protobuf::MessageLite(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    protobuf_messages_2eproto::InitDefaults();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:com.my.jni.dlib.data.Rectangle)
+}
+Rectangle::Rectangle(const Rectangle& from)
+  : ::google::protobuf::MessageLite(),
+      _internal_metadata_(NULL),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  ::memcpy(&left_, &from.left_,
+    reinterpret_cast<char*>(&bottom_) -
+    reinterpret_cast<char*>(&left_) + sizeof(bottom_));
+  // @@protoc_insertion_point(copy_constructor:com.my.jni.dlib.data.Rectangle)
+}
+
+void Rectangle::SharedCtor() {
+  ::memset(&left_, 0, reinterpret_cast<char*>(&bottom_) -
+    reinterpret_cast<char*>(&left_) + sizeof(bottom_));
+  _cached_size_ = 0;
+}
+
+Rectangle::~Rectangle() {
+  // @@protoc_insertion_point(destructor:com.my.jni.dlib.data.Rectangle)
+  SharedDtor();
+}
+
+void Rectangle::SharedDtor() {
+}
+
+void Rectangle::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const Rectangle& Rectangle::default_instance() {
+  protobuf_messages_2eproto::InitDefaults();
+  return *internal_default_instance();
+}
+
+Rectangle* Rectangle::New(::google::protobuf::Arena* arena) const {
+  Rectangle* n = new Rectangle;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void Rectangle::Clear() {
+// @@protoc_insertion_point(message_clear_start:com.my.jni.dlib.data.Rectangle)
+  ::memset(&left_, 0, reinterpret_cast<char*>(&bottom_) -
+    reinterpret_cast<char*>(&left_) + sizeof(bottom_));
+}
+
+bool Rectangle::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:com.my.jni.dlib.data.Rectangle)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // float left = 1;
+      case 1: {
+        if (tag == 13u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &left_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // float top = 2;
+      case 2: {
+        if (tag == 21u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &top_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // float right = 3;
+      case 3: {
+        if (tag == 29u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &right_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // float bottom = 4;
+      case 4: {
+        if (tag == 37u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &bottom_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:com.my.jni.dlib.data.Rectangle)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:com.my.jni.dlib.data.Rectangle)
+  return false;
+#undef DO_
+}
+
+void Rectangle::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:com.my.jni.dlib.data.Rectangle)
+  // float left = 1;
+  if (this->left() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(1, this->left(), output);
+  }
+
+  // float top = 2;
+  if (this->top() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(2, this->top(), output);
+  }
+
+  // float right = 3;
+  if (this->right() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(3, this->right(), output);
+  }
+
+  // float bottom = 4;
+  if (this->bottom() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(4, this->bottom(), output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:com.my.jni.dlib.data.Rectangle)
+}
+
+size_t Rectangle::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:com.my.jni.dlib.data.Rectangle)
+  size_t total_size = 0;
+
+  // float left = 1;
+  if (this->left() != 0) {
+    total_size += 1 + 4;
+  }
+
+  // float top = 2;
+  if (this->top() != 0) {
+    total_size += 1 + 4;
+  }
+
+  // float right = 3;
+  if (this->right() != 0) {
+    total_size += 1 + 4;
+  }
+
+  // float bottom = 4;
+  if (this->bottom() != 0) {
+    total_size += 1 + 4;
+  }
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void Rectangle::CheckTypeAndMergeFrom(
+    const ::google::protobuf::MessageLite& from) {
+  MergeFrom(*::google::protobuf::down_cast<const Rectangle*>(&from));
+}
+
+void Rectangle::MergeFrom(const Rectangle& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:com.my.jni.dlib.data.Rectangle)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  if (from.left() != 0) {
+    set_left(from.left());
+  }
+  if (from.top() != 0) {
+    set_top(from.top());
+  }
+  if (from.right() != 0) {
+    set_right(from.right());
+  }
+  if (from.bottom() != 0) {
+    set_bottom(from.bottom());
+  }
+}
+
+void Rectangle::CopyFrom(const Rectangle& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:com.my.jni.dlib.data.Rectangle)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool Rectangle::IsInitialized() const {
+  return true;
+}
+
+void Rectangle::Swap(Rectangle* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void Rectangle::InternalSwap(Rectangle* other) {
+  std::swap(left_, other->left_);
+  std::swap(top_, other->top_);
+  std::swap(right_, other->right_);
+  std::swap(bottom_, other->bottom_);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::std::string Rectangle::GetTypeName() const {
+  return "com.my.jni.dlib.data.Rectangle";
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// Rectangle
+
+// float left = 1;
+void Rectangle::clear_left() {
+  left_ = 0;
+}
+float Rectangle::left() const {
+  // @@protoc_insertion_point(field_get:com.my.jni.dlib.data.Rectangle.left)
+  return left_;
+}
+void Rectangle::set_left(float value) {
+  
+  left_ = value;
+  // @@protoc_insertion_point(field_set:com.my.jni.dlib.data.Rectangle.left)
+}
+
+// float top = 2;
+void Rectangle::clear_top() {
+  top_ = 0;
+}
+float Rectangle::top() const {
+  // @@protoc_insertion_point(field_get:com.my.jni.dlib.data.Rectangle.top)
+  return top_;
+}
+void Rectangle::set_top(float value) {
+  
+  top_ = value;
+  // @@protoc_insertion_point(field_set:com.my.jni.dlib.data.Rectangle.top)
+}
+
+// float right = 3;
+void Rectangle::clear_right() {
+  right_ = 0;
+}
+float Rectangle::right() const {
+  // @@protoc_insertion_point(field_get:com.my.jni.dlib.data.Rectangle.right)
+  return right_;
+}
+void Rectangle::set_right(float value) {
+  
+  right_ = value;
+  // @@protoc_insertion_point(field_set:com.my.jni.dlib.data.Rectangle.right)
+}
+
+// float bottom = 4;
+void Rectangle::clear_bottom() {
+  bottom_ = 0;
+}
+float Rectangle::bottom() const {
+  // @@protoc_insertion_point(field_get:com.my.jni.dlib.data.Rectangle.bottom)
+  return bottom_;
+}
+void Rectangle::set_bottom(float value) {
+  
+  bottom_ = value;
+  // @@protoc_insertion_point(field_set:com.my.jni.dlib.data.Rectangle.bottom)
+}
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int Face::kBoundFieldNumber;
 const int Face::kLandmarksFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
@@ -322,10 +646,16 @@ Face::Face(const Face& from)
       landmarks_(from.landmarks_),
       _cached_size_(0) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
+  if (from.has_bound()) {
+    bound_ = new ::com::my::jni::dlib::data::Rectangle(*from.bound_);
+  } else {
+    bound_ = NULL;
+  }
   // @@protoc_insertion_point(copy_constructor:com.my.jni.dlib.data.Face)
 }
 
 void Face::SharedCtor() {
+  bound_ = NULL;
   _cached_size_ = 0;
 }
 
@@ -335,6 +665,9 @@ Face::~Face() {
 }
 
 void Face::SharedDtor() {
+  if (this != internal_default_instance()) {
+    delete bound_;
+  }
 }
 
 void Face::SetCachedSize(int size) const {
@@ -358,6 +691,10 @@ Face* Face::New(::google::protobuf::Arena* arena) const {
 void Face::Clear() {
 // @@protoc_insertion_point(message_clear_start:com.my.jni.dlib.data.Face)
   landmarks_.Clear();
+  if (GetArenaNoVirtual() == NULL && bound_ != NULL) {
+    delete bound_;
+  }
+  bound_ = NULL;
 }
 
 bool Face::MergePartialFromCodedStream(
@@ -370,9 +707,20 @@ bool Face::MergePartialFromCodedStream(
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // repeated .com.my.jni.dlib.data.Landmark landmarks = 1;
+      // .com.my.jni.dlib.data.Rectangle bound = 1;
       case 1: {
         if (tag == 10u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_bound()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // repeated .com.my.jni.dlib.data.Landmark landmarks = 2;
+      case 2: {
+        if (tag == 18u) {
           DO_(input->IncrementRecursionDepth());
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtualNoRecursionDepth(
                 input, add_landmarks()));
@@ -407,10 +755,16 @@ failure:
 void Face::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:com.my.jni.dlib.data.Face)
-  // repeated .com.my.jni.dlib.data.Landmark landmarks = 1;
+  // .com.my.jni.dlib.data.Rectangle bound = 1;
+  if (this->has_bound()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessage(
+      1, *this->bound_, output);
+  }
+
+  // repeated .com.my.jni.dlib.data.Landmark landmarks = 2;
   for (unsigned int i = 0, n = this->landmarks_size(); i < n; i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessage(
-      1, this->landmarks(i), output);
+      2, this->landmarks(i), output);
   }
 
   // @@protoc_insertion_point(serialize_end:com.my.jni.dlib.data.Face)
@@ -420,7 +774,7 @@ size_t Face::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:com.my.jni.dlib.data.Face)
   size_t total_size = 0;
 
-  // repeated .com.my.jni.dlib.data.Landmark landmarks = 1;
+  // repeated .com.my.jni.dlib.data.Landmark landmarks = 2;
   {
     unsigned int count = this->landmarks_size();
     total_size += 1UL * count;
@@ -429,6 +783,13 @@ size_t Face::ByteSizeLong() const {
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->landmarks(i));
     }
+  }
+
+  // .com.my.jni.dlib.data.Rectangle bound = 1;
+  if (this->has_bound()) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+        *this->bound_);
   }
 
   int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
@@ -448,6 +809,9 @@ void Face::MergeFrom(const Face& from) {
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   landmarks_.MergeFrom(from.landmarks_);
+  if (from.has_bound()) {
+    mutable_bound()->::com::my::jni::dlib::data::Rectangle::MergeFrom(from.bound());
+  }
 }
 
 void Face::CopyFrom(const Face& from) {
@@ -467,6 +831,7 @@ void Face::Swap(Face* other) {
 }
 void Face::InternalSwap(Face* other) {
   landmarks_.UnsafeArenaSwap(&other->landmarks_);
+  std::swap(bound_, other->bound_);
   std::swap(_cached_size_, other->_cached_size_);
 }
 
@@ -477,7 +842,46 @@ void Face::InternalSwap(Face* other) {
 #if PROTOBUF_INLINE_NOT_IN_HEADERS
 // Face
 
-// repeated .com.my.jni.dlib.data.Landmark landmarks = 1;
+// .com.my.jni.dlib.data.Rectangle bound = 1;
+bool Face::has_bound() const {
+  return this != internal_default_instance() && bound_ != NULL;
+}
+void Face::clear_bound() {
+  if (GetArenaNoVirtual() == NULL && bound_ != NULL) delete bound_;
+  bound_ = NULL;
+}
+const ::com::my::jni::dlib::data::Rectangle& Face::bound() const {
+  // @@protoc_insertion_point(field_get:com.my.jni.dlib.data.Face.bound)
+  return bound_ != NULL ? *bound_
+                         : *::com::my::jni::dlib::data::Rectangle::internal_default_instance();
+}
+::com::my::jni::dlib::data::Rectangle* Face::mutable_bound() {
+  
+  if (bound_ == NULL) {
+    bound_ = new ::com::my::jni::dlib::data::Rectangle;
+  }
+  // @@protoc_insertion_point(field_mutable:com.my.jni.dlib.data.Face.bound)
+  return bound_;
+}
+::com::my::jni::dlib::data::Rectangle* Face::release_bound() {
+  // @@protoc_insertion_point(field_release:com.my.jni.dlib.data.Face.bound)
+  
+  ::com::my::jni::dlib::data::Rectangle* temp = bound_;
+  bound_ = NULL;
+  return temp;
+}
+void Face::set_allocated_bound(::com::my::jni::dlib::data::Rectangle* bound) {
+  delete bound_;
+  bound_ = bound;
+  if (bound) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:com.my.jni.dlib.data.Face.bound)
+}
+
+// repeated .com.my.jni.dlib.data.Landmark landmarks = 2;
 int Face::landmarks_size() const {
   return landmarks_.size();
 }

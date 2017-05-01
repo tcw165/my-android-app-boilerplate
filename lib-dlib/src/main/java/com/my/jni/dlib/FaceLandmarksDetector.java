@@ -125,13 +125,29 @@ public class FaceLandmarksDetector {
     public native void prepareFaceLandmarksDetector(String path);
 
     /**
+     * Detect all the faces from the given photo.
+     *
+     * @param bitmap The photo.
+     * @return The byte array of serialized {@link List<Face>}.
+     */
+    public native byte[] detectFaces(Bitmap bitmap);
+
+    /**
+     * Detect landmarks per face.
+     *
+     * @param bitmap The small bitmap right covering a face.
+     * @return The byte array of serialized {@link Face>}.
+     */
+    public native byte[] detectLandmarksInFace(Bitmap bitmap);
+
+    /**
      * Find the faces and landmarks from the given Bitmap.
      * <br/>
      * Before calling this method, make sure the face and landmarks detectors
      * are both initialized. Otherwise a {@link RuntimeException} would be fired.
      *
      * @param bitmap The bitmap.
-     * @return The byte array of serialized list of {@link Face},
+     * @return The byte array of serialized {@link List<Face>}.
      */
     public native byte[] detectFacesAndLandmarks(Bitmap bitmap);
 }

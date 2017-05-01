@@ -20,14 +20,24 @@
 
 package com.my.jni.dlib.data;
 
+import android.graphics.RectF;
+
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Face {
 
+    private final RectF mBound = new RectF();
     private final List<Landmark> mLandmarks = new CopyOnWriteArrayList<>();
 
     public Face(Messages.Face rawFace) {
+        // Bound.
+        mBound.set(rawFace.getBound().getLeft(),
+                   rawFace.getBound().getTop(),
+                   rawFace.getBound().getRight(),
+                   rawFace.getBound().getBottom());
+
+        // Landmarks.
         for (int i = 0; i < rawFace.getLandmarksCount(); ++i) {
             Messages.Landmark rawLandmark = rawFace.getLandmarks(i);
 
@@ -41,12 +51,28 @@ public class Face {
     }
 
     public Face(Face other, float scaleX, float scaleY) {
+        // Bound.
+        mBound.set(other.getBound().left * scaleX,
+                   other.getBound().top * scaleY,
+                   other.getBound().right * scaleX,
+                   other.getBound().bottom * scaleY);
+
+        // Landmarks.
         for (int i = 0; i < other.getAllLandmarks().size(); ++i) {
             final Face.Landmark landmark = other.getAllLandmarks().get(i);
             mLandmarks.add(new Face.Landmark(
                 landmark.x * scaleX,
                 landmark.y * scaleY));
         }
+    }
+
+    public RectF getBound() {
+        return mBound;
+    }
+
+    public void setAllLandmarks(List<Landmark> landmarks) {
+        mLandmarks.clear();
+        mLandmarks.addAll(landmarks);
     }
 
     public List<Landmark> getAllLandmarks() {
@@ -74,7 +100,8 @@ public class Face {
     @Override
     public String toString() {
         return "Face{" +
-               "mLandmarks=" + mLandmarks +
+               "mBound=" + mBound +
+               ", mLandmarks=" + mLandmarks +
                '}';
     }
 

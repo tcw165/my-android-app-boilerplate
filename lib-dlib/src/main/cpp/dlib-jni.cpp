@@ -147,6 +147,138 @@ JNI_METHOD(prepareFaceLandmarksDetector)(JNIEnv *env,
 }
 
 extern "C" JNIEXPORT jbyteArray JNICALL
+JNI_METHOD(detectFaces)(JNIEnv *env,
+                        jobject thiz,
+                        jobject bitmap) {
+    // Profiler.
+    Profiler profiler;
+    profiler.start();
+
+    // Convert bitmap to dlib::array2d.
+    dlib::array2d<dlib::rgb_pixel> img;
+    convertBitmapToArray2d(env, bitmap, img);
+
+    double interval = profiler.stopAndGetInterval();
+
+    const long width = img.nc();
+    const long height = img.nr();
+    LOGI("L%d: input image (w=%ld, h=%ld) is read (took %.3f ms)",
+         __LINE__, width, height, interval);
+
+    profiler.start();
+
+    // Now tell the face detector to give us a list of bounding boxes
+    // around all the faces in the image.
+    std::vector<dlib::rectangle> dets = sFaceDetector(img);
+    interval = profiler.stopAndGetInterval();
+    LOGI("L%d: Number of faces detected: %u (took %.3f ms)",
+         __LINE__, (unsigned int) dets.size(), interval);
+
+    // To protobuf message.
+    FaceList faces;
+    for (unsigned long i = 0; i < dets.size(); ++i) {
+        // Profiler.
+        profiler.start();
+
+        dlib::rectangle& det = dets.at(i);
+
+        Face* face = faces.add_faces();
+        Rectangle* bound = face->mutable_bound();
+
+        bound->set_left((float) det.left() / width);
+        bound->set_top((float) det.top() / height);
+        bound->set_right((float) det.right() / width);
+        bound->set_bottom((float) det.bottom() / height);
+
+        interval = profiler.stopAndGetInterval();
+        LOGI("L%d: Convert face #%lu to protobuf message (took %.3f ms)",
+             __LINE__, i, interval);
+    }
+
+    // Profiler.
+    profiler.start();
+
+    // Prepare the return message.
+    int outSize = faces.ByteSize();
+    jbyteArray out = env->NewByteArray(outSize);
+    jbyte* buffer = new jbyte[outSize];
+
+    faces.SerializeToArray(buffer, outSize);
+    env->SetByteArrayRegion(out, 0, outSize, buffer);
+    delete[] buffer;
+
+    interval = profiler.stopAndGetInterval();
+    LOGI("L%d: Convert faces to protobuf message (took %.3f ms)",
+         __LINE__, interval);
+
+    return out;
+}
+
+// TODO: Complete it.
+extern "C" JNIEXPORT jbyteArray JNICALL
+JNI_METHOD(detectLandmarksInFace)(JNIEnv *env,
+                                  jobject bitmap) {
+    // Profiler.
+    Profiler profiler;
+    profiler.start();
+
+    // Convert bitmap to dlib::array2d.
+    dlib::array2d<dlib::rgb_pixel> img;
+    convertBitmapToArray2d(env, bitmap, img);
+
+    double interval = profiler.stopAndGetInterval();
+
+    const long width = img.nc();
+    const long height = img.nr();
+    LOGI("L%d: input image (w=%ld, h=%ld) is read (took %.3f ms)",
+         __LINE__, width, height, interval);
+
+    profiler.start();
+
+    // Detect landmarks.
+    dlib::rectangle bound(0, 0, width, height);
+    dlib::full_object_detection shape = sFaceLandmarksPredictor(img, bound);
+    interval = profiler.stopAndGetInterval();
+    LOGI("L%d: %lu landmarks detected (took %.3f ms)",
+         __LINE__, shape.num_parts(), interval);
+
+    profiler.start();
+    // Protobuf message.
+    Face face;
+    // You get the idea, you can get all the face part locations if
+    // you want them.  Here we just store them in shapes so we can
+    // put them on the screen.
+    for (unsigned long i = 0 ; i < shape.num_parts(); ++i) {
+        dlib::point& pt = shape.part(i);
+
+        Landmark* landmark = face.add_landmarks();
+        landmark->set_x((float) pt.x() / width);
+        landmark->set_y((float) pt.y() / height);
+    }
+    interval = profiler.stopAndGetInterval();
+    LOGI("L%d: Convert #%lu landmarks to protobuf message (took %.3f ms)",
+         __LINE__, shape.num_parts(), interval);
+
+    // Profiler.
+    profiler.start();
+
+    // Prepare the return message.
+    int outSize = face.ByteSize();
+    jbyteArray out = env->NewByteArray(outSize);
+    jbyte* buffer = new jbyte[outSize];
+
+    face.SerializeToArray(buffer, outSize);
+    env->SetByteArrayRegion(out, 0, outSize, buffer);
+    delete[] buffer;
+
+    interval = profiler.stopAndGetInterval();
+    LOGI("L%d: Convert faces to protobuf message (took %.3f ms)",
+         __LINE__, interval);
+
+    return out;
+}
+
+extern "C" JNIEXPORT jbyteArray JNICALL
 JNI_METHOD(detectFacesAndLandmarks)(JNIEnv *env,
                                     jobject thiz,
                                     jobject bitmap) {
@@ -186,14 +318,13 @@ JNI_METHOD(detectFacesAndLandmarks)(JNIEnv *env,
     // around all the faces in the image.
     std::vector<dlib::rectangle> dets = sFaceDetector(img);
     interval = profiler.stopAndGetInterval();
-    LOGI("L%d: Number of faces detected: %lu (took %.3f ms)",
-         __LINE__, dets.size(), interval);
+    LOGI("L%d: Number of faces detected: %u (took %.3f ms)",
+         __LINE__, (unsigned int) dets.size(), interval);
 
     // Protobuf message.
     FaceList faces;
     // Now we will go ask the shape_predictor to tell us the pose of
     // each face we detected.
-    std::vector<dlib::full_object_detection> shapes;
     for (unsigned long j = 0; j < dets.size(); ++j) {
         profiler.start();
         dlib::full_object_detection shape = sFaceLandmarksPredictor(img, dets[j]);
@@ -202,25 +333,26 @@ JNI_METHOD(detectFacesAndLandmarks)(JNIEnv *env,
              __LINE__, j, shape.num_parts(), interval);
 
         profiler.start();
-        // Protobuf message.
+
+        // To protobuf message.
         Face* face = faces.add_faces();
-        // You get the idea, you can get all the face part locations if
-        // you want them.  Here we just store them in shapes so we can
-        // put them on the screen.
+        // Transfer face boundary.
+        Rectangle* bound = face->mutable_bound();
+        bound->set_left((float) dets[j].left() / width);
+        bound->set_top((float) dets[j].top() / height);
+        bound->set_right((float) dets[j].right() / width);
+        bound->set_bottom((float) dets[j].bottom() / height);
+        // Transfer face landmarks.
         for (u_long i = 0 ; i < shape.num_parts(); ++i) {
             dlib::point& pt = shape.part(i);
 
             Landmark* landmark = face->add_landmarks();
             landmark->set_x((float) pt.x() / width);
             landmark->set_y((float) pt.y() / height);
-//            LOGI("L%d: point #%lu (x=%f,y=%f)",
-//                 __LINE__, i, landmark->x(), landmark->y());
         }
         interval = profiler.stopAndGetInterval();
         LOGI("L%d: Convert #%lu face to protobuf message (took %.3f ms)",
              __LINE__, j, interval);
-
-        shapes.push_back(shape);
     }
 
     profiler.start();

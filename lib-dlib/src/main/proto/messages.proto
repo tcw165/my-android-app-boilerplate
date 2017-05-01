@@ -6,17 +6,23 @@ package com.my.jni.dlib.data;
 option optimize_for = LITE_RUNTIME;
 //option cc_enable_arenas = false;
 
-//// For Java.
-//option java_outer_classname = "ProtoGridList";
-
 // Normalized x and y.
 message Landmark {
     float x = 1;
     float y = 2;
 }
 
+// Normalized rectangle.
+message Rectangle {
+    float left = 1;
+    float top = 2;
+    float right = 3;
+    float bottom = 4;
+}
+
 message Face {
-    repeated Landmark landmarks = 1;
+    Rectangle bound = 1;
+    repeated Landmark landmarks = 2;
 }
 
 message FaceList {
