@@ -24,8 +24,9 @@
 #include <dlib/image_processing/frontal_face_detector.h>
 #include <dlib/image_processing.h>
 #include <dlib/image_io.h>
-#include <data/messages.pb.h>
+#include <my/jni.h>
 #include <my/profiler.h>
+#include <my/dlib/data/messages.pb.h>
 
 #define LOGI(...) \
   ((void)__android_log_print(ANDROID_LOG_INFO, "dlib-jni:", __VA_ARGS__))
@@ -34,13 +35,6 @@
     Java_com_my_jni_dlib_FaceLandmarksDetector_##NAME
 
 using namespace ::com::my::jni::dlib::data;
-
-// TODO: Should be implemented in lib-core.
-void throwException(JNIEnv* env,
-                    const char* message) {
-    jclass Exception = env->FindClass("java/lang/RuntimeException");
-    env->ThrowNew(Exception, message);
-}
 
 // FIXME: Create a class inheriting from dlib::array2d<dlib::rgb_pixel>.
 void convertBitmapToArray2d(JNIEnv* env,

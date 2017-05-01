@@ -3,7 +3,7 @@
 CURRENT_DIR=`pwd`
 PROTOC="protoc"
 PROTO_IN_DIR="${CURRENT_DIR}"
-CPP_OUT_DIR="${CURRENT_DIR}/../cpp/data"
+CPP_OUT_DIR="${CURRENT_DIR}/../cpp/include/my/dlib/data"
 JAVA_OUT_DIR="${CURRENT_DIR}/../java/"
 
 # Compile the *.proto file.

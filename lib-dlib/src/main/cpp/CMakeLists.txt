@@ -21,7 +21,7 @@ set_target_properties(dlib PROPERTIES IMPORTED_LOCATION
 # Link to libprotobuf-lite.so.
 add_library(protobuf SHARED IMPORTED)
 set_target_properties(protobuf PROPERTIES IMPORTED_LOCATION
-    ${CMAKE_SOURCE_DIR}/../../../../lib-protobuf/cppLibs/lib/${ANDROID_ABI}/libprotobuf-lite-3.2.0.so)
+    ${INSTALL_DIR}/protobuf_jni/lib/${ANDROID_ABI}/libprotobuf-lite-3.2.0.so)
 
 # Link to libmy_core_jni.so.
 add_library(my_core_jni SHARED IMPORTED)
@@ -33,12 +33,12 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexceptions -std=c++11")
 
 add_library(${TARGET_NAME} SHARED
             dlib-jni.cpp
-            data/messages.pb.cc)
+            include/my/dlib/data/messages.pb.cc)
 
 target_include_directories(${TARGET_NAME} PRIVATE
                            ${INSTALL_DIR}/my_core_jni/include
-                           ${CMAKE_SOURCE_DIR}/../../../../lib-protobuf/cppLibs/include
-                           ${CMAKE_SOURCE_DIR}
+                           ${INSTALL_DIR}/protobuf_jni/include
+                           ${CMAKE_SOURCE_DIR}/include
                            ${LIB_DIR}/dlib/include)
 
 target_link_libraries(${TARGET_NAME}
@@ -54,14 +54,13 @@ file(MAKE_DIRECTORY ${INSTALL_DIR}/${TARGET_NAME})
 file(MAKE_DIRECTORY ${INSTALL_DIR}/${TARGET_NAME}/include)
 file(MAKE_DIRECTORY ${INSTALL_DIR}/${TARGET_NAME}/lib)
 
-# Copy out lib header file...
-add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
+# Copy out lib header file.
+file(COPY "${LIB_DIR}/dlib/include/"
+     DESTINATION "${INSTALL_DIR}/${TARGET_NAME}/include/")
 
-                   COMMAND "${CMAKE_COMMAND}" -E
-                   copy_directory "${LIB_DIR}/dlib/include"
-                   "${INSTALL_DIR}/${TARGET_NAME}/include/"
-
-                   COMMENT "Copying ${TARGET_NAME} headers to output directory")
+# Copy generated protobuf message header file.
+file(COPY "${CMAKE_SOURCE_DIR}/include/my/dlib/data/messages.pb.h"
+     DESTINATION "${INSTALL_DIR}/${TARGET_NAME}/include/my/dlib/data/")
 
 # Copy out the lib binary.
 # FIXME: ExternalNativeBuild breaks on copying STL. It might be fixed in the
@@ -69,12 +68,12 @@ add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
 # FIXME: Issue thread: https://github.com/android-ndk/ndk/issues/334
 add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
 
-                   # Copy cppLibs/dlib/lib/*.so
+                   # Copy pre-built *.so files.
                    COMMAND "${CMAKE_COMMAND}" -E
                    copy_directory "${LIB_DIR}/dlib/lib/${ANDROID_ABI}"
                    "${INSTALL_DIR}/${TARGET_NAME}/lib/${ANDROID_ABI}"
 
-                   # Copy generated *.so.
+                   # Copy generated *.so files.
                    COMMAND "${CMAKE_COMMAND}" -E
                    copy_directory "${CMAKE_SOURCE_DIR}/../../../build/intermediates/cmake/${CMAKE_BUILD_TYPE}/obj/${ANDROID_ABI}"
                    "${INSTALL_DIR}/${TARGET_NAME}/lib/${ANDROID_ABI}"

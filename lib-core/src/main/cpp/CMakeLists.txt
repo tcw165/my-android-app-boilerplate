@@ -13,6 +13,7 @@ set(LIB_DIR ${CMAKE_SOURCE_DIR}/../cppLibs)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexceptions -std=c++11")
 
 add_library(${TARGET_NAME} SHARED
+            jni.cpp
             profiler.cpp)
 
 target_include_directories(${TARGET_NAME} PRIVATE
@@ -25,17 +26,12 @@ target_link_libraries(${TARGET_NAME}
 
 # Make install directory.
 file(MAKE_DIRECTORY ${INSTALL_DIR}/${TARGET_NAME})
-file(MAKE_DIRECTORY ${INSTALL_DIR}/${TARGET_NAME}/include/my)
+file(MAKE_DIRECTORY ${INSTALL_DIR}/${TARGET_NAME}/include/)
 file(MAKE_DIRECTORY ${INSTALL_DIR}/${TARGET_NAME}/lib)
 
 # Copy out lib header file...
-add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-
-                   COMMAND "${CMAKE_COMMAND}" -E
-                   copy_directory "${CMAKE_SOURCE_DIR}/my/"
-                   "${INSTALL_DIR}/${TARGET_NAME}/include/my"
-
-                   COMMENT "Copying ${TARGET_NAME} headers to output directory")
+file(COPY "${CMAKE_SOURCE_DIR}/include/"
+     DESTINATION "${INSTALL_DIR}/${TARGET_NAME}/include/")
 
 # Copy out the lib binary.
 # FIXME: ExternalNativeBuild breaks on copying STL. It might be fixed in the
@@ -43,6 +39,7 @@ add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
 # FIXME: Issue thread: https://github.com/android-ndk/ndk/issues/334
 add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
 
+                   # Copy generated *.so files.
                    COMMAND "${CMAKE_COMMAND}" -E
                    copy_directory "${CMAKE_SOURCE_DIR}/../../../build/intermediates/cmake/${CMAKE_BUILD_TYPE}/obj/${ANDROID_ABI}"
                    "${INSTALL_DIR}/${TARGET_NAME}/lib/${ANDROID_ABI}"
