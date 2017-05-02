@@ -58,7 +58,7 @@ import io.reactivex.functions.Function;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
-public class SampleOfStaticInputActivity extends AppCompatActivity
+public class SampleOfBasicUsageActivity extends AppCompatActivity
     implements IProgressBarView {
 
 //    private static final String ASSET_TEST_PHOTO = "boyw165-i-am-tyson-chandler.jpg";
@@ -81,7 +81,7 @@ public class SampleOfStaticInputActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_sample_of_static_input);
+        setContentView(R.layout.activity_sample_of_basic_usage);
 
         // Init view binding.
         mUnbinder = ButterKnife.bind(this);
@@ -99,7 +99,7 @@ public class SampleOfStaticInputActivity extends AppCompatActivity
              .into(mImgPreview);
 
         // Init the face detector.
-        mFaceDetector = new FaceLandmarksDetector(getAssets());
+        mFaceDetector = new FaceLandmarksDetector();
         grantPermission()
             .observeOn(AndroidSchedulers.mainThread())
             .flatMap(new Function<Boolean, ObservableSource<?>>() {

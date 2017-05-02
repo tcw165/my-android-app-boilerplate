@@ -111,14 +111,31 @@ public class StartActivity
             this,
             new SampleMenuItem[]{
                 new SampleMenuItem(
-                    "Static Input Using Asset",
-                    "The primitive demo of face landmarks detection.",
+                    "Using asset photo as the input image",
+                    "The basic demo of face landmarks detection.",
                     new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             startActivity(
                                 new Intent(StartActivity.this,
-                                           SampleOfStaticInputActivity.class));
+                                           SampleOfBasicUsageActivity.class));
+                        }
+                    }),
+                new SampleMenuItem(
+                    "Feed the landmarks detector with image buffer from a camera",
+                    "There're two steps of a complete face landmarks detection:\n" +
+                    "(1) Detect face boundaries;\n" +
+                    "(2) Given the face boundaries, align the landmarks to the " +
+                    "faces;\n" +
+                    "I apply the second part only and feed the image buffer from " +
+                    "camera to the detector. This demo would show you how well " +
+                    "is the performance.",
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startActivity(
+                                new Intent(StartActivity.this,
+                                           SampleOfLandmarksOnlyActivity.class));
                         }
                     })
             });

@@ -33,7 +33,7 @@ import java.util.List;
 
 public class FaceLandmarksDetector {
 
-    public FaceLandmarksDetector(final AssetManager manager) {
+    public FaceLandmarksDetector() {
         // TODO: Load library in worker thread?
         try {
             System.loadLibrary("c++_shared");
