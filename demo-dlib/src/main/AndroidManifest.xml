@@ -28,5 +28,10 @@
             android:name=".StartActivity"
             android:label="@string/app_name">
         </activity>
+
+        <activity
+            android:name=".SampleOfStaticInputActivity"
+            android:label="@string/title_sample_of_static_input">
+        </activity>
     </application>
 </manifest>
