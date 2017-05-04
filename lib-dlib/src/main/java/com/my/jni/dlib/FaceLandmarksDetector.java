@@ -21,6 +21,7 @@
 package com.my.jni.dlib;
 
 import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.util.Log;
 
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -84,9 +85,12 @@ public class FaceLandmarksDetector {
         }
     }
 
-    public List<Face.Landmark> findLandmarksInFace(Bitmap bitmap)
+    public List<Face.Landmark> findLandmarksInFace(Bitmap bitmap,
+                                                   Rect bound)
         throws InvalidProtocolBufferException {
-        final byte[] rawData = detectLandmarksInFace(bitmap);
+        // Call detector JNI.
+        final byte[] rawData = detectLandmarksInFace(
+            bitmap, bound.left, bound.top, bound.right, bound.bottom);
         final Messages.LandmarkList rawLandmarks = Messages.LandmarkList.parseFrom(rawData);
         Log.d("xyz", "Detect " + rawLandmarks.getLandmarksCount() +
                      " landmarks in the face");
@@ -156,7 +160,11 @@ public class FaceLandmarksDetector {
      * @param bitmap The small bitmap right covering a face.
      * @return The byte array of serialized {@link Face}.
      */
-    private native byte[] detectLandmarksInFace(Bitmap bitmap);
+    private native byte[] detectLandmarksInFace(Bitmap bitmap,
+                                                long left,
+                                                long top,
+                                                long right,
+                                                long bottom);
 
     /**
      * Find the faces and landmarks from the given Bitmap.

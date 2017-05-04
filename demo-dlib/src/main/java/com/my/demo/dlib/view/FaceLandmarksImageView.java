@@ -66,17 +66,16 @@ public class FaceLandmarksImageView extends AppCompatImageView {
     }
 
     public void setFaces(List<Face> faces) {
-        if (getDrawable() == null && getBackground() == null) {
-            throw new IllegalStateException("The drawable is null");
-        }
 //        Log.d("xyz", "drawable bound=" + getDrawable().getBounds());
 //        Log.d("xyz", "getImageMatrix()=" + getImageMatrix());
 
         final Rect bound;
         if (getDrawable() != null) {
             bound = getDrawable().getBounds();
-        } else {
+        } else if (getBackground() != null) {
             bound = getBackground().getBounds();
+        } else {
+            bound = new Rect(getLeft(), getTop(), getRight(), getBottom());
         }
         mNormalizedFaces.clear();
         mNormalizedFaces.addAll(faces);
@@ -91,7 +90,7 @@ public class FaceLandmarksImageView extends AppCompatImageView {
 
             mDenormalizedFaces.add(dFace);
         }
-        invalidate();
+        postInvalidate();
     }
 
     @Override

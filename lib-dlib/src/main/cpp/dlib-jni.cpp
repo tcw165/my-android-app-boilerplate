@@ -218,7 +218,11 @@ JNI_METHOD(detectFaces)(JNIEnv *env,
 extern "C" JNIEXPORT jbyteArray JNICALL
 JNI_METHOD(detectLandmarksInFace)(JNIEnv *env,
                                   jobject thiz,
-                                  jobject bitmap) {
+                                  jobject bitmap,
+                                  jlong left,
+                                  jlong top,
+                                  jlong right,
+                                  jlong bottom) {
     // Profiler.
     Profiler profiler;
     profiler.start();
@@ -237,7 +241,7 @@ JNI_METHOD(detectLandmarksInFace)(JNIEnv *env,
     profiler.start();
 
     // Detect landmarks.
-    dlib::rectangle bound(0, 0, width, height);
+    dlib::rectangle bound(left, top, right, bottom);
     dlib::full_object_detection shape = sFaceLandmarksPredictor(img, bound);
     interval = profiler.stopAndGetInterval();
     LOGI("L%d: %lu landmarks detected (took %.3f ms)",

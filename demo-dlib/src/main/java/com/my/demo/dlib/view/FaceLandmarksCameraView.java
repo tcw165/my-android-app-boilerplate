@@ -24,6 +24,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
@@ -423,18 +424,18 @@ public class FaceLandmarksCameraView
 //                    (int) (mCaptureBound.width() * fullBitmap.getWidth()),
 //                    (int) (mCaptureBound.height() * fullBitmap.getHeight()));
 
-                try {
-                    // Feed the face bitmap to the detector.
+//                try {
+//                    // Feed the face bitmap to the detector.
 //                    final List<Face.Landmark> landmarks = mFaceDetector
 //                        .findLandmarksInFace(faceBitmap);
-                    final List<Face.Landmark> landmarks = mFaceDetector
-                        .findLandmarksInFace(fullBitmap);
-
-                    // Emit the result.
-                    dispatchOnFaceLandmarksDetected(landmarks);
-                } catch (InvalidProtocolBufferException error) {
-                    Log.w("xyz", error.getMessage());
-                }
+//                    final List<Face.Landmark> landmarks = mFaceDetector
+//                        .findLandmarksInFace(fullBitmap);
+//
+//                    // Emit the result.
+//                    dispatchOnFaceLandmarksDetected(landmarks);
+//                } catch (InvalidProtocolBufferException error) {
+//                    Log.w("xyz", error.getMessage());
+//                }
 
                 fullBitmap.recycle();
 //                fixedBitmap.recycle();

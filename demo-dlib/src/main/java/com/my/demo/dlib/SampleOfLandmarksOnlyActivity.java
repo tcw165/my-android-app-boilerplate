@@ -22,20 +22,27 @@ package com.my.demo.dlib;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Rect;
-import android.graphics.RectF;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
+import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 
+import com.google.android.cameraview.CameraView;
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.my.core.protocol.IProgressBarView;
 import com.my.core.util.FileUtil;
 import com.my.core.util.ViewUtil;
-import com.my.demo.dlib.view.FaceLandmarksCameraView;
 import com.my.demo.dlib.view.FaceLandmarksImageView;
 import com.my.jni.dlib.FaceLandmarksDetector;
 import com.my.jni.dlib.data.Face;
@@ -62,27 +69,37 @@ import io.reactivex.schedulers.Schedulers;
 public class SampleOfLandmarksOnlyActivity
     extends AppCompatActivity
     implements IProgressBarView,
-               FaceLandmarksCameraView.OnCameraPreviewListener {
+               Handler.Callback {
 
 //    private static final String ASSET_TEST_PHOTO = "boyw165-i-am-tyson-chandler.jpg";
     private static final String ASSET_TEST_PHOTO = "5-ppl.jpg";
     private static final String ASSET_SHAPE_DETECTOR_DATA = "shape_predictor_68_face_landmarks.dat";
+
+    private static final int MSG_TAKE_PHOTO = 1 << 1;
+    private static final int MSG_DETECT_LANDMARKS = 1 << 2;
 
     // View.
     @BindView(R.id.btn_back)
     FloatingActionButton mBtnBack;
     @BindView(R.id.btn_take_photo)
     FloatingActionButton mBtnTakePhoto;
+    @BindView(R.id.face_bound)
+    View mFaceBoundView;
     @BindView(R.id.landmarks_preview)
     FaceLandmarksImageView mLandmarksPreview;
     @BindView(R.id.camera)
-    FaceLandmarksCameraView mCameraPreview;
+    CameraView mCameraView;
 
     // Butter Knife.
     Unbinder mUnbinder;
 
     // Face Detector.
+    Handler mDetectorHandler;
     FaceLandmarksDetector mFaceDetector;
+
+    // Data.
+    Rect mFaceBound;
+    byte[] mData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,10 +113,11 @@ public class SampleOfLandmarksOnlyActivity
         // Back button.
         mBtnBack.setOnClickListener(onClickToBack());
 
+        // Camera view.
+        mCameraView.addCallback(mCameraCallback);
+
         // Init the face detector.
         mFaceDetector = new FaceLandmarksDetector();
-        mCameraPreview.setDetector(mFaceDetector);
-        mCameraPreview.setOnCameraPreviewListener(this);
     }
 
     @Override
@@ -131,16 +149,14 @@ public class SampleOfLandmarksOnlyActivity
                     hideProgressBar();
 
                     // Prepare the capturing rect.
-                    RectF rect = new RectF(
-                        0f, 0f,
-                        (float) mLandmarksPreview.getWidth() / mCameraPreview.getWidth(),
-                        (float) mLandmarksPreview.getHeight() / mCameraPreview.getHeight());
-                    rect.offset(
-                        (float) mLandmarksPreview.getLeft() / mCameraPreview.getWidth(),
-                        (float) mLandmarksPreview.getTop() / mCameraPreview.getHeight());
+                    mFaceBound = new Rect(
+                        mFaceBoundView.getLeft(),
+                        mFaceBoundView.getTop(),
+                        mFaceBoundView.getRight(),
+                        mFaceBoundView.getBottom());
 
                     // Open the camera.
-                    mCameraPreview.openCameraAsync(rect);
+                    mCameraView.start();
 
                     return value;
                 }
@@ -168,7 +184,7 @@ public class SampleOfLandmarksOnlyActivity
         super.onPause();
 
         // Close camera.
-        mCameraPreview.closeCameraAsync();
+        mCameraView.stop();
     }
 
     @Override
@@ -201,11 +217,35 @@ public class SampleOfLandmarksOnlyActivity
     }
 
     @Override
-    public void onFaceLandmarksDetected(List<Face.Landmark> landmarks) {
-        List<Face> faces = new ArrayList<>();
+    public boolean handleMessage(Message msg) {
+        switch (msg.what) {
+            case MSG_TAKE_PHOTO:
+                // Will lead to onPictureTaken callback.
+                mCameraView.takePicture();
+                return true;
+            case MSG_DETECT_LANDMARKS:
+                final Bitmap fullBitmap = BitmapFactory
+                    .decodeByteArray(mData, 0, mData.length);
 
-        faces.add(new Face(landmarks));
-        mLandmarksPreview.setFaces(faces);
+                try {
+                    // Call detector JNI.
+                    final List<Face.Landmark> landmarks =
+                        mFaceDetector.findLandmarksInFace(fullBitmap, mFaceBound);
+
+                    // Display the landmarks.
+                    List<Face> faces = new ArrayList<>();
+                    faces.add(new Face(landmarks));
+                    mLandmarksPreview.setFaces(faces);
+                } catch (InvalidProtocolBufferException err) {
+                    Log.e("xyz", err.getMessage());
+                }
+
+                // Schedule next take-photo.
+                mDetectorHandler.sendEmptyMessage(MSG_TAKE_PHOTO);
+                return true;
+        }
+
+        return false;
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -215,8 +255,68 @@ public class SampleOfLandmarksOnlyActivity
     protected void onDestroy() {
         super.onDestroy();
 
+        // Camera view.
+        mCameraView.removeCallback(mCameraCallback);
+
+        // View binding.
         mUnbinder.unbind();
     }
+
+    private CameraView.Callback mCameraCallback =
+        new CameraView.Callback() {
+            @Override
+            public void onCameraOpened(CameraView cameraView) {
+                Log.d("xyz", "onCameraOpened");
+                // Start a worker thread for detecting face landmarks.
+                final HandlerThread worker = new HandlerThread(
+                    SampleOfLandmarksOnlyActivity.class.getSimpleName());
+                worker.start();
+                mDetectorHandler = new Handler(worker.getLooper(),
+                                               SampleOfLandmarksOnlyActivity.this);
+
+                // Take photo after a short delay.
+                mDetectorHandler.sendEmptyMessageDelayed(MSG_TAKE_PHOTO, 550);
+            }
+
+            @Override
+            public void onCameraClosed(CameraView cameraView) {
+                Log.d("xyz", "onCameraClosed");
+                // Stop the worker thread for detecting face landmarks.
+                mDetectorHandler.getLooper().quit();
+            }
+
+            @Override
+            public void onPictureTaken(CameraView cameraView,
+                                       final byte[] data) {
+                Log.d("xyz", "onPictureTaken " + data.length + "(" + Looper.myLooper() + ")");
+
+                mData = data;
+                mDetectorHandler.sendEmptyMessage(MSG_DETECT_LANDMARKS);
+//                getBackgroundHandler().post(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        File file = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES),
+//                                             "picture.jpg");
+//                        OutputStream os = null;
+//                        try {
+//                            os = new FileOutputStream(file);
+//                            os.write(data);
+//                            os.close();
+//                        } catch (IOException e) {
+//                            Log.w("xyz", "Cannot write to " + file, e);
+//                        } finally {
+//                            if (os != null) {
+//                                try {
+//                                    os.close();
+//                                } catch (IOException e) {
+//                                    // Ignore
+//                                }
+//                            }
+//                        }
+//                    }
+//                });
+            }
+        };
 
     private View.OnClickListener onClickToBack() {
         return new View.OnClickListener() {
