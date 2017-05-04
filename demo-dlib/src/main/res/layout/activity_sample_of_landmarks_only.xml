@@ -33,7 +33,7 @@
         android:id="@+id/face_bound"
         android:layout_width="180dp"
         android:layout_height="260dp"
-        android:background="@drawable/bg_bordered_rect_55c3c5"
+        android:background="@drawable/bg_face_bound"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

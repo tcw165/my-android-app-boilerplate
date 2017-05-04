@@ -35,7 +35,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class FaceLandmarksImageView extends AppCompatImageView {
 
-    private static final float WIDTH = 1f;
+    private static final float WIDTH = 1.5f;
     private final int mWidth;
     private final Paint mPaint;
 
@@ -61,7 +61,7 @@ public class FaceLandmarksImageView extends AppCompatImageView {
 
         mWidth = (int) (density * WIDTH);
         mPaint = new Paint();
-        mPaint.setColor(ContextCompat.getColor(getContext(), com.my.widget.R.color.red));
+        mPaint.setColor(ContextCompat.getColor(getContext(), com.my.widget.R.color.accent));
         mPaint.setStyle(Paint.Style.FILL);
     }
 
