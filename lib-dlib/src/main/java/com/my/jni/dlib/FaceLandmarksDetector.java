@@ -20,8 +20,8 @@
 
 package com.my.jni.dlib;
 
-import android.content.res.AssetManager;
 import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.util.Log;
 
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -33,7 +33,7 @@ import java.util.List;
 
 public class FaceLandmarksDetector {
 
-    public FaceLandmarksDetector(final AssetManager manager) {
+    public FaceLandmarksDetector() {
         // TODO: Load library in worker thread?
         try {
             System.loadLibrary("c++_shared");
@@ -85,6 +85,28 @@ public class FaceLandmarksDetector {
         }
     }
 
+    public List<Face.Landmark> findLandmarksInFace(Bitmap bitmap,
+                                                   Rect bound)
+        throws InvalidProtocolBufferException {
+        // Call detector JNI.
+        final byte[] rawData = detectLandmarksInFace(
+            bitmap, bound.left, bound.top, bound.right, bound.bottom);
+        final Messages.LandmarkList rawLandmarks = Messages.LandmarkList.parseFrom(rawData);
+        Log.d("xyz", "Detect " + rawLandmarks.getLandmarksCount() +
+                     " landmarks in the face");
+
+        // Convert raw data to my data structure.
+        final List<Face.Landmark> landmarks = new ArrayList<>();
+        for (int i = 0; i < rawLandmarks.getLandmarksCount(); ++i) {
+            final Messages.Landmark rawLandmark = rawLandmarks.getLandmarks(i);
+            final Face.Landmark landmark  = new Face.Landmark(rawLandmark);
+
+            landmarks.add(landmark);
+        }
+
+        return landmarks;
+    }
+
     public List<Face> findFacesAndLandmarks(Bitmap bitmap)
         throws InvalidProtocolBufferException {
         // Do the face landmarks detection.
@@ -130,15 +152,19 @@ public class FaceLandmarksDetector {
      * @param bitmap The photo.
      * @return The byte array of serialized {@link List<Face>}.
      */
-    public native byte[] detectFaces(Bitmap bitmap);
+    private native byte[] detectFaces(Bitmap bitmap);
 
     /**
      * Detect landmarks per face.
      *
      * @param bitmap The small bitmap right covering a face.
-     * @return The byte array of serialized {@link Face>}.
+     * @return The byte array of serialized {@link Face}.
      */
-    public native byte[] detectLandmarksInFace(Bitmap bitmap);
+    private native byte[] detectLandmarksInFace(Bitmap bitmap,
+                                                long left,
+                                                long top,
+                                                long right,
+                                                long bottom);
 
     /**
      * Find the faces and landmarks from the given Bitmap.
@@ -149,5 +175,5 @@ public class FaceLandmarksDetector {
      * @param bitmap The bitmap.
      * @return The byte array of serialized {@link List<Face>}.
      */
-    public native byte[] detectFacesAndLandmarks(Bitmap bitmap);
+    private native byte[] detectFacesAndLandmarks(Bitmap bitmap);
 }

@@ -346,6 +346,456 @@ public final class Messages {
     }
   }
 
+  public interface LandmarkListOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:com.my.jni.dlib.data.LandmarkList)
+      com.google.protobuf.MessageLiteOrBuilder {
+
+    /**
+     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+     */
+    java.util.List<com.my.jni.dlib.data.Messages.Landmark> 
+        getLandmarksList();
+    /**
+     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+     */
+    com.my.jni.dlib.data.Messages.Landmark getLandmarks(int index);
+    /**
+     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+     */
+    int getLandmarksCount();
+  }
+  /**
+   * Protobuf type {@code com.my.jni.dlib.data.LandmarkList}
+   */
+  public  static final class LandmarkList extends
+      com.google.protobuf.GeneratedMessageLite<
+          LandmarkList, LandmarkList.Builder> implements
+      // @@protoc_insertion_point(message_implements:com.my.jni.dlib.data.LandmarkList)
+      LandmarkListOrBuilder {
+    private LandmarkList() {
+      landmarks_ = emptyProtobufList();
+    }
+    public static final int LANDMARKS_FIELD_NUMBER = 1;
+    private com.google.protobuf.Internal.ProtobufList<com.my.jni.dlib.data.Messages.Landmark> landmarks_;
+    /**
+     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+     */
+    public java.util.List<com.my.jni.dlib.data.Messages.Landmark> getLandmarksList() {
+      return landmarks_;
+    }
+    /**
+     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+     */
+    public java.util.List<? extends com.my.jni.dlib.data.Messages.LandmarkOrBuilder> 
+        getLandmarksOrBuilderList() {
+      return landmarks_;
+    }
+    /**
+     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+     */
+    public int getLandmarksCount() {
+      return landmarks_.size();
+    }
+    /**
+     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+     */
+    public com.my.jni.dlib.data.Messages.Landmark getLandmarks(int index) {
+      return landmarks_.get(index);
+    }
+    /**
+     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+     */
+    public com.my.jni.dlib.data.Messages.LandmarkOrBuilder getLandmarksOrBuilder(
+        int index) {
+      return landmarks_.get(index);
+    }
+    private void ensureLandmarksIsMutable() {
+      if (!landmarks_.isModifiable()) {
+        landmarks_ =
+            com.google.protobuf.GeneratedMessageLite.mutableCopy(landmarks_);
+       }
+    }
+
+    /**
+     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+     */
+    private void setLandmarks(
+        int index, com.my.jni.dlib.data.Messages.Landmark value) {
+      if (value == null) {
+        throw new NullPointerException();
+      }
+      ensureLandmarksIsMutable();
+      landmarks_.set(index, value);
+    }
+    /**
+     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+     */
+    private void setLandmarks(
+        int index, com.my.jni.dlib.data.Messages.Landmark.Builder builderForValue) {
+      ensureLandmarksIsMutable();
+      landmarks_.set(index, builderForValue.build());
+    }
+    /**
+     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+     */
+    private void addLandmarks(com.my.jni.dlib.data.Messages.Landmark value) {
+      if (value == null) {
+        throw new NullPointerException();
+      }
+      ensureLandmarksIsMutable();
+      landmarks_.add(value);
+    }
+    /**
+     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+     */
+    private void addLandmarks(
+        int index, com.my.jni.dlib.data.Messages.Landmark value) {
+      if (value == null) {
+        throw new NullPointerException();
+      }
+      ensureLandmarksIsMutable();
+      landmarks_.add(index, value);
+    }
+    /**
+     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+     */
+    private void addLandmarks(
+        com.my.jni.dlib.data.Messages.Landmark.Builder builderForValue) {
+      ensureLandmarksIsMutable();
+      landmarks_.add(builderForValue.build());
+    }
+    /**
+     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+     */
+    private void addLandmarks(
+        int index, com.my.jni.dlib.data.Messages.Landmark.Builder builderForValue) {
+      ensureLandmarksIsMutable();
+      landmarks_.add(index, builderForValue.build());
+    }
+    /**
+     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+     */
+    private void addAllLandmarks(
+        java.lang.Iterable<? extends com.my.jni.dlib.data.Messages.Landmark> values) {
+      ensureLandmarksIsMutable();
+      com.google.protobuf.AbstractMessageLite.addAll(
+          values, landmarks_);
+    }
+    /**
+     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+     */
+    private void clearLandmarks() {
+      landmarks_ = emptyProtobufList();
+    }
+    /**
+     * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+     */
+    private void removeLandmarks(int index) {
+      ensureLandmarksIsMutable();
+      landmarks_.remove(index);
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      for (int i = 0; i < landmarks_.size(); i++) {
+        output.writeMessage(1, landmarks_.get(i));
+      }
+    }
+
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      for (int i = 0; i < landmarks_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1, landmarks_.get(i));
+      }
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    public static com.my.jni.dlib.data.Messages.LandmarkList parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static com.my.jni.dlib.data.Messages.LandmarkList parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static com.my.jni.dlib.data.Messages.LandmarkList parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static com.my.jni.dlib.data.Messages.LandmarkList parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static com.my.jni.dlib.data.Messages.LandmarkList parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input);
+    }
+    public static com.my.jni.dlib.data.Messages.LandmarkList parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+    public static com.my.jni.dlib.data.Messages.LandmarkList parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return parseDelimitedFrom(DEFAULT_INSTANCE, input);
+    }
+    public static com.my.jni.dlib.data.Messages.LandmarkList parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return parseDelimitedFrom(DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+    public static com.my.jni.dlib.data.Messages.LandmarkList parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input);
+    }
+    public static com.my.jni.dlib.data.Messages.LandmarkList parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(com.my.jni.dlib.data.Messages.LandmarkList prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+
+    /**
+     * Protobuf type {@code com.my.jni.dlib.data.LandmarkList}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageLite.Builder<
+          com.my.jni.dlib.data.Messages.LandmarkList, Builder> implements
+        // @@protoc_insertion_point(builder_implements:com.my.jni.dlib.data.LandmarkList)
+        com.my.jni.dlib.data.Messages.LandmarkListOrBuilder {
+      // Construct using com.my.jni.dlib.data.Messages.LandmarkList.newBuilder()
+      private Builder() {
+        super(DEFAULT_INSTANCE);
+      }
+
+
+      /**
+       * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+       */
+      public java.util.List<com.my.jni.dlib.data.Messages.Landmark> getLandmarksList() {
+        return java.util.Collections.unmodifiableList(
+            instance.getLandmarksList());
+      }
+      /**
+       * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+       */
+      public int getLandmarksCount() {
+        return instance.getLandmarksCount();
+      }/**
+       * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+       */
+      public com.my.jni.dlib.data.Messages.Landmark getLandmarks(int index) {
+        return instance.getLandmarks(index);
+      }
+      /**
+       * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+       */
+      public Builder setLandmarks(
+          int index, com.my.jni.dlib.data.Messages.Landmark value) {
+        copyOnWrite();
+        instance.setLandmarks(index, value);
+        return this;
+      }
+      /**
+       * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+       */
+      public Builder setLandmarks(
+          int index, com.my.jni.dlib.data.Messages.Landmark.Builder builderForValue) {
+        copyOnWrite();
+        instance.setLandmarks(index, builderForValue);
+        return this;
+      }
+      /**
+       * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+       */
+      public Builder addLandmarks(com.my.jni.dlib.data.Messages.Landmark value) {
+        copyOnWrite();
+        instance.addLandmarks(value);
+        return this;
+      }
+      /**
+       * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+       */
+      public Builder addLandmarks(
+          int index, com.my.jni.dlib.data.Messages.Landmark value) {
+        copyOnWrite();
+        instance.addLandmarks(index, value);
+        return this;
+      }
+      /**
+       * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+       */
+      public Builder addLandmarks(
+          com.my.jni.dlib.data.Messages.Landmark.Builder builderForValue) {
+        copyOnWrite();
+        instance.addLandmarks(builderForValue);
+        return this;
+      }
+      /**
+       * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+       */
+      public Builder addLandmarks(
+          int index, com.my.jni.dlib.data.Messages.Landmark.Builder builderForValue) {
+        copyOnWrite();
+        instance.addLandmarks(index, builderForValue);
+        return this;
+      }
+      /**
+       * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+       */
+      public Builder addAllLandmarks(
+          java.lang.Iterable<? extends com.my.jni.dlib.data.Messages.Landmark> values) {
+        copyOnWrite();
+        instance.addAllLandmarks(values);
+        return this;
+      }
+      /**
+       * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+       */
+      public Builder clearLandmarks() {
+        copyOnWrite();
+        instance.clearLandmarks();
+        return this;
+      }
+      /**
+       * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 1;</code>
+       */
+      public Builder removeLandmarks(int index) {
+        copyOnWrite();
+        instance.removeLandmarks(index);
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:com.my.jni.dlib.data.LandmarkList)
+    }
+    protected final Object dynamicMethod(
+        com.google.protobuf.GeneratedMessageLite.MethodToInvoke method,
+        Object arg0, Object arg1) {
+      switch (method) {
+        case NEW_MUTABLE_INSTANCE: {
+          return new com.my.jni.dlib.data.Messages.LandmarkList();
+        }
+        case IS_INITIALIZED: {
+          return DEFAULT_INSTANCE;
+        }
+        case MAKE_IMMUTABLE: {
+          landmarks_.makeImmutable();
+          return null;
+        }
+        case NEW_BUILDER: {
+          return new Builder();
+        }
+        case VISIT: {
+          Visitor visitor = (Visitor) arg0;
+          com.my.jni.dlib.data.Messages.LandmarkList other = (com.my.jni.dlib.data.Messages.LandmarkList) arg1;
+          landmarks_= visitor.visitList(landmarks_, other.landmarks_);
+          if (visitor == com.google.protobuf.GeneratedMessageLite.MergeFromVisitor
+              .INSTANCE) {
+          }
+          return this;
+        }
+        case MERGE_FROM_STREAM: {
+          com.google.protobuf.CodedInputStream input =
+              (com.google.protobuf.CodedInputStream) arg0;
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry =
+              (com.google.protobuf.ExtensionRegistryLite) arg1;
+          try {
+            boolean done = false;
+            while (!done) {
+              int tag = input.readTag();
+              switch (tag) {
+                case 0:
+                  done = true;
+                  break;
+                default: {
+                  if (!input.skipField(tag)) {
+                    done = true;
+                  }
+                  break;
+                }
+                case 10: {
+                  if (!landmarks_.isModifiable()) {
+                    landmarks_ =
+                        com.google.protobuf.GeneratedMessageLite.mutableCopy(landmarks_);
+                  }
+                  landmarks_.add(
+                      input.readMessage(com.my.jni.dlib.data.Messages.Landmark.parser(), extensionRegistry));
+                  break;
+                }
+              }
+            }
+          } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+            throw new RuntimeException(e.setUnfinishedMessage(this));
+          } catch (java.io.IOException e) {
+            throw new RuntimeException(
+                new com.google.protobuf.InvalidProtocolBufferException(
+                    e.getMessage()).setUnfinishedMessage(this));
+          } finally {
+          }
+        }
+        case GET_DEFAULT_INSTANCE: {
+          return DEFAULT_INSTANCE;
+        }
+        case GET_PARSER: {
+          if (PARSER == null) {    synchronized (com.my.jni.dlib.data.Messages.LandmarkList.class) {
+              if (PARSER == null) {
+                PARSER = new DefaultInstanceBasedParser(DEFAULT_INSTANCE);
+              }
+            }
+          }
+          return PARSER;
+        }
+      }
+      throw new UnsupportedOperationException();
+    }
+
+
+    // @@protoc_insertion_point(class_scope:com.my.jni.dlib.data.LandmarkList)
+    private static final com.my.jni.dlib.data.Messages.LandmarkList DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new LandmarkList();
+      DEFAULT_INSTANCE.makeImmutable();
+    }
+
+    public static com.my.jni.dlib.data.Messages.LandmarkList getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static volatile com.google.protobuf.Parser<LandmarkList> PARSER;
+
+    public static com.google.protobuf.Parser<LandmarkList> parser() {
+      return DEFAULT_INSTANCE.getParserForType();
+    }
+  }
+
   public interface RectangleOrBuilder extends
       // @@protoc_insertion_point(interface_extends:com.my.jni.dlib.data.Rectangle)
       com.google.protobuf.MessageLiteOrBuilder {

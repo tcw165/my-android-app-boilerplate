@@ -41,8 +41,7 @@ public class Face {
         for (int i = 0; i < rawFace.getLandmarksCount(); ++i) {
             Messages.Landmark rawLandmark = rawFace.getLandmarks(i);
 
-            mLandmarks.add(new Landmark(rawLandmark.getX(),
-                                        rawLandmark.getY()));
+            mLandmarks.add(new Landmark(rawLandmark));
         }
     }
 
@@ -64,6 +63,27 @@ public class Face {
                 landmark.x * scaleX,
                 landmark.y * scaleY));
         }
+    }
+
+    public Face(List<Landmark> landmarks) {
+        // Landmarks.
+        mLandmarks.clear();
+        mLandmarks.addAll(landmarks);
+
+        // Calculate bound by the given landmarks.
+        float left = Float.MAX_VALUE;
+        float top = Float.MAX_VALUE;
+        float right = Float.MIN_VALUE;
+        float bottom = Float.MIN_VALUE;
+        for (int i = 0; i < landmarks.size(); ++i) {
+            final Face.Landmark landmark = landmarks.get(i);
+
+            left = Math.min(left, landmark.x);
+            top = Math.min(top, landmark.y);
+            right = Math.max(right, landmark.x);
+            bottom = Math.max(bottom, landmark.y);
+        }
+        mBound.set(left, top, right, bottom);
     }
 
     public RectF getBound() {
@@ -117,6 +137,11 @@ public class Face {
                         float y) {
             this.x = x;
             this.y = y;
+        }
+
+        public Landmark(Messages.Landmark landmark) {
+            this.x = landmark.getX();
+            this.y = landmark.getY();
         }
 
         public Landmark(Landmark other) {

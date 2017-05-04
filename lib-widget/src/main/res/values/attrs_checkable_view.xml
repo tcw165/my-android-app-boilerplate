@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="CheckableView">
-        <attr name="checkable" format="boolean"/>
-        <attr name="isChecked" format="boolean"/>
-        <attr name="aspectRatio" format="float"/>
-        <attr name="fixedDimension" format="enum">
+        <attr name="CheckableView_checkable" format="boolean"/>
+        <attr name="CheckableView_isChecked" format="boolean"/>
+        <attr name="CheckableView_aspectRatio" format="float"/>
+        <attr name="CheckableView_fixedDimension" format="enum">
             <enum name="width" value="0"/>
             <enum name="height" value="1"/>
         </attr>

@@ -6,5 +6,5 @@
     android:layout_height="match_parent"
     android:saveEnabled="false"
     android:scaleType="centerCrop"
-    app:aspectRatio="1.0"
-    app:checkable="false"/>
+    app:CheckableView_aspectRatio="1.0"
+    app:CheckableView_checkable="false"/>

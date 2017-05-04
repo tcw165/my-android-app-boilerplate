@@ -21,6 +21,8 @@ namespace dlib {
 namespace data {
 class LandmarkDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<Landmark> {
 } _Landmark_default_instance_;
+class LandmarkListDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<LandmarkList> {
+} _LandmarkList_default_instance_;
 class RectangleDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<Rectangle> {
 } _Rectangle_default_instance_;
 class FaceDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<Face> {
@@ -33,6 +35,7 @@ namespace protobuf_messages_2eproto {
 
 void TableStruct::Shutdown() {
   _Landmark_default_instance_.Shutdown();
+  _LandmarkList_default_instance_.Shutdown();
   _Rectangle_default_instance_.Shutdown();
   _Face_default_instance_.Shutdown();
   _FaceList_default_instance_.Shutdown();
@@ -43,6 +46,7 @@ void TableStruct::InitDefaultsImpl() {
 
   ::google::protobuf::internal::InitProtobufDefaults();
   _Landmark_default_instance_.DefaultConstruct();
+  _LandmarkList_default_instance_.DefaultConstruct();
   _Rectangle_default_instance_.DefaultConstruct();
   _Face_default_instance_.DefaultConstruct();
   _FaceList_default_instance_.DefaultConstruct();
@@ -304,6 +308,213 @@ void Landmark::set_y(float value) {
   
   y_ = value;
   // @@protoc_insertion_point(field_set:com.my.jni.dlib.data.Landmark.y)
+}
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int LandmarkList::kLandmarksFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+LandmarkList::LandmarkList()
+  : ::google::protobuf::MessageLite(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    protobuf_messages_2eproto::InitDefaults();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:com.my.jni.dlib.data.LandmarkList)
+}
+LandmarkList::LandmarkList(const LandmarkList& from)
+  : ::google::protobuf::MessageLite(),
+      _internal_metadata_(NULL),
+      landmarks_(from.landmarks_),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  // @@protoc_insertion_point(copy_constructor:com.my.jni.dlib.data.LandmarkList)
+}
+
+void LandmarkList::SharedCtor() {
+  _cached_size_ = 0;
+}
+
+LandmarkList::~LandmarkList() {
+  // @@protoc_insertion_point(destructor:com.my.jni.dlib.data.LandmarkList)
+  SharedDtor();
+}
+
+void LandmarkList::SharedDtor() {
+}
+
+void LandmarkList::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const LandmarkList& LandmarkList::default_instance() {
+  protobuf_messages_2eproto::InitDefaults();
+  return *internal_default_instance();
+}
+
+LandmarkList* LandmarkList::New(::google::protobuf::Arena* arena) const {
+  LandmarkList* n = new LandmarkList;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void LandmarkList::Clear() {
+// @@protoc_insertion_point(message_clear_start:com.my.jni.dlib.data.LandmarkList)
+  landmarks_.Clear();
+}
+
+bool LandmarkList::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:com.my.jni.dlib.data.LandmarkList)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // repeated .com.my.jni.dlib.data.Landmark landmarks = 1;
+      case 1: {
+        if (tag == 10u) {
+          DO_(input->IncrementRecursionDepth());
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtualNoRecursionDepth(
+                input, add_landmarks()));
+        } else {
+          goto handle_unusual;
+        }
+        input->UnsafeDecrementRecursionDepth();
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:com.my.jni.dlib.data.LandmarkList)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:com.my.jni.dlib.data.LandmarkList)
+  return false;
+#undef DO_
+}
+
+void LandmarkList::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:com.my.jni.dlib.data.LandmarkList)
+  // repeated .com.my.jni.dlib.data.Landmark landmarks = 1;
+  for (unsigned int i = 0, n = this->landmarks_size(); i < n; i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessage(
+      1, this->landmarks(i), output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:com.my.jni.dlib.data.LandmarkList)
+}
+
+size_t LandmarkList::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:com.my.jni.dlib.data.LandmarkList)
+  size_t total_size = 0;
+
+  // repeated .com.my.jni.dlib.data.Landmark landmarks = 1;
+  {
+    unsigned int count = this->landmarks_size();
+    total_size += 1UL * count;
+    for (unsigned int i = 0; i < count; i++) {
+      total_size +=
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->landmarks(i));
+    }
+  }
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void LandmarkList::CheckTypeAndMergeFrom(
+    const ::google::protobuf::MessageLite& from) {
+  MergeFrom(*::google::protobuf::down_cast<const LandmarkList*>(&from));
+}
+
+void LandmarkList::MergeFrom(const LandmarkList& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:com.my.jni.dlib.data.LandmarkList)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  landmarks_.MergeFrom(from.landmarks_);
+}
+
+void LandmarkList::CopyFrom(const LandmarkList& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:com.my.jni.dlib.data.LandmarkList)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool LandmarkList::IsInitialized() const {
+  return true;
+}
+
+void LandmarkList::Swap(LandmarkList* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void LandmarkList::InternalSwap(LandmarkList* other) {
+  landmarks_.UnsafeArenaSwap(&other->landmarks_);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::std::string LandmarkList::GetTypeName() const {
+  return "com.my.jni.dlib.data.LandmarkList";
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// LandmarkList
+
+// repeated .com.my.jni.dlib.data.Landmark landmarks = 1;
+int LandmarkList::landmarks_size() const {
+  return landmarks_.size();
+}
+void LandmarkList::clear_landmarks() {
+  landmarks_.Clear();
+}
+const ::com::my::jni::dlib::data::Landmark& LandmarkList::landmarks(int index) const {
+  // @@protoc_insertion_point(field_get:com.my.jni.dlib.data.LandmarkList.landmarks)
+  return landmarks_.Get(index);
+}
+::com::my::jni::dlib::data::Landmark* LandmarkList::mutable_landmarks(int index) {
+  // @@protoc_insertion_point(field_mutable:com.my.jni.dlib.data.LandmarkList.landmarks)
+  return landmarks_.Mutable(index);
+}
+::com::my::jni::dlib::data::Landmark* LandmarkList::add_landmarks() {
+  // @@protoc_insertion_point(field_add:com.my.jni.dlib.data.LandmarkList.landmarks)
+  return landmarks_.Add();
+}
+::google::protobuf::RepeatedPtrField< ::com::my::jni::dlib::data::Landmark >*
+LandmarkList::mutable_landmarks() {
+  // @@protoc_insertion_point(field_mutable_list:com.my.jni.dlib.data.LandmarkList.landmarks)
+  return &landmarks_;
+}
+const ::google::protobuf::RepeatedPtrField< ::com::my::jni::dlib::data::Landmark >&
+LandmarkList::landmarks() const {
+  // @@protoc_insertion_point(field_list:com.my.jni.dlib.data.LandmarkList.landmarks)
+  return landmarks_;
 }
 
 #endif  // PROTOBUF_INLINE_NOT_IN_HEADERS

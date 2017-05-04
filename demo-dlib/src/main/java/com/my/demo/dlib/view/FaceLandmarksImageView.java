@@ -27,7 +27,6 @@ import android.graphics.Rect;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
-import android.util.Log;
 
 import com.my.jni.dlib.data.Face;
 
@@ -67,13 +66,17 @@ public class FaceLandmarksImageView extends AppCompatImageView {
     }
 
     public void setFaces(List<Face> faces) {
-        if (getDrawable() == null) {
-            throw new IllegalStateException("The drawable is null");
-        }
 //        Log.d("xyz", "drawable bound=" + getDrawable().getBounds());
 //        Log.d("xyz", "getImageMatrix()=" + getImageMatrix());
 
-        final Rect bound = getDrawable().getBounds();
+        final Rect bound;
+        if (getDrawable() != null) {
+            bound = getDrawable().getBounds();
+        } else if (getBackground() != null) {
+            bound = getBackground().getBounds();
+        } else {
+            bound = new Rect(getLeft(), getTop(), getRight(), getBottom());
+        }
         mNormalizedFaces.clear();
         mNormalizedFaces.addAll(faces);
 
@@ -87,14 +90,14 @@ public class FaceLandmarksImageView extends AppCompatImageView {
 
             mDenormalizedFaces.add(dFace);
         }
-        invalidate();
+        postInvalidate();
     }
 
     @Override
     public void onDrawForeground(Canvas canvas) {
         super.onDrawForeground(canvas);
 
-        if (getDrawable() != null && !mDenormalizedFaces.isEmpty()) {
+        if (!mDenormalizedFaces.isEmpty()) {
             // Render faces.
             canvas.save();
             canvas.concat(getImageMatrix());

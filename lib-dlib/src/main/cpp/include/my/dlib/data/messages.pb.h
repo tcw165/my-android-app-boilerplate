@@ -42,6 +42,9 @@ extern FaceListDefaultTypeInternal _FaceList_default_instance_;
 class Landmark;
 class LandmarkDefaultTypeInternal;
 extern LandmarkDefaultTypeInternal _Landmark_default_instance_;
+class LandmarkList;
+class LandmarkListDefaultTypeInternal;
+extern LandmarkListDefaultTypeInternal _LandmarkList_default_instance_;
 class Rectangle;
 class RectangleDefaultTypeInternal;
 extern RectangleDefaultTypeInternal _Rectangle_default_instance_;
@@ -148,6 +151,88 @@ class Landmark : public ::google::protobuf::MessageLite /* @@protoc_insertion_po
   ::google::protobuf::internal::InternalMetadataWithArenaLite _internal_metadata_;
   float x_;
   float y_;
+  mutable int _cached_size_;
+  friend struct  protobuf_messages_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class LandmarkList : public ::google::protobuf::MessageLite /* @@protoc_insertion_point(class_definition:com.my.jni.dlib.data.LandmarkList) */ {
+ public:
+  LandmarkList();
+  virtual ~LandmarkList();
+
+  LandmarkList(const LandmarkList& from);
+
+  inline LandmarkList& operator=(const LandmarkList& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const LandmarkList& default_instance();
+
+  static inline const LandmarkList* internal_default_instance() {
+    return reinterpret_cast<const LandmarkList*>(
+               &_LandmarkList_default_instance_);
+  }
+
+  void Swap(LandmarkList* other);
+
+  // implements Message ----------------------------------------------
+
+  inline LandmarkList* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  LandmarkList* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CheckTypeAndMergeFrom(const ::google::protobuf::MessageLite& from)
+    PROTOBUF_FINAL;
+  void CopyFrom(const LandmarkList& from);
+  void MergeFrom(const LandmarkList& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  void DiscardUnknownFields();
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  void InternalSwap(LandmarkList* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::std::string GetTypeName() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated .com.my.jni.dlib.data.Landmark landmarks = 1;
+  int landmarks_size() const;
+  void clear_landmarks();
+  static const int kLandmarksFieldNumber = 1;
+  const ::com::my::jni::dlib::data::Landmark& landmarks(int index) const;
+  ::com::my::jni::dlib::data::Landmark* mutable_landmarks(int index);
+  ::com::my::jni::dlib::data::Landmark* add_landmarks();
+  ::google::protobuf::RepeatedPtrField< ::com::my::jni::dlib::data::Landmark >*
+      mutable_landmarks();
+  const ::google::protobuf::RepeatedPtrField< ::com::my::jni::dlib::data::Landmark >&
+      landmarks() const;
+
+  // @@protoc_insertion_point(class_scope:com.my.jni.dlib.data.LandmarkList)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::google::protobuf::RepeatedPtrField< ::com::my::jni::dlib::data::Landmark > landmarks_;
   mutable int _cached_size_;
   friend struct  protobuf_messages_2eproto::TableStruct;
 };
@@ -460,6 +545,40 @@ inline void Landmark::set_y(float value) {
 
 // -------------------------------------------------------------------
 
+// LandmarkList
+
+// repeated .com.my.jni.dlib.data.Landmark landmarks = 1;
+inline int LandmarkList::landmarks_size() const {
+  return landmarks_.size();
+}
+inline void LandmarkList::clear_landmarks() {
+  landmarks_.Clear();
+}
+inline const ::com::my::jni::dlib::data::Landmark& LandmarkList::landmarks(int index) const {
+  // @@protoc_insertion_point(field_get:com.my.jni.dlib.data.LandmarkList.landmarks)
+  return landmarks_.Get(index);
+}
+inline ::com::my::jni::dlib::data::Landmark* LandmarkList::mutable_landmarks(int index) {
+  // @@protoc_insertion_point(field_mutable:com.my.jni.dlib.data.LandmarkList.landmarks)
+  return landmarks_.Mutable(index);
+}
+inline ::com::my::jni::dlib::data::Landmark* LandmarkList::add_landmarks() {
+  // @@protoc_insertion_point(field_add:com.my.jni.dlib.data.LandmarkList.landmarks)
+  return landmarks_.Add();
+}
+inline ::google::protobuf::RepeatedPtrField< ::com::my::jni::dlib::data::Landmark >*
+LandmarkList::mutable_landmarks() {
+  // @@protoc_insertion_point(field_mutable_list:com.my.jni.dlib.data.LandmarkList.landmarks)
+  return &landmarks_;
+}
+inline const ::google::protobuf::RepeatedPtrField< ::com::my::jni::dlib::data::Landmark >&
+LandmarkList::landmarks() const {
+  // @@protoc_insertion_point(field_list:com.my.jni.dlib.data.LandmarkList.landmarks)
+  return landmarks_;
+}
+
+// -------------------------------------------------------------------
+
 // Rectangle
 
 // float left = 1;
@@ -626,6 +745,8 @@ FaceList::faces() const {
 }
 
 #endif  // !PROTOBUF_INLINE_NOT_IN_HEADERS
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

@@ -49,6 +49,22 @@ public class BitmapUtil {
     public static final int IMAGE_MAX_SIDE_LENGTH = 520;
 
     /**
+     * Rotate the original bitmap according to the given orientation angle
+     */
+    public static Bitmap rotateBitmap(Bitmap bitmap,
+                                      float degrees) {
+        // If the rotate angle is 0, then return the original image, else return the rotated image
+        if (degrees != 0) {
+            Matrix matrix = new Matrix();
+            matrix.postRotate(degrees);
+            return Bitmap.createBitmap(
+                bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+        } else {
+            return bitmap;
+        }
+    }
+
+    /**
      * Decode image from a given URI, and resize according to the IMAGE_MAX_SIDE_LENGTH.
      * If expectedMaxImageSideLength is
      * (1) less than or equal to 0,
@@ -229,21 +245,5 @@ public class BitmapUtil {
             }
         }
         return angle;
-    }
-
-    /**
-     * Rotate the original bitmap according to the given orientation angle
-     */
-    private static Bitmap rotateBitmap(Bitmap bitmap,
-                                       int angle) {
-        // If the rotate angle is 0, then return the original image, else return the rotated image
-        if (angle != 0) {
-            Matrix matrix = new Matrix();
-            matrix.postRotate(angle);
-            return Bitmap.createBitmap(
-                bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-        } else {
-            return bitmap;
-        }
     }
 }
