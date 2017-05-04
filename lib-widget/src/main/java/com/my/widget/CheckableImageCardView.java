@@ -17,13 +17,13 @@ import com.my.core.data.ObservableCheckableState;
  * <br/>
  * Attributes:
  * <br/>
- * {@link R.styleable#CheckableView_checkable}
+ * {@link R.styleable#CheckableView_CheckableView_checkable}
  * <br/>
- * {@link R.styleable#CheckableView_isChecked}
+ * {@link R.styleable#CheckableView_CheckableView_isChecked}
  * <br/>
- * {@link R.styleable#CheckableView_aspectRatio}
+ * {@link R.styleable#CheckableView_CheckableView_aspectRatio}
  * <br/>
- * {@link R.styleable#CheckableView_fixedDimension}
+ * {@link R.styleable#CheckableView_CheckableView_fixedDimension}
  */
 public class CheckableImageCardView
     extends CardView
@@ -76,10 +76,10 @@ public class CheckableImageCardView
         // Determine the attributes.
         final TypedArray array = context.obtainStyledAttributes(
             attrs, R.styleable.CheckableView, 0, 0);
-        mIsChecked = array.getBoolean(R.styleable.CheckableView_isChecked, false);
-        mIsCheckable = array.getBoolean(R.styleable.CheckableView_checkable, false);
-        mAspectRatio = array.getFloat(R.styleable.CheckableView_aspectRatio, 0.f);
-        mFixedDimension = array.getInt(R.styleable.CheckableView_fixedDimension, 0);
+        mIsChecked = array.getBoolean(R.styleable.CheckableView_CheckableView_isChecked, false);
+        mIsCheckable = array.getBoolean(R.styleable.CheckableView_CheckableView_checkable, false);
+        mAspectRatio = array.getFloat(R.styleable.CheckableView_CheckableView_aspectRatio, 0.f);
+        mFixedDimension = array.getInt(R.styleable.CheckableView_CheckableView_fixedDimension, 0);
         array.recycle();
 
         // For the IDE preview, show the checkable state.

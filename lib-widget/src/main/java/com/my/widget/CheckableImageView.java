@@ -87,10 +87,10 @@ public class CheckableImageView
         // Determine the attributes.
         final TypedArray array = context.obtainStyledAttributes(
             attrs, R.styleable.CheckableView, 0, 0);
-        mIsChecked = array.getBoolean(R.styleable.CheckableView_isChecked, false);
-        mIsCheckable = array.getBoolean(R.styleable.CheckableView_checkable, false);
-        mAspectRatio = array.getFloat(R.styleable.CheckableView_aspectRatio, 0.f);
-        mFixedDimension = array.getInt(R.styleable.CheckableView_fixedDimension, FIXED_WIDTH);
+        mIsChecked = array.getBoolean(R.styleable.CheckableView_CheckableView_isChecked, false);
+        mIsCheckable = array.getBoolean(R.styleable.CheckableView_CheckableView_checkable, false);
+        mAspectRatio = array.getFloat(R.styleable.CheckableView_CheckableView_aspectRatio, 0.f);
+        mFixedDimension = array.getInt(R.styleable.CheckableView_CheckableView_fixedDimension, FIXED_WIDTH);
         array.recycle();
 
         // For the IDE preview, show the checkable state.
