@@ -12,6 +12,10 @@ message Landmark {
     float y = 2;
 }
 
+message LandmarkList {
+    repeated Landmark landmarks = 1;
+}
+
 // Normalized rectangle.
 message Rectangle {
     float left = 1;

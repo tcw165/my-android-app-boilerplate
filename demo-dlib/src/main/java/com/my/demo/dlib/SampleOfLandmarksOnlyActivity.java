@@ -22,8 +22,8 @@ package com.my.demo.dlib;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -36,6 +36,7 @@ import com.my.core.protocol.IProgressBarView;
 import com.my.core.util.FileUtil;
 import com.my.core.util.ViewUtil;
 import com.my.demo.dlib.view.FaceLandmarksCameraView;
+import com.my.demo.dlib.view.FaceLandmarksImageView;
 import com.my.jni.dlib.FaceLandmarksDetector;
 import com.my.jni.dlib.data.Face;
 import com.tbruyelle.rxpermissions2.RxPermissions;
@@ -43,9 +44,9 @@ import com.tbruyelle.rxpermissions2.RxPermissions;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -58,8 +59,10 @@ import io.reactivex.functions.Function;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
-public class SampleOfLandmarksOnlyActivity extends AppCompatActivity
-    implements IProgressBarView {
+public class SampleOfLandmarksOnlyActivity
+    extends AppCompatActivity
+    implements IProgressBarView,
+               FaceLandmarksCameraView.OnCameraPreviewListener {
 
 //    private static final String ASSET_TEST_PHOTO = "boyw165-i-am-tyson-chandler.jpg";
     private static final String ASSET_TEST_PHOTO = "5-ppl.jpg";
@@ -70,6 +73,8 @@ public class SampleOfLandmarksOnlyActivity extends AppCompatActivity
     FloatingActionButton mBtnBack;
     @BindView(R.id.btn_take_photo)
     FloatingActionButton mBtnTakePhoto;
+    @BindView(R.id.landmarks_preview)
+    FaceLandmarksImageView mLandmarksPreview;
     @BindView(R.id.camera)
     FaceLandmarksCameraView mCameraPreview;
 
@@ -93,6 +98,8 @@ public class SampleOfLandmarksOnlyActivity extends AppCompatActivity
 
         // Init the face detector.
         mFaceDetector = new FaceLandmarksDetector();
+        mCameraPreview.setDetector(mFaceDetector);
+        mCameraPreview.setOnCameraPreviewListener(this);
     }
 
     @Override
@@ -100,15 +107,8 @@ public class SampleOfLandmarksOnlyActivity extends AppCompatActivity
         super.onResume();
 
         grantPermission()
-            .observeOn(AndroidSchedulers.mainThread())
-            // Open the camera.
-            .map(new Function<Boolean, Boolean>() {
-                @Override
-                public Boolean apply(Boolean granted) throws Exception {
-                    mCameraPreview.openCameraAsync();
-                    return granted;
-                }
-            })
+//            // Delay for waiting the layout process is finished.
+//            .delay(1000, TimeUnit.MILLISECONDS)
             // Start face landmarks detection.
             .flatMap(new Function<Boolean, ObservableSource<?>>() {
                 @Override
@@ -116,10 +116,33 @@ public class SampleOfLandmarksOnlyActivity extends AppCompatActivity
                     throws Exception {
                     if (granted) {
                         showProgressBar("Preparing the data...");
-                        return processFaceLandmarksDetection();
+                        return processFaceLandmarksDetection()
+                            .subscribeOn(Schedulers.io());
                     } else {
                         return Observable.just(0);
                     }
+                }
+            })
+            .observeOn(AndroidSchedulers.mainThread())
+            // Open the camera.
+            .map(new Function<Object, Object>() {
+                @Override
+                public Object apply(Object value) throws Exception {
+                    hideProgressBar();
+
+                    // Prepare the capturing rect.
+                    RectF rect = new RectF(
+                        0f, 0f,
+                        (float) mLandmarksPreview.getWidth() / mCameraPreview.getWidth(),
+                        (float) mLandmarksPreview.getHeight() / mCameraPreview.getHeight());
+                    rect.offset(
+                        (float) mLandmarksPreview.getLeft() / mCameraPreview.getWidth(),
+                        (float) mLandmarksPreview.getTop() / mCameraPreview.getHeight());
+
+                    // Open the camera.
+                    mCameraPreview.openCameraAsync(rect);
+
+                    return value;
                 }
             })
             .observeOn(AndroidSchedulers.mainThread())
@@ -131,7 +154,6 @@ public class SampleOfLandmarksOnlyActivity extends AppCompatActivity
 
                 @Override
                 public void onError(Throwable e) {
-                    hideProgressBar();
                 }
 
                 @Override
@@ -176,6 +198,14 @@ public class SampleOfLandmarksOnlyActivity extends AppCompatActivity
         ViewUtil.with(this)
                 .setProgressBarCancelable(false)
                 .showProgressBar(null);
+    }
+
+    @Override
+    public void onFaceLandmarksDetected(List<Face.Landmark> landmarks) {
+        List<Face> faces = new ArrayList<>();
+
+        faces.add(new Face(landmarks));
+        mLandmarksPreview.setFaces(faces);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -315,54 +345,6 @@ public class SampleOfLandmarksOnlyActivity extends AppCompatActivity
                     return params;
                 }
             });
-//            // Update progressbar message.
-//            .observeOn(AndroidSchedulers.mainThread())
-//            .map(new Function<DetectorParams, DetectorParams>() {
-//                @Override
-//                public DetectorParams apply(DetectorParams params) throws Exception {
-//                    showProgressBar("Detecting face and landmarks...");
-//                    return params;
-//                }
-//            })
-//            // Detect face and landmarks.
-//            .observeOn(Schedulers.io())
-//            .map(new Function<DetectorParams, List<Face>>() {
-//                @Override
-//                public List<Face> apply(DetectorParams params) throws Exception {
-//                    final BitmapFactory.Options options = new BitmapFactory.Options();
-//                    options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-//                    options.inJustDecodeBounds = true;
-//
-//                    // TODO: Make it a BitmapUtil function.
-//                    // Pyramid down the image.
-//                    BitmapFactory.decodeFile(params.testPhotoPath, options);
-//                    final float scale = Math.max((float) options.outWidth / 800f,
-//                                                 (float) options.outHeight / 800f);
-//                    if (scale > 1f) {
-//                        // Do logarithm with base 2 (not e).
-//                        options.inSampleSize = 1 << (int) (Math.log(Math.ceil(scale)) / Math.log(2));
-//                    }
-//                    options.inJustDecodeBounds = false;
-//                    final Bitmap resizedBitmap = BitmapFactory.decodeFile(
-//                        params.testPhotoPath,
-//                        options);
-//
-//                    return mFaceDetector.findFacesAndLandmarks(resizedBitmap);
-//                }
-//            })
-//            // Update message of the progress bar.
-//            .observeOn(AndroidSchedulers.mainThread())
-//            .map(new Function<List<Face>, Boolean>() {
-//                @Override
-//                public Boolean apply(List<Face> faces) throws Exception {
-//                    showProgressBar("Rendering...");
-//
-////                    // Render the landmarks.
-////                    mImgPreview.setFaces(faces);
-//
-//                    return true;
-//                }
-//            });
     }
 
     ///////////////////////////////////////////////////////////////////////////

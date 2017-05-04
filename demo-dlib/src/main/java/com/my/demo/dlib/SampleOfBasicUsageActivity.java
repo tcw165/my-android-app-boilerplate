@@ -109,7 +109,8 @@ public class SampleOfBasicUsageActivity extends AppCompatActivity
                     if (granted) {
                         showProgressBar("Preparing the data...");
                         // Start face landmarks detection.
-                        return processFaceLandmarksDetection();
+                        return processFaceLandmarksDetection()
+                            .subscribeOn(Schedulers.io());
                     } else {
                         return Observable.just(0);
                     }

@@ -22,19 +22,27 @@ package com.my.demo.dlib.view;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.RectF;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.TextureView;
 import android.widget.Toast;
 
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.my.core.util.CameraUtil;
 import com.my.demo.dlib.R;
+import com.my.jni.dlib.FaceLandmarksDetector;
+import com.my.jni.dlib.data.Face;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -45,20 +53,15 @@ public class FaceLandmarksCameraView
     extends TextureView
     implements TextureView.SurfaceTextureListener {
 
-    private static final String MODEL_FILE = "file:///android_asset/tensorflow_inception_graph.pb";
-    private static final String LABEL_FILE = "file:///android_asset/imagenet_comp_graph_label_strings.txt";
-    private static final int NUM_CLASSES = 1008;
-    private static final int INPUT_SIZE = 224;
-    private static final int IMAGE_MEAN = 117;
-    private static final float IMAGE_STD = 1;
-    private static final String INPUT_NAME = "input:0";
-    private static final String OUTPUT_NAME = "output:0";
-
     // State.
     int mCameraId;
     float mCameraPreviewAspectRatio;
+    int mCameraOrientation;
+    Camera.Size mCameraPreviewSize;
     boolean mIsPreviewing;
+    RectF mCaptureBound;
     Bitmap mBitmap;
+    Paint mPaint;
 
     static final String TAG = FaceLandmarksCameraView.class.getSimpleName();
     // Because the Camera.open and Camera.setPreviewTexture take 100ms
@@ -66,9 +69,10 @@ public class FaceLandmarksCameraView
     Handler mHandler;
     Timer mPredictTimer;
     Camera mCamera;
+    FaceLandmarksDetector mFaceDetector;
 
     // Callbacks.
-    OnImageClassifiedCallback mCallback;
+    OnCameraPreviewListener mCallback;
 
     public FaceLandmarksCameraView(Context context) {
         this(context, null);
@@ -77,6 +81,10 @@ public class FaceLandmarksCameraView
     public FaceLandmarksCameraView(Context context,
                                    AttributeSet attrs) {
         super(context, attrs);
+
+        mPaint = new Paint();
+        mPaint.setStyle(Paint.Style.STROKE);
+        mPaint.setColor(ContextCompat.getColor(context, R.color.pink));
     }
 
     @Override
@@ -126,12 +134,32 @@ public class FaceLandmarksCameraView
         // SurfaceTexture.updateTexImage().
     }
 
-    public void openCameraAsync() {
-        // TODO: Support face camera
-        openCameraAsync(0);
+    // FIXME: Doesn't work.
+    @Override
+    public void onDrawForeground(Canvas canvas) {
+        super.onDrawForeground(canvas);
+
+        canvas.drawRect(getLeft() + 100,
+                        getTop() + 100,
+                        getRight() - 100,
+                        getBottom() - 100,
+                        mPaint);
     }
 
-    public void openCameraAsync(final int cameraId) {
+    public void openCameraAsync(final RectF captureBound) {
+        // TODO: Support face camera
+        openCameraAsync(0, captureBound);
+    }
+
+    public void openCameraAsync(final int cameraId,
+                                final RectF captureBound) {
+        mCaptureBound = captureBound;
+
+//        // Ensure the bitmap buffer.
+//        mBitmap = Bitmap.createBitmap(mCaptureBound.width(),
+//                                      mCaptureBound.height(),
+//                                      Bitmap.Config.ARGB_8888);
+
         // Ensure the handler.
         ensureHandler();
         mHandler.post(new Runnable() {
@@ -192,7 +220,11 @@ public class FaceLandmarksCameraView
         }
     }
 
-    public void setOnClassifyPreviewListener(OnImageClassifiedCallback callback) {
+    public void setDetector(FaceLandmarksDetector faceDetector) {
+        mFaceDetector = faceDetector;
+    }
+
+    public void setOnCameraPreviewListener(OnCameraPreviewListener callback) {
         mCallback = callback;
     }
 
@@ -264,13 +296,14 @@ public class FaceLandmarksCameraView
 
         // Now that the size is known, set up the camera parameters and
         // begin the preview.
-        final int orientation = CameraUtil.getDisplayOrientation(mCameraId);
         final Camera.Parameters params = mCamera.getParameters();
-        final Camera.Size size = CameraUtil.getOptimalPreviewSize(mCamera,
-                                                                  orientation,
-                                                                  width,
-                                                                  height);
-        params.setPreviewSize(size.width, size.height);
+        mCameraOrientation = CameraUtil.getDisplayOrientation(mCameraId);
+        mCameraPreviewSize = CameraUtil.getOptimalPreviewSize(mCamera,
+                                                              mCameraOrientation,
+                                                              width,
+                                                              height);
+        params.setPreviewSize(mCameraPreviewSize.width,
+                              mCameraPreviewSize.height);
         mCamera.setParameters(params);
 
         // Resume the preview after updating the preview size.
@@ -285,16 +318,17 @@ public class FaceLandmarksCameraView
             // TODO: Detect the orientation change automatically.
             // It must be called after the surface is created and before
             // the Camera#startPreview.
-            final int orientation = CameraUtil.getOptimalDisplayOrientation(getContext(),
+            mCameraOrientation = CameraUtil.getOptimalDisplayOrientation(getContext(),
                                                                             mCameraId);
             mCamera.setPreviewTexture(getSurfaceTexture());
-            mCamera.setDisplayOrientation(orientation);
+            mCamera.setDisplayOrientation(mCameraOrientation);
             // Find the most fit preview size.
-            Camera.Size size = CameraUtil.getOptimalPreviewSize(mCamera,
-                                                                orientation,
+            mCameraPreviewSize = CameraUtil.getOptimalPreviewSize(mCamera,
+                                                                  mCameraOrientation,
                                                                 getWidth(),
                                                                 getHeight());
-            mCameraPreviewAspectRatio = (float) size.width / size.height;
+            mCameraPreviewAspectRatio = (float) mCameraPreviewSize.width /
+                                        mCameraPreviewSize.height;
             // Request layout update in the UI thread.
             post(new Runnable() {
                 @Override
@@ -323,29 +357,14 @@ public class FaceLandmarksCameraView
 
     synchronized void startTimer() {
         try {
-//            mClassifier = TensorFlowImageClassifier.create(
-//                getContext().getAssets(),
-//                MODEL_FILE,
-//                LABEL_FILE,
-//                NUM_CLASSES,
-//                INPUT_SIZE,
-//                IMAGE_MEAN,
-//                IMAGE_STD,
-//                INPUT_NAME,
-//                OUTPUT_NAME);
-
-            if (mBitmap == null) {
-                mBitmap = Bitmap.createBitmap(INPUT_SIZE, INPUT_SIZE, Bitmap.Config.ARGB_8888);
-            }
-
             if (mPredictTimer == null) {
-                final int INTERVAL = 1000;
+                final int INTERVAL = 2000;
                 mPredictTimer = new Timer();
                 mPredictTimer.scheduleAtFixedRate(
                     new TimerTask() {
                         @Override
                         public void run() {
-                            predictCameraPreviewAsync();
+                            detectCameraPreviewAsync();
                         }
                     },
                     INTERVAL,
@@ -362,14 +381,14 @@ public class FaceLandmarksCameraView
             mPredictTimer = null;
         }
 
-        try {
+//        try {
 //            if (mClassifier != null) {
 //                mClassifier.close();
 //                mClassifier = null;
 //            }
-        } catch (Exception e) {
-            // DO NOTHING.
-        }
+//        } catch (Exception e) {
+//            // DO NOTHING.
+//        }
 
         if (mBitmap != null) {
             mBitmap.recycle();
@@ -377,7 +396,7 @@ public class FaceLandmarksCameraView
         }
     }
 
-    synchronized void predictCameraPreviewAsync() {
+    synchronized void detectCameraPreviewAsync() {
         if (mHandler == null) return;
 
         mHandler.post(new Runnable() {
@@ -385,41 +404,53 @@ public class FaceLandmarksCameraView
             public void run() {
                 if (!isAvailable()) return;
 //                if (mClassifier == null) return;
-                if (mBitmap == null) return;
+//                if (mBitmap == null) return;
+                if (mCaptureBound.width() == 0 ||
+                    mCaptureBound.height() == 0) return;
 
                 // Get the current preview.
-                getBitmap(mBitmap);
+//                final Bitmap fullBitmap = getBitmap(mCameraPreviewSize.width / 4,
+//                                                    mCameraPreviewSize.height / 4);
+                final Bitmap fullBitmap = getBitmap();
+//                final Bitmap fixedBitmap = BitmapUtil.rotateBitmap(
+//                    fullBitmap, mCameraOrientation);
+                Log.d("xyz", "Ready to detect landmarks (w=" + fullBitmap.getWidth() +
+                             ", h=" + fullBitmap.getHeight() + ")");
+//                final Bitmap faceBitmap = Bitmap.createBitmap(
+//                    fullBitmap,
+//                    (int) (mCaptureBound.left * fullBitmap.getWidth()),
+//                    (int) (mCaptureBound.top * fullBitmap.getHeight()),
+//                    (int) (mCaptureBound.width() * fullBitmap.getWidth()),
+//                    (int) (mCaptureBound.height() * fullBitmap.getHeight()));
 
-//                try {
-//                    final List<Recognition> results = mClassifier.recognizeImage(mBitmap);
-//                    if (results != null && !results.isEmpty()) {
-//                        String description = "";
-//                        for (int i = 0; i < results.size(); ++i) {
-//                            description += results.get(i).getTitle() +
-//                                           "(" + results.get(i).getConfidence() + ")";
-//
-//                            if (i < results.size() - 1) {
-//                                description += ", ";
-//                            }
-//                        }
-//                        dispatchCallback(description);
-//                        Log.d("xyz", "this is " + description);
-//                    }
-//                } catch (Throwable ignored) {
-//                    Log.d("xyz", "error: " + ignored.toString());
-//                }
+                try {
+                    // Feed the face bitmap to the detector.
+//                    final List<Face.Landmark> landmarks = mFaceDetector
+//                        .findLandmarksInFace(faceBitmap);
+                    final List<Face.Landmark> landmarks = mFaceDetector
+                        .findLandmarksInFace(fullBitmap);
+
+                    // Emit the result.
+                    dispatchOnFaceLandmarksDetected(landmarks);
+                } catch (InvalidProtocolBufferException error) {
+                    Log.w("xyz", error.getMessage());
+                }
+
+                fullBitmap.recycle();
+//                fixedBitmap.recycle();
+//                faceBitmap.recycle();
             }
         });
     }
 
-    void dispatchCallback(final String description) {
+    void dispatchOnFaceLandmarksDetected(final List<Face.Landmark> landmarks) {
         // Update on the UI thread.
         post(new Runnable() {
             @Override
             public void run() {
                 if (mCallback == null) return;
 
-                mCallback.onImageClassified(description);
+                mCallback.onFaceLandmarksDetected(landmarks);
             }
         });
     }
@@ -427,8 +458,8 @@ public class FaceLandmarksCameraView
     ///////////////////////////////////////////////////////////////////////////
     // Clazz //////////////////////////////////////////////////////////////////
 
-    // TODO: Should be independent.
-    public interface OnImageClassifiedCallback {
-        void onImageClassified(String description);
+    public interface OnCameraPreviewListener {
+
+        void onFaceLandmarksDetected(List<Face.Landmark> landmarks);
     }
 }

@@ -61,6 +61,10 @@ dependencies {
     compile "io.reactivex.rxjava2:rxjava:2.0.1"
     // Rx-Permissions.
     compile "com.tbruyelle.rxpermissions2:rxpermissions:0.8.2@aar"
+    // Rx-Binding.
+    compile "com.jakewharton.rxbinding2:rxbinding:2.0.0"
+    // Rx-Camera.
+//    compile "com.ragnarok.rxcamera:lib:0.0.5"
 
     // View Binding.
     def BUTTER_KNIFE_VER = "8.5.1"

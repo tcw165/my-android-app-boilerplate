@@ -217,6 +217,7 @@ JNI_METHOD(detectFaces)(JNIEnv *env,
 // TODO: Complete it.
 extern "C" JNIEXPORT jbyteArray JNICALL
 JNI_METHOD(detectLandmarksInFace)(JNIEnv *env,
+                                  jobject thiz,
                                   jobject bitmap) {
     // Profiler.
     Profiler profiler;
@@ -244,14 +245,14 @@ JNI_METHOD(detectLandmarksInFace)(JNIEnv *env,
 
     profiler.start();
     // Protobuf message.
-    Face face;
+    LandmarkList landmarks;
     // You get the idea, you can get all the face part locations if
     // you want them.  Here we just store them in shapes so we can
     // put them on the screen.
     for (unsigned long i = 0 ; i < shape.num_parts(); ++i) {
         dlib::point& pt = shape.part(i);
 
-        Landmark* landmark = face.add_landmarks();
+        Landmark* landmark = landmarks.add_landmarks();
         landmark->set_x((float) pt.x() / width);
         landmark->set_y((float) pt.y() / height);
     }
@@ -262,12 +263,14 @@ JNI_METHOD(detectLandmarksInFace)(JNIEnv *env,
     // Profiler.
     profiler.start();
 
+    // TODO: Make a JNI function to convert a message to byte[] living in
+    // TODO: lib-protobuf project.
     // Prepare the return message.
-    int outSize = face.ByteSize();
+    int outSize = landmarks.ByteSize();
     jbyteArray out = env->NewByteArray(outSize);
     jbyte* buffer = new jbyte[outSize];
 
-    face.SerializeToArray(buffer, outSize);
+    landmarks.SerializeToArray(buffer, outSize);
     env->SetByteArrayRegion(out, 0, outSize, buffer);
     delete[] buffer;
 

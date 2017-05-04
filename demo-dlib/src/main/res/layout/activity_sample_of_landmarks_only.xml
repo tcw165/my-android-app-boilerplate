@@ -7,17 +7,6 @@
     android:layout_height="match_parent"
     tools:context=".SampleOfLandmarksOnlyActivity">
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/btn_back"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        app:backgroundTint="@color/white"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/icon_toolbar_close"/>
-
     <com.my.demo.dlib.view.FaceLandmarksCameraView
         android:id="@+id/camera"
         android:layout_width="0dp"
@@ -27,12 +16,35 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
+    <com.my.demo.dlib.view.FaceLandmarksImageView
+        android:id="@+id/landmarks_preview"
+        android:layout_width="240dp"
+        android:layout_height="320dp"
+        android:background="@drawable/bg_bordered_rect_55c3c5"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/btn_back"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:backgroundTint="@color/white"
+        app:elevation="4dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/icon_toolbar_close"/>
+
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/btn_take_photo"
         android:layout_width="72dp"
         android:layout_height="72dp"
         android:layout_marginBottom="16dp"
         app:backgroundTint="@color/white"
+        app:elevation="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
