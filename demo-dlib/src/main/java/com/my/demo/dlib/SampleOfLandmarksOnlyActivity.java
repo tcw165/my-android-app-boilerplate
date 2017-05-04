@@ -24,7 +24,9 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -98,7 +100,7 @@ public class SampleOfLandmarksOnlyActivity
     FaceLandmarksDetector mFaceDetector;
 
     // Data.
-    Rect mFaceBound;
+    RectF mFaceBound;
     byte[] mData;
 
     @Override
@@ -149,11 +151,11 @@ public class SampleOfLandmarksOnlyActivity
                     hideProgressBar();
 
                     // Prepare the capturing rect.
-                    mFaceBound = new Rect(
-                        mFaceBoundView.getLeft(),
-                        mFaceBoundView.getTop(),
-                        mFaceBoundView.getRight(),
-                        mFaceBoundView.getBottom());
+                    mFaceBound = new RectF(
+                        (float) mFaceBoundView.getLeft() / mCameraView.getWidth(),
+                        (float) mFaceBoundView.getTop() / mCameraView.getHeight(),
+                        (float) mFaceBoundView.getRight() / mCameraView.getWidth(),
+                        (float) mFaceBoundView.getBottom() / mCameraView.getHeight());
 
                     // Open the camera.
                     mCameraView.start();
@@ -170,6 +172,7 @@ public class SampleOfLandmarksOnlyActivity
 
                 @Override
                 public void onError(Throwable e) {
+                    hideProgressBar();
                 }
 
                 @Override
@@ -218,30 +221,88 @@ public class SampleOfLandmarksOnlyActivity
 
     @Override
     public boolean handleMessage(Message msg) {
+        if (!mCameraView.isCameraOpened()) return true;
+
         switch (msg.what) {
             case MSG_TAKE_PHOTO:
                 // Will lead to onPictureTaken callback.
                 mCameraView.takePicture();
                 return true;
             case MSG_DETECT_LANDMARKS:
-                final Bitmap fullBitmap = BitmapFactory
-                    .decodeByteArray(mData, 0, mData.length);
+                final BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inSampleSize = 4;
+
+                final Bitmap rawBitmap = BitmapFactory
+                    .decodeByteArray(mData, 0, mData.length, options);
+                // Optimized bitmap.
+                Bitmap optBitmap;
+
+                // FIXME: It's a workaround because I can't get rotation info
+                // FIXME: from the CameraView.
+                if (mCameraView.getFacing() == CameraView.FACING_FRONT) {
+                    final int bw = rawBitmap.getWidth();
+                    final int bh = rawBitmap.getHeight();
+                    final Matrix matrix = new Matrix();
+
+                    // Flip vertically.
+                    matrix.postScale(1, -1, bw / 2, bh / 2);
+                    // Adjust the width and height because shape of buffer
+                    // doesn't match of the visible shape.
+                    final int vw = mCameraView.getWidth();
+                    final int vh = mCameraView.getHeight();
+                    final float scale = Math.min((float) bw / vw,
+                                                 (float) bh / vh);
+
+                    optBitmap = Bitmap.createBitmap(rawBitmap, 0, 0,
+                                                    (int) (scale * vw),
+                                                    (int) (scale * vh),
+                                                    matrix, true);
+                } else {
+                    optBitmap = Bitmap.createBitmap(rawBitmap, 0, 0,
+                                                    rawBitmap.getWidth(),
+                                                    rawBitmap.getHeight());
+                }
 
                 try {
+                    // Do landmarks detection only
                     // Call detector JNI.
+                    final int bw = optBitmap.getWidth();
+                    final int bh = optBitmap.getHeight();
+                    final Rect bound = new Rect(
+                        (int) (mFaceBound.left * bw),
+                        (int) (mFaceBound.top * bh),
+                        (int) (mFaceBound.right * bw),
+                        (int) (mFaceBound.bottom * bh));
                     final List<Face.Landmark> landmarks =
-                        mFaceDetector.findLandmarksInFace(fullBitmap, mFaceBound);
+                        mFaceDetector.findLandmarksInFace(optBitmap, bound);
 
                     // Display the landmarks.
                     List<Face> faces = new ArrayList<>();
                     faces.add(new Face(landmarks));
-                    mLandmarksPreview.setFaces(faces);
+                    if (mLandmarksPreview != null) {
+                        mLandmarksPreview.setFaces(faces);
+                    }
+
+//                    // Do face detection and then landmarks detection.
+//                    // Call detector JNI.
+//                    final List<Face> faces =
+//                        mFaceDetector.findFacesAndLandmarks(optBitmap);
+//
+//                    // Display the faces.
+//                    if (mLandmarksPreview != null) {
+//                        mLandmarksPreview.setFaces(faces);
+//                    }
                 } catch (InvalidProtocolBufferException err) {
                     Log.e("xyz", err.getMessage());
                 }
 
+                optBitmap.recycle();
+                rawBitmap.recycle();
+
                 // Schedule next take-photo.
-                mDetectorHandler.sendEmptyMessage(MSG_TAKE_PHOTO);
+                if (mCameraView.isCameraOpened()) {
+                    mDetectorHandler.sendEmptyMessageDelayed(MSG_TAKE_PHOTO, 200);
+                }
                 return true;
         }
 
@@ -275,7 +336,7 @@ public class SampleOfLandmarksOnlyActivity
                                                SampleOfLandmarksOnlyActivity.this);
 
                 // Take photo after a short delay.
-                mDetectorHandler.sendEmptyMessageDelayed(MSG_TAKE_PHOTO, 550);
+                mDetectorHandler.sendEmptyMessageDelayed(MSG_TAKE_PHOTO, 1000);
             }
 
             @Override
@@ -292,29 +353,6 @@ public class SampleOfLandmarksOnlyActivity
 
                 mData = data;
                 mDetectorHandler.sendEmptyMessage(MSG_DETECT_LANDMARKS);
-//                getBackgroundHandler().post(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        File file = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES),
-//                                             "picture.jpg");
-//                        OutputStream os = null;
-//                        try {
-//                            os = new FileOutputStream(file);
-//                            os.write(data);
-//                            os.close();
-//                        } catch (IOException e) {
-//                            Log.w("xyz", "Cannot write to " + file, e);
-//                        } finally {
-//                            if (os != null) {
-//                                try {
-//                                    os.close();
-//                                } catch (IOException e) {
-//                                    // Ignore
-//                                }
-//                            }
-//                        }
-//                    }
-//                });
             }
         };
 
@@ -424,6 +462,7 @@ public class SampleOfLandmarksOnlyActivity
             .map(new Function<DetectorParams, DetectorParams>() {
                 @Override
                 public DetectorParams apply(DetectorParams params) throws Exception {
+                    hideProgressBar();
                     showProgressBar("Initializing face detectors...");
                     return params;
                 }
