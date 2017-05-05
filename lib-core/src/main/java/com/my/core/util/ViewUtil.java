@@ -62,7 +62,9 @@ public class ViewUtil {
         if (mProgress.get() == null) return;
 
         mProgress.get().setMessage(message);
-        mProgress.get().show();
+        if (!mProgress.get().isShowing()) {
+            mProgress.get().show();
+        }
     }
 
     /**
@@ -71,14 +73,17 @@ public class ViewUtil {
     public void hideProgressBar() {
         if (mProgress.get() == null) return;
 
-        mProgress.get().hide();
+        if (mProgress.get().isShowing()) {
+            mProgress.get().hide();
+        }
     }
 
     /**
      * Hide the progress bar when some process is done.
      */
     public void updateProgress(int progress) {
-        if (mProgress.get() == null) return;
+        if (mProgress.get() == null ||
+            !mProgress.get().isShowing()) return;
 
         mProgress.get().setProgress(progress);
     }

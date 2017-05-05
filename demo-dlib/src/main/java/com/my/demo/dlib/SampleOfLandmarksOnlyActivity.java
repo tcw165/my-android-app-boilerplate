@@ -25,7 +25,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Build;
 import android.os.Bundle;
@@ -48,13 +47,11 @@ import com.my.core.util.ViewUtil;
 import com.my.demo.dlib.view.FaceLandmarksImageView;
 import com.my.jni.dlib.FaceLandmarksDetector68;
 import com.my.jni.dlib.data.Face;
-import com.my.jni.dlib.data.Face68;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -64,6 +61,7 @@ import butterknife.Unbinder;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Function;
 import io.reactivex.observers.DisposableObserver;
@@ -103,6 +101,7 @@ public class SampleOfLandmarksOnlyActivity
     // Data.
     RectF mFaceBound;
     byte[] mData;
+    CompositeDisposable mComposition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,63 +126,78 @@ public class SampleOfLandmarksOnlyActivity
     protected void onResume() {
         super.onResume();
 
-        grantPermission()
-//            // Delay for waiting the layout process is finished.
-//            .delay(1000, TimeUnit.MILLISECONDS)
-            // Start face landmarks detection.
-            .flatMap(new Function<Boolean, ObservableSource<?>>() {
-                @Override
-                public ObservableSource<?> apply(Boolean granted)
-                    throws Exception {
-                    if (granted) {
-                        showProgressBar("Preparing the data...");
-                        return processFaceLandmarksDetection()
-                            .subscribeOn(Schedulers.io());
-                    } else {
-                        return Observable.just(0);
+        mComposition = new CompositeDisposable();
+        mComposition.add(
+            grantPermission()
+//                // Delay for waiting the layout process is finished.
+//                .delay(1000, TimeUnit.MILLISECONDS)
+                // Show the progress-bar.
+                .map(new Function<Boolean, Boolean>() {
+                    @Override
+                    public Boolean apply(Boolean granted) throws Exception {
+                        if (granted) {
+                            showProgressBar("Preparing the data...");
+                        }
+                        return granted;
                     }
-                }
-            })
-            .observeOn(AndroidSchedulers.mainThread())
-            // Open the camera.
-            .map(new Function<Object, Object>() {
-                @Override
-                public Object apply(Object value) throws Exception {
-                    // Prepare the capturing rect.
-                    mFaceBound = new RectF(
-                        (float) mFaceBoundView.getLeft() / mCameraView.getWidth(),
-                        (float) mFaceBoundView.getTop() / mCameraView.getHeight(),
-                        (float) mFaceBoundView.getRight() / mCameraView.getWidth(),
-                        (float) mFaceBoundView.getBottom() / mCameraView.getHeight());
+                })
+                // Face landmarks detection.
+                .flatMap(new Function<Boolean, ObservableSource<?>>() {
+                    @Override
+                    public ObservableSource<?> apply(Boolean granted)
+                        throws Exception {
+                        if (granted) {
+                            return processFaceLandmarksDetection()
+                                .subscribeOn(Schedulers.io());
+                        } else {
+                            return Observable.just(0);
+                        }
+                    }
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                // Open the camera.
+                .map(new Function<Object, Object>() {
+                    @Override
+                    public Object apply(Object value) throws Exception {
+                        // Prepare the capturing rect.
+                        mFaceBound = new RectF(
+                            (float) mFaceBoundView.getLeft() / mCameraView.getWidth(),
+                            (float) mFaceBoundView.getTop() / mCameraView.getHeight(),
+                            (float) mFaceBoundView.getRight() / mCameraView.getWidth(),
+                            (float) mFaceBoundView.getBottom() / mCameraView.getHeight());
 
-                    // Open the camera.
-                    mCameraView.start();
+                        // Open the camera.
+                        mCameraView.start();
 
-                    return value;
-                }
-            })
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(new DisposableObserver<Object>() {
-                @Override
-                public void onNext(Object value) {
-                    // DO NOTHING.
-                }
+                        return value;
+                    }
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableObserver<Object>() {
+                    @Override
+                    public void onNext(Object value) {
+                        hideProgressBar();
+                    }
 
-                @Override
-                public void onError(Throwable e) {
-                    hideProgressBar();
-                }
+                    @Override
+                    public void onError(Throwable e) {
+                        hideProgressBar();
+                    }
 
-                @Override
-                public void onComplete() {
-                    hideProgressBar();
-                }
-            });
+                    @Override
+                    public void onComplete() {
+                        hideProgressBar();
+                    }
+                }));
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+
+        hideProgressBar();
+
+        mComposition.clear();
 
         // Close camera.
         mCameraView.stop();
@@ -199,7 +213,6 @@ public class SampleOfLandmarksOnlyActivity
 
     @Override
     public void showProgressBar(String msg) {
-        hideProgressBar();
         ViewUtil
             .with(this)
             .setProgressBarCancelable(false)

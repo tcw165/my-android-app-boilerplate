@@ -38,7 +38,6 @@ import com.my.core.util.ViewUtil;
 import com.my.demo.dlib.view.FaceLandmarksImageView;
 import com.my.jni.dlib.FaceLandmarksDetector68;
 import com.my.jni.dlib.data.Face;
-import com.my.jni.dlib.data.Face68;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.io.File;
@@ -54,6 +53,7 @@ import butterknife.Unbinder;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Function;
 import io.reactivex.observers.DisposableObserver;
@@ -78,6 +78,9 @@ public class SampleOfBasicUsageActivity extends AppCompatActivity
     // Face Detector.
     FaceLandmarksDetector68 mFaceDetector;
 
+    // Data.
+    CompositeDisposable mComposition;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,44 +104,70 @@ public class SampleOfBasicUsageActivity extends AppCompatActivity
 
         // Init the face detector.
         mFaceDetector = new FaceLandmarksDetector68();
-        grantPermission()
-            .observeOn(AndroidSchedulers.mainThread())
-            .flatMap(new Function<Boolean, ObservableSource<?>>() {
-                @Override
-                public ObservableSource<?> apply(Boolean granted)
-                    throws Exception {
-                    if (granted) {
-                        showProgressBar("Preparing the data...");
-                        // Start face landmarks detection.
-                        return processFaceLandmarksDetection()
-                            .subscribeOn(Schedulers.io());
-                    } else {
-                        return Observable.just(0);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        mComposition = new CompositeDisposable();
+        mComposition.add(
+            grantPermission()
+                .observeOn(AndroidSchedulers.mainThread())
+                // Show the progress-bar.
+                .map(new Function<Boolean, Boolean>() {
+                    @Override
+                    public Boolean apply(Boolean granted) throws Exception {
+                        if (granted) {
+                            showProgressBar("Preparing the data...");
+                        }
+                        return granted;
                     }
-                }
-            })
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(new DisposableObserver<Object>() {
-                @Override
-                public void onNext(Object value) {
+                })
+                // Face landmarks detection.
+                .flatMap(new Function<Boolean, ObservableSource<?>>() {
+                    @Override
+                    public ObservableSource<?> apply(Boolean granted)
+                        throws Exception {
+                        if (granted) {
+                            // Start face landmarks detection.
+                            return processFaceLandmarksDetection()
+                                .subscribeOn(Schedulers.io());
+                        } else {
+                            return Observable.just(0);
+                        }
+                    }
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableObserver<Object>() {
+                    @Override
+                    public void onNext(Object value) {
+                        hideProgressBar();
+                    }
 
-                }
+                    @Override
+                    public void onError(Throwable e) {
+                        hideProgressBar();
+                    }
 
-                @Override
-                public void onError(Throwable e) {
-                    hideProgressBar();
-                }
+                    @Override
+                    public void onComplete() {
+                        hideProgressBar();
+                    }
+                }));
+    }
 
-                @Override
-                public void onComplete() {
-                    hideProgressBar();
-                }
-            });
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        mComposition.clear();
+
+        hideProgressBar();
     }
 
     @Override
     public void showProgressBar() {
-        hideProgressBar();
         ViewUtil
             .with(this)
             .setProgressBarCancelable(false)
