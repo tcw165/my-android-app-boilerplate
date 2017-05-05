@@ -27,25 +27,25 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Face68 extends Face {
 
-    private static final int CHIN_START = 1;
+    private static final int CHIN_START = 0;
     private static final int CHIN_END = 16;
 
-    private static final int EYEBROW_L_START = 18;
+    private static final int EYEBROW_L_START = 17;
     private static final int EYEBROW_L_END = 21;
-    private static final int EYEBROW_R_START = 23;
+    private static final int EYEBROW_R_START = 22;
     private static final int EYEBROW_R_END = 26;
 
     private static final int NOSE_START = 28;
     private static final int NOSE_END = 35;
 
-    private static final int EYE_L_START = 37;
+    private static final int EYE_L_START = 36;
     private static final int EYE_L_END = 41;
-    private static final int EYE_R_START = 43;
+    private static final int EYE_R_START = 42;
     private static final int EYE_R_END = 47;
 
-    private static final int LIPS_OUTER_START = 49;
+    private static final int LIPS_OUTER_START = 48;
     private static final int LIPS_OUTER_END = 59;
-    private static final int LIPS_INNER_START = 61;
+    private static final int LIPS_INNER_START = 60;
     private static final int LIPS_INNER_END = 67;
 
     private final RectF mBound = new RectF();

@@ -221,7 +221,7 @@ public class SampleOfLandmarksOnlyActivity
 
     @Override
     public boolean handleMessage(Message msg) {
-        if (!mCameraView.isCameraOpened()) return true;
+        if (!mCameraView.isCameraOpened() || isFinishing()) return true;
 
         switch (msg.what) {
             case MSG_TAKE_PHOTO:
