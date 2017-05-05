@@ -29,6 +29,7 @@ import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 
 import com.my.jni.dlib.data.Face;
+import com.my.jni.dlib.data.Face68;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -86,7 +87,7 @@ public class FaceLandmarksImageView extends AppCompatImageView {
             // The normalized face.
             final Face nFace = mNormalizedFaces.get(i);
             // The denormalized face.
-            final Face dFace = new Face(nFace, bound.width(), bound.height());
+            final Face dFace = new Face68(nFace, bound.width(), bound.height());
 
             mDenormalizedFaces.add(dFace);
         }

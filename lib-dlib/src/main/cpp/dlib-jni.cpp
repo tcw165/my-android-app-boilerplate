@@ -32,7 +32,7 @@
   ((void)__android_log_print(ANDROID_LOG_INFO, "dlib-jni:", __VA_ARGS__))
 
 #define JNI_METHOD(NAME) \
-    Java_com_my_jni_dlib_FaceLandmarksDetector_##NAME
+    Java_com_my_jni_dlib_FaceLandmarksDetector68_##NAME
 
 using namespace ::com::my::jni::dlib::data;
 
@@ -82,7 +82,7 @@ void convertBitmapToArray2d(JNIEnv* env,
 
 // JNI ////////////////////////////////////////////////////////////////////////
 
-dlib::shape_predictor sFaceLandmarksPredictor;
+dlib::shape_predictor sFaceLandmarksDetector;
 dlib::frontal_face_detector sFaceDetector;
 
 extern "C" JNIEXPORT jboolean JNICALL
@@ -98,7 +98,7 @@ JNI_METHOD(isFaceDetectorReady)(JNIEnv* env,
 extern "C" JNIEXPORT jboolean JNICALL
 JNI_METHOD(isFaceLandmarksDetectorReady)(JNIEnv* env,
                                          jobject thiz) {
-    if (sFaceLandmarksPredictor.num_parts() > 0) {
+    if (sFaceLandmarksDetector.num_parts() > 0) {
         return JNI_TRUE;
     } else {
         return JNI_FALSE;
@@ -136,14 +136,18 @@ JNI_METHOD(prepareFaceLandmarksDetector)(JNIEnv *env,
     // loading the model from the shape_predictor_68_face_landmarks.dat file you gave
     // as a command line argument.
     // Deserialize the shape detector.
-    dlib::deserialize(path) >> sFaceLandmarksPredictor;
+    dlib::deserialize(path) >> sFaceLandmarksDetector;
 
     double interval = profiler.stopAndGetInterval();
 
-    LOGI("L%d: sFaceLandmarksPredictor is initialized (took %.3f ms)", __LINE__, interval);
-    LOGI("L%d: sFaceLandmarksPredictor.num_parts()=%lu", __LINE__, sFaceLandmarksPredictor.num_parts());
+    LOGI("L%d: sFaceLandmarksDetector is initialized (took %.3f ms)", __LINE__, interval);
+    LOGI("L%d: sFaceLandmarksDetector.num_parts()=%lu", __LINE__, sFaceLandmarksDetector.num_parts());
 
     env->ReleaseStringUTFChars(detectorPath, path);
+
+    if (sFaceLandmarksDetector.num_parts() != 68) {
+        throwException(env, "It's not a 68 landmarks detector!");
+    }
 }
 
 extern "C" JNIEXPORT jbyteArray JNICALL
@@ -242,7 +246,7 @@ JNI_METHOD(detectLandmarksInFace)(JNIEnv *env,
 
     // Detect landmarks.
     dlib::rectangle bound(left, top, right, bottom);
-    dlib::full_object_detection shape = sFaceLandmarksPredictor(img, bound);
+    dlib::full_object_detection shape = sFaceLandmarksDetector(img, bound);
     interval = profiler.stopAndGetInterval();
     LOGI("L%d: %lu landmarks detected (took %.3f ms)",
          __LINE__, shape.num_parts(), interval);
@@ -294,9 +298,9 @@ JNI_METHOD(detectFacesAndLandmarks)(JNIEnv *env,
         throwException(env, "sFaceDetector is not initialized!");
         return NULL;
     }
-    if (sFaceLandmarksPredictor.num_parts() == 0) {
-        LOGI("L%d: sFaceLandmarksPredictor is not initialized!", __LINE__);
-        throwException(env, "sFaceLandmarksPredictor is not initialized!");
+    if (sFaceLandmarksDetector.num_parts() == 0) {
+        LOGI("L%d: sFaceLandmarksDetector is not initialized!", __LINE__);
+        throwException(env, "sFaceLandmarksDetector is not initialized!");
         return NULL;
     }
 
@@ -334,7 +338,7 @@ JNI_METHOD(detectFacesAndLandmarks)(JNIEnv *env,
     // each face we detected.
     for (unsigned long j = 0; j < dets.size(); ++j) {
         profiler.start();
-        dlib::full_object_detection shape = sFaceLandmarksPredictor(img, dets[j]);
+        dlib::full_object_detection shape = sFaceLandmarksDetector(img, dets[j]);
         interval = profiler.stopAndGetInterval();
         LOGI("L%d: #%lu face, %lu landmarks detected (took %.3f ms)",
              __LINE__, j, shape.num_parts(), interval);

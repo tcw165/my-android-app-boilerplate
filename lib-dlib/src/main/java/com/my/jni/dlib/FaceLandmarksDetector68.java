@@ -26,14 +26,15 @@ import android.util.Log;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.my.jni.dlib.data.Face;
+import com.my.jni.dlib.data.Face68;
 import com.my.jni.dlib.data.Messages;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class FaceLandmarksDetector {
+public class FaceLandmarksDetector68 {
 
-    public FaceLandmarksDetector() {
+    public FaceLandmarksDetector68() {
         // TODO: Load library in worker thread?
         try {
             System.loadLibrary("c++_shared");
@@ -85,8 +86,28 @@ public class FaceLandmarksDetector {
         }
     }
 
+    public List<Face> findFaces(Bitmap bitmap)
+        throws InvalidProtocolBufferException {
+
+        // Call detector JNI.
+        final byte[] rawData = detectFaces(bitmap);
+        final Messages.FaceList rawFaces = Messages.FaceList.parseFrom(rawData);
+        Log.d("xyz", "Detect " + rawFaces.getFacesCount() + " faces.");
+
+        // Convert raw data to my data structure.
+        final List<Face> faces = new ArrayList<>();
+        for (int i = 0; i < rawFaces.getFacesCount(); ++i) {
+            final Messages.Face rawFace = rawFaces.getFaces(i);
+            final Face face  = new Face68(rawFace);
+
+            faces.add(face);
+        }
+
+        return faces;
+    }
+
     public List<Face.Landmark> findLandmarksInFace(Bitmap bitmap,
-                                                   Rect bound)
+                                                     Rect bound)
         throws InvalidProtocolBufferException {
         // Call detector JNI.
         final byte[] rawData = detectLandmarksInFace(
@@ -118,7 +139,7 @@ public class FaceLandmarksDetector {
         final List<Face> faces = new ArrayList<>();
         for (int i = 0; i < rawFaces.getFacesCount(); ++i) {
             final Messages.Face rawFace = rawFaces.getFaces(i);
-            final Face face = new Face(rawFace);
+            final Face face = new Face68(rawFace);
             Log.d("xyz", "Face #" + i + "=" + face);
 
             faces.add(face);
@@ -150,7 +171,7 @@ public class FaceLandmarksDetector {
      * Detect all the faces from the given photo.
      *
      * @param bitmap The photo.
-     * @return The byte array of serialized {@link List<Face>}.
+     * @return The byte array of serialized {@link List< Face >}.
      */
     private native byte[] detectFaces(Bitmap bitmap);
 
@@ -173,7 +194,7 @@ public class FaceLandmarksDetector {
      * are both initialized. Otherwise a {@link RuntimeException} would be fired.
      *
      * @param bitmap The bitmap.
-     * @return The byte array of serialized {@link List<Face>}.
+     * @return The byte array of serialized {@link List< Face >}.
      */
     private native byte[] detectFacesAndLandmarks(Bitmap bitmap);
 }

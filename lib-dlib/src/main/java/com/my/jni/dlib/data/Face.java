@@ -23,107 +23,28 @@ package com.my.jni.dlib.data;
 import android.graphics.RectF;
 
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
-public class Face {
+public abstract class Face {
 
-    private final RectF mBound = new RectF();
-    private final List<Landmark> mLandmarks = new CopyOnWriteArrayList<>();
+    public abstract RectF getBound();
 
-    public Face(Messages.Face rawFace) {
-        // Bound.
-        mBound.set(rawFace.getBound().getLeft(),
-                   rawFace.getBound().getTop(),
-                   rawFace.getBound().getRight(),
-                   rawFace.getBound().getBottom());
+    public abstract List<Landmark> getAllLandmarks();
 
-        // Landmarks.
-        for (int i = 0; i < rawFace.getLandmarksCount(); ++i) {
-            Messages.Landmark rawLandmark = rawFace.getLandmarks(i);
+    public abstract List<Landmark> getLeftEyebrowLandmarks();
 
-            mLandmarks.add(new Landmark(rawLandmark));
-        }
-    }
+    public abstract List<Landmark> getRightEyebrowLandmarks();
 
-    public Face(Face other) {
-        this(other, 1f, 1f);
-    }
+    public abstract List<Landmark> getLeftEyeLandmarks();
 
-    public Face(Face other, float scaleX, float scaleY) {
-        // Bound.
-        mBound.set(other.getBound().left * scaleX,
-                   other.getBound().top * scaleY,
-                   other.getBound().right * scaleX,
-                   other.getBound().bottom * scaleY);
+    public abstract List<Landmark> getRightEyeLandmarks();
 
-        // Landmarks.
-        for (int i = 0; i < other.getAllLandmarks().size(); ++i) {
-            final Face.Landmark landmark = other.getAllLandmarks().get(i);
-            mLandmarks.add(new Face.Landmark(
-                landmark.x * scaleX,
-                landmark.y * scaleY));
-        }
-    }
+    public abstract List<Landmark> getNoseLandmarks();
 
-    public Face(List<Landmark> landmarks) {
-        // Landmarks.
-        mLandmarks.clear();
-        mLandmarks.addAll(landmarks);
+    public abstract List<Landmark> getInnerLipsLandmarks();
 
-        // Calculate bound by the given landmarks.
-        float left = Float.MAX_VALUE;
-        float top = Float.MAX_VALUE;
-        float right = Float.MIN_VALUE;
-        float bottom = Float.MIN_VALUE;
-        for (int i = 0; i < landmarks.size(); ++i) {
-            final Face.Landmark landmark = landmarks.get(i);
+    public abstract List<Landmark> getOuterLipsLandmarks();
 
-            left = Math.min(left, landmark.x);
-            top = Math.min(top, landmark.y);
-            right = Math.max(right, landmark.x);
-            bottom = Math.max(bottom, landmark.y);
-        }
-        mBound.set(left, top, right, bottom);
-    }
-
-    public RectF getBound() {
-        return mBound;
-    }
-
-    public void setAllLandmarks(List<Landmark> landmarks) {
-        mLandmarks.clear();
-        mLandmarks.addAll(landmarks);
-    }
-
-    public List<Landmark> getAllLandmarks() {
-        return mLandmarks;
-    }
-
-    // TODO: Figure out what points are eyebrows, nose, mouth and chin.
-
-    public List<Landmark> getEyebrowsLandmarks() {
-        return null;
-    }
-
-    public List<Landmark> getNoseLandmarks() {
-        return null;
-    }
-
-    public List<Landmark> getMouthLandmarks() {
-        return null;
-    }
-
-    public List<Landmark> getChinLandmarks() {
-        return null;
-    }
-
-    @Override
-    public String toString() {
-        return "Face{" +
-               "mBound=" + mBound +
-               ", mLandmarks=" + mLandmarks +
-               '}';
-    }
+    public abstract List<Landmark> getChinLandmarks();
 
     ///////////////////////////////////////////////////////////////////////////
     // Clazz //////////////////////////////////////////////////////////////////

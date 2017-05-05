@@ -46,8 +46,9 @@ import com.my.core.protocol.IProgressBarView;
 import com.my.core.util.FileUtil;
 import com.my.core.util.ViewUtil;
 import com.my.demo.dlib.view.FaceLandmarksImageView;
-import com.my.jni.dlib.FaceLandmarksDetector;
+import com.my.jni.dlib.FaceLandmarksDetector68;
 import com.my.jni.dlib.data.Face;
+import com.my.jni.dlib.data.Face68;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.io.File;
@@ -97,7 +98,7 @@ public class SampleOfLandmarksOnlyActivity
 
     // Face Detector.
     Handler mDetectorHandler;
-    FaceLandmarksDetector mFaceDetector;
+    FaceLandmarksDetector68 mFaceDetector;
 
     // Data.
     RectF mFaceBound;
@@ -119,7 +120,7 @@ public class SampleOfLandmarksOnlyActivity
         mCameraView.addCallback(mCameraCallback);
 
         // Init the face detector.
-        mFaceDetector = new FaceLandmarksDetector();
+        mFaceDetector = new FaceLandmarksDetector68();
     }
 
     @Override
@@ -148,8 +149,6 @@ public class SampleOfLandmarksOnlyActivity
             .map(new Function<Object, Object>() {
                 @Override
                 public Object apply(Object value) throws Exception {
-                    hideProgressBar();
-
                     // Prepare the capturing rect.
                     mFaceBound = new RectF(
                         (float) mFaceBoundView.getLeft() / mCameraView.getWidth(),
@@ -200,6 +199,7 @@ public class SampleOfLandmarksOnlyActivity
 
     @Override
     public void showProgressBar(String msg) {
+        hideProgressBar();
         ViewUtil
             .with(this)
             .setProgressBarCancelable(false)
@@ -264,34 +264,34 @@ public class SampleOfLandmarksOnlyActivity
                 }
 
                 try {
-                    // Do landmarks detection only
-                    // Call detector JNI.
-                    final int bw = optBitmap.getWidth();
-                    final int bh = optBitmap.getHeight();
-                    final Rect bound = new Rect(
-                        (int) (mFaceBound.left * bw),
-                        (int) (mFaceBound.top * bh),
-                        (int) (mFaceBound.right * bw),
-                        (int) (mFaceBound.bottom * bh));
-                    final List<Face.Landmark> landmarks =
-                        mFaceDetector.findLandmarksInFace(optBitmap, bound);
-
-                    // Display the landmarks.
-                    List<Face> faces = new ArrayList<>();
-                    faces.add(new Face(landmarks));
-                    if (mLandmarksPreview != null) {
-                        mLandmarksPreview.setFaces(faces);
-                    }
-
-//                    // Do face detection and then landmarks detection.
+//                    // Do landmarks detection only
 //                    // Call detector JNI.
-//                    final List<Face> faces =
-//                        mFaceDetector.findFacesAndLandmarks(optBitmap);
+//                    final int bw = optBitmap.getWidth();
+//                    final int bh = optBitmap.getHeight();
+//                    final Rect bound = new Rect(
+//                        (int) (mFaceBound.left * bw),
+//                        (int) (mFaceBound.top * bh),
+//                        (int) (mFaceBound.right * bw),
+//                        (int) (mFaceBound.bottom * bh));
+//                    final List<Face.Landmark> landmarks =
+//                        mFaceDetector.findLandmarksInFace(optBitmap, bound);
 //
-//                    // Display the faces.
+//                    // Display the landmarks.
+//                    List<Face> faces = new ArrayList<>();
+//                    faces.add(new Face68(landmarks));
 //                    if (mLandmarksPreview != null) {
 //                        mLandmarksPreview.setFaces(faces);
 //                    }
+
+                    // Do face detection and then landmarks detection.
+                    // Call detector JNI.
+                    final List<Face> faces =
+                        mFaceDetector.findFacesAndLandmarks(optBitmap);
+
+                    // Display the faces.
+                    if (mLandmarksPreview != null) {
+                        mLandmarksPreview.setFaces(faces);
+                    }
                 } catch (InvalidProtocolBufferException err) {
                     Log.e("xyz", err.getMessage());
                 }
@@ -462,7 +462,6 @@ public class SampleOfLandmarksOnlyActivity
             .map(new Function<DetectorParams, DetectorParams>() {
                 @Override
                 public DetectorParams apply(DetectorParams params) throws Exception {
-                    hideProgressBar();
                     showProgressBar("Initializing face detectors...");
                     return params;
                 }

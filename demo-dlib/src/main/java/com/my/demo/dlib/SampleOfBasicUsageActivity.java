@@ -36,8 +36,9 @@ import com.my.core.protocol.IProgressBarView;
 import com.my.core.util.FileUtil;
 import com.my.core.util.ViewUtil;
 import com.my.demo.dlib.view.FaceLandmarksImageView;
-import com.my.jni.dlib.FaceLandmarksDetector;
+import com.my.jni.dlib.FaceLandmarksDetector68;
 import com.my.jni.dlib.data.Face;
+import com.my.jni.dlib.data.Face68;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.io.File;
@@ -75,7 +76,7 @@ public class SampleOfBasicUsageActivity extends AppCompatActivity
     Unbinder mUnbinder;
 
     // Face Detector.
-    FaceLandmarksDetector mFaceDetector;
+    FaceLandmarksDetector68 mFaceDetector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,7 +100,7 @@ public class SampleOfBasicUsageActivity extends AppCompatActivity
              .into(mImgPreview);
 
         // Init the face detector.
-        mFaceDetector = new FaceLandmarksDetector();
+        mFaceDetector = new FaceLandmarksDetector68();
         grantPermission()
             .observeOn(AndroidSchedulers.mainThread())
             .flatMap(new Function<Boolean, ObservableSource<?>>() {
@@ -137,6 +138,7 @@ public class SampleOfBasicUsageActivity extends AppCompatActivity
 
     @Override
     public void showProgressBar() {
+        hideProgressBar();
         ViewUtil
             .with(this)
             .setProgressBarCancelable(false)
