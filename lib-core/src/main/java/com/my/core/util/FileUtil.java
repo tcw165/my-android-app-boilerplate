@@ -26,6 +26,13 @@ import java.io.OutputStream;
 
 public class FileUtil {
 
+    /**
+     * Copy input {@link InputStream} to output {@link OutputStream}.
+     *
+     * @param input The input stream.
+     * @param output The output stream.
+     * @throws IOException
+     */
     public static void copy(InputStream input,
                             OutputStream output)
         throws IOException {

@@ -27,7 +27,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
-import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Environment;
 import android.util.Log;
 
@@ -72,65 +71,14 @@ public class DlibModelHelper {
         return sSingleton;
     }
 
-    public static void checkDownloadTask(final DownloadManager downloadManager,
-                                         final long taskId,
-                                         final Subject<File> subject) {
-        if (downloadManager == null || subject == null) return;
-
-        Observable
-            .fromCallable(new Callable<Boolean>() {
-                @Override
-                public Boolean call() throws Exception {
-                    // The task cursor.
-                    final Cursor cursor = downloadManager.query(
-                        new DownloadManager.Query().setFilterById(taskId));
-
-                    if (cursor != null && cursor.moveToFirst()) {
-                        try {
-                            final int statusCol = cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS);
-                            final int uriCol = cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_LOCAL_URI);
-
-                            if (DownloadManager.STATUS_SUCCESSFUL == cursor.getInt(statusCol)) {
-                                final File file = new File(Uri.parse(cursor.getString(uriCol))
-                                                              .getPath());
-                                Log.d("xyz", "" + file + " is downloaded.");
-                                subject.onNext(file);
-                                subject.onComplete();
-                            }
-                        } catch (Throwable err) {
-                            // Remove the task from DownloadManager.
-                            downloadManager.remove(taskId);
-
-                            subject.onError(err);
-                        } finally {
-                            cursor.close();
-                        }
-                    } else {
-                        // Remove the task from DownloadManager.
-                        downloadManager.remove(taskId);
-
-                        subject.onError(new RuntimeException("Empty cursor."));
-                    }
-
-                    return true;
-                }
-            })
-            .subscribeOn(Schedulers.io())
-            .doOnError(new Consumer<Throwable>() {
-                @Override
-                public void accept(Throwable err)
-                    throws Exception {
-                    subject.onError(err);
-                }
-            })
-            .subscribe();
-    }
-
     public Observable<File> downloadFace68Model(final Context context,
                                                 final String dirName) {
+        // Get DownloadManager
         final DownloadManager downloadManager = (DownloadManager)
             context.getSystemService(Context.DOWNLOAD_SERVICE);
+        // Get the task ID from shared-preference.
         long downloadId = PrefUtil.getLong(context, PREF_KEY_FACE68_ZIP);
+        // Create a subject for later emitting the download status.
         final PublishSubject<File> subject = PublishSubject.create();
 
         if (downloadId == -1) {
@@ -140,18 +88,18 @@ public class DlibModelHelper {
             // Set the task in the share-preference.
             Log.d("xyz", "Set new downloadId=" + downloadId);
             PrefUtil.setLong(context, PREF_KEY_FACE68_ZIP, downloadId);
-        } else {
-            checkDownloadTask(downloadManager, downloadId, subject);
         }
 
         // Register a new download broadcast receiver.
         final DownloadStatusReceiver receiver = new DownloadStatusReceiver(downloadId, subject);
         IntentFilter intentFilter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
         context.registerReceiver(receiver, intentFilter);
+        Log.d("xyz", "Register the download broadcast receiver.");
 
-        return subject
-            // Because the chain would be cut off in onPause, I need to clear
-            // the registered broadcast receiver.
+        // Create a cold observable subscribing to the download subject.
+        final Observable<File> ob = subject
+            // Unregister the broadcast receiver once the stream chain is
+            // disposed.
             .doOnDispose(new Action() {
                 @Override
                 public void run() throws Exception {
@@ -195,6 +143,17 @@ public class DlibModelHelper {
                     return unpackFile;
                 }
             });
+
+        if (downloadId != -1) {
+            // Check the download task if the task ID is present:
+            // Case 1. The download is completed already. Calling this function
+            //         make the subject emit the result.
+            // Case 2. The download is yet completed. However, I register a
+            //         broadcast receiver. Calling this function won't harm.
+            checkDownloadTask(downloadManager, downloadId, subject);
+        }
+
+        return ob;
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -204,6 +163,64 @@ public class DlibModelHelper {
         // DO NOTHING.
     }
 
+    private static void checkDownloadTask(final DownloadManager downloadManager,
+                                          final long taskId,
+                                          final Subject<File> subject) {
+        if (downloadManager == null || subject == null) return;
+
+        Observable
+            .fromCallable(new Callable<Boolean>() {
+                @Override
+                public Boolean call() throws Exception {
+                    // The task cursor.
+                    final Cursor cursor = downloadManager.query(
+                        new DownloadManager.Query().setFilterById(taskId));
+
+                    if (cursor != null && cursor.moveToFirst()) {
+                        try {
+                            final int statusCol = cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS);
+                            final int uriCol = cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_LOCAL_URI);
+
+                            if (DownloadManager.STATUS_SUCCESSFUL == cursor.getInt(statusCol)) {
+                                final File file = new File(Uri.parse(cursor.getString(uriCol))
+                                                              .getPath());
+                                Log.d("xyz", "" + file + " is downloaded.");
+                                subject.onNext(file);
+                                subject.onComplete();
+                            }
+                        } catch (Throwable err) {
+                            // Remove the task from DownloadManager.
+                            downloadManager.remove(taskId);
+
+                            subject.onError(err);
+                        } finally {
+                            cursor.close();
+                        }
+                    } else {
+                        // Remove the task from DownloadManager.
+                        downloadManager.remove(taskId);
+
+                        subject.onError(new RuntimeException("Empty cursor."));
+                    }
+
+                    return true;
+                }
+            })
+            .subscribeOn(Schedulers.io())
+            // Capture any error where the callable block doesn't catch.
+            .doOnError(new Consumer<Throwable>() {
+                @Override
+                public void accept(Throwable err)
+                    throws Exception {
+                    subject.onError(err);
+                }
+            })
+            .subscribe();
+    }
+
+    /**
+     * Get {@link DownloadManager.Request} for getting face68 model.
+     */
     private DownloadManager.Request getFace68Request(final String dirName) {
         return new DownloadManager.Request(Uri.parse(BASE_URL + FACE68_ZIP_FILE))
             .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,
@@ -218,7 +235,7 @@ public class DlibModelHelper {
     ///////////////////////////////////////////////////////////////////////////
     // Clazz //////////////////////////////////////////////////////////////////
 
-    // TODO: Refactor this in case too many services registered.
+    // TODO: Refactor this in case of that too many services are registered.
     private static class DownloadStatusReceiver extends BroadcastReceiver {
 
         private final long mTaskId;
