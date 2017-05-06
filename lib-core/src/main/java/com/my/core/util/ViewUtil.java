@@ -32,6 +32,7 @@ public class ViewUtil {
 
     private final WeakReference<ProgressDialog> mProgress;
 
+    // FIXME: It's not a good pattern and is reference-leak prone.
     /**
      * Because view stuff follows the lifecycle of the {@code Activity}. You are
      * asked to pass the {@code Context} to the static method to generate the

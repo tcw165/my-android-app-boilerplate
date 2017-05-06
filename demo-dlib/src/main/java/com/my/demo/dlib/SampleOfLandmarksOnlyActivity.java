@@ -21,6 +21,7 @@
 package com.my.demo.dlib;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -41,7 +42,6 @@ import android.view.View;
 import com.google.android.cameraview.CameraView;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.my.core.protocol.IProgressBarView;
-import com.my.core.util.ViewUtil;
 import com.my.demo.dlib.util.DlibModelHelper;
 import com.my.demo.dlib.view.FaceLandmarksImageView;
 import com.my.jni.dlib.FaceLandmarksDetector68;
@@ -85,6 +85,7 @@ public class SampleOfLandmarksOnlyActivity
     FaceLandmarksImageView mLandmarksPreview;
     @BindView(R.id.camera)
     CameraView mCameraView;
+    ProgressDialog mProgressDialog;
 
     // Butter Knife.
     Unbinder mUnbinder;
@@ -106,6 +107,9 @@ public class SampleOfLandmarksOnlyActivity
 
         // Init view binding.
         mUnbinder = ButterKnife.bind(this);
+
+        // The progress bar.
+        mProgressDialog = new ProgressDialog(this);
 
         // Back button.
         mBtnBack.setOnClickListener(onClickToBack());
@@ -196,31 +200,27 @@ public class SampleOfLandmarksOnlyActivity
 
     @Override
     public void showProgressBar() {
-        ViewUtil
-            .with(this)
-            .setProgressBarCancelable(false)
-            .showProgressBar(getString(R.string.loading));
+        mProgressDialog.setCancelable(false);
+        mProgressDialog.setMessage(getString(R.string.loading));
+        mProgressDialog.show();
     }
 
     @Override
     public void showProgressBar(String msg) {
-        ViewUtil
-            .with(this)
-            .setProgressBarCancelable(false)
-            .showProgressBar(msg);
+        mProgressDialog.setCancelable(false);
+        mProgressDialog.setMessage(msg);
+        mProgressDialog.show();
     }
 
     @Override
     public void hideProgressBar() {
-        ViewUtil.with(this)
-                .hideProgressBar();
+        mProgressDialog.hide();
     }
 
     @Override
     public void updateProgress(int progress) {
-        ViewUtil.with(this)
-                .setProgressBarCancelable(false)
-                .showProgressBar(null);
+        mProgressDialog.setProgress(progress);
+        mProgressDialog.show();
     }
 
     @Override
