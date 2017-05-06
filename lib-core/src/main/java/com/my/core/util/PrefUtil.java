@@ -18,16 +18,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.boilerplate.util;
+package com.my.core.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.my.boilerplate.R;
-
 public class PrefUtil {
 
-    public final static String PREF_AVATAR_IMAGE_PATH = "avatar_image_path";
+    public static long getLong(final Context context,
+                                 final String key) {
+        final SharedPreferences prefs = getPrefs(context);
+
+        return prefs.getLong(key, -1);
+    }
+
+    public static void setLong(final Context context,
+                               final String key,
+                               final long value) {
+        final SharedPreferences prefs = getPrefs(context);
+
+        prefs.edit()
+             .putLong(key, value)
+             .apply();
+    }
 
     public static String getString(final Context context,
                                    final String key) {

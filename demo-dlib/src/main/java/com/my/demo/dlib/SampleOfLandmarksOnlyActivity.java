@@ -128,20 +128,18 @@ public class SampleOfLandmarksOnlyActivity
                 .map(new Function<Boolean, Boolean>() {
                     @Override
                     public Boolean apply(Boolean granted) throws Exception {
-                        if (granted) {
-                            showProgressBar("Preparing the data...");
-                        }
+                        showProgressBar("Preparing the model...");
                         return granted;
                     }
                 })
                 // Face landmarks detection.
+                .observeOn(Schedulers.io())
                 .flatMap(new Function<Boolean, ObservableSource<?>>() {
                     @Override
                     public ObservableSource<?> apply(Boolean granted)
                         throws Exception {
                         if (granted) {
-                            return processFaceLandmarksDetection()
-                                .subscribeOn(Schedulers.io());
+                            return startFaceLandmarksDetection();
                         } else {
                             return Observable.just(false);
                         }
@@ -395,10 +393,12 @@ public class SampleOfLandmarksOnlyActivity
         }
     }
 
-    private Observable<?> processFaceLandmarksDetection() {
+    private Observable<?> startFaceLandmarksDetection() {
         return DlibModelHelper
             .getService()
+            // Download the trained model.
             .downloadFace68Model(
+                this,
                 getApplicationContext().getPackageName())
             // Update progressbar message.
             .observeOn(AndroidSchedulers.mainThread())
@@ -415,6 +415,11 @@ public class SampleOfLandmarksOnlyActivity
                 @Override
                 public Boolean apply(File face68ModelPath)
                     throws Exception {
+                    if (face68ModelPath == null || !face68ModelPath.exists()) {
+                        throw new RuntimeException(
+                            "The face68 model is invalid.");
+                    }
+
                     if (!mFaceDetector.isFaceDetectorReady()) {
                         mFaceDetector.prepareFaceDetector();
                     }

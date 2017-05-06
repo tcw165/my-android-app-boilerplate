@@ -30,6 +30,8 @@ import android.os.Environment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.my.core.protocol.IProgressBarView;
@@ -117,23 +119,21 @@ public class SampleOfBasicUsageActivity extends AppCompatActivity
                 .map(new Function<Boolean, Boolean>() {
                     @Override
                     public Boolean apply(Boolean granted) throws Exception {
-                        if (granted) {
-                            showProgressBar("Downloading the model...");
-                        }
+                        showProgressBar("Downloading the model...");
                         return granted;
                     }
                 })
                 // Face landmarks detection.
+                .observeOn(Schedulers.io())
                 .flatMap(new Function<Boolean, ObservableSource<?>>() {
                     @Override
                     public ObservableSource<?> apply(Boolean granted)
                         throws Exception {
                         if (granted) {
                             // Start face landmarks detection.
-                            return processFaceLandmarksDetection()
-                                .subscribeOn(Schedulers.io());
+                            return startFaceLandmarksDetection();
                         } else {
-                            return Observable.just(0);
+                            return Observable.just(false);
                         }
                     }
                 })
@@ -146,7 +146,13 @@ public class SampleOfBasicUsageActivity extends AppCompatActivity
 
                     @Override
                     public void onError(Throwable e) {
+                        Log.e("xyz", e.getMessage());
+
                         hideProgressBar();
+
+                        Toast.makeText(SampleOfBasicUsageActivity.this,
+                                       e.getMessage(), Toast.LENGTH_SHORT)
+                             .show();
                     }
 
                     @Override
@@ -223,17 +229,14 @@ public class SampleOfBasicUsageActivity extends AppCompatActivity
         }
     }
 
-    private Observable<Boolean> processFaceLandmarksDetection() {
-        final String dirName = getApplicationContext().getPackageName();
-        final File dir = Environment.getExternalStoragePublicDirectory(
-            Environment.DIRECTORY_DOWNLOADS + "/" + dirName);
-
+    private Observable<Boolean> startFaceLandmarksDetection() {
         return Observable
             .zip(
-                // Prepare the shape detector.
+                // Download the trained model.
                 DlibModelHelper
                     .getService()
                     .downloadFace68Model(
+                        this,
                         getApplicationContext().getPackageName()),
                 // Prepare the testing photo.
                 Observable
@@ -241,6 +244,10 @@ public class SampleOfBasicUsageActivity extends AppCompatActivity
                         @Override
                         public File call()
                             throws Exception {
+                            final String dirName = getApplicationContext().getPackageName();
+                            final File dir = Environment.getExternalStoragePublicDirectory(
+                                Environment.DIRECTORY_DOWNLOADS + "/" + dirName);
+
                             if (dir.mkdirs() || dir.isDirectory()) {
                                 final File savedFile = new File(dir, ASSET_TEST_PHOTO);
 
