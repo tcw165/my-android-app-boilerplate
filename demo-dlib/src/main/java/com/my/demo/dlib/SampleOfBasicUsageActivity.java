@@ -35,6 +35,7 @@ import com.bumptech.glide.Glide;
 import com.my.core.protocol.IProgressBarView;
 import com.my.core.util.FileUtil;
 import com.my.core.util.ViewUtil;
+import com.my.demo.dlib.util.DlibModelHelper;
 import com.my.demo.dlib.view.FaceLandmarksImageView;
 import com.my.jni.dlib.FaceLandmarksDetector68;
 import com.my.jni.dlib.data.Face;
@@ -62,9 +63,7 @@ import io.reactivex.schedulers.Schedulers;
 public class SampleOfBasicUsageActivity extends AppCompatActivity
     implements IProgressBarView {
 
-//    private static final String ASSET_TEST_PHOTO = "boyw165-i-am-tyson-chandler.jpg";
-    private static final String ASSET_TEST_PHOTO = "5-ppl.jpg";
-    private static final String ASSET_SHAPE_DETECTOR_DATA = "shape_predictor_68_face_landmarks.dat";
+    private static final String ASSET_TEST_PHOTO = "boyw165-i-am-tyson-chandler.jpg";
 
     // View.
     @BindView(R.id.toolbar)
@@ -119,7 +118,7 @@ public class SampleOfBasicUsageActivity extends AppCompatActivity
                     @Override
                     public Boolean apply(Boolean granted) throws Exception {
                         if (granted) {
-                            showProgressBar("Preparing the data...");
+                            showProgressBar("Downloading the model...");
                         }
                         return granted;
                     }
@@ -230,67 +229,48 @@ public class SampleOfBasicUsageActivity extends AppCompatActivity
             Environment.DIRECTORY_DOWNLOADS + "/" + dirName);
 
         return Observable
-            .zip(Observable
-                     // Prepare the shape detector.
-                     .fromCallable(new Callable<String>() {
-                         @Override
-                         public String call()
-                             throws Exception {
-                             if (dir.mkdirs() || dir.isDirectory()) {
-                                 final File savedFile = new File(dir, ASSET_SHAPE_DETECTOR_DATA);
+            .zip(
+                // Prepare the shape detector.
+                DlibModelHelper
+                    .getService()
+                    .downloadFace68Model(
+                        getApplicationContext().getPackageName()),
+                // Prepare the testing photo.
+                Observable
+                    .fromCallable(new Callable<File>() {
+                        @Override
+                        public File call()
+                            throws Exception {
+                            if (dir.mkdirs() || dir.isDirectory()) {
+                                final File savedFile = new File(dir, ASSET_TEST_PHOTO);
 
-                                 // Copy asset to external disk.
-                                 if (!savedFile.exists() && savedFile.createNewFile()) {
-                                     FileUtil.copy(getAssets().open(ASSET_SHAPE_DETECTOR_DATA),
-                                                   new FileOutputStream(savedFile));
-                                 }
+                                // Copy asset to external disk.
+                                if (!savedFile.exists() && savedFile.createNewFile()) {
+                                    FileUtil.copy(getAssets().open(ASSET_TEST_PHOTO),
+                                                  new FileOutputStream(savedFile));
+                                }
 
-                                 return savedFile.getAbsolutePath();
-                             } else {
-                                 throw new IOException(
-                                     String.format("Cannot copy %s to %s",
-                                                   ASSET_SHAPE_DETECTOR_DATA,
-                                                   dir.getAbsolutePath()));
-                             }
-                         }
-                     })
-                     .subscribeOn(Schedulers.io()),
-                 // Prepare the testing photo.
-                 Observable
-                     .fromCallable(new Callable<String>() {
-                         @Override
-                         public String call()
-                             throws Exception {
-                             if (dir.mkdirs() || dir.isDirectory()) {
-                                 final File savedFile = new File(dir, ASSET_TEST_PHOTO);
-
-                                 // Copy asset to external disk.
-                                 if (!savedFile.exists() && savedFile.createNewFile()) {
-                                     FileUtil.copy(getAssets().open(ASSET_TEST_PHOTO),
-                                                   new FileOutputStream(savedFile));
-                                 }
-
-                                 return savedFile.getAbsolutePath();
-                             } else {
-                                 throw new IOException(
-                                     String.format("Cannot copy %s to %s",
-                                                   ASSET_SHAPE_DETECTOR_DATA,
-                                                   dir.getAbsolutePath()));
-                             }
-                         }
-                     })
-                     .subscribeOn(Schedulers.io()),
-                 // Create the detector parameter.
-                 new BiFunction<String, String, DetectorParams>() {
-                     @Override
-                     public DetectorParams apply(String shapeDetectorPath,
-                                                 String testPhotoPath)
-                         throws Exception {
-                         return new DetectorParams(
-                             shapeDetectorPath,
-                             testPhotoPath);
-                     }
-                 })
+                                return savedFile;
+                            } else {
+                                throw new IOException(
+                                    String.format("Cannot copy %s to %s",
+                                                  ASSET_TEST_PHOTO,
+                                                  dir.getAbsolutePath()));
+                            }
+                        }
+                    })
+                    .subscribeOn(Schedulers.io()),
+                // Create the detector parameter.
+                new BiFunction<File, File, DetectorParams>() {
+                    @Override
+                    public DetectorParams apply(File modelFile,
+                                                File testPhotoFile)
+                        throws Exception {
+                        return new DetectorParams(
+                            modelFile.getAbsolutePath(),
+                            testPhotoFile.getAbsolutePath());
+                    }
+                })
             .subscribeOn(Schedulers.io())
             // FIXME: A workaround to make sure the drawable is ready before
             // FIXME: the detection starts.

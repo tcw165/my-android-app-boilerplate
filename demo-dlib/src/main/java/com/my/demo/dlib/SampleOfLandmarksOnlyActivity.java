@@ -28,7 +28,6 @@ import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -42,18 +41,15 @@ import android.view.View;
 import com.google.android.cameraview.CameraView;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.my.core.protocol.IProgressBarView;
-import com.my.core.util.FileUtil;
 import com.my.core.util.ViewUtil;
+import com.my.demo.dlib.util.DlibModelHelper;
 import com.my.demo.dlib.view.FaceLandmarksImageView;
 import com.my.jni.dlib.FaceLandmarksDetector68;
 import com.my.jni.dlib.data.Face;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -62,7 +58,6 @@ import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Function;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
@@ -129,8 +124,6 @@ public class SampleOfLandmarksOnlyActivity
         mComposition = new CompositeDisposable();
         mComposition.add(
             grantPermission()
-//                // Delay for waiting the layout process is finished.
-//                .delay(1000, TimeUnit.MILLISECONDS)
                 // Show the progress-bar.
                 .map(new Function<Boolean, Boolean>() {
                     @Override
@@ -150,7 +143,7 @@ public class SampleOfLandmarksOnlyActivity
                             return processFaceLandmarksDetection()
                                 .subscribeOn(Schedulers.io());
                         } else {
-                            return Observable.just(0);
+                            return Observable.just(false);
                         }
                     }
                 })
@@ -403,97 +396,34 @@ public class SampleOfLandmarksOnlyActivity
     }
 
     private Observable<?> processFaceLandmarksDetection() {
-        final String dirName = getApplicationContext().getPackageName();
-        final File dir = Environment.getExternalStoragePublicDirectory(
-            Environment.DIRECTORY_DOWNLOADS + "/" + dirName);
-
-        return Observable
-            .zip(Observable
-                     // Prepare the shape detector.
-                     .fromCallable(new Callable<String>() {
-                         @Override
-                         public String call()
-                             throws Exception {
-                             if (dir.mkdirs() || dir.isDirectory()) {
-                                 final File savedFile = new File(dir, ASSET_SHAPE_DETECTOR_DATA);
-
-                                 // Copy asset to external disk.
-                                 if (!savedFile.exists() && savedFile.createNewFile()) {
-                                     FileUtil.copy(getAssets().open(ASSET_SHAPE_DETECTOR_DATA),
-                                                   new FileOutputStream(savedFile));
-                                 }
-
-                                 return savedFile.getAbsolutePath();
-                             } else {
-                                 throw new IOException(
-                                     String.format("Cannot copy %s to %s",
-                                                   ASSET_SHAPE_DETECTOR_DATA,
-                                                   dir.getAbsolutePath()));
-                             }
-                         }
-                     })
-                     .subscribeOn(Schedulers.io()),
-                 // Prepare the testing photo.
-                 Observable
-                     .fromCallable(new Callable<String>() {
-                         @Override
-                         public String call()
-                             throws Exception {
-                             if (dir.mkdirs() || dir.isDirectory()) {
-                                 final File savedFile = new File(dir, ASSET_TEST_PHOTO);
-
-                                 // Copy asset to external disk.
-                                 if (!savedFile.exists() && savedFile.createNewFile()) {
-                                     FileUtil.copy(getAssets().open(ASSET_TEST_PHOTO),
-                                                   new FileOutputStream(savedFile));
-                                 }
-
-                                 return savedFile.getAbsolutePath();
-                             } else {
-                                 throw new IOException(
-                                     String.format("Cannot copy %s to %s",
-                                                   ASSET_SHAPE_DETECTOR_DATA,
-                                                   dir.getAbsolutePath()));
-                             }
-                         }
-                     })
-                     .subscribeOn(Schedulers.io()),
-                 // Create the detector parameter.
-                 new BiFunction<String, String, DetectorParams>() {
-                     @Override
-                     public DetectorParams apply(String shapeDetectorPath,
-                                                 String testPhotoPath)
-                         throws Exception {
-                         return new DetectorParams(
-                             shapeDetectorPath,
-                             testPhotoPath);
-                     }
-                 })
-            .subscribeOn(Schedulers.io())
+        return DlibModelHelper
+            .getService()
+            .downloadFace68Model(
+                getApplicationContext().getPackageName())
             // Update progressbar message.
             .observeOn(AndroidSchedulers.mainThread())
-            .map(new Function<DetectorParams, DetectorParams>() {
+            .map(new Function<File, File>() {
                 @Override
-                public DetectorParams apply(DetectorParams params) throws Exception {
+                public File apply(File face68ModelPath) throws Exception {
                     showProgressBar("Initializing face detectors...");
-                    return params;
+                    return face68ModelPath;
                 }
             })
             // Deserialize the detector.
             .observeOn(Schedulers.io())
-            .map(new Function<DetectorParams, DetectorParams>() {
+            .map(new Function<File, Boolean>() {
                 @Override
-                public DetectorParams apply(DetectorParams params)
+                public Boolean apply(File face68ModelPath)
                     throws Exception {
                     if (!mFaceDetector.isFaceDetectorReady()) {
                         mFaceDetector.prepareFaceDetector();
                     }
                     if (!mFaceDetector.isFaceLandmarksDetectorReady()) {
                         mFaceDetector.prepareFaceLandmarksDetector(
-                            params.shapeDetectorPath);
+                            face68ModelPath.getAbsolutePath());
                     }
 
-                    return params;
+                    return true;
                 }
             });
     }

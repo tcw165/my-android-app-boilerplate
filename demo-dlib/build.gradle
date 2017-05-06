@@ -65,8 +65,12 @@ dependencies {
     compile "com.tbruyelle.rxpermissions2:rxpermissions:0.8.2@aar"
     // Rx-Binding.
     compile "com.jakewharton.rxbinding2:rxbinding:2.0.0"
-    // Rx-Camera.
-//    compile "com.ragnarok.rxcamera:lib:0.0.5"
+    // Rx-HTTP.
+    def RETROFIT_VER = "2.2.0"
+    compile "com.squareup.retrofit2:retrofit:${RETROFIT_VER}"
+    compile "com.squareup.retrofit2:adapter-rxjava2:2.2.0"
+    compile "com.squareup.retrofit2:converter-gson:${RETROFIT_VER}"
+    compile "com.squareup.okhttp3:okhttp:3.6.0"
 
     // View Binding.
     def BUTTER_KNIFE_VER = "8.5.1"

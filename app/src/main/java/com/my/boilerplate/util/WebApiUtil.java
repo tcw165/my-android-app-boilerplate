@@ -46,18 +46,17 @@ public class WebApiUtil {
 
     public static WebApiUtil with(final Context context) {
         if (sSingleton == null) {
-            sSingleton = new WebApiUtil(context.getApplicationContext());
+            synchronized (WebApiUtil.class) {
+                if (sSingleton == null) {
+                    sSingleton = new WebApiUtil(context.getApplicationContext());
+                }
+            }
         }
 
         return sSingleton;
     }
 
     ///////////////////////////////////////////////////////////////////////////
-
-    /**
-     * The application context.
-     */
-    private final Context mContext;
 
     /**
      * The weak reference pointed to the activity that supports
@@ -100,7 +99,6 @@ public class WebApiUtil {
             .build();
 
         // FIXME: Might introduce the memory leak.
-        mContext = context;
         mWhateverApiServ = mServiceFactory.create(IWhateverApiService.class);
     }
 

@@ -20,8 +20,6 @@
 
 package com.my.core.util;
 
-import android.content.Context;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -31,11 +29,16 @@ public class FileUtil {
     public static void copy(InputStream input,
                             OutputStream output)
         throws IOException {
-        byte[] buffer = new byte[1024];
-        int read;
+        try {
+            byte[] buffer = new byte[4096];
+            int read;
 
-        while ((read = input.read(buffer)) != -1) {
-            output.write(buffer, 0, read);
+            while ((read = input.read(buffer)) != -1) {
+                output.write(buffer, 0, read);
+            }
+        } finally {
+            input.close();
+            output.close();
         }
     }
 }
