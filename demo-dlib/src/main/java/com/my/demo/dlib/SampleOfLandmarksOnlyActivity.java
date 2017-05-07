@@ -21,13 +21,15 @@
 package com.my.demo.dlib;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -37,23 +39,21 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.google.android.cameraview.CameraView;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.my.core.protocol.IProgressBarView;
-import com.my.core.util.FileUtil;
-import com.my.core.util.ViewUtil;
+import com.my.demo.dlib.util.DlibModelHelper;
 import com.my.demo.dlib.view.FaceLandmarksImageView;
-import com.my.jni.dlib.FaceLandmarksDetector;
+import com.my.jni.dlib.FaceLandmarksDetector68;
 import com.my.jni.dlib.data.Face;
+import com.my.jni.dlib.data.Face68;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -61,7 +61,9 @@ import butterknife.Unbinder;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.BiFunction;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
@@ -89,17 +91,19 @@ public class SampleOfLandmarksOnlyActivity
     FaceLandmarksImageView mLandmarksPreview;
     @BindView(R.id.camera)
     CameraView mCameraView;
+    ProgressDialog mProgressDialog;
 
     // Butter Knife.
     Unbinder mUnbinder;
 
     // Face Detector.
     Handler mDetectorHandler;
-    FaceLandmarksDetector mFaceDetector;
+    FaceLandmarksDetector68 mFaceDetector;
 
     // Data.
-    Rect mFaceBound;
+    RectF mFaceBound;
     byte[] mData;
+    CompositeDisposable mComposition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,6 +114,9 @@ public class SampleOfLandmarksOnlyActivity
         // Init view binding.
         mUnbinder = ButterKnife.bind(this);
 
+        // The progress bar.
+        mProgressDialog = new ProgressDialog(this);
+
         // Back button.
         mBtnBack.setOnClickListener(onClickToBack());
 
@@ -117,71 +124,92 @@ public class SampleOfLandmarksOnlyActivity
         mCameraView.addCallback(mCameraCallback);
 
         // Init the face detector.
-        mFaceDetector = new FaceLandmarksDetector();
+        mFaceDetector = new FaceLandmarksDetector68();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        grantPermission()
-//            // Delay for waiting the layout process is finished.
-//            .delay(1000, TimeUnit.MILLISECONDS)
-            // Start face landmarks detection.
-            .flatMap(new Function<Boolean, ObservableSource<?>>() {
-                @Override
-                public ObservableSource<?> apply(Boolean granted)
-                    throws Exception {
-                    if (granted) {
-                        showProgressBar("Preparing the data...");
-                        return processFaceLandmarksDetection()
-                            .subscribeOn(Schedulers.io());
-                    } else {
-                        return Observable.just(0);
+        mComposition = new CompositeDisposable();
+        mComposition.add(
+            grantPermission()
+                // Show the progress-bar.
+                .map(new Function<Boolean, Boolean>() {
+                    @Override
+                    public Boolean apply(Boolean granted) throws Exception {
+                        showProgressBar("Preparing the model...");
+                        return granted;
                     }
-                }
-            })
-            .observeOn(AndroidSchedulers.mainThread())
-            // Open the camera.
-            .map(new Function<Object, Object>() {
-                @Override
-                public Object apply(Object value) throws Exception {
-                    hideProgressBar();
+                })
+                // Face landmarks detection.
+                .observeOn(Schedulers.io())
+                .flatMap(new Function<Boolean, ObservableSource<?>>() {
+                    @Override
+                    public ObservableSource<?> apply(Boolean granted)
+                        throws Exception {
+                        if (granted) {
+                            return startFaceLandmarksDetection();
+                        } else {
+                            return Observable.just(false);
+                        }
+                    }
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                // Open the camera.
+                .map(new Function<Object, Object>() {
+                    @Override
+                    public Object apply(Object value) throws Exception {
+                        // Prepare the capturing rect.
+                        mFaceBound = new RectF(
+                            (float) mFaceBoundView.getLeft() / mCameraView.getWidth(),
+                            (float) mFaceBoundView.getTop() / mCameraView.getHeight(),
+                            (float) mFaceBoundView.getRight() / mCameraView.getWidth(),
+                            (float) mFaceBoundView.getBottom() / mCameraView.getHeight());
 
-                    // Prepare the capturing rect.
-                    mFaceBound = new Rect(
-                        mFaceBoundView.getLeft(),
-                        mFaceBoundView.getTop(),
-                        mFaceBoundView.getRight(),
-                        mFaceBoundView.getBottom());
+                        // Open the camera.
+                        mCameraView.start();
 
-                    // Open the camera.
-                    mCameraView.start();
+                        return value;
+                    }
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    new Consumer<Object>() {
+                        @Override
+                        public void accept(Object o)
+                            throws Exception {
+                            // DO NOTHING.
+                        }
+                    },
+                    new Consumer<Throwable>() {
+                        @Override
+                        public void accept(Throwable err)
+                            throws Exception {
+                            Log.e("xyz", err.getMessage());
 
-                    return value;
-                }
-            })
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(new DisposableObserver<Object>() {
-                @Override
-                public void onNext(Object value) {
-                    // DO NOTHING.
-                }
+                            hideProgressBar();
 
-                @Override
-                public void onError(Throwable e) {
-                }
-
-                @Override
-                public void onComplete() {
-                    hideProgressBar();
-                }
-            });
+                            Toast.makeText(SampleOfLandmarksOnlyActivity.this,
+                                           err.getMessage(), Toast.LENGTH_SHORT)
+                                 .show();
+                        }
+                    },
+                    new Action() {
+                        @Override
+                        public void run() throws Exception {
+                            hideProgressBar();
+                        }
+                    }));
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+
+        hideProgressBar();
+
+        mComposition.clear();
 
         // Close camera.
         mCameraView.stop();
@@ -189,59 +217,113 @@ public class SampleOfLandmarksOnlyActivity
 
     @Override
     public void showProgressBar() {
-        ViewUtil
-            .with(this)
-            .setProgressBarCancelable(false)
-            .showProgressBar(getString(R.string.loading));
+        mProgressDialog.setCancelable(false);
+        mProgressDialog.setMessage(getString(R.string.loading));
+        mProgressDialog.show();
     }
 
     @Override
     public void showProgressBar(String msg) {
-        ViewUtil
-            .with(this)
-            .setProgressBarCancelable(false)
-            .showProgressBar(msg);
+        mProgressDialog.setCancelable(false);
+        mProgressDialog.setMessage(msg);
+        mProgressDialog.show();
     }
 
     @Override
     public void hideProgressBar() {
-        ViewUtil.with(this)
-                .hideProgressBar();
+        mProgressDialog.hide();
     }
 
     @Override
     public void updateProgress(int progress) {
-        ViewUtil.with(this)
-                .setProgressBarCancelable(false)
-                .showProgressBar(null);
+        mProgressDialog.setProgress(progress);
+        mProgressDialog.show();
     }
 
     @Override
     public boolean handleMessage(Message msg) {
+        if (!mCameraView.isCameraOpened() || isFinishing()) return true;
+
         switch (msg.what) {
             case MSG_TAKE_PHOTO:
                 // Will lead to onPictureTaken callback.
                 mCameraView.takePicture();
                 return true;
             case MSG_DETECT_LANDMARKS:
-                final Bitmap fullBitmap = BitmapFactory
-                    .decodeByteArray(mData, 0, mData.length);
+                final BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inSampleSize = 4;
+
+                final Bitmap rawBitmap = BitmapFactory
+                    .decodeByteArray(mData, 0, mData.length, options);
+                // Optimized bitmap.
+                Bitmap optBitmap;
+
+                // FIXME: It's a workaround because I can't get rotation info
+                // FIXME: from the CameraView.
+                if (mCameraView.getFacing() == CameraView.FACING_FRONT) {
+                    final int bw = rawBitmap.getWidth();
+                    final int bh = rawBitmap.getHeight();
+                    final Matrix matrix = new Matrix();
+
+                    // Flip vertically.
+                    matrix.postScale(1, -1, bw / 2, bh / 2);
+                    // Adjust the width and height because shape of buffer
+                    // doesn't match of the visible shape.
+                    final int vw = mCameraView.getWidth();
+                    final int vh = mCameraView.getHeight();
+                    final float scale = Math.min((float) bw / vw,
+                                                 (float) bh / vh);
+
+                    optBitmap = Bitmap.createBitmap(rawBitmap, 0, 0,
+                                                    (int) (scale * vw),
+                                                    (int) (scale * vh),
+                                                    matrix, true);
+                } else {
+                    optBitmap = Bitmap.createBitmap(rawBitmap, 0, 0,
+                                                    rawBitmap.getWidth(),
+                                                    rawBitmap.getHeight());
+                }
 
                 try {
+                    // Do landmarks detection only
                     // Call detector JNI.
+                    final int bw = optBitmap.getWidth();
+                    final int bh = optBitmap.getHeight();
+                    final Rect bound = new Rect(
+                        (int) (mFaceBound.left * bw),
+                        (int) (mFaceBound.top * bh),
+                        (int) (mFaceBound.right * bw),
+                        (int) (mFaceBound.bottom * bh));
                     final List<Face.Landmark> landmarks =
-                        mFaceDetector.findLandmarksInFace(fullBitmap, mFaceBound);
+                        mFaceDetector.findLandmarksInFace(optBitmap, bound);
 
                     // Display the landmarks.
                     List<Face> faces = new ArrayList<>();
-                    faces.add(new Face(landmarks));
-                    mLandmarksPreview.setFaces(faces);
+                    faces.add(new Face68(landmarks));
+                    if (mLandmarksPreview != null) {
+                        mLandmarksPreview.setFaces(faces);
+                    }
+
+//                    // Do face detection and then landmarks detection.
+//                    // Call detector JNI.
+//                    final List<Face> faces =
+//                        mFaceDetector.findFacesAndLandmarks(optBitmap);
+//
+//                    // Display the faces.
+//                    if (mLandmarksPreview != null) {
+//                        mLandmarksPreview.setFaces(faces);
+//                    }
                 } catch (InvalidProtocolBufferException err) {
                     Log.e("xyz", err.getMessage());
                 }
 
+                optBitmap.recycle();
+                rawBitmap.recycle();
+
                 // Schedule next take-photo.
-                mDetectorHandler.sendEmptyMessage(MSG_TAKE_PHOTO);
+                if (mCameraView.isCameraOpened()) {
+                    mDetectorHandler.sendEmptyMessageDelayed(MSG_TAKE_PHOTO, 200);
+                }
                 return true;
         }
 
@@ -275,7 +357,7 @@ public class SampleOfLandmarksOnlyActivity
                                                SampleOfLandmarksOnlyActivity.this);
 
                 // Take photo after a short delay.
-                mDetectorHandler.sendEmptyMessageDelayed(MSG_TAKE_PHOTO, 550);
+                mDetectorHandler.sendEmptyMessageDelayed(MSG_TAKE_PHOTO, 1000);
             }
 
             @Override
@@ -292,29 +374,6 @@ public class SampleOfLandmarksOnlyActivity
 
                 mData = data;
                 mDetectorHandler.sendEmptyMessage(MSG_DETECT_LANDMARKS);
-//                getBackgroundHandler().post(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        File file = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES),
-//                                             "picture.jpg");
-//                        OutputStream os = null;
-//                        try {
-//                            os = new FileOutputStream(file);
-//                            os.write(data);
-//                            os.close();
-//                        } catch (IOException e) {
-//                            Log.w("xyz", "Cannot write to " + file, e);
-//                        } finally {
-//                            if (os != null) {
-//                                try {
-//                                    os.close();
-//                                } catch (IOException e) {
-//                                    // Ignore
-//                                }
-//                            }
-//                        }
-//                    }
-//                });
             }
         };
 
@@ -351,98 +410,42 @@ public class SampleOfLandmarksOnlyActivity
         }
     }
 
-    private Observable<?> processFaceLandmarksDetection() {
-        final String dirName = getApplicationContext().getPackageName();
-        final File dir = Environment.getExternalStoragePublicDirectory(
-            Environment.DIRECTORY_DOWNLOADS + "/" + dirName);
-
-        return Observable
-            .zip(Observable
-                     // Prepare the shape detector.
-                     .fromCallable(new Callable<String>() {
-                         @Override
-                         public String call()
-                             throws Exception {
-                             if (dir.mkdirs() || dir.isDirectory()) {
-                                 final File savedFile = new File(dir, ASSET_SHAPE_DETECTOR_DATA);
-
-                                 // Copy asset to external disk.
-                                 if (!savedFile.exists() && savedFile.createNewFile()) {
-                                     FileUtil.copy(getAssets().open(ASSET_SHAPE_DETECTOR_DATA),
-                                                   new FileOutputStream(savedFile));
-                                 }
-
-                                 return savedFile.getAbsolutePath();
-                             } else {
-                                 throw new IOException(
-                                     String.format("Cannot copy %s to %s",
-                                                   ASSET_SHAPE_DETECTOR_DATA,
-                                                   dir.getAbsolutePath()));
-                             }
-                         }
-                     })
-                     .subscribeOn(Schedulers.io()),
-                 // Prepare the testing photo.
-                 Observable
-                     .fromCallable(new Callable<String>() {
-                         @Override
-                         public String call()
-                             throws Exception {
-                             if (dir.mkdirs() || dir.isDirectory()) {
-                                 final File savedFile = new File(dir, ASSET_TEST_PHOTO);
-
-                                 // Copy asset to external disk.
-                                 if (!savedFile.exists() && savedFile.createNewFile()) {
-                                     FileUtil.copy(getAssets().open(ASSET_TEST_PHOTO),
-                                                   new FileOutputStream(savedFile));
-                                 }
-
-                                 return savedFile.getAbsolutePath();
-                             } else {
-                                 throw new IOException(
-                                     String.format("Cannot copy %s to %s",
-                                                   ASSET_SHAPE_DETECTOR_DATA,
-                                                   dir.getAbsolutePath()));
-                             }
-                         }
-                     })
-                     .subscribeOn(Schedulers.io()),
-                 // Create the detector parameter.
-                 new BiFunction<String, String, DetectorParams>() {
-                     @Override
-                     public DetectorParams apply(String shapeDetectorPath,
-                                                 String testPhotoPath)
-                         throws Exception {
-                         return new DetectorParams(
-                             shapeDetectorPath,
-                             testPhotoPath);
-                     }
-                 })
-            .subscribeOn(Schedulers.io())
+    private Observable<?> startFaceLandmarksDetection() {
+        return DlibModelHelper
+            .getService()
+            // Download the trained model.
+            .downloadFace68Model(
+                this,
+                getApplicationContext().getPackageName())
             // Update progressbar message.
             .observeOn(AndroidSchedulers.mainThread())
-            .map(new Function<DetectorParams, DetectorParams>() {
+            .map(new Function<File, File>() {
                 @Override
-                public DetectorParams apply(DetectorParams params) throws Exception {
+                public File apply(File face68ModelPath) throws Exception {
                     showProgressBar("Initializing face detectors...");
-                    return params;
+                    return face68ModelPath;
                 }
             })
             // Deserialize the detector.
             .observeOn(Schedulers.io())
-            .map(new Function<DetectorParams, DetectorParams>() {
+            .map(new Function<File, Boolean>() {
                 @Override
-                public DetectorParams apply(DetectorParams params)
+                public Boolean apply(File face68ModelPath)
                     throws Exception {
+                    if (face68ModelPath == null || !face68ModelPath.exists()) {
+                        throw new RuntimeException(
+                            "The face68 model is invalid.");
+                    }
+
                     if (!mFaceDetector.isFaceDetectorReady()) {
                         mFaceDetector.prepareFaceDetector();
                     }
                     if (!mFaceDetector.isFaceLandmarksDetectorReady()) {
                         mFaceDetector.prepareFaceLandmarksDetector(
-                            params.shapeDetectorPath);
+                            face68ModelPath.getAbsolutePath());
                     }
 
-                    return params;
+                    return true;
                 }
             });
     }

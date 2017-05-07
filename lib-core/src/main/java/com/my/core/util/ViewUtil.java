@@ -32,6 +32,7 @@ public class ViewUtil {
 
     private final WeakReference<ProgressDialog> mProgress;
 
+    // FIXME: It's not a good pattern and is reference-leak prone.
     /**
      * Because view stuff follows the lifecycle of the {@code Activity}. You are
      * asked to pass the {@code Context} to the static method to generate the
@@ -62,7 +63,9 @@ public class ViewUtil {
         if (mProgress.get() == null) return;
 
         mProgress.get().setMessage(message);
-        mProgress.get().show();
+        if (!mProgress.get().isShowing()) {
+            mProgress.get().show();
+        }
     }
 
     /**
@@ -71,14 +74,17 @@ public class ViewUtil {
     public void hideProgressBar() {
         if (mProgress.get() == null) return;
 
-        mProgress.get().hide();
+        if (mProgress.get().isShowing()) {
+            mProgress.get().hide();
+        }
     }
 
     /**
      * Hide the progress bar when some process is done.
      */
     public void updateProgress(int progress) {
-        if (mProgress.get() == null) return;
+        if (mProgress.get() == null ||
+            !mProgress.get().isShowing()) return;
 
         mProgress.get().setProgress(progress);
     }
