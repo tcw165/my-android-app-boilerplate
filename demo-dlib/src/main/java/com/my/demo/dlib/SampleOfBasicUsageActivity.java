@@ -57,7 +57,9 @@ import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.BiFunction;
+import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
@@ -144,28 +146,33 @@ public class SampleOfBasicUsageActivity extends AppCompatActivity
                     }
                 })
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new DisposableObserver<Object>() {
-                    @Override
-                    public void onNext(Object value) {
-                        // DO NOTHING.
-                    }
+                .subscribe(
+                    new Consumer<Object>() {
+                        @Override
+                        public void accept(Object o)
+                            throws Exception {
+                            // DO NOTHING.
+                        }
+                    },
+                    new Consumer<Throwable>() {
+                        @Override
+                        public void accept(Throwable err)
+                            throws Exception {
+                            Log.e("xyz", err.getMessage());
 
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.e("xyz", e.getMessage());
+                            hideProgressBar();
 
-                        hideProgressBar();
-
-                        Toast.makeText(SampleOfBasicUsageActivity.this,
-                                       e.getMessage(), Toast.LENGTH_SHORT)
-                             .show();
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        hideProgressBar();
-                    }
-                }));
+                            Toast.makeText(SampleOfBasicUsageActivity.this,
+                                           err.getMessage(), Toast.LENGTH_SHORT)
+                                 .show();
+                        }
+                    },
+                    new Action() {
+                        @Override
+                        public void run() throws Exception {
+                            hideProgressBar();
+                        }
+                    }));
     }
 
     @Override

@@ -117,8 +117,10 @@ public class DlibModelHelper {
                     PrefUtil.setLong(context, PREF_KEY_FACE68_ZIP, -1);
                 }
             })
-            .observeOn(Schedulers.io())
             // Unpack the bz2 file.
+            // TODO: Run the unpacking in a IntentService so that the process
+            // TODO: continues when app enters background.
+            .observeOn(Schedulers.io())
             .map(new Function<File, File>() {
                 @Override
                 public File apply(File downloadFile)

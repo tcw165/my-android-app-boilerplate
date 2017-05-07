@@ -39,6 +39,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.google.android.cameraview.CameraView;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -61,6 +62,8 @@ import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
@@ -171,22 +174,33 @@ public class SampleOfLandmarksOnlyActivity
                     }
                 })
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new DisposableObserver<Object>() {
-                    @Override
-                    public void onNext(Object value) {
-                        hideProgressBar();
-                    }
+                .subscribe(
+                    new Consumer<Object>() {
+                        @Override
+                        public void accept(Object o)
+                            throws Exception {
+                            // DO NOTHING.
+                        }
+                    },
+                    new Consumer<Throwable>() {
+                        @Override
+                        public void accept(Throwable err)
+                            throws Exception {
+                            Log.e("xyz", err.getMessage());
 
-                    @Override
-                    public void onError(Throwable e) {
-                        hideProgressBar();
-                    }
+                            hideProgressBar();
 
-                    @Override
-                    public void onComplete() {
-                        hideProgressBar();
-                    }
-                }));
+                            Toast.makeText(SampleOfLandmarksOnlyActivity.this,
+                                           err.getMessage(), Toast.LENGTH_SHORT)
+                                 .show();
+                        }
+                    },
+                    new Action() {
+                        @Override
+                        public void run() throws Exception {
+                            hideProgressBar();
+                        }
+                    }));
     }
 
     @Override
