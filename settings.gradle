@@ -1,6 +1,7 @@
 include ':app',
         ':demo-widget',
         ':demo-dlib',
+        ':demo-doodle',
         ':lib-core',
         ':lib-photo-collage',
         ':lib-widget',

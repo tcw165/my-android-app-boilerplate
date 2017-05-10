@@ -30,6 +30,20 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <!-- Transparent Window Activity -->
+    <style name="AppTheme.TransparentWindow" parent="AppTheme.CustomToolbar">
+        <item name="android:windowIsTranslucent">true</item>
+        <!--
+        We want the translucent background painted by the root layout instead
+        of painted by the window.
+        -->
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:colorBackgroundCacheHint">@null</item>
+    </style>
+
     <!-- Shadow/Invisible Activity -->
     <style name="AppTheme.Invisible" parent="AppTheme.CustomToolbar">
         <item name="android:windowIsTranslucent">true</item>

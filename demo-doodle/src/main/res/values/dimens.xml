@@ -1,0 +1,8 @@
+<resources>
+    <!-- Common -->
+    <dimen name="toolbar_height">56dp</dimen>
+
+    <!-- Doodle -->
+    <dimen name="doodle_default_stroke_width">1dp</dimen>
+    <dimen name="doodle_default_path_segment_length">10dp</dimen>
+</resources>
