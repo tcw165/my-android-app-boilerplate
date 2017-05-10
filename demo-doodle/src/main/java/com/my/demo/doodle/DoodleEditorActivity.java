@@ -22,6 +22,7 @@ package com.my.demo.doodle;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 
 import com.my.demo.doodle.view.DoodleEditorView;
@@ -37,6 +38,12 @@ public class DoodleEditorActivity extends AppCompatActivity {
     // View.
     @BindView(R.id.btn_close)
     View mBtnClose;
+    @BindView(R.id.btn_undo)
+    View mBtnUndo;
+    @BindView(R.id.btn_redo)
+    View mBtnRedo;
+    @BindView(R.id.btn_check)
+    View mBtnCheck;
     @BindView(R.id.doodle_editor)
     DoodleEditorView mDoodleEdtior;
 
@@ -67,5 +74,20 @@ public class DoodleEditorActivity extends AppCompatActivity {
     @OnClick(R.id.btn_close)
     void onClickToClose(View view) {
         onBackPressed();
+    }
+
+    @OnClick(R.id.btn_undo)
+    void onClickToUndo(View view) {
+        Log.d("xyz", "Yet implement.");
+    }
+
+    @OnClick(R.id.btn_redo)
+    void onClickToRedo(View view) {
+        Log.d("xyz", "Yet implement.");
+    }
+
+    @OnClick(R.id.btn_check)
+    void onClickToCheck(View view) {
+        Log.d("xyz", "Yet implement.");
     }
 }

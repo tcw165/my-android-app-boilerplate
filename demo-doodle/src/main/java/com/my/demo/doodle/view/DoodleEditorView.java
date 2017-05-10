@@ -32,12 +32,17 @@ import android.view.MotionEvent;
 
 import com.my.demo.doodle.R;
 import com.my.demo.doodle.data.DefaultDoodleBrush;
+import com.my.demo.doodle.protocol.IDoodleEditorView;
 import com.my.demo.doodle.protocol.ISketchStroke;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class DoodleEditorView extends AppCompatImageView {
+import io.reactivex.Observable;
+
+public class DoodleEditorView
+    extends AppCompatImageView
+    implements IDoodleEditorView {
 
     // State
     final List<ISketchStroke> mStrokes = new ArrayList<>();
@@ -68,6 +73,7 @@ public class DoodleEditorView extends AppCompatImageView {
 
         switch (action) {
             case MotionEvent.ACTION_DOWN: {
+                // TODO: Make it confi
                 final ISketchStroke stroke = new DefaultDoodleBrush(
                     getResources().getDimension(R.dimen.doodle_default_path_segment_length),
                     3);
@@ -96,6 +102,26 @@ public class DoodleEditorView extends AppCompatImageView {
 
 //        return super.onTouchEvent(event);
         return true;
+    }
+
+    @Override
+    public void setStrokeWidth(float width) {
+
+    }
+
+    @Override
+    public Observable<Float> getStrokeWidth() {
+        return null;
+    }
+
+    @Override
+    public void setStrokeColor(int color) {
+
+    }
+
+    @Override
+    public Observable<Integer> getStrokeColor() {
+        return null;
     }
 
     ///////////////////////////////////////////////////////////////////////////
