@@ -6,9 +6,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:dragOverDistance="122dp"
-    app:dragOverMaxDistance="344dp"
-    app:dragScale="0.89"
+    app:elastic_dragOverDistance="122dp"
+    app:elastic_dragOverMaxDistance="344dp"
+    app:elastic_dragScale="0.89"
     tools:context=".SampleOfElasticDragDismissLayoutActivity">
 
     <!-- This layout isPhotoSelected one child view only -->
@@ -16,7 +16,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@android:color/white"
-        app:elasticScrollView="true">
+        app:elastic_elasticScrollView="true">
 
         <FrameLayout
             android:layout_width="match_parent"

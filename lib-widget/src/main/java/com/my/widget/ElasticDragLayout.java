@@ -45,26 +45,26 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
  * approach the given dismiss distance.
  * Optionally also scales down content during drag.
  * <br/>
- * Note: Add {@link R.styleable#ElasticDragLayout_elasticScrollView} attribute
+ * Note: Add {@link R.styleable#ElasticDragLayout_elastic_elasticScrollView} attribute
  * to the child view you want it to be dragged elastically in the layout file.
  * <br/> <br/>
  * Attributes for itself:
  * <ul>
  * <li>
- * {@link R.styleable#ElasticDragLayout_dragOverMaxDistance}
+ * {@link R.styleable#ElasticDragLayout_elastic_dragOverMaxDistance}
  * The over dragging distance
  * </li>
  * </ul>
  * <ul>
  * <li>
- * {@link R.styleable#ElasticDragLayout_dragScale}
+ * {@link R.styleable#ElasticDragLayout_elastic_dragScale}
  * The distance that the {@link OnElasticDragCallback#onDragOver(float)}
  * callback is called when over dragging.
  * </li>
  * </ul>
  * <ul>
  * <li>
- * {@link R.styleable#ElasticDragLayout_dragElasticity}
+ * {@link R.styleable#ElasticDragLayout_elastic_dragElasticity}
  * The scale factor when over dragging.
  * </li>
  * </ul>
@@ -72,18 +72,18 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
  * Attributes for child views:
  * <ul>
  * <li>
- * {@link R.styleable#ElasticDragLayout_elasticScrollView}
+ * {@link R.styleable#ElasticDragLayout_elastic_elasticScrollView}
  * The child view with this attribute is a elastic-draggable view.
  * </li>
  * </ul>
  * <ul>
  * <li>
- * {@link R.styleable#ElasticDragLayout_elasticScrollViewHeader}
+ * {@link R.styleable#ElasticDragLayout_elastic_elasticScrollViewHeader}
  * </li>
  * </ul>
  * <ul>
  * <li>
- * {@link R.styleable#ElasticDragLayout_elasticScrollViewFooter}
+ * {@link R.styleable#ElasticDragLayout_elastic_elasticScrollViewFooter}
  * </li>
  * </ul>
  * <br/>
@@ -96,7 +96,7 @@ public class ElasticDragLayout extends CoordinatorLayout {
      * <br/>
      * Attribute:
      * <br/>
-     * See {@link R.styleable#ElasticDragLayout_dragOverMaxDistance}.
+     * See {@link R.styleable#ElasticDragLayout_elastic_dragOverMaxDistance}.
      */
     protected float mDragOverMaxDistance = 244f;
     /**
@@ -105,7 +105,7 @@ public class ElasticDragLayout extends CoordinatorLayout {
      * <br/>
      * Attribute:
      * <br/>
-     * See {@link R.styleable#ElasticDragLayout_dragOverDistance}.
+     * See {@link R.styleable#ElasticDragLayout_elastic_dragOverDistance}.
      */
     protected float mDragOverDistance = 56f;
     /**
@@ -113,7 +113,7 @@ public class ElasticDragLayout extends CoordinatorLayout {
      * <br/>
      * Attribute:
      * <br/>
-     * See {@link R.styleable#ElasticDragLayout_dragScale}.
+     * See {@link R.styleable#ElasticDragLayout_elastic_dragScale}.
      */
     protected float mDragScale = 1.f;
     protected boolean mShouldScale = false;
@@ -122,7 +122,7 @@ public class ElasticDragLayout extends CoordinatorLayout {
      * <br/>
      * Attribute:
      * <br/>
-     * See {@link R.styleable#ElasticDragLayout_dragElasticity}.
+     * See {@link R.styleable#ElasticDragLayout_elastic_dragElasticity}.
      */
     protected float mDragElasticity = 0.8f;
 
@@ -179,25 +179,25 @@ public class ElasticDragLayout extends CoordinatorLayout {
             attrs, R.styleable.ElasticDragLayout, 0, 0);
 
         // Init configurable attributes.
-        if (array.hasValue(R.styleable.ElasticDragLayout_dragOverMaxDistance)) {
+        if (array.hasValue(R.styleable.ElasticDragLayout_elastic_dragOverMaxDistance)) {
             mDragOverMaxDistance = array.getDimensionPixelSize(
-                R.styleable.ElasticDragLayout_dragOverMaxDistance,
+                R.styleable.ElasticDragLayout_elastic_dragOverMaxDistance,
                 (int) (mDragOverMaxDistance * density));
         }
-        if (array.hasValue(R.styleable.ElasticDragLayout_dragOverDistance)) {
+        if (array.hasValue(R.styleable.ElasticDragLayout_elastic_dragOverDistance)) {
             mDragOverDistance = array.getDimensionPixelSize(
-                R.styleable.ElasticDragLayout_dragOverDistance,
+                R.styleable.ElasticDragLayout_elastic_dragOverDistance,
                 (int) (mDragOverDistance * density));
         }
-        if (array.hasValue(R.styleable.ElasticDragLayout_dragScale)) {
+        if (array.hasValue(R.styleable.ElasticDragLayout_elastic_dragScale)) {
             mDragScale = array.getFloat(
-                R.styleable.ElasticDragLayout_dragScale,
+                R.styleable.ElasticDragLayout_elastic_dragScale,
                 mDragScale);
             mShouldScale = mDragScale != 1f;
         }
-        if (array.hasValue(R.styleable.ElasticDragLayout_dragElasticity)) {
+        if (array.hasValue(R.styleable.ElasticDragLayout_elastic_dragElasticity)) {
             mDragElasticity = array.getFloat(
-                R.styleable.ElasticDragLayout_dragElasticity,
+                R.styleable.ElasticDragLayout_elastic_dragElasticity,
                 mDragElasticity);
         }
         if (array.hasValue(R.styleable.ElasticDragLayout_elastic_OverDragOrientation)) {
@@ -353,17 +353,17 @@ public class ElasticDragLayout extends CoordinatorLayout {
 
         try {
             // Custom attributes.
-            if (array.hasValue(R.styleable.ElasticDragLayout_elasticScrollView)) {
+            if (array.hasValue(R.styleable.ElasticDragLayout_elastic_elasticScrollView)) {
                 params.isElasticScrollView = array.getBoolean(
-                    R.styleable.ElasticDragLayout_elasticScrollView, false);
+                    R.styleable.ElasticDragLayout_elastic_elasticScrollView, false);
             }
-            if (array.hasValue(R.styleable.ElasticDragLayout_elasticScrollViewHeader)) {
+            if (array.hasValue(R.styleable.ElasticDragLayout_elastic_elasticScrollViewHeader)) {
                 params.isElasticScrollViewHeader = array.getBoolean(
-                    R.styleable.ElasticDragLayout_elasticScrollViewHeader, false);
+                    R.styleable.ElasticDragLayout_elastic_elasticScrollViewHeader, false);
             }
-            if (array.hasValue(R.styleable.ElasticDragLayout_elasticScrollViewFooter)) {
+            if (array.hasValue(R.styleable.ElasticDragLayout_elastic_elasticScrollViewFooter)) {
                 params.isElasticScrollViewFooter = array.getBoolean(
-                    R.styleable.ElasticDragLayout_elasticScrollViewFooter, false);
+                    R.styleable.ElasticDragLayout_elastic_elasticScrollViewFooter, false);
             }
         } finally {
             array.recycle();

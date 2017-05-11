@@ -97,10 +97,10 @@
         android:id="@id/brush_picker_container"
         android:layout_width="0dp"
         android:layout_height="54dp"
-        app:dragElasticity="0.98"
-        app:dragOverDistance="344dp"
-        app:dragOverMaxDistance="56dp"
-        app:dragScale="1.0"
+        app:elastic_dragElasticity="0.98"
+        app:elastic_dragOverDistance="344dp"
+        app:elastic_dragOverMaxDistance="56dp"
+        app:elastic_dragScale="1.0"
         app:elastic_OverDragOrientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -111,7 +111,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="horizontal"
-            app:elasticScrollView="true"/>
+            app:elastic_elasticScrollView="true"/>
     </com.my.widget.ElasticDragLayout>
 
 </android.support.constraint.ConstraintLayout>
