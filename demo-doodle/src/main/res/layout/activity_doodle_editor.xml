@@ -80,6 +80,7 @@
 
     <!-- Brush Stroke Width -->
     <android.support.v7.widget.AppCompatSeekBar
+        android:id="@+id/stroke_width_picker"
         android:layout_width="0dp"
         android:layout_height="24dp"
         android:layout_marginEnd="36dp"
@@ -95,6 +96,7 @@
         android:id="@id/brush_picker"
         android:layout_width="0dp"
         android:layout_height="68dp"
+        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>

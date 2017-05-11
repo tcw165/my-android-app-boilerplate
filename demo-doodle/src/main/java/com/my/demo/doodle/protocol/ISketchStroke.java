@@ -55,6 +55,12 @@ import java.util.List;
  */
 public interface ISketchStroke {
 
+    ISketchStroke setWidth(final float width);
+    float getWidth();
+
+    ISketchStroke setColor(final int color);
+    int getColor();
+
     boolean savePathTuple(final float x,
                           final float y,
                           final float width,
@@ -92,11 +98,5 @@ public interface ISketchStroke {
 
         Anchor setY(final float y);
         float getY();
-
-        Anchor setColor(final int color);
-        int getColor();
-
-        Anchor setWidth(final float width);
-        float getWidth();
     }
 }

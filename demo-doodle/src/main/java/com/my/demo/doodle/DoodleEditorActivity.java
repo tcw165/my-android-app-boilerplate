@@ -20,20 +20,39 @@
 
 package com.my.demo.doodle;
 
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatSeekBar;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestManager;
+import com.my.demo.doodle.data.ColorPenBrushFactory;
+import com.my.demo.doodle.protocol.ISketchBrush;
+import com.my.demo.doodle.protocol.ISketchStroke;
 import com.my.demo.doodle.view.DoodleEditorView;
-import com.my.widget.ElasticDragDismissLayout;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 
-public class DoodleEditorActivity extends AppCompatActivity {
+public class DoodleEditorActivity
+    extends AppCompatActivity {
+
+    // Unbinder.
+    Unbinder mUnbinder;
 
     // View.
     @BindView(R.id.btn_close)
@@ -44,11 +63,16 @@ public class DoodleEditorActivity extends AppCompatActivity {
     View mBtnRedo;
     @BindView(R.id.btn_check)
     View mBtnCheck;
+    @BindView(R.id.stroke_width_picker)
+    AppCompatSeekBar mStrokeWidthPicker;
+    @BindView(R.id.brush_picker)
+    RecyclerView mBrushPicker;
     @BindView(R.id.doodle_editor)
-    DoodleEditorView mDoodleEdtior;
+    DoodleEditorView mDoodleEditor;
 
-    // Unbinder.
-    Unbinder mUnbinder;
+    // Adapter.
+    RequestManager mGlide;
+    BrushAdapter mBrushPickerAdapter;
 
     ///////////////////////////////////////////////////////////////////////////
     // Protected / Private Methods ////////////////////////////////////////////
@@ -62,13 +86,56 @@ public class DoodleEditorActivity extends AppCompatActivity {
 
         // Bind view.
         mUnbinder = ButterKnife.bind(this);
+
+        // Glide request manager.
+        mGlide = Glide.with(this);
+
+        // Brush picker.
+        mBrushPickerAdapter = new BrushAdapter(getLayoutInflater(),
+                                               mGlide,
+                                               onClickBrush());
+        mBrushPickerAdapter.setItems(
+            new ColorPenBrushFactory()
+                .setMinPathSegmentLength(getResources().getDimension(
+                    R.dimen.doodle_default_path_segment_length))
+                .setMinPathSegmentDuration(2L)
+                .addColor(Color.parseColor("#FFFFFF"))
+                .addColor(Color.parseColor("#000000"))
+                .addColor(Color.parseColor("#3897F0"))
+                .addColor(Color.parseColor("#70C050"))
+                .addColor(Color.parseColor("#FDCB5C"))
+                .addColor(Color.parseColor("#FD8D32"))
+                .addColor(Color.parseColor("#ED4956"))
+                .addColor(Color.parseColor("#D13076"))
+                .addColor(Color.parseColor("#A307BA"))
+                .addColor(Color.parseColor("#FFB7C5"))
+                .addColor(Color.parseColor("#D1AF94"))
+                .addColor(Color.parseColor("#97D5E0"))
+                .addColor(Color.parseColor("#4FC3C6"))
+                .addColor(Color.parseColor("#0C4C8A"))
+                .addColor(Color.parseColor("#5C7148"))
+                .addColor(Color.parseColor("#262626"))
+                .addColor(Color.parseColor("#595959"))
+                .addColor(Color.parseColor("#7F7F7F"))
+                .addColor(Color.parseColor("#999999"))
+                .addColor(Color.parseColor("#B3B3B3"))
+                .addColor(Color.parseColor("#CCCCCC"))
+                .addColor(Color.parseColor("#E6E6E6"))
+                .build());
+        mBrushPicker.setLayoutManager(new LinearLayoutManager(
+            this, LinearLayoutManager.HORIZONTAL, false));
+        mBrushPicker.setAdapter(mBrushPickerAdapter);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
 
+        // Unbind view.
         mUnbinder.unbind();
+
+        // Finish the remaining Glide request.
+        mGlide.onDestroy();
     }
 
     @OnClick(R.id.btn_close)
@@ -89,5 +156,97 @@ public class DoodleEditorActivity extends AppCompatActivity {
     @OnClick(R.id.btn_check)
     void onClickToCheck(View view) {
         Log.d("xyz", "Yet implement.");
+    }
+
+    BrushListener onClickBrush() {
+        return new BrushListener() {
+            @Override
+            public void onClickBrush(ISketchBrush brush) {
+                // TODO: Update the width.
+//                brush.getStroke().setWidth()
+            }
+        };
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Clazz //////////////////////////////////////////////////////////////////
+
+    private interface BrushListener {
+        void onClickBrush(ISketchBrush brush);
+    }
+
+    private static class BrushAdapter
+        extends RecyclerView.Adapter<BrushViewHolder> {
+
+        private final LayoutInflater mInflater;
+        private final RequestManager mGlide;
+        private final BrushListener mCallback;
+
+        private final List<ISketchBrush> mBrushes = new ArrayList<>();
+        private final List<ColorDrawable> mColors = new ArrayList<>();
+
+        private BrushAdapter(final LayoutInflater inflater,
+                             final RequestManager glide,
+                             final BrushListener callback) {
+            mInflater = inflater;
+            mGlide = glide;
+            mCallback = callback;
+        }
+
+        @Override
+        public BrushViewHolder onCreateViewHolder(ViewGroup parent,
+                                                  int viewType) {
+            return new BrushViewHolder(mInflater.inflate(
+                R.layout.view_doodle_brush_item, parent, false));
+        }
+
+        @Override
+        public void onBindViewHolder(BrushViewHolder holder,
+                                     int position) {
+            final ImageView view = (ImageView) holder.itemView;
+            final ISketchBrush brush = mBrushes.get(position);
+            final ISketchStroke stroke = brush.getStroke();
+            final ColorDrawable drawable = mColors.get(position);
+
+            view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mCallback == null) return;
+
+                    mCallback.onClickBrush(brush);
+                }
+            });
+            Log.d("xyz", "onBind:: #" + position + ", " +
+                         "color=" + stroke.getColor());
+
+            view.setImageDrawable(drawable);
+//            // Display.
+//            mGlide.load(drawable)
+//                  .placeholder(R.color.white)
+//                  .into(view);
+        }
+
+        @Override
+        public int getItemCount() {
+            return mBrushes.size();
+        }
+
+        public void setItems(List<ISketchBrush> brushes) {
+            mBrushes.addAll(brushes);
+
+            // Construct color drawable list.
+            mColors.clear();
+            for (ISketchBrush brush : mBrushes) {
+                mColors.add(new ColorDrawable(brush.getStroke().getColor()));
+            }
+        }
+    }
+
+    private static class BrushViewHolder
+        extends RecyclerView.ViewHolder {
+
+        private BrushViewHolder(View itemView) {
+            super(itemView);
+        }
     }
 }

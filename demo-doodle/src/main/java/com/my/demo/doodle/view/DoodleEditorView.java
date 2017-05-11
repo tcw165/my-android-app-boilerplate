@@ -31,8 +31,9 @@ import android.util.Log;
 import android.view.MotionEvent;
 
 import com.my.demo.doodle.R;
-import com.my.demo.doodle.data.DefaultDoodleBrush;
+import com.my.demo.doodle.data.PenSketchStroke;
 import com.my.demo.doodle.protocol.IDoodleEditorView;
+import com.my.demo.doodle.protocol.ISketchBrush;
 import com.my.demo.doodle.protocol.ISketchStroke;
 
 import java.util.ArrayList;
@@ -74,7 +75,7 @@ public class DoodleEditorView
         switch (action) {
             case MotionEvent.ACTION_DOWN: {
                 // TODO: Make it confi
-                final ISketchStroke stroke = new DefaultDoodleBrush(
+                final ISketchStroke stroke = new PenSketchStroke(
                     getResources().getDimension(R.dimen.doodle_default_path_segment_length),
                     3);
 
@@ -105,24 +106,34 @@ public class DoodleEditorView
     }
 
     @Override
-    public void setStrokeWidth(float width) {
+    public void setBrush(ISketchBrush brush) {
 
     }
 
     @Override
-    public Observable<Float> getStrokeWidth() {
+    public ISketchBrush getBrush() {
         return null;
     }
 
-    @Override
-    public void setStrokeColor(int color) {
-
-    }
-
-    @Override
-    public Observable<Integer> getStrokeColor() {
-        return null;
-    }
+//    @Override
+//    public void setWidth(float width) {
+//
+//    }
+//
+//    @Override
+//    public Observable<Float> getWidth() {
+//        return null;
+//    }
+//
+//    @Override
+//    public void setColor(int color) {
+//
+//    }
+//
+//    @Override
+//    public Observable<Integer> getStrokeColor() {
+//        return null;
+//    }
 
     ///////////////////////////////////////////////////////////////////////////
     // Protected / Private Methods ////////////////////////////////////////////

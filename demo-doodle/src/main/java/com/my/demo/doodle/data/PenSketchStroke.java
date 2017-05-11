@@ -29,14 +29,15 @@ import com.my.demo.doodle.protocol.ISketchStroke;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
-public class DefaultDoodleBrush implements ISketchStroke {
+public class PenSketchStroke implements ISketchStroke {
 
     // Config.
-    private final float mMinDistance;
-    private final long mMinTimeDuration;
+    private float mMinPathSegmentLength;
+    private long mMinPathSegmentDuration;
+    private float mStrokeWidth;
+    private int mStrokeColor;
 
     // State.
     private long mPrevAddTime;
@@ -44,15 +45,37 @@ public class DefaultDoodleBrush implements ISketchStroke {
     private final List<PathTuple> mPathTuples = new ArrayList<>();
 
     // TODO: Refactor this by using build pattern.
-    public DefaultDoodleBrush(final float minDistanceThreshold,
-                              final long minTimeDurationThreshold) {
-        mMinDistance = minDistanceThreshold;
-        mMinTimeDuration = minTimeDurationThreshold;
-        Log.d("xyz", "mMinDistance=" + mMinDistance);
-        Log.d("xyz", "mMinTimeDuration=" + mMinTimeDuration);
+    public PenSketchStroke(final float minDistanceThreshold,
+                           final long minTimeDurationThreshold) {
+        mMinPathSegmentLength = minDistanceThreshold;
+        mMinPathSegmentDuration = minTimeDurationThreshold;
+        Log.d("xyz", "mMinPathSegmentLength=" + mMinPathSegmentLength);
+        Log.d("xyz", "mMinPathSegmentDuration=" + mMinPathSegmentDuration);
 
         mStrokePaint = new Paint();
         mStrokePaint.setStyle(Paint.Style.STROKE);
+    }
+
+    @Override
+    public ISketchStroke setWidth(float width) {
+        mStrokeWidth = width;
+        return this;
+    }
+
+    @Override
+    public float getWidth() {
+        return mStrokeWidth;
+    }
+
+    @Override
+    public ISketchStroke setColor(int color) {
+        mStrokeColor = color;
+        return this;
+    }
+
+    @Override
+    public int getColor() {
+        return mStrokeColor;
     }
 
     @Override
@@ -109,8 +132,8 @@ public class DefaultDoodleBrush implements ISketchStroke {
 
         Log.d("xyz", "duration=" + duration + ", " +
                      "distance=" + Math.hypot(x - anchor.getX(), y - anchor.getY()));
-        if (duration > mMinTimeDuration &&
-            Math.hypot(x - anchor.getX(), y - anchor.getY()) > mMinDistance) {
+        if (duration > mMinPathSegmentDuration &&
+            Math.hypot(x - anchor.getX(), y - anchor.getY()) > mMinPathSegmentLength) {
 
             mPrevAddTime = SystemClock.currentThreadTimeMillis();
 
@@ -171,28 +194,6 @@ public class DefaultDoodleBrush implements ISketchStroke {
         @Override
         public float getY() {
             return mY;
-        }
-
-        @Override
-        public Anchor setColor(int color) {
-            mColor = color;
-            return this;
-        }
-
-        @Override
-        public int getColor() {
-            return mColor;
-        }
-
-        @Override
-        public Anchor setWidth(float width) {
-            mWidth = width;
-            return this;
-        }
-
-        @Override
-        public float getWidth() {
-            return mWidth;
         }
     }
 }

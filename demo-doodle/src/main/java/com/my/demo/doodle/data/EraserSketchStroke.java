@@ -18,18 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.demo.doodle.protocol;
+package com.my.demo.doodle.data;
 
-import io.reactivex.Observable;
-
-public interface IDoodleEditorView {
-
-//    void setWidth(final float width);
-//    Observable<Float> getWidth();
-//
-//    void setColor(final int color);
-//    Observable<Integer> getStrokeColor();
-
-    void setBrush(ISketchBrush brush);
-    ISketchBrush getBrush();
+public class EraserSketchStroke {
 }

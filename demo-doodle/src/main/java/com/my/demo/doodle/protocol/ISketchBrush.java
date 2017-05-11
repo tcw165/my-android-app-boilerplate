@@ -20,16 +20,11 @@
 
 package com.my.demo.doodle.protocol;
 
-import io.reactivex.Observable;
+/**
+ * A sketch brush may contain more than one stroke property.
+ */
+public interface ISketchBrush {
 
-public interface IDoodleEditorView {
-
-//    void setWidth(final float width);
-//    Observable<Float> getWidth();
-//
-//    void setColor(final int color);
-//    Observable<Integer> getStrokeColor();
-
-    void setBrush(ISketchBrush brush);
-    ISketchBrush getBrush();
+    void setStroke(final ISketchStroke stroke);
+    ISketchStroke getStroke();
 }
