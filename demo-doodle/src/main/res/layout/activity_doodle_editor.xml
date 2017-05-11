@@ -83,22 +83,35 @@
         android:id="@+id/stroke_width_picker"
         android:layout_width="0dp"
         android:layout_height="24dp"
+        android:layout_marginBottom="12dp"
         android:layout_marginEnd="36dp"
         android:layout_marginStart="36dp"
         android:maxHeight="48dp"
         android:minHeight="48dp"
-        app:layout_constraintBottom_toTopOf="@+id/brush_picker"
+        app:layout_constraintBottom_toTopOf="@+id/brush_picker_container"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>
 
     <!-- Brush Picker -->
-    <android.support.v7.widget.RecyclerView
-        android:id="@id/brush_picker"
+    <com.my.widget.ElasticDragLayout
+        android:id="@id/brush_picker_container"
         android:layout_width="0dp"
-        android:layout_height="68dp"
-        android:orientation="horizontal"
+        android:layout_height="54dp"
+        app:dragElasticity="0.98"
+        app:dragOverDistance="344dp"
+        app:dragOverMaxDistance="56dp"
+        app:dragScale="1.0"
+        app:elastic_OverDragOrientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/brush_picker"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            app:elasticScrollView="true"/>
+    </com.my.widget.ElasticDragLayout>
 
 </android.support.constraint.ConstraintLayout>
