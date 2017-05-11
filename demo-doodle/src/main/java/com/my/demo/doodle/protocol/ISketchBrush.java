@@ -21,10 +21,26 @@
 package com.my.demo.doodle.protocol;
 
 /**
- * A sketch brush may contain more than one stroke property.
+ * A sketch brush instance is a factory for generating new stroke.
  */
 public interface ISketchBrush {
 
-    void setStroke(final ISketchStroke stroke);
-    ISketchStroke getStroke();
+//    void setStroke(final ISketchStroke stroke);
+//    ISketchStroke getStroke();
+
+    Config getConfig();
+
+    ISketchStroke newStroke();
+
+    /**
+     * The brush configuration.
+     */
+    interface Config {
+
+        float getStrokeWidth();
+        Config setStrokeWidth(final float width);
+
+        int getStrokeColor();
+        Config setStrokeColor(final int color);
+    }
 }

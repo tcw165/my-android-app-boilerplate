@@ -37,8 +37,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
 import com.my.demo.doodle.data.ColorPenBrushFactory;
 import com.my.demo.doodle.protocol.ISketchBrush;
-import com.my.demo.doodle.protocol.ISketchStroke;
-import com.my.demo.doodle.view.DoodleEditorView;
+import com.my.demo.doodle.view.SketchEditorView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,8 +66,8 @@ public class DoodleEditorActivity
     AppCompatSeekBar mStrokeWidthPicker;
     @BindView(R.id.brush_picker)
     RecyclerView mBrushPicker;
-    @BindView(R.id.doodle_editor)
-    DoodleEditorView mDoodleEditor;
+    @BindView(R.id.sketch_editor)
+    SketchEditorView mSketchEditor;
 
     // Adapter.
     RequestManager mGlide;
@@ -96,9 +95,8 @@ public class DoodleEditorActivity
                                                onClickBrush());
         mBrushPickerAdapter.setItems(
             new ColorPenBrushFactory()
-                .setMinPathSegmentLength(getResources().getDimension(
-                    R.dimen.doodle_default_path_segment_length))
-                .setMinPathSegmentDuration(2L)
+                .setStrokeWidth(getResources().getDimension(
+                    R.dimen.doodle_default_stroke_width))
                 .addColor(Color.parseColor("#FFFFFF"))
                 .addColor(Color.parseColor("#000000"))
                 .addColor(Color.parseColor("#3897F0"))
@@ -164,6 +162,7 @@ public class DoodleEditorActivity
             public void onClickBrush(ISketchBrush brush) {
                 // TODO: Update the width.
 //                brush.getStroke().setWidth()
+                mSketchEditor.setBrush(brush);
             }
         };
     }
@@ -183,7 +182,7 @@ public class DoodleEditorActivity
         private final BrushListener mCallback;
 
         private final List<ISketchBrush> mBrushes = new ArrayList<>();
-        private final List<ColorDrawable> mColors = new ArrayList<>();
+        private final List<ColorDrawable> mColorDrawables = new ArrayList<>();
 
         private BrushAdapter(final LayoutInflater inflater,
                              final RequestManager glide,
@@ -205,8 +204,7 @@ public class DoodleEditorActivity
                                      int position) {
             final ImageView view = (ImageView) holder.itemView;
             final ISketchBrush brush = mBrushes.get(position);
-            final ISketchStroke stroke = brush.getStroke();
-            final ColorDrawable drawable = mColors.get(position);
+            final ColorDrawable drawable = mColorDrawables.get(position);
 
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -217,7 +215,7 @@ public class DoodleEditorActivity
                 }
             });
             Log.d("xyz", "onBind:: #" + position + ", " +
-                         "color=" + stroke.getColor());
+                         "color=" + brush.getConfig().getStrokeColor());
 
             view.setImageDrawable(drawable);
 //            // Display.
@@ -235,9 +233,10 @@ public class DoodleEditorActivity
             mBrushes.addAll(brushes);
 
             // Construct color drawable list.
-            mColors.clear();
+            mColorDrawables.clear();
             for (ISketchBrush brush : mBrushes) {
-                mColors.add(new ColorDrawable(brush.getStroke().getColor()));
+                mColorDrawables.add(new ColorDrawable(
+                    brush.getConfig().getStrokeColor()));
             }
         }
     }

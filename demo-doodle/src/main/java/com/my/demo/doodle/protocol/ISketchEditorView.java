@@ -20,9 +20,7 @@
 
 package com.my.demo.doodle.protocol;
 
-import io.reactivex.Observable;
-
-public interface IDoodleEditorView {
+public interface ISketchEditorView {
 
 //    void setWidth(final float width);
 //    Observable<Float> getWidth();

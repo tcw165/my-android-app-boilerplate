@@ -29,19 +29,12 @@ import java.util.List;
 public class ColorPenBrushFactory {
 
     // Config to build the shared stroke.
-    private float mMinPathSegmentLength = 10f;
-    private long mMinPathSegmentDuration = 10L;
+    private float mStrokeWidth = 10f;
 
     private final List<Integer> mColors = new ArrayList<>();
 
-    public ColorPenBrushFactory setMinPathSegmentLength(final float length) {
-        mMinPathSegmentLength = length;
-
-        return this;
-    }
-
-    public ColorPenBrushFactory setMinPathSegmentDuration(final long duration) {
-        mMinPathSegmentDuration = duration;
+    public ColorPenBrushFactory setStrokeWidth(final float width) {
+        mStrokeWidth = width;
 
         return this;
     }
@@ -53,15 +46,18 @@ public class ColorPenBrushFactory {
     }
 
     public List<ISketchBrush> build() {
-        final List<ISketchBrush> brushes = new ArrayList<>();
+        if (mColors.isEmpty()) {
+            throw new IllegalStateException("Should at least add one color");
+        }
 
-        // Ensure the shared stroke.
-        final PenSketchStroke sharedStroke = new PenSketchStroke(
-            mMinPathSegmentLength, mMinPathSegmentDuration);
+        final List<ISketchBrush> brushes = new ArrayList<>();
 
         // Construct the brushes.
         for (Integer color : mColors) {
-            brushes.add(new PenBrushWithSharedStroke(sharedStroke, color));
+            brushes.add(new PenBrush(
+                new PenSketchBrushConfig()
+                    .setStrokeWidth(mStrokeWidth)
+                    .setStrokeColor(color)));
         }
 
         return brushes;
@@ -70,28 +66,51 @@ public class ColorPenBrushFactory {
     ///////////////////////////////////////////////////////////////////////////
     // Clazz //////////////////////////////////////////////////////////////////
 
-    private static class PenBrushWithSharedStroke
-        implements ISketchBrush {
+    private static class PenBrush implements ISketchBrush {
 
-        private final ISketchStroke mStroke;
-        private final int mStrokeColor;
+        private final ISketchBrush.Config mConfig;
 
-        private PenBrushWithSharedStroke(final ISketchStroke stroke,
-                                         final int color) {
-            mStroke = stroke;
+        private PenBrush(final ISketchBrush.Config config) {
+            mConfig = config;
+        }
+
+        @Override
+        public Config getConfig() {
+            return mConfig;
+        }
+
+        @Override
+        public ISketchStroke newStroke() {
+            return new PenSketchStroke(mConfig.getStrokeWidth(),
+                                       mConfig.getStrokeColor());
+        }
+    }
+
+    private static class PenSketchBrushConfig implements ISketchBrush.Config {
+
+        private float mStrokeWidth = 10f;
+        private int mStrokeColor = 0x123456;
+
+        @Override
+        public float getStrokeWidth() {
+            return mStrokeWidth;
+        }
+
+        @Override
+        public ISketchBrush.Config setStrokeWidth(float width) {
+            mStrokeWidth = width;
+            return this;
+        }
+
+        @Override
+        public int getStrokeColor() {
+            return mStrokeColor;
+        }
+
+        @Override
+        public ISketchBrush.Config setStrokeColor(int color) {
             mStrokeColor = color;
-        }
-
-        @Override
-        public void setStroke(ISketchStroke stroke) {
-            // DUMMY IMPL, it's not allowed to change stroke after first time
-            // instantiation.
-        }
-
-        @Override
-        public ISketchStroke getStroke() {
-            mStroke.setColor(mStrokeColor);
-            return mStroke;
+            return this;
         }
     }
 }

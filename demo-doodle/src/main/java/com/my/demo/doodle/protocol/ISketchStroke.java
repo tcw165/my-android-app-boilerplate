@@ -62,12 +62,13 @@ public interface ISketchStroke {
     int getColor();
 
     boolean savePathTuple(final float x,
-                          final float y,
-                          final float width,
-                          final int color);
+                          final float y);
 
     PathTuple getPathTupleAt(final int position);
+    PathTuple getFirstPathTuple();
+    PathTuple getLastPathTuple();
 
+    int size();
     List<PathTuple> getAllPathTuples();
 
     void draw(final Canvas canvas);

@@ -22,8 +22,6 @@ package com.my.demo.doodle.data;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.os.SystemClock;
-import android.util.Log;
 
 import com.my.demo.doodle.protocol.ISketchStroke;
 
@@ -33,68 +31,67 @@ import java.util.List;
 
 public class PenSketchStroke implements ISketchStroke {
 
-    // Config.
-    private float mMinPathSegmentLength;
-    private long mMinPathSegmentDuration;
-    private float mStrokeWidth;
-    private int mStrokeColor;
-
     // State.
-    private long mPrevAddTime;
     private final Paint mStrokePaint;
     private final List<PathTuple> mPathTuples = new ArrayList<>();
 
     // TODO: Refactor this by using build pattern.
-    public PenSketchStroke(final float minDistanceThreshold,
-                           final long minTimeDurationThreshold) {
-        mMinPathSegmentLength = minDistanceThreshold;
-        mMinPathSegmentDuration = minTimeDurationThreshold;
-        Log.d("xyz", "mMinPathSegmentLength=" + mMinPathSegmentLength);
-        Log.d("xyz", "mMinPathSegmentDuration=" + mMinPathSegmentDuration);
-
+    public PenSketchStroke(final float width,
+                           final int color) {
         mStrokePaint = new Paint();
         mStrokePaint.setStyle(Paint.Style.STROKE);
+        mStrokePaint.setStrokeWidth(width);
+        mStrokePaint.setColor(color);
     }
 
     @Override
     public ISketchStroke setWidth(float width) {
-        mStrokeWidth = width;
+        mStrokePaint.setStrokeWidth(width);
         return this;
     }
 
     @Override
     public float getWidth() {
-        return mStrokeWidth;
+        return mStrokePaint.getStrokeWidth();
     }
 
     @Override
     public ISketchStroke setColor(int color) {
-        mStrokeColor = color;
+        mStrokePaint.setColor(color);
         return this;
     }
 
     @Override
     public int getColor() {
-        return mStrokeColor;
+        return mStrokePaint.getColor();
     }
 
     @Override
     public boolean savePathTuple(float x,
-                                 float y,
-                                 float width,
-                                 int color) {
-        mStrokePaint.setStrokeWidth(width);
-        mStrokePaint.setColor(color);
-
+                                 float y) {
         // TODO: Determine whether to record the tuple by distance and time
         // TODO: compared to the previous tuple.
-        return canAdd(x, y) &&
-               mPathTuples.add(new DefaultPathTuple(x, y));
+        return mPathTuples.add(new DefaultPathTuple(x, y));
     }
 
     @Override
     public PathTuple getPathTupleAt(int position) {
         return mPathTuples.get(position);
+    }
+
+    @Override
+    public PathTuple getFirstPathTuple() {
+        return mPathTuples.get(0);
+    }
+
+    @Override
+    public PathTuple getLastPathTuple() {
+        return mPathTuples.get(mPathTuples.size() - 1);
+    }
+
+    @Override
+    public int size() {
+        return mPathTuples.size();
     }
 
     @Override
@@ -121,27 +118,6 @@ public class PenSketchStroke implements ISketchStroke {
 
     ///////////////////////////////////////////////////////////////////////////
     // Protected / Private Methods ////////////////////////////////////////////
-
-    private boolean canAdd(final float x,
-                           final float y) {
-        if (mPathTuples.size() == 0) return true;
-
-        final long duration = SystemClock.currentThreadTimeMillis() - mPrevAddTime;
-        final PathTuple tuple = mPathTuples.get(mPathTuples.size() - 1);
-        final Anchor anchor = tuple.getAnchorAt(0);
-
-        Log.d("xyz", "duration=" + duration + ", " +
-                     "distance=" + Math.hypot(x - anchor.getX(), y - anchor.getY()));
-        if (duration > mMinPathSegmentDuration &&
-            Math.hypot(x - anchor.getX(), y - anchor.getY()) > mMinPathSegmentLength) {
-
-            mPrevAddTime = SystemClock.currentThreadTimeMillis();
-
-            return true;
-        } else {
-            return false;
-        }
-    }
 
     ///////////////////////////////////////////////////////////////////////////
     // Clazz //////////////////////////////////////////////////////////////////
@@ -171,8 +147,6 @@ public class PenSketchStroke implements ISketchStroke {
 
         private float mX;
         private float mY;
-        private float mWidth;
-        private int mColor;
 
         @Override
         public Anchor setX(float x) {

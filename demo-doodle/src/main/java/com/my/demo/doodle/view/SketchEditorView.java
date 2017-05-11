@@ -23,7 +23,6 @@ package com.my.demo.doodle.view;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.os.SystemClock;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
@@ -31,42 +30,54 @@ import android.util.Log;
 import android.view.MotionEvent;
 
 import com.my.demo.doodle.R;
-import com.my.demo.doodle.data.PenSketchStroke;
-import com.my.demo.doodle.protocol.IDoodleEditorView;
+import com.my.demo.doodle.protocol.ISketchEditorView;
 import com.my.demo.doodle.protocol.ISketchBrush;
 import com.my.demo.doodle.protocol.ISketchStroke;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import io.reactivex.Observable;
-
-public class DoodleEditorView
+public class SketchEditorView
     extends AppCompatImageView
-    implements IDoodleEditorView {
+    implements ISketchEditorView {
+
+    // Config.
+    private float mMinPathSegmentLength;
+    private long mMinPathSegmentDuration;
 
     // State
+    private long mPrevAddTime;
+    private ISketchBrush mBrush;
     final List<ISketchStroke> mStrokes = new ArrayList<>();
-    int mStrokeColor;
-    float mStrokeWidth;
+//    int mStrokeColor;
+//    float mStrokeWidth;
 
-    public DoodleEditorView(Context context) {
+    public SketchEditorView(Context context) {
         this(context, null);
     }
 
-    public DoodleEditorView(Context context, AttributeSet attrs) {
+    public SketchEditorView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public DoodleEditorView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public SketchEditorView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
-        mStrokeColor = ContextCompat.getColor(context, R.color.accent);
-        mStrokeWidth = context.getResources().getDimension(R.dimen.doodle_default_stroke_width);
+        mMinPathSegmentLength = context.getResources().getDimension(
+            R.dimen.doodle_default_path_segment_length);
+        mMinPathSegmentDuration = 2L;
+
+//        mStrokeColor = ContextCompat.getColor(context, R.color.accent);
+//        mStrokeWidth = context.getResources().getDimension(R.dimen.doodle_default_stroke_width);
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        // Handle the touch event in a default way if no brush is present.
+        if (mBrush == null) {
+            return super.onTouchEvent(event);
+        }
+
         final int action = MotionEventCompat.getActionMasked(event);
 
         // Show how often this callback is called.
@@ -75,11 +86,11 @@ public class DoodleEditorView
         switch (action) {
             case MotionEvent.ACTION_DOWN: {
                 // TODO: Make it confi
-                final ISketchStroke stroke = new PenSketchStroke(
-                    getResources().getDimension(R.dimen.doodle_default_path_segment_length),
-                    3);
+//                final ISketchStroke stroke = new PenSketchStroke(
+//                    getResources().getDimension(R.dimen.doodle_default_path_segment_length),
+//                    3);
 
-                mStrokes.add(stroke);
+                mStrokes.add(mBrush.newStroke());
                 break;
             }
             case MotionEvent.ACTION_MOVE: {
@@ -87,10 +98,9 @@ public class DoodleEditorView
                 final float x = event.getX();
                 final float y = event.getY();
 
-                stroke.savePathTuple(x, y, mStrokeWidth, mStrokeColor);
-                Log.d("xyz", "(x=" + x + ", y=" + y + ")" +
-                             ", stroke.getAllPathTuples()=" +
-                             stroke.getAllPathTuples().size());
+                if (canAdd(stroke, x, y)) {
+                    stroke.savePathTuple(x, y);
+                }
 
                 postInvalidate();
                 break;
@@ -107,12 +117,16 @@ public class DoodleEditorView
 
     @Override
     public void setBrush(ISketchBrush brush) {
+        if (brush == null) {
+            throw new IllegalArgumentException("null brush.");
+        }
 
+        mBrush = brush;
     }
 
     @Override
     public ISketchBrush getBrush() {
-        return null;
+        return mBrush;
     }
 
 //    @Override
@@ -145,6 +159,29 @@ public class DoodleEditorView
         // Render path strokes
         for (ISketchStroke stroke : mStrokes) {
             stroke.draw(canvas);
+        }
+    }
+
+    private boolean canAdd(final ISketchStroke stroke,
+                           final float x,
+                           final float y) {
+        if (mBrush == null) return false;
+        if (stroke.size() == 0) return true;
+
+        final long duration = SystemClock.currentThreadTimeMillis() - mPrevAddTime;
+        final ISketchStroke.PathTuple tuple = stroke.getLastPathTuple();
+        final ISketchStroke.Anchor anchor = tuple.getAnchorAt(0);
+
+        Log.d("xyz", "duration=" + duration + ", " +
+                     "distance=" + Math.hypot(x - anchor.getX(), y - anchor.getY()));
+        if (duration > mMinPathSegmentDuration &&
+            Math.hypot(x - anchor.getX(), y - anchor.getY()) > mMinPathSegmentLength) {
+
+            mPrevAddTime = SystemClock.currentThreadTimeMillis();
+
+            return true;
+        } else {
+            return false;
         }
     }
 }
