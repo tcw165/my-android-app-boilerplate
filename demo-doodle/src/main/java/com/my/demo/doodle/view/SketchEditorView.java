@@ -49,8 +49,6 @@ public class SketchEditorView
     private long mPrevAddTime;
     private ISketchBrush mBrush;
     final List<ISketchStroke> mStrokes = new ArrayList<>();
-//    int mStrokeColor;
-//    float mStrokeWidth;
 
     public SketchEditorView(Context context) {
         this(context, null);
@@ -66,9 +64,6 @@ public class SketchEditorView
         mMinPathSegmentLength = context.getResources().getDimension(
             R.dimen.doodle_default_path_segment_length);
         mMinPathSegmentDuration = 2L;
-
-//        mStrokeColor = ContextCompat.getColor(context, R.color.accent);
-//        mStrokeWidth = context.getResources().getDimension(R.dimen.doodle_default_stroke_width);
     }
 
     @Override
@@ -78,6 +73,7 @@ public class SketchEditorView
             return super.onTouchEvent(event);
         }
 
+        boolean isHandled = false;
         final int action = MotionEventCompat.getActionMasked(event);
 
         // Show how often this callback is called.
@@ -85,12 +81,9 @@ public class SketchEditorView
 
         switch (action) {
             case MotionEvent.ACTION_DOWN: {
-                // TODO: Make it confi
-//                final ISketchStroke stroke = new PenSketchStroke(
-//                    getResources().getDimension(R.dimen.doodle_default_path_segment_length),
-//                    3);
-
                 mStrokes.add(mBrush.newStroke());
+
+                isHandled = true;
                 break;
             }
             case MotionEvent.ACTION_MOVE: {
@@ -102,17 +95,19 @@ public class SketchEditorView
                     stroke.savePathTuple(x, y);
                 }
 
+                isHandled = true;
+
                 postInvalidate();
                 break;
             }
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL: {
+                isHandled = true;
                 break;
             }
         }
 
-//        return super.onTouchEvent(event);
-        return true;
+        return !isHandled && super.onTouchEvent(event);
     }
 
     @Override
@@ -128,26 +123,6 @@ public class SketchEditorView
     public ISketchBrush getBrush() {
         return mBrush;
     }
-
-//    @Override
-//    public void setWidth(float width) {
-//
-//    }
-//
-//    @Override
-//    public Observable<Float> getWidth() {
-//        return null;
-//    }
-//
-//    @Override
-//    public void setColor(int color) {
-//
-//    }
-//
-//    @Override
-//    public Observable<Integer> getStrokeColor() {
-//        return null;
-//    }
 
     ///////////////////////////////////////////////////////////////////////////
     // Protected / Private Methods ////////////////////////////////////////////
@@ -165,7 +140,8 @@ public class SketchEditorView
     private boolean canAdd(final ISketchStroke stroke,
                            final float x,
                            final float y) {
-        if (mBrush == null) return false;
+        if (mBrush == null ||
+            mBrush.getConfig().getStrokeColor() == 0) return false;
         if (stroke.size() == 0) return true;
 
         final long duration = SystemClock.currentThreadTimeMillis() - mPrevAddTime;

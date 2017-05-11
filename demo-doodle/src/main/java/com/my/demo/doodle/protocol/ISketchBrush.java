@@ -25,9 +25,6 @@ package com.my.demo.doodle.protocol;
  */
 public interface ISketchBrush {
 
-//    void setStroke(final ISketchStroke stroke);
-//    ISketchStroke getStroke();
-
     Config getConfig();
 
     ISketchStroke newStroke();
