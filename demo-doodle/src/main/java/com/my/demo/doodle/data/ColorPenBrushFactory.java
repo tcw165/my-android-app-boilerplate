@@ -20,6 +20,8 @@
 
 package com.my.demo.doodle.data;
 
+import android.util.Log;
+
 import com.my.demo.doodle.protocol.ISketchBrush;
 import com.my.demo.doodle.protocol.ISketchStroke;
 
@@ -54,6 +56,7 @@ public class ColorPenBrushFactory {
 
         // Construct the brushes.
         for (Integer color : mColors) {
+            // FIXME: Implement the shared stroke width.
             brushes.add(new PenBrush(
                 new PenSketchBrushConfig()
                     .setStrokeWidth(mStrokeWidth)
@@ -81,6 +84,7 @@ public class ColorPenBrushFactory {
 
         @Override
         public ISketchStroke newStroke() {
+            Log.d("xyz", "stroke width=" + mConfig.getStrokeWidth());
             return new PenSketchStroke(mConfig.getStrokeWidth(),
                                        mConfig.getStrokeColor());
         }

@@ -44,6 +44,7 @@ public class SketchEditorView
     // Config.
     private float mMinPathSegmentLength;
     private long mMinPathSegmentDuration;
+    private Config mConfig;
 
     // State
     private long mPrevAddTime;
@@ -62,8 +63,15 @@ public class SketchEditorView
         super(context, attrs, defStyleAttr);
 
         mMinPathSegmentLength = context.getResources().getDimension(
-            R.dimen.doodle_default_path_segment_length);
+            R.dimen.sketch_default_path_segment_length);
         mMinPathSegmentDuration = 2L;
+
+        // TODO: Support min/max stroke width attribute;
+        mConfig = new Config()
+            .setMinStrokeWidth(context.getResources().getDimension(
+                R.dimen.sketch_min_stroke_width))
+            .setMaxStrokeWidth(context.getResources().getDimension(
+                R.dimen.sketch_max_stroke_width));
     }
 
     @Override
@@ -111,17 +119,24 @@ public class SketchEditorView
     }
 
     @Override
-    public void setBrush(ISketchBrush brush) {
+    public ISketchEditorView setBrush(ISketchBrush brush) {
         if (brush == null) {
             throw new IllegalArgumentException("null brush.");
         }
 
         mBrush = brush;
+
+        return this;
     }
 
     @Override
     public ISketchBrush getBrush() {
         return mBrush;
+    }
+
+    @Override
+    public ISketchEditorView.Config getConfig() {
+        return mConfig;
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -158,6 +173,35 @@ public class SketchEditorView
             return true;
         } else {
             return false;
+        }
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Clazz //////////////////////////////////////////////////////////////////
+
+    private static class Config implements ISketchEditorView.Config {
+
+        private float mMinStrokeWidth;
+        private float mMaxStrokeWidth;
+
+        @Override
+        public float getMinStrokeWidth() {
+            return mMinStrokeWidth;
+        }
+
+        @Override
+        public float getMaxStrokeWidth() {
+            return mMaxStrokeWidth;
+        }
+
+        Config setMinStrokeWidth(final float min) {
+            mMinStrokeWidth = min;
+            return this;
+        }
+
+        Config setMaxStrokeWidth(final float max) {
+            mMaxStrokeWidth = max;
+            return this;
         }
     }
 }

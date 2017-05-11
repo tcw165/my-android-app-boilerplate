@@ -3,6 +3,7 @@
     <dimen name="toolbar_height">56dp</dimen>
 
     <!-- Doodle -->
-    <dimen name="doodle_default_stroke_width">1dp</dimen>
-    <dimen name="doodle_default_path_segment_length">10dp</dimen>
+    <dimen name="sketch_min_stroke_width">3dp</dimen>
+    <dimen name="sketch_max_stroke_width">70dp</dimen>
+    <dimen name="sketch_default_path_segment_length">10dp</dimen>
 </resources>

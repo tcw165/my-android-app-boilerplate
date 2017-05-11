@@ -35,8 +35,10 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
+import com.jakewharton.rxbinding2.widget.RxSeekBar;
 import com.my.demo.doodle.data.ColorPenBrushFactory;
 import com.my.demo.doodle.protocol.ISketchBrush;
+import com.my.demo.doodle.protocol.ISketchEditorView;
 import com.my.demo.doodle.view.SketchEditorView;
 
 import java.util.ArrayList;
@@ -46,12 +48,17 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.functions.Consumer;
 
 public class DoodleEditorActivity
     extends AppCompatActivity {
 
     // Unbinder.
     Unbinder mUnbinder;
+
+    // Rx.
+    CompositeDisposable mDisposables;
 
     // View.
     @BindView(R.id.btn_close)
@@ -89,6 +96,27 @@ public class DoodleEditorActivity
         // Glide request manager.
         mGlide = Glide.with(this);
 
+        // Init disposable pool.
+        mDisposables = new CompositeDisposable();
+
+        // Brush stroke picker.
+        mDisposables.add(
+            RxSeekBar
+                .changes(mStrokeWidthPicker)
+                .subscribe(new Consumer<Integer>() {
+                    @Override
+                    public void accept(Integer value) throws Exception {
+                        if (mSketchEditor.getBrush() == null) return;
+                        Log.d("xyz", "seek-bar value=" + value);
+
+                        final float min = mSketchEditor.getConfig().getMinStrokeWidth();
+                        final float max = mSketchEditor.getConfig().getMaxStrokeWidth();
+                        final ISketchBrush brush = mSketchEditor.getBrush();
+
+                        brush.getConfig().setStrokeWidth(min + (max - min) * value / 100f);
+                    }
+                }));
+
         // Brush picker.
         mBrushPickerAdapter = new BrushAdapter(getLayoutInflater(),
                                                mGlide,
@@ -96,7 +124,7 @@ public class DoodleEditorActivity
         mBrushPickerAdapter.setItems(
             new ColorPenBrushFactory()
                 .setStrokeWidth(getResources().getDimension(
-                    R.dimen.doodle_default_stroke_width))
+                    R.dimen.sketch_min_stroke_width))
                 .addColor(Color.parseColor("#FFFFFF"))
                 .addColor(Color.parseColor("#000000"))
                 .addColor(Color.parseColor("#3897F0"))
@@ -134,6 +162,9 @@ public class DoodleEditorActivity
 
         // Finish the remaining Glide request.
         mGlide.onDestroy();
+
+        // Dispose all disposables.
+        mDisposables.clear();
     }
 
     @OnClick(R.id.btn_close)

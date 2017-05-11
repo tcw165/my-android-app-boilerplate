@@ -22,12 +22,14 @@ package com.my.demo.doodle.protocol;
 
 public interface ISketchEditorView {
 
-//    void setWidth(final float width);
-//    Observable<Float> getWidth();
-//
-//    void setColor(final int color);
-//    Observable<Integer> getStrokeColor();
-
-    void setBrush(ISketchBrush brush);
+    ISketchEditorView setBrush(final ISketchBrush brush);
     ISketchBrush getBrush();
+
+    ISketchEditorView.Config getConfig();
+
+    interface Config {
+
+        float getMinStrokeWidth();
+        float getMaxStrokeWidth();
+    }
 }

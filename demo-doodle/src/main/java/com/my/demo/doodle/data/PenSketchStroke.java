@@ -42,6 +42,7 @@ public class PenSketchStroke implements ISketchStroke {
         mStrokePaint.setStyle(Paint.Style.STROKE);
         mStrokePaint.setStrokeWidth(width);
         mStrokePaint.setColor(color);
+        mStrokePaint.setStrokeCap(Paint.Cap.ROUND);
     }
 
     @Override
