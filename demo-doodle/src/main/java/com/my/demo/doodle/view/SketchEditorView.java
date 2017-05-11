@@ -107,7 +107,7 @@ public class SketchEditorView
             }
         }
 
-        return !isHandled && super.onTouchEvent(event);
+        return isHandled || super.onTouchEvent(event);
     }
 
     @Override
