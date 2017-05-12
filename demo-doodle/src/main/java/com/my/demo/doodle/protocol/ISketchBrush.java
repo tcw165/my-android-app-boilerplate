@@ -25,19 +25,11 @@ package com.my.demo.doodle.protocol;
  */
 public interface ISketchBrush {
 
-    Config getConfig();
-
     ISketchStroke newStroke();
 
-    /**
-     * The brush configuration.
-     */
-    interface Config {
+    float getStrokeWidth();
+    ISketchBrush setStrokeWidth(final float width);
 
-        float getStrokeWidth();
-        Config setStrokeWidth(final float width);
-
-        int getStrokeColor();
-        Config setStrokeColor(final int color);
-    }
+    int getStrokeColor();
+    ISketchBrush setStrokeColor(final int color);
 }

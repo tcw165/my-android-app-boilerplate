@@ -38,7 +38,6 @@ import com.bumptech.glide.RequestManager;
 import com.jakewharton.rxbinding2.widget.RxSeekBar;
 import com.my.demo.doodle.data.ColorPenBrushFactory;
 import com.my.demo.doodle.protocol.ISketchBrush;
-import com.my.demo.doodle.protocol.ISketchEditorView;
 import com.my.demo.doodle.view.SketchEditorView;
 
 import java.util.ArrayList;
@@ -113,7 +112,7 @@ public class DoodleEditorActivity
                         final float max = mSketchEditor.getConfig().getMaxStrokeWidth();
                         final ISketchBrush brush = mSketchEditor.getBrush();
 
-                        brush.getConfig().setStrokeWidth(min + (max - min) * value / 100f);
+                        brush.setStrokeWidth(min + (max - min) * value / 100f);
                     }
                 }));
 
@@ -246,7 +245,7 @@ public class DoodleEditorActivity
                 }
             });
             Log.d("xyz", "onBind:: #" + position + ", " +
-                         "color=" + brush.getConfig().getStrokeColor());
+                         "color=" + brush.getStrokeColor());
 
             view.setImageDrawable(drawable);
 //            // Display.
@@ -267,7 +266,7 @@ public class DoodleEditorActivity
             mColorDrawables.clear();
             for (ISketchBrush brush : mBrushes) {
                 mColorDrawables.add(new ColorDrawable(
-                    brush.getConfig().getStrokeColor()));
+                    brush.getStrokeColor()));
             }
         }
     }

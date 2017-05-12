@@ -36,12 +36,9 @@ public class PenSketchStroke implements ISketchStroke {
     private final List<PathTuple> mPathTuples = new ArrayList<>();
 
     // TODO: Refactor this by using build pattern.
-    public PenSketchStroke(final float width,
-                           final int color) {
+    PenSketchStroke() {
         mStrokePaint = new Paint();
         mStrokePaint.setStyle(Paint.Style.STROKE);
-        mStrokePaint.setStrokeWidth(width);
-        mStrokePaint.setColor(color);
         mStrokePaint.setStrokeCap(Paint.Cap.ROUND);
     }
 

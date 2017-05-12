@@ -20,8 +20,6 @@
 
 package com.my.demo.doodle.data;
 
-import android.util.Log;
-
 import com.my.demo.doodle.protocol.ISketchBrush;
 import com.my.demo.doodle.protocol.ISketchStroke;
 
@@ -56,11 +54,9 @@ public class ColorPenBrushFactory {
 
         // Construct the brushes.
         for (Integer color : mColors) {
-            // FIXME: Implement the shared stroke width.
-            brushes.add(new PenBrush(
-                new PenSketchBrushConfig()
-                    .setStrokeWidth(mStrokeWidth)
-                    .setStrokeColor(color)));
+            brushes.add(new PenBrush()
+                .setStrokeWidth(mStrokeWidth)
+                .setStrokeColor(color));
         }
 
         return brushes;
@@ -71,38 +67,24 @@ public class ColorPenBrushFactory {
 
     private static class PenBrush implements ISketchBrush {
 
-        private final ISketchBrush.Config mConfig;
-
-        private PenBrush(final ISketchBrush.Config config) {
-            mConfig = config;
-        }
-
-        @Override
-        public Config getConfig() {
-            return mConfig;
-        }
-
-        @Override
-        public ISketchStroke newStroke() {
-            Log.d("xyz", "stroke width=" + mConfig.getStrokeWidth());
-            return new PenSketchStroke(mConfig.getStrokeWidth(),
-                                       mConfig.getStrokeColor());
-        }
-    }
-
-    private static class PenSketchBrushConfig implements ISketchBrush.Config {
-
-        private float mStrokeWidth = 10f;
+        private static float sStrokeWidth = 10f;
         private int mStrokeColor = 0x123456;
 
         @Override
-        public float getStrokeWidth() {
-            return mStrokeWidth;
+        public ISketchStroke newStroke() {
+            return new PenSketchStroke()
+                .setWidth(getStrokeWidth())
+                .setColor(getStrokeColor());
         }
 
         @Override
-        public ISketchBrush.Config setStrokeWidth(float width) {
-            mStrokeWidth = width;
+        public float getStrokeWidth() {
+            return sStrokeWidth;
+        }
+
+        @Override
+        public ISketchBrush setStrokeWidth(float width) {
+            sStrokeWidth = width;
             return this;
         }
 
@@ -112,7 +94,7 @@ public class ColorPenBrushFactory {
         }
 
         @Override
-        public ISketchBrush.Config setStrokeColor(int color) {
+        public ISketchBrush setStrokeColor(int color) {
             mStrokeColor = color;
             return this;
         }

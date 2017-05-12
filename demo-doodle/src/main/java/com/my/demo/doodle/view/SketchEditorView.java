@@ -156,7 +156,7 @@ public class SketchEditorView
                            final float x,
                            final float y) {
         if (mBrush == null ||
-            mBrush.getConfig().getStrokeColor() == 0) return false;
+            mBrush.getStrokeColor() == 0) return false;
         if (stroke.size() == 0) return true;
 
         final long duration = SystemClock.currentThreadTimeMillis() - mPrevAddTime;
