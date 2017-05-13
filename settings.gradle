@@ -1,10 +1,12 @@
 include ':app',
         ':demo-widget',
         ':demo-dlib',
+        ':demo-doodle',
         ':lib-core',
-        ':lib-photo-collage',
+        // FIXME: It's still using experimental gradle.
+//        ':lib-photo-collage',
         ':lib-widget',
         ':lib-protobuf',
         ':lib-component',
         ':lib-dlib',
-        ':lib-ml'
+        ':lib-tensorflow'

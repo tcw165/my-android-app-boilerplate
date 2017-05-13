@@ -1,13 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="ElasticDragLayout">
-        <attr name="dragOverDistance" format="dimension"/>
-        <attr name="dragOverMaxDistance" format="dimension"/>
-        <attr name="dragScale" format="float"/>
-        <attr name="dragElasticity" format="float"/>
+        <attr name="elastic_dragOverDistance" format="dimension"/>
+        <attr name="elastic_dragOverMaxDistance" format="dimension"/>
+        <attr name="elastic_dragScale" format="float"/>
+        <attr name="elastic_dragElasticity" format="float"/>
+        <attr name="elastic_OverDragOrientation" format="integer">
+            <flag name="horizontal" value="1"/>
+            <flag name="horizontal_start_only" value="2"/>
+            <flag name="horizontal_end_only" value="4"/>
+            <flag name="vertical" value="8"/>
+            <flag name="vertical_start_only" value="16"/>
+            <flag name="vertical_end_only" value="32"/>
+        </attr>
 
-        <attr name="elasticScrollViewHeader" format="boolean"/>
-        <attr name="elasticScrollView" format="boolean"/>
-        <attr name="elasticScrollViewFooter" format="boolean"/>
+        <!-- Attributes for children view -->
+        <attr name="elastic_elasticScrollViewHeader" format="boolean"/>
+        <attr name="elastic_elasticScrollView" format="boolean"/>
+        <attr name="elastic_elasticScrollViewFooter" format="boolean"/>
     </declare-styleable>
 </resources>

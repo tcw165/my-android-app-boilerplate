@@ -45,26 +45,26 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
  * approach the given dismiss distance.
  * Optionally also scales down content during drag.
  * <br/>
- * Note: Add {@link R.styleable#ElasticDragLayout_elasticScrollView} attribute
+ * Note: Add {@link R.styleable#ElasticDragLayout_elastic_elasticScrollView} attribute
  * to the child view you want it to be dragged elastically in the layout file.
  * <br/> <br/>
  * Attributes for itself:
  * <ul>
  * <li>
- * {@link R.styleable#ElasticDragLayout_dragOverMaxDistance}
+ * {@link R.styleable#ElasticDragLayout_elastic_dragOverMaxDistance}
  * The over dragging distance
  * </li>
  * </ul>
  * <ul>
  * <li>
- * {@link R.styleable#ElasticDragLayout_dragScale}
+ * {@link R.styleable#ElasticDragLayout_elastic_dragScale}
  * The distance that the {@link OnElasticDragCallback#onDragOver(float)}
  * callback is called when over dragging.
  * </li>
  * </ul>
  * <ul>
  * <li>
- * {@link R.styleable#ElasticDragLayout_dragElasticity}
+ * {@link R.styleable#ElasticDragLayout_elastic_dragElasticity}
  * The scale factor when over dragging.
  * </li>
  * </ul>
@@ -72,28 +72,23 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
  * Attributes for child views:
  * <ul>
  * <li>
- * {@link R.styleable#ElasticDragLayout_elasticScrollView}
+ * {@link R.styleable#ElasticDragLayout_elastic_elasticScrollView}
  * The child view with this attribute is a elastic-draggable view.
  * </li>
  * </ul>
  * <ul>
  * <li>
- * {@link R.styleable#ElasticDragLayout_elasticScrollViewHeader}
+ * {@link R.styleable#ElasticDragLayout_elastic_elasticScrollViewHeader}
  * </li>
  * </ul>
  * <ul>
  * <li>
- * {@link R.styleable#ElasticDragLayout_elasticScrollViewFooter}
+ * {@link R.styleable#ElasticDragLayout_elastic_elasticScrollViewFooter}
  * </li>
  * </ul>
  * <br/>
  */
 public class ElasticDragLayout extends CoordinatorLayout {
-
-    // TODO: Make them configurable attributes.
-    public static final int OVER_DRAG_TWO_WAYS = 0;
-    public static final int OVER_DRAG_DOWN_ONLY = 1;
-    public static final int OVER_DRAG_UP_ONLY = 2;
 
     // Configurable attributes.
     /**
@@ -101,7 +96,7 @@ public class ElasticDragLayout extends CoordinatorLayout {
      * <br/>
      * Attribute:
      * <br/>
-     * See {@link R.styleable#ElasticDragLayout_dragOverMaxDistance}.
+     * See {@link R.styleable#ElasticDragLayout_elastic_dragOverMaxDistance}.
      */
     protected float mDragOverMaxDistance = 244f;
     /**
@@ -110,7 +105,7 @@ public class ElasticDragLayout extends CoordinatorLayout {
      * <br/>
      * Attribute:
      * <br/>
-     * See {@link R.styleable#ElasticDragLayout_dragOverDistance}.
+     * See {@link R.styleable#ElasticDragLayout_elastic_dragOverDistance}.
      */
     protected float mDragOverDistance = 56f;
     /**
@@ -118,7 +113,7 @@ public class ElasticDragLayout extends CoordinatorLayout {
      * <br/>
      * Attribute:
      * <br/>
-     * See {@link R.styleable#ElasticDragLayout_dragScale}.
+     * See {@link R.styleable#ElasticDragLayout_elastic_dragScale}.
      */
     protected float mDragScale = 1.f;
     protected boolean mShouldScale = false;
@@ -127,24 +122,44 @@ public class ElasticDragLayout extends CoordinatorLayout {
      * <br/>
      * Attribute:
      * <br/>
-     * See {@link R.styleable#ElasticDragLayout_dragElasticity}.
+     * See {@link R.styleable#ElasticDragLayout_elastic_dragElasticity}.
      */
     protected float mDragElasticity = 0.8f;
-    // TODO: Add attribute
+
+    public static final int OVER_DRAG_TWO_WAYS = 0;
+    public static final int OVER_DRAG_DOWN_ONLY = 1;
+    public static final int OVER_DRAG_UP_ONLY = 2;
     /**
      * The flag controlling the behavior of the over drag.
      * <br/>
      * Attribute:
      * <br/>
      */
+    // TODO: Add attribute
     protected int mDragDirection = OVER_DRAG_TWO_WAYS;
 //    protected int mDragDirection = OVER_DRAG_DOWN_ONLY;
 //    protected int mDragDirection = OVER_DRAG_UP_ONLY;
 
+    public static final int OVER_DRAG_HORIZONTAL = 1;
+    public static final int OVER_DRAG_HORIZONTAL_START_ONLY = 1 << 1;
+    public static final int OVER_DRAG_HORIZONTAL_END_ONLY = 1 << 2;
+    public static final int OVER_DRAG_VERTICAL = 1 << 3;
+    public static final int OVER_DRAG_VERTICAL_START_ONLY = 1 << 4;
+    public static final int OVER_DRAG_VERTICAL_END_ONLY = 1 << 5;
+    // TODO: Replace mDragDirection
+    /**
+     * The flag controlling the over drag orientation.
+     * <br/>
+     * Attribute:
+     * <br/>
+     * See {@link R.styleable#ElasticDragLayout_elastic_OverDragOrientation}.
+     */
+    protected int mOverDragOrientation = OVER_DRAG_VERTICAL;
+
     // State
     protected float mTotalDrag;
-    protected boolean mDraggingDown = false;
-    protected boolean mDraggingUp = false;
+    protected boolean mDraggingEnd = false;
+    protected boolean mDraggingStart = false;
 
     // Views related.
     protected View mElasticScrollView;
@@ -164,26 +179,31 @@ public class ElasticDragLayout extends CoordinatorLayout {
             attrs, R.styleable.ElasticDragLayout, 0, 0);
 
         // Init configurable attributes.
-        if (array.hasValue(R.styleable.ElasticDragLayout_dragOverMaxDistance)) {
+        if (array.hasValue(R.styleable.ElasticDragLayout_elastic_dragOverMaxDistance)) {
             mDragOverMaxDistance = array.getDimensionPixelSize(
-                R.styleable.ElasticDragLayout_dragOverMaxDistance,
+                R.styleable.ElasticDragLayout_elastic_dragOverMaxDistance,
                 (int) (mDragOverMaxDistance * density));
         }
-        if (array.hasValue(R.styleable.ElasticDragLayout_dragOverDistance)) {
+        if (array.hasValue(R.styleable.ElasticDragLayout_elastic_dragOverDistance)) {
             mDragOverDistance = array.getDimensionPixelSize(
-                R.styleable.ElasticDragLayout_dragOverDistance,
+                R.styleable.ElasticDragLayout_elastic_dragOverDistance,
                 (int) (mDragOverDistance * density));
         }
-        if (array.hasValue(R.styleable.ElasticDragLayout_dragScale)) {
+        if (array.hasValue(R.styleable.ElasticDragLayout_elastic_dragScale)) {
             mDragScale = array.getFloat(
-                R.styleable.ElasticDragLayout_dragScale,
+                R.styleable.ElasticDragLayout_elastic_dragScale,
                 mDragScale);
             mShouldScale = mDragScale != 1f;
         }
-        if (array.hasValue(R.styleable.ElasticDragLayout_dragElasticity)) {
+        if (array.hasValue(R.styleable.ElasticDragLayout_elastic_dragElasticity)) {
             mDragElasticity = array.getFloat(
-                R.styleable.ElasticDragLayout_dragElasticity,
+                R.styleable.ElasticDragLayout_elastic_dragElasticity,
                 mDragElasticity);
+        }
+        if (array.hasValue(R.styleable.ElasticDragLayout_elastic_OverDragOrientation)) {
+            mOverDragOrientation = array.getInt(
+                R.styleable.ElasticDragLayout_elastic_OverDragOrientation,
+                OVER_DRAG_VERTICAL);
         }
         array.recycle();
     }
@@ -197,9 +217,13 @@ public class ElasticDragLayout extends CoordinatorLayout {
             mAnimSet.cancel();
             mAnimSet = null;
         }
-        if ((nestedScrollAxes & ViewCompat.SCROLL_AXIS_VERTICAL) != 0) {
+
+        if ((mOverDragOrientation & OVER_DRAG_HORIZONTAL) == OVER_DRAG_HORIZONTAL) {
+            return (nestedScrollAxes & ViewCompat.SCROLL_AXIS_HORIZONTAL) != 0;
+        } else {
+            // FIXME: Support full orientation.
+            return (nestedScrollAxes & ViewCompat.SCROLL_AXIS_VERTICAL) != 0;
         }
-        return (nestedScrollAxes & ViewCompat.SCROLL_AXIS_VERTICAL) != 0;
     }
 
     @Override
@@ -208,11 +232,20 @@ public class ElasticDragLayout extends CoordinatorLayout {
                                   int dy,
                                   int[] consumed) {
         super.onNestedPreScroll(target, dx, dy, consumed);
+
         // If we're in a drag gesture and the user reverses up the we should
         // take those events
-        if (mDraggingDown && dy > 0 || mDraggingUp && dy < 0) {
-            dragScale(dy);
-            consumed[1] = dy;
+        if ((mOverDragOrientation & OVER_DRAG_HORIZONTAL) == OVER_DRAG_HORIZONTAL) {
+            if (mDraggingEnd && dx > 0 || mDraggingStart && dx < 0) {
+                dragScaleHorizontally(dx);
+                consumed[0] = dx;
+            }
+        } else {
+            // FIXME: Support full orientation.
+            if (mDraggingEnd && dy > 0 || mDraggingStart && dy < 0) {
+                dragScaleVertically(dy);
+                consumed[1] = dy;
+            }
         }
     }
 
@@ -223,7 +256,13 @@ public class ElasticDragLayout extends CoordinatorLayout {
                                int dxUnconsumed,
                                int dyUnconsumed) {
         super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
-        dragScale(dyUnconsumed);
+
+        if ((mOverDragOrientation & OVER_DRAG_HORIZONTAL) == OVER_DRAG_HORIZONTAL) {
+            dragScaleHorizontally(dxUnconsumed);
+        } else {
+            // FIXME: Support full orientation.
+            dragScaleVertically(dyUnconsumed);
+        }
     }
 
     @Override
@@ -246,7 +285,7 @@ public class ElasticDragLayout extends CoordinatorLayout {
         } finally {
             // Update the state.
             mTotalDrag = 0;
-            mDraggingDown = mDraggingUp = false;
+            mDraggingEnd = mDraggingStart = false;
         }
     }
 
@@ -314,17 +353,17 @@ public class ElasticDragLayout extends CoordinatorLayout {
 
         try {
             // Custom attributes.
-            if (array.hasValue(R.styleable.ElasticDragLayout_elasticScrollView)) {
+            if (array.hasValue(R.styleable.ElasticDragLayout_elastic_elasticScrollView)) {
                 params.isElasticScrollView = array.getBoolean(
-                    R.styleable.ElasticDragLayout_elasticScrollView, false);
+                    R.styleable.ElasticDragLayout_elastic_elasticScrollView, false);
             }
-            if (array.hasValue(R.styleable.ElasticDragLayout_elasticScrollViewHeader)) {
+            if (array.hasValue(R.styleable.ElasticDragLayout_elastic_elasticScrollViewHeader)) {
                 params.isElasticScrollViewHeader = array.getBoolean(
-                    R.styleable.ElasticDragLayout_elasticScrollViewHeader, false);
+                    R.styleable.ElasticDragLayout_elastic_elasticScrollViewHeader, false);
             }
-            if (array.hasValue(R.styleable.ElasticDragLayout_elasticScrollViewFooter)) {
+            if (array.hasValue(R.styleable.ElasticDragLayout_elastic_elasticScrollViewFooter)) {
                 params.isElasticScrollViewFooter = array.getBoolean(
-                    R.styleable.ElasticDragLayout_elasticScrollViewFooter, false);
+                    R.styleable.ElasticDragLayout_elastic_elasticScrollViewFooter, false);
             }
         } finally {
             array.recycle();
@@ -435,9 +474,15 @@ public class ElasticDragLayout extends CoordinatorLayout {
     protected void doAnimation() {
         // TODO: If the backport of the transition library is promising, then
         // TODO: I need to use it instead.
-        final ObjectAnimator animTy = ObjectAnimator
-            .ofFloat(mElasticScrollView, "translationY", 0);
-        // Cover updater.
+        final ObjectAnimator animTxy;
+        if ((mOverDragOrientation & OVER_DRAG_HORIZONTAL) == OVER_DRAG_HORIZONTAL) {
+            animTxy = ObjectAnimator
+                .ofFloat(mElasticScrollView, "translationX", 0);
+        } else {
+            // FIXME: Support full orientation.
+            animTxy = ObjectAnimator
+                .ofFloat(mElasticScrollView, "translationY", 0);
+        }
         final ObjectAnimator animSx = ObjectAnimator
             .ofFloat(mElasticScrollView, "scaleX", 1.f);
         final ObjectAnimator animSy = ObjectAnimator
@@ -448,13 +493,13 @@ public class ElasticDragLayout extends CoordinatorLayout {
             mAnimSet.cancel();
         }
         mAnimSet = new AnimatorSet();
-        mAnimSet.playTogether(animTy, animSx, animSy);
+        mAnimSet.playTogether(animTxy, animSx, animSy);
         mAnimSet.setDuration(300L);
         mAnimSet.setInterpolator(new DecelerateInterpolator());
         mAnimSet.start();
     }
 
-    protected void dragScale(int scroll) {
+    protected void dragScaleVertically(int scroll) {
         if (scroll == 0 ||
             !(mElasticScrollView instanceof NestedScrollingChild)) {
             return;
@@ -467,19 +512,19 @@ public class ElasticDragLayout extends CoordinatorLayout {
         }
 
         mTotalDrag += scroll;
-        Log.d("xyz", "dragScale: dy=" + scroll + ", totalDrag=" + mTotalDrag);
+        Log.d("xyz", "dragScaleVertically: dy=" + scroll + ", totalDrag=" + mTotalDrag);
 
         // track the direction & set the pivot point for scaling
         // don't double track i.e. if start dragging down and then reverse,
         // keep tracking as dragging down until they reach the 'natural' position
-        if (scroll < 0 && !mDraggingUp && !mDraggingDown) {
-            mDraggingDown = true;
+        if (scroll < 0 && !mDraggingStart && !mDraggingEnd) {
+            mDraggingEnd = true;
             if (mShouldScale) {
                 ViewCompat.setPivotY(mElasticScrollView, mElasticScrollView.getHeight());
                 ViewCompat.setPivotX(mElasticScrollView, mElasticScrollView.getWidth() / 2);
             }
-        } else if (scroll > 0 && !mDraggingDown && !mDraggingUp) {
-            mDraggingUp = true;
+        } else if (scroll > 0 && !mDraggingEnd && !mDraggingStart) {
+            mDraggingStart = true;
             if (mShouldScale) {
                 ViewCompat.setPivotY(mElasticScrollView, 0f);
                 ViewCompat.setPivotX(mElasticScrollView, mElasticScrollView.getWidth() / 2);
@@ -493,7 +538,7 @@ public class ElasticDragLayout extends CoordinatorLayout {
         // calculate the desired translation given the drag fraction
         float dragTo = dragFraction * mDragOverMaxDistance * mDragElasticity;
 
-        if (mDraggingUp) {
+        if (mDraggingStart) {
             // as we use the absolute magnitude when calculating the drag
             // fraction, need to re-apply the drag direction
             dragTo *= -1;
@@ -520,10 +565,10 @@ public class ElasticDragLayout extends CoordinatorLayout {
         // if we've reversed direction and gone past the settle point then clear
         // the flags to allow the list to get the scroll events & reset any
         // transforms
-        if ((mDraggingDown && mTotalDrag >= 0)
-            || (mDraggingUp && mTotalDrag <= 0)) {
+        if ((mDraggingEnd && mTotalDrag >= 0)
+            || (mDraggingStart && mTotalDrag <= 0)) {
             mTotalDrag = dragTo = dragFraction = 0f;
-            mDraggingDown = mDraggingUp = false;
+            mDraggingEnd = mDraggingStart = false;
             ViewCompat.setTranslationY(mElasticScrollView, 0f);
             ViewCompat.setScaleX(mElasticScrollView, 1f);
             ViewCompat.setScaleY(mElasticScrollView, 1f);
@@ -536,8 +581,90 @@ public class ElasticDragLayout extends CoordinatorLayout {
         onPostDragScale(dragTo);
     }
 
+    private void dragScaleHorizontally(int scroll) {
+        if (scroll == 0 ||
+            !(mElasticScrollView instanceof NestedScrollingChild)) {
+            return;
+        }
+
+        // Ensure the animation is cancelled.
+        if (mAnimSet != null) {
+            mAnimSet.cancel();
+            mAnimSet = null;
+        }
+
+        mTotalDrag += scroll;
+        Log.d("xyz", "dragScaleVertically: dy=" + scroll + ", totalDrag=" + mTotalDrag);
+
+        // track the direction & set the pivot point for scaling
+        // don't double track i.e. if start dragging down and then reverse,
+        // keep tracking as dragging down until they reach the 'natural' position
+        if (scroll < 0 && !mDraggingStart && !mDraggingEnd) {
+            mDraggingEnd = true;
+            if (mShouldScale) {
+                ViewCompat.setPivotY(mElasticScrollView, mElasticScrollView.getHeight());
+                ViewCompat.setPivotX(mElasticScrollView, mElasticScrollView.getWidth() / 2);
+            }
+        } else if (scroll > 0 && !mDraggingEnd && !mDraggingStart) {
+            mDraggingStart = true;
+            if (mShouldScale) {
+                ViewCompat.setPivotY(mElasticScrollView, 0f);
+                ViewCompat.setPivotX(mElasticScrollView, mElasticScrollView.getWidth() / 2);
+            }
+        }
+        // how far have we dragged relative to the distance to perform a dismiss
+        // (0–1 where 1 = dismiss distance). Decreasing logarithmically as we
+        // approach the limit
+        float dragFraction = (float) Math.log10(1 + (Math.abs(mTotalDrag) / mDragOverMaxDistance));
+
+        // calculate the desired translation given the drag fraction
+        float dragTo = dragFraction * mDragOverMaxDistance * mDragElasticity;
+
+        if (mDraggingStart) {
+            // as we use the absolute magnitude when calculating the drag
+            // fraction, need to re-apply the drag direction
+            dragTo *= -1;
+        }
+
+//        // Clamp dragTo.
+//        if (mDragDirection == OVER_DRAG_DOWN_ONLY) {
+//            // To positive value (dragging down only).
+//            dragTo = Math.max(0, dragTo);
+//        } else if (mDragDirection == OVER_DRAG_UP_ONLY) {
+//            // To negative value (dragging up only).
+//            dragTo = Math.min(0, dragTo);
+//        }
+
+        ViewCompat.setTranslationX(mElasticScrollView, dragTo);
+        // TODO: Handle scroll-view header and footer.
+
+        if (mShouldScale) {
+            final float scale = 1 - ((1 - mDragScale) * dragFraction);
+            ViewCompat.setScaleX(mElasticScrollView, scale);
+            ViewCompat.setScaleY(mElasticScrollView, scale);
+        }
+
+        // if we've reversed direction and gone past the settle point then clear
+        // the flags to allow the list to get the scroll events & reset any
+        // transforms
+        if ((mDraggingEnd && mTotalDrag >= 0)
+            || (mDraggingStart && mTotalDrag <= 0)) {
+            mTotalDrag = dragTo = dragFraction = 0f;
+            mDraggingEnd = mDraggingStart = false;
+            ViewCompat.setTranslationX(mElasticScrollView, 0f);
+            ViewCompat.setScaleX(mElasticScrollView, 1f);
+            ViewCompat.setScaleY(mElasticScrollView, 1f);
+        }
+
+        dispatchOnDragCallbacks(
+            dragFraction, dragTo,
+            Math.min(1f, Math.abs(mTotalDrag) / mDragOverMaxDistance), mTotalDrag);
+
+        onPostDragScale(dragTo);
+    }
+
     /**
-     * Called after {@link #dragScale(int)}. It's an interface for the child
+     * Called after {@link #dragScaleVertically(int)}. It's an interface for the child
      * class.
      */
     protected void onPostDragScale(float dragTo) {

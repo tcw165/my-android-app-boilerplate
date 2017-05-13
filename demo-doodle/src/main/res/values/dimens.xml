@@ -1,0 +1,9 @@
+<resources>
+    <!-- Common -->
+    <dimen name="toolbar_height">56dp</dimen>
+
+    <!-- Doodle -->
+    <dimen name="sketch_min_stroke_width">3dp</dimen>
+    <dimen name="sketch_max_stroke_width">70dp</dimen>
+    <dimen name="sketch_default_path_segment_length">10dp</dimen>
+</resources>

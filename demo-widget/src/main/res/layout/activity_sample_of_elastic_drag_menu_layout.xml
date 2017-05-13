@@ -20,17 +20,17 @@
         android:id="@+id/elastic_drag_menu_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:dragElasticity="0.98"
-        app:dragOverDistance="56dp"
-        app:dragOverMaxDistance="344dp"
-        app:dragScale="1">
+        app:elastic_dragElasticity="0.98"
+        app:elastic_dragOverDistance="56dp"
+        app:elastic_dragOverMaxDistance="344dp"
+        app:elastic_dragScale="1">
 
         <android.support.v4.widget.NestedScrollView
             android:id="@+id/elastic_scroll_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@android:color/white"
-            app:elasticScrollView="true">
+            app:elastic_elasticScrollView="true">
 
             <LinearLayout
                 android:layout_width="match_parent"
