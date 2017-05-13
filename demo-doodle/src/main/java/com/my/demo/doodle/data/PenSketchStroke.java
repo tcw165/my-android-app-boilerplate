@@ -38,7 +38,6 @@ public class PenSketchStroke implements ISketchStroke {
     // TODO: Refactor this by using build pattern.
     PenSketchStroke() {
         mStrokePaint = new Paint();
-        mStrokePaint.setStyle(Paint.Style.STROKE);
         mStrokePaint.setStrokeCap(Paint.Cap.ROUND);
     }
 
@@ -67,8 +66,6 @@ public class PenSketchStroke implements ISketchStroke {
     @Override
     public boolean savePathTuple(float x,
                                  float y) {
-        // TODO: Determine whether to record the tuple by distance and time
-        // TODO: compared to the previous tuple.
         return mPathTuples.add(new DefaultPathTuple(x, y));
     }
 
@@ -106,11 +103,30 @@ public class PenSketchStroke implements ISketchStroke {
     public void draw(Canvas canvas,
                      int start,
                      int end) {
-        for (int i = start + 1; i <= end; ++i) {
-            final Anchor a0 = mPathTuples.get(i - 1).getAnchorAt(0);
-            final Anchor a1 = mPathTuples.get(i).getAnchorAt(0);
+        if (end == start) {
+            // A point.
+            mStrokePaint.setStyle(Paint.Style.FILL);
 
-            canvas.drawLine(a0.getX(), a0.getY(), a1.getX(), a1.getY(), mStrokePaint);
+            final Anchor a = mPathTuples.get(start).getAnchorAt(0);
+            final float halfWidth = mStrokePaint.getStrokeWidth() / 2f;
+            canvas.drawArc(a.getX() - halfWidth,
+                           a.getY() - halfWidth,
+                           a.getX() + halfWidth,
+                           a.getY() + halfWidth,
+                           // From 0-360 degrees clockwise.
+                           0f, 360f,
+                           true,
+                           mStrokePaint);
+        } else {
+            // A set of lines.
+            mStrokePaint.setStyle(Paint.Style.STROKE);
+
+            for (int i = start + 1; i <= end; ++i) {
+                final Anchor a0 = mPathTuples.get(i - 1).getAnchorAt(0);
+                final Anchor a1 = mPathTuples.get(i).getAnchorAt(0);
+
+                canvas.drawLine(a0.getX(), a0.getY(), a1.getX(), a1.getY(), mStrokePaint);
+            }
         }
     }
 

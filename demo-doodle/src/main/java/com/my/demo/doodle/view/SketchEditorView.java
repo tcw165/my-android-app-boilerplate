@@ -89,9 +89,19 @@ public class SketchEditorView
 
         switch (action) {
             case MotionEvent.ACTION_DOWN: {
-                mStrokes.add(mBrush.newStroke());
+                final ISketchStroke stroke = mBrush.newStroke();
+                final float x = event.getX();
+                final float y = event.getY();
+
+                // FIXME: Don't record point if it's a pinch gesture.
+                if (canAdd(stroke, x, y)) {
+                    stroke.savePathTuple(x, y);
+                }
+                mStrokes.add(stroke);
 
                 isHandled = true;
+
+                postInvalidate();
                 break;
             }
             case MotionEvent.ACTION_MOVE: {
