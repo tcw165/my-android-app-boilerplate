@@ -32,12 +32,13 @@ set_target_properties(my_core_jni PROPERTIES IMPORTED_LOCATION
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexceptions -std=c++11")
 
 add_library(${TARGET_NAME} SHARED
+            tensorflow_inference_jni.cc
             imageutils_jni.cc
             rgb2yuv.cc
             yuv2rgb.cc)
 
 target_include_directories(${TARGET_NAME} PRIVATE
-                           ${INSTALL_DIR}/tensorflow/include
+                           ${LIB_DIR}/tensorflow/include
                            ${CMAKE_SOURCE_DIR}/include)
 
 target_link_libraries(${TARGET_NAME}
@@ -52,8 +53,12 @@ file(MAKE_DIRECTORY ${INSTALL_DIR}/${TARGET_NAME})
 file(MAKE_DIRECTORY ${INSTALL_DIR}/${TARGET_NAME}/include)
 file(MAKE_DIRECTORY ${INSTALL_DIR}/${TARGET_NAME}/lib)
 
-# Copy out lib header file.
+# Copy out 3rd party library header file.
 file(COPY "${LIB_DIR}/tensorflow/include/"
+     DESTINATION "${INSTALL_DIR}/${TARGET_NAME}/include/tensorflow/")
+
+# Copy out project header file...
+file(COPY "${CMAKE_SOURCE_DIR}/include/"
      DESTINATION "${INSTALL_DIR}/${TARGET_NAME}/include/")
 
 # Copy out the lib binary.

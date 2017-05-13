@@ -20,10 +20,6 @@ android {
                         "-DANDROID_TOOLCHAIN=clang",
                         "-DANDROID_STL=c++_shared",
                         "-DANDROID_CPP_FEATURES=rtti exceptions"
-//                        "-DUSE_PROTOBUF=1",
-//                        "-DHAVE_PTHREAD=1"
-                // Enables exception-handling support.
-//                    cppFlags "-fexceptions -std=c++11"
             }
         }
     }
@@ -31,7 +27,7 @@ android {
     // Let gradle pack the shared library into apk.
     sourceSets {
         main {
-            jniLibs.srcDirs = ["src/main/cppLibs/dlib/lib"]
+            jniLibs.srcDirs = ["src/main/cppLibs/tensorflow/lib"]
         }
     }
     externalNativeBuild {
@@ -51,50 +47,6 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
-
-//    sources {
-//        main {
-//            jni {
-//                source {
-//                    // Exclude CMake, Makefile and unit-tests files.
-//                    exclude "**/*CMake*"
-//                    exclude "**/Catch.hpp"
-//                    exclude "**/*Test*"
-//                    exclude "**/tests"
-//                }
-//            }
-//            jniLibs {
-//                source {
-//                    srcDirs "src/main/jniLibs"
-//                }
-//            }
-//        }
-//    }
-
-//    def CPP_SOURCES = "src/main/jni/cpp"
-//    ndk {
-//        platformVersion = 16
-//        // The name of the native library recognized by JNI.
-//        moduleName "ml"
-//        // The compiler options, including the the root path and common
-//        // header files path.
-//        cppFlags.addAll(["-frtti",
-//                         "-fexceptions",
-//                         "-DUSE_PROTOBUF=1",
-//                         "-DHAVE_PTHREAD=1",
-//                         "-I" + file("${CPP_SOURCES}").absolutePath,
-//                         "-I" + file("${CPP_SOURCES}/include").absolutePath,
-//                         "-I" + file("${CPP_SOURCES}/third_party").absolutePath])
-//        // Support JNI to print message through __android_log_print method.
-//        ldLibs.addAll(["log", "android"])
-//        // Determine what STL library being linked to.
-//        stl = "gnustl_static"
-//        // ABI
-//        abiFilters.addAll([
-//                "armeabi",
-//                "armeabi-v7a"
-//        ])
-//    }
 }
 
 dependencies {
