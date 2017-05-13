@@ -83,7 +83,7 @@ dependencies {
 //    compile "com.facebook.fresco:fresco:0.14.1"
     compile "com.github.bumptech.glide:glide:3.7.0"
 
-    compile project(":lib-ml")
+    compile project(':lib-tensorflow')
     compile project(":lib-core")
     compile project(":lib-widget")
     compile project(":lib-component")

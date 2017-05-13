@@ -9,4 +9,4 @@ include ':app',
         ':lib-protobuf',
         ':lib-component',
         ':lib-dlib',
-        ':lib-ml'
+        ':lib-tensorflow'
