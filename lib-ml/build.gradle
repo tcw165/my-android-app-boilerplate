@@ -1,74 +1,100 @@
-apply plugin: "com.android.model.library"
+apply plugin: "com.android.library"
 
-// Gradle doc:
-// http://google.github.io/android-gradle-dsl/
-model {
-    android {
-        compileSdkVersion 25
-        buildToolsVersion "25.0.2"
+android {
+    compileSdkVersion 25
+    buildToolsVersion "25.0.3"
 
-        defaultConfig.with {
-            minSdkVersion.apiLevel = 16
-            targetSdkVersion.apiLevel = 25
-        }
+    defaultConfig {
+        minSdkVersion 16
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
 
-        compileOptions.with {
-            sourceCompatibility = JavaVersion.VERSION_1_7
-            targetCompatibility = JavaVersion.VERSION_1_7
-        }
-
-        def CPP_SOURCES = "src/main/jni/cpp"
         ndk {
-            platformVersion = 16
-            // The name of the native library recognized by JNI.
-            moduleName "ml"
-            // The compiler options, including the the root path and common
-            // header files path.
-            cppFlags.addAll(["-frtti",
-                             "-fexceptions",
-                             "-DUSE_PROTOBUF=1",
-                             "-DHAVE_PTHREAD=1",
-                             "-I" + file("${CPP_SOURCES}").absolutePath,
-                             "-I" + file("${CPP_SOURCES}/include").absolutePath,
-                             "-I" + file("${CPP_SOURCES}/third_party").absolutePath])
-            // Support JNI to print message through __android_log_print method.
-            ldLibs.addAll(["log", "android"])
-            // Determine what STL library being linked to.
-            stl = "gnustl_static"
-            // ABI
-            abiFilters.addAll([
-                    "armeabi",
-                    "armeabi-v7a"
-            ])
+            // "x86", "x86_64", "armeabi", "armeabi-v7a", "arm64-v8a"
+            abiFilters "armeabi", "armeabi-v7a"
         }
-
-        sources {
-            main {
-                jni {
-                    source {
-                        // Exclude CMake, Makefile and unit-tests files.
-                        exclude "**/*CMake*"
-                        exclude "**/Catch.hpp"
-                        exclude "**/*Test*"
-                        exclude "**/tests"
-                    }
-                }
-                jniLibs {
-                    source {
-                        srcDirs "src/main/jniLibs"
-                    }
-                }
-            }
-        }
-
-        buildTypes {
-            release {
-                debuggable false
-                minifyEnabled false
-                proguardFiles.add(file("proguard-rules.pro"))
+        externalNativeBuild {
+            cmake {
+                arguments "-DANDROID_PLATFORM=android-16",
+                        "-DANDROID_TOOLCHAIN=clang",
+                        "-DANDROID_STL=c++_shared",
+                        "-DANDROID_CPP_FEATURES=rtti exceptions"
+//                        "-DUSE_PROTOBUF=1",
+//                        "-DHAVE_PTHREAD=1"
+                // Enables exception-handling support.
+//                    cppFlags "-fexceptions -std=c++11"
             }
         }
     }
+
+    // Let gradle pack the shared library into apk.
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ["src/main/cppLibs/dlib/lib"]
+        }
+    }
+    externalNativeBuild {
+        cmake {
+            path "src/main/cpp/CMakeLists.txt"
+        }
+    }
+    // Pick first STL shared library if there're duplicate files in the
+    // dependent module.
+    packagingOptions {
+        pickFirst  "**/libc++_shared.so"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+        }
+    }
+
+//    sources {
+//        main {
+//            jni {
+//                source {
+//                    // Exclude CMake, Makefile and unit-tests files.
+//                    exclude "**/*CMake*"
+//                    exclude "**/Catch.hpp"
+//                    exclude "**/*Test*"
+//                    exclude "**/tests"
+//                }
+//            }
+//            jniLibs {
+//                source {
+//                    srcDirs "src/main/jniLibs"
+//                }
+//            }
+//        }
+//    }
+
+//    def CPP_SOURCES = "src/main/jni/cpp"
+//    ndk {
+//        platformVersion = 16
+//        // The name of the native library recognized by JNI.
+//        moduleName "ml"
+//        // The compiler options, including the the root path and common
+//        // header files path.
+//        cppFlags.addAll(["-frtti",
+//                         "-fexceptions",
+//                         "-DUSE_PROTOBUF=1",
+//                         "-DHAVE_PTHREAD=1",
+//                         "-I" + file("${CPP_SOURCES}").absolutePath,
+//                         "-I" + file("${CPP_SOURCES}/include").absolutePath,
+//                         "-I" + file("${CPP_SOURCES}/third_party").absolutePath])
+//        // Support JNI to print message through __android_log_print method.
+//        ldLibs.addAll(["log", "android"])
+//        // Determine what STL library being linked to.
+//        stl = "gnustl_static"
+//        // ABI
+//        abiFilters.addAll([
+//                "armeabi",
+//                "armeabi-v7a"
+//        ])
+//    }
 }
 
 dependencies {
@@ -80,12 +106,3 @@ dependencies {
     // JSON.
     compile "com.google.code.gson:gson:2.7"
 }
-
-// Copy tasks.
-task copyAAR(type: Copy) {
-    from("build/outputs/aar")
-    into("../dist")
-}
-
-// The end of the build process.
-assemble.finalizedBy(copyAAR)
