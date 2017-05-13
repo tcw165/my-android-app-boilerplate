@@ -108,8 +108,8 @@ public class DoodleEditorActivity
                         if (mSketchEditor.getBrush() == null) return;
                         Log.d("xyz", "seek-bar value=" + value);
 
-                        final float min = mSketchEditor.getConfig().getMinStrokeWidth();
-                        final float max = mSketchEditor.getConfig().getMaxStrokeWidth();
+                        final float min = mSketchEditor.getMinStrokeWidth();
+                        final float max = mSketchEditor.getMaxStrokeWidth();
                         final ISketchBrush brush = mSketchEditor.getBrush();
 
                         brush.setStrokeWidth(min + (max - min) * value / 100f);

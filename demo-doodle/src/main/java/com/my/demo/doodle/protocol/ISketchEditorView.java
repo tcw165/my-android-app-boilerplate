@@ -25,11 +25,6 @@ public interface ISketchEditorView {
     ISketchEditorView setBrush(final ISketchBrush brush);
     ISketchBrush getBrush();
 
-    ISketchEditorView.Config getConfig();
-
-    interface Config {
-
-        float getMinStrokeWidth();
-        float getMaxStrokeWidth();
-    }
+    float getMinStrokeWidth();
+    float getMaxStrokeWidth();
 }

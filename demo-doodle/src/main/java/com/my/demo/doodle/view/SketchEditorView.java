@@ -44,7 +44,8 @@ public class SketchEditorView
     // Config.
     private float mMinPathSegmentLength;
     private long mMinPathSegmentDuration;
-    private Config mConfig;
+    private float mMinStrokeWidth;
+    private float mMaxStrokeWidth;
 
     // State
     private long mPrevAddTime;
@@ -67,11 +68,10 @@ public class SketchEditorView
         mMinPathSegmentDuration = 2L;
 
         // TODO: Support min/max stroke width attribute;
-        mConfig = new Config()
-            .setMinStrokeWidth(context.getResources().getDimension(
-                R.dimen.sketch_min_stroke_width))
-            .setMaxStrokeWidth(context.getResources().getDimension(
-                R.dimen.sketch_max_stroke_width));
+        mMinStrokeWidth = context.getResources().getDimension(
+            R.dimen.sketch_min_stroke_width);
+        mMaxStrokeWidth = context.getResources().getDimension(
+            R.dimen.sketch_max_stroke_width);
     }
 
     @Override
@@ -135,8 +135,13 @@ public class SketchEditorView
     }
 
     @Override
-    public ISketchEditorView.Config getConfig() {
-        return mConfig;
+    public float getMinStrokeWidth() {
+        return mMinStrokeWidth;
+    }
+
+    @Override
+    public float getMaxStrokeWidth() {
+        return mMaxStrokeWidth;
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -178,30 +183,4 @@ public class SketchEditorView
 
     ///////////////////////////////////////////////////////////////////////////
     // Clazz //////////////////////////////////////////////////////////////////
-
-    private static class Config implements ISketchEditorView.Config {
-
-        private float mMinStrokeWidth;
-        private float mMaxStrokeWidth;
-
-        @Override
-        public float getMinStrokeWidth() {
-            return mMinStrokeWidth;
-        }
-
-        @Override
-        public float getMaxStrokeWidth() {
-            return mMaxStrokeWidth;
-        }
-
-        Config setMinStrokeWidth(final float min) {
-            mMinStrokeWidth = min;
-            return this;
-        }
-
-        Config setMaxStrokeWidth(final float max) {
-            mMaxStrokeWidth = max;
-            return this;
-        }
-    }
 }
