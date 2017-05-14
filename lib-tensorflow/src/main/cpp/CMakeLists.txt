@@ -3,7 +3,9 @@ cmake_minimum_required(VERSION 3.4.1)
 # Configure build library name.
 set(TARGET_NAME tensorflow_jni)
 
-# Configure install folder.
+# Configure install folder for:
+# 1) Finding the dependent libraries.
+# 2) Copy out the generated files for others to use.
 set(INSTALL_DIR ${CMAKE_SOURCE_DIR}/../../../../lib-distribution/)
 
 # Configure import libs.

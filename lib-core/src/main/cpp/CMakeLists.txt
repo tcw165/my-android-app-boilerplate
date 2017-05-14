@@ -6,7 +6,9 @@ set(TARGET_NAME my_core_jni)
 # Configure install folder.
 set(INSTALL_DIR ${CMAKE_SOURCE_DIR}/../../../../lib-distribution/)
 
-# Configure import libs.
+# Configure install folder for:
+# 1) Finding the dependent libraries.
+# 2) Copy out the generated files for others to use.
 set(LIB_DIR ${CMAKE_SOURCE_DIR}/../cppLibs)
 
 # Build application's shared lib.
