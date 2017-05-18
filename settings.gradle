@@ -2,6 +2,7 @@ include ':app',
         ':demo-widget',
         ':demo-dlib',
         ':demo-doodle',
+        ':demo-news-feed',
         ':lib-core',
         // FIXME: It's still using experimental gradle.
 //        ':lib-photo-collage',
