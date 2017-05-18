@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">TechNewsSample</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="warning_loading">Loading...</string>
+    <string name="warning_no_internet">Unstable internet, please retry later.</string>
+</resources>
