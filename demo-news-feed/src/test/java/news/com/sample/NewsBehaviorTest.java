@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import io.reactivex.Maybe;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.schedulers.TestScheduler;
 import news.com.sample.net.INewsServiceApi;
@@ -56,7 +56,7 @@ public class NewsBehaviorTest {
         try {
             // Given
             Mockito.when(mService.getNews())
-                   .thenReturn(Maybe.just(RESPONSE_JSON));
+                   .thenReturn(Observable.just(RESPONSE_JSON));
             Mockito.when(mJsonTranslator.translateEntity(Mockito.any(String.class)))
                    .thenReturn(Single.just(TEST_ENTITIES));
 
@@ -67,8 +67,8 @@ public class NewsBehaviorTest {
             // Then
             final InOrder inOrder = Mockito.inOrder(mView);
             inOrder.verify(mView).showProgressIndicator(true);
-            inOrder.verify(mView).showNews(TEST_ENTITIES);
             inOrder.verify(mView).showProgressIndicator(false);
+            inOrder.verify(mView).showNews(TEST_ENTITIES);
         } catch (Exception ignored) {
             // There should be any exception.
             Assert.assertTrue(false);
@@ -81,7 +81,7 @@ public class NewsBehaviorTest {
         try {
             // Given
             Mockito.when(mService.getNews())
-                   .thenReturn(Maybe.<String>error(new RuntimeException("Random fault.")));
+                   .thenReturn(Observable.<String>error(new RuntimeException("Random fault.")));
 
             // When
             mPresenter.getNews();
@@ -90,8 +90,8 @@ public class NewsBehaviorTest {
             // Then
             final InOrder inOrder = Mockito.inOrder(mView);
             inOrder.verify(mView).showProgressIndicator(true);
-            inOrder.verify(mView).showNewsPlaceholder(true);
             inOrder.verify(mView).showProgressIndicator(false);
+            inOrder.verify(mView).showNewsPlaceholder(true);
         } catch (Exception ignored) {
             // There should be any exception.
             Assert.assertTrue(false);

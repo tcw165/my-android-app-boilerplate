@@ -1,6 +1,5 @@
 package news.com.sample.net;
 
-import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import retrofit2.http.GET;
 
@@ -12,5 +11,5 @@ public interface INewsServiceApi {
      * @return {@link Observable} of the response body, which is usually a JSON.
      */
     @GET("/bins/nl6jh")
-    Maybe<String> getNews();
+    Observable<String> getNews();
 }

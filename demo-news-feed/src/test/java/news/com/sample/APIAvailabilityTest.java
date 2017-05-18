@@ -43,7 +43,7 @@ public class APIAvailabilityTest {
         Assert.assertTrue(
             mService
                 .getNews()
-                .blockingGet()
+                .blockingLast()
                 .length() > 0);
     }
 }

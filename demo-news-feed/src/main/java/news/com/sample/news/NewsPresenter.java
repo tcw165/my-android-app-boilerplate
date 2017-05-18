@@ -2,13 +2,13 @@ package news.com.sample.news;
 
 import java.util.List;
 
-import io.reactivex.Maybe;
-import io.reactivex.MaybeSource;
+import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
 import io.reactivex.Scheduler;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
+import news.com.sample.event.StateEvent;
 import news.com.sample.net.INewsServiceApi;
 
 public class NewsPresenter implements INewsContract.UserInteraction {
@@ -33,56 +33,97 @@ public class NewsPresenter implements INewsContract.UserInteraction {
 
     @Override
     public Disposable getNews() {
-        // TODO: Jake Wharton had a good youtube video of how to improve it.
-        return Maybe
-            .just(true)
-            .observeOn(mUiScheduler)
-            // Show progress indicator.
-            .map(new Function<Boolean, Boolean>() {
-                @Override
-                public Boolean apply(Boolean ignored) throws Exception {
-                    mView.showProgressIndicator(true);
-                    return ignored;
-                }
-            })
-            // Do HTTP/HTTPS request.
-            .observeOn(mWorkerScheduler)
-            .flatMap(new Function<Boolean, MaybeSource<String>>() {
-                @Override
-                public MaybeSource<String> apply(Boolean ignored) throws Exception {
-                    return mService.getNews();
-                }
-            })
-            // Do JSON translation.
+
+        //            { UI }
+        //              |
+        //              |  imperative call
+        //              v
+        //        { HTTP/HTTPS }
+        //              |
+        //              |  Observable<TranslateJsonEvent>
+        //              v
+        //       { Translate JSON }
+        //              |
+        //              |  Observable<UpdateViewEvent>
+        //              v
+        //            { UI }
+
+        // TODO: Break into at least two parts.
+        // Do HTTP/HTTPS request, triggered by UI.
+        return mService
+            .getNews()
             .subscribeOn(mWorkerScheduler)
-            .flatMap(new Function<String, MaybeSource<List<INewsEntity>>>() {
+            .observeOn(mWorkerScheduler)
+            .map(new Function<String, TranslateJsonEvent>() {
                 @Override
-                public MaybeSource<List<INewsEntity>> apply(String s) throws Exception {
-                    return mJsonTranslator.translateEntity(s).toMaybe();
+                public TranslateJsonEvent apply(String s)
+                    throws Exception {
+                    return TranslateJsonEvent.success(s);
                 }
             })
+            .onErrorReturn(new Function<Throwable, TranslateJsonEvent>() {
+                @Override
+                public TranslateJsonEvent apply(Throwable err)
+                    throws Exception {
+                    return TranslateJsonEvent.failure(err);
+                }
+            })
+            .startWith(TranslateJsonEvent.inProgress())
+            // Do JSON translation.
+            .observeOn(mWorkerScheduler)
+            .flatMap(new Function<TranslateJsonEvent, ObservableSource<UpdateViewEvent>>() {
+                @Override
+                public ObservableSource<UpdateViewEvent> apply(TranslateJsonEvent event)
+                    throws Exception {
+
+                    if (event.state == StateEvent.STATE_IN_PROGRESS) {
+                        return Observable.just(UpdateViewEvent.inProgress());
+                    } else if (event.state == StateEvent.STATE_FAILURE) {
+                        return Observable.just(UpdateViewEvent.failure(event.err));
+                    } else {
+                        return mJsonTranslator
+                            .translateEntity(event.json)
+                            .subscribeOn(mWorkerScheduler)
+                            .toObservable()
+                            .map(new Function<List<INewsEntity>, UpdateViewEvent>() {
+                                @Override
+                                public UpdateViewEvent apply(List<INewsEntity> entities)
+                                    throws Exception {
+                                    return UpdateViewEvent.success(entities);
+                                }
+                            });
+                    }
+                }
+            })
+            // Back to UI.
             .observeOn(mUiScheduler)
             .subscribe(
-                new Consumer<List<INewsEntity>>() {
+                // onNext...
+                new Consumer<UpdateViewEvent>() {
                     @Override
-                    public void accept(List<INewsEntity> entities) throws Exception {
-                        mView.showNews(entities);
-                        mView.showProgressIndicator(false);
+                    public void accept(UpdateViewEvent event)
+                        throws Exception {
+                        if (event.state == UpdateViewEvent.STATE_IN_PROGRESS) {
+                            mView.showProgressIndicator(true);
+                            mView.showNewsPlaceholder(false);
+                        } else if (event.state == UpdateViewEvent.STATE_SUCCESS) {
+                            mView.showProgressIndicator(false);
+                            mView.showNewsPlaceholder(false);
+                            mView.showNews(event.entities);
+                        } else if (event.state == UpdateViewEvent.STATE_FAILURE) {
+                            mView.showProgressIndicator(false);
+                            mView.showNewsPlaceholder(true);
+
+                            event.err.printStackTrace();
+                        }
                     }
                 },
+                // onError...
                 new Consumer<Throwable>() {
                     @Override
-                    public void accept(Throwable throwable) throws Exception {
-                        mView.showNewsPlaceholder(true);
-                        mView.showProgressIndicator(false);
-
+                    public void accept(Throwable throwable)
+                        throws Exception {
                         throwable.printStackTrace();
-                    }
-                },
-                new Action() {
-                    @Override
-                    public void run() throws Exception {
-                        mView.showProgressIndicator(false);
                     }
                 });
     }
