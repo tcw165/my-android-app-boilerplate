@@ -18,11 +18,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.core.protocol;
+package com.my.core.benchmark;
 
-public interface ISystemClock {
+import com.my.core.protocol.IProfiler;
+import com.my.core.protocol.ISystemClock;
 
-    long getCurrentTimeMillis();
+import java.util.Stack;
 
-    long getCurrentTimeNanos();
+public class NanoSecondsProfiler implements IProfiler,
+                                            ISystemClock {
+
+    private Stack<Long> timeStamps = new Stack<>();
+
+    @Override
+    public void startProfiling() {
+        timeStamps.push(getCurrentTimeNanos());
+    }
+
+    @Override
+    public float stopProfilingAndCalculateInterval() {
+        if (timeStamps.isEmpty()) {
+            return 0f;
+        } else {
+            return (float) (getCurrentTimeNanos() - timeStamps.pop()) / 1000000f;
+        }
+    }
+
+    @Override
+    public long getCurrentTimeMillis() {
+        return System.currentTimeMillis();
+    }
+
+    @Override
+    public long getCurrentTimeNanos() {
+        return System.nanoTime();
+    }
 }

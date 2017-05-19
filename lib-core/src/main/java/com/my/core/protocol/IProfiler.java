@@ -24,5 +24,5 @@ public interface IProfiler {
 
     void startProfiling();
 
-    long stopProfilingAndCalculateInterval();
+    float stopProfilingAndCalculateInterval();
 }

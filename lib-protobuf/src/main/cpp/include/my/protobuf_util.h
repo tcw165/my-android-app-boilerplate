@@ -18,36 +18,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.core.benchmark;
+#ifndef MY_PROTOBUF_UTIL_H
+#define MY_PROTOBUF_UTIL_H
 
-import android.os.SystemClock;
 
-import com.my.core.protocol.IProfiler;
-import com.my.core.protocol.ISystemClock;
+class protobuf_util {
+    // TODO: Add method to help to convert C/C++ object to Java byte[].
+};
 
-import java.util.Stack;
 
-public class AndroidThreadProfiler implements IProfiler,
-                                              ISystemClock {
-
-    private Stack<Long> timeStamps = new Stack<>();
-
-    @Override
-    public void startProfiling() {
-        timeStamps.push(SystemClock.currentThreadTimeMillis());
-    }
-
-    @Override
-    public long stopProfilingAndCalculateInterval() {
-        if (timeStamps.isEmpty()) {
-            return 0;
-        } else {
-            return SystemClock.currentThreadTimeMillis() - timeStamps.pop();
-        }
-    }
-
-    @Override
-    public long getCurrentTimeMillis() {
-        return SystemClock.currentThreadTimeMillis();
-    }
-}
+#endif //MY_PROTOBUF_UTIL_H

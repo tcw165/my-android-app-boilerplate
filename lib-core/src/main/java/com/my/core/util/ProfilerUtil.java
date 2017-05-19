@@ -20,7 +20,7 @@
 
 package com.my.core.util;
 
-import com.my.core.benchmark.AndroidThreadProfiler;
+import com.my.core.benchmark.NanoSecondsProfiler;
 import com.my.core.protocol.IProfiler;
 
 public class ProfilerUtil {
@@ -29,7 +29,7 @@ public class ProfilerUtil {
         getProfiler().startProfiling();
     }
 
-    public static long stopProfiling() {
+    public static float stopProfiling() {
         return getProfiler().stopProfilingAndCalculateInterval();
     }
 
@@ -44,6 +44,6 @@ public class ProfilerUtil {
     // Clazz //////////////////////////////////////////////////////////////////
 
     private static class SingletonHelper {
-        private static final IProfiler INSTANCE = new AndroidThreadProfiler();
+        private static final IProfiler INSTANCE = new NanoSecondsProfiler();
     }
 }
