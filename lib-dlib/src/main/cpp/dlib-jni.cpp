@@ -32,7 +32,7 @@
   ((void)__android_log_print(ANDROID_LOG_INFO, "dlib-jni:", __VA_ARGS__))
 
 #define JNI_METHOD(NAME) \
-    Java_com_my_jni_dlib_FaceLandmarksDetector68_##NAME
+    Java_com_my_jni_dlib_DLibLandmarks68Detector_##NAME
 
 using namespace ::com::my::jni::dlib::data;
 

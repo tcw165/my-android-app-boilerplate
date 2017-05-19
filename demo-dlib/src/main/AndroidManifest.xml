@@ -34,11 +34,13 @@
             </intent-filter>
         </activity>
 
+        <!-- Start Page -->
         <activity
             android:name=".StartActivity"
             android:label="@string/app_name">
         </activity>
 
+        <!-- Examples -->
         <activity
             android:name=".SampleOfBasicUsageActivity"
             android:label="@string/title_sample_of_basic_usage">
@@ -46,6 +48,10 @@
 
         <activity
             android:name=".SampleOfLandmarksOnlyActivity">
+        </activity>
+
+        <activity
+            android:name=".SampleOfFacesAndLandmarksActivity">
         </activity>
     </application>
 </manifest>

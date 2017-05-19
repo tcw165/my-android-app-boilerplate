@@ -108,6 +108,14 @@ public class DlibModelHelper {
                     Log.d("xyz", "Unregister the download broadcast receiver.");
                 }
             })
+            .doOnComplete(new Action() {
+                @Override
+                public void run() throws Exception {
+                    // Unregister the download broadcast receiver.
+                    context.unregisterReceiver(receiver);
+                    Log.d("xyz", "Unregister the download broadcast receiver.");
+                }
+            })
             .doOnError(new Consumer<Throwable>() {
                 @Override
                 public void accept(Throwable throwable)

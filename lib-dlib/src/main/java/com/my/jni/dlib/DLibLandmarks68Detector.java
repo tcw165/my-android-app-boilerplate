@@ -25,16 +25,16 @@ import android.graphics.Rect;
 import android.util.Log;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.my.jni.dlib.data.Face;
-import com.my.jni.dlib.data.Face68;
+import com.my.jni.dlib.data.DLibFace;
+import com.my.jni.dlib.data.DLibFace68;
 import com.my.jni.dlib.data.Messages;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class FaceLandmarksDetector68 {
+public class DLibLandmarks68Detector implements IDLibFaceDetector {
 
-    public FaceLandmarksDetector68() {
+    public DLibLandmarks68Detector() {
         // TODO: Load library in worker thread?
         try {
             System.loadLibrary("c++_shared");
@@ -86,7 +86,28 @@ public class FaceLandmarksDetector68 {
         }
     }
 
-    public List<Face> findFaces(Bitmap bitmap)
+    @Override
+    public native boolean isFaceDetectorReady();
+
+    @Override
+    public native boolean isFaceLandmarksDetectorReady();
+
+    /**
+     * Prepare (deserialize the graph) the face detector.
+     */
+    @Override
+    public native void prepareFaceDetector();
+
+    /**
+     * Prepare the face landmarks detector.
+     *
+     * @param path The model (serialized graph) file.
+     */
+    @Override
+    public native void prepareFaceLandmarksDetector(String path);
+
+    @Override
+    public List<DLibFace> findFaces(Bitmap bitmap)
         throws InvalidProtocolBufferException {
 
         // Call detector JNI.
@@ -95,10 +116,10 @@ public class FaceLandmarksDetector68 {
         Log.d("xyz", "Detect " + rawFaces.getFacesCount() + " faces.");
 
         // Convert raw data to my data structure.
-        final List<Face> faces = new ArrayList<>();
+        final List<DLibFace> faces = new ArrayList<>();
         for (int i = 0; i < rawFaces.getFacesCount(); ++i) {
             final Messages.Face rawFace = rawFaces.getFaces(i);
-            final Face face  = new Face68(rawFace);
+            final DLibFace face  = new DLibFace68(rawFace);
 
             faces.add(face);
         }
@@ -106,8 +127,9 @@ public class FaceLandmarksDetector68 {
         return faces;
     }
 
-    public List<Face.Landmark> findLandmarksInFace(Bitmap bitmap,
-                                                     Rect bound)
+    @Override
+    public List<DLibFace.Landmark> findLandmarksInFace(Bitmap bitmap,
+                                                       Rect bound)
         throws InvalidProtocolBufferException {
         // Call detector JNI.
         final byte[] rawData = detectLandmarksInFace(
@@ -117,10 +139,10 @@ public class FaceLandmarksDetector68 {
                      " landmarks in the face");
 
         // Convert raw data to my data structure.
-        final List<Face.Landmark> landmarks = new ArrayList<>();
+        final List<DLibFace.Landmark> landmarks = new ArrayList<>();
         for (int i = 0; i < rawLandmarks.getLandmarksCount(); ++i) {
             final Messages.Landmark rawLandmark = rawLandmarks.getLandmarks(i);
-            final Face.Landmark landmark  = new Face.Landmark(rawLandmark);
+            final DLibFace.Landmark landmark  = new DLibFace.Landmark(rawLandmark);
 
             landmarks.add(landmark);
         }
@@ -128,7 +150,8 @@ public class FaceLandmarksDetector68 {
         return landmarks;
     }
 
-    public List<Face> findFacesAndLandmarks(Bitmap bitmap)
+    @Override
+    public List<DLibFace> findFacesAndLandmarks(Bitmap bitmap)
         throws InvalidProtocolBufferException {
         // Do the face landmarks detection.
         final byte[] rawData = detectFacesAndLandmarks(bitmap);
@@ -136,11 +159,11 @@ public class FaceLandmarksDetector68 {
         Log.d("xyz", "Detect " + rawFaces.getFacesCount() + " faces");
 
         // Convert raw data to my data structure.
-        final List<Face> faces = new ArrayList<>();
+        final List<DLibFace> faces = new ArrayList<>();
         for (int i = 0; i < rawFaces.getFacesCount(); ++i) {
             final Messages.Face rawFace = rawFaces.getFaces(i);
-            final Face face = new Face68(rawFace);
-            Log.d("xyz", "Face #" + i + "=" + face);
+            final DLibFace face = new DLibFace68(rawFace);
+            Log.d("xyz", "DLibFace #" + i + "=" + face);
 
             faces.add(face);
         }
@@ -151,27 +174,11 @@ public class FaceLandmarksDetector68 {
     ///////////////////////////////////////////////////////////////////////////
     // Protected / Private Methods ////////////////////////////////////////////
 
-    public native boolean isFaceDetectorReady();
-
-    public native boolean isFaceLandmarksDetectorReady();
-
-    /**
-     * Prepare (deserialize the graph) the face detector.
-     */
-    public native void prepareFaceDetector();
-
-    /**
-     * Prepare the face landmarks detector.
-     *
-     * @param path The model (serialized graph) file.
-     */
-    public native void prepareFaceLandmarksDetector(String path);
-
     /**
      * Detect all the faces from the given photo.
      *
      * @param bitmap The photo.
-     * @return The byte array of serialized {@link List< Face >}.
+     * @return The byte array of serialized {@link List< DLibFace >}.
      */
     private native byte[] detectFaces(Bitmap bitmap);
 
@@ -179,7 +186,7 @@ public class FaceLandmarksDetector68 {
      * Detect landmarks per face.
      *
      * @param bitmap The small bitmap right covering a face.
-     * @return The byte array of serialized {@link Face}.
+     * @return The byte array of serialized {@link DLibFace}.
      */
     private native byte[] detectLandmarksInFace(Bitmap bitmap,
                                                 long left,
@@ -194,7 +201,7 @@ public class FaceLandmarksDetector68 {
      * are both initialized. Otherwise a {@link RuntimeException} would be fired.
      *
      * @param bitmap The bitmap.
-     * @return The byte array of serialized {@link List< Face >}.
+     * @return The byte array of serialized {@link List< DLibFace >}.
      */
     private native byte[] detectFacesAndLandmarks(Bitmap bitmap);
 }

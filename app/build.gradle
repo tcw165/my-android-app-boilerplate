@@ -60,12 +60,11 @@ repositories {
 }
 
 dependencies {
-    def SUPPORT_LIB_VER = "25.3.1"
-    def RETROFIT_VER = "2.1.0"
 
     compile fileTree(dir: "libs", include: ["*.jar"])
 
     // Google Support library.
+    def SUPPORT_LIB_VER = "25.3.1"
     compile "com.android.support:appcompat-v7:${SUPPORT_LIB_VER}"
     compile "com.android.support:transition:${SUPPORT_LIB_VER}"
     compile "com.android.support:design:${SUPPORT_LIB_VER}"
@@ -117,6 +116,7 @@ dependencies {
     compile "com.google.code.gson:gson:2.7"
 
     // HTTP.
+    def RETROFIT_VER = "2.1.0"
     compile "com.squareup.retrofit2:retrofit:${RETROFIT_VER}"
     compile "com.jakewharton.retrofit:retrofit2-rxjava2-adapter:1.0.0"
     compile "com.squareup.retrofit2:converter-gson:${RETROFIT_VER}"

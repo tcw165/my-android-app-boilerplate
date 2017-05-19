@@ -28,34 +28,33 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 
-import com.my.jni.dlib.data.Face;
-import com.my.jni.dlib.data.Face68;
-import com.my.jni.dlib.data.Messages;
+import com.my.jni.dlib.data.DLibFace;
+import com.my.jni.dlib.data.DLibFace68;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class FaceLandmarksImageView extends AppCompatImageView {
+public class FaceLandmarksOverlayView extends AppCompatImageView {
 
     private static final float WIDTH = 2.f;
     private final int mWidth;
     private final Paint mPaint;
 
-    private final List<Face> mNormalizedFaces = new CopyOnWriteArrayList<>();
-    private final List<Face> mDenormalizedFaces = new CopyOnWriteArrayList<>();
+    private final List<DLibFace> mNormalizedFaces = new CopyOnWriteArrayList<>();
+    private final List<DLibFace> mDenormalizedFaces = new CopyOnWriteArrayList<>();
 
-    public FaceLandmarksImageView(Context context) {
+    public FaceLandmarksOverlayView(Context context) {
         this(context, null);
     }
 
-    public FaceLandmarksImageView(Context context,
-                                  AttributeSet attrs) {
+    public FaceLandmarksOverlayView(Context context,
+                                    AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public FaceLandmarksImageView(Context context,
-                                  AttributeSet attrs,
-                                  int defStyleAttr) {
+    public FaceLandmarksOverlayView(Context context,
+                                    AttributeSet attrs,
+                                    int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
         final float density = getContext()
@@ -68,7 +67,7 @@ public class FaceLandmarksImageView extends AppCompatImageView {
         mPaint.setStyle(Paint.Style.STROKE);
     }
 
-    public void setFaces(List<Face> faces) {
+    public void setFaces(List<DLibFace> faces) {
 //        Log.d("xyz", "drawable bound=" + getDrawable().getBounds());
 //        Log.d("xyz", "getImageMatrix()=" + getImageMatrix());
 
@@ -87,9 +86,9 @@ public class FaceLandmarksImageView extends AppCompatImageView {
         mDenormalizedFaces.clear();
         for (int i = 0; i < mNormalizedFaces.size(); ++i) {
             // The normalized face.
-            final Face nFace = mNormalizedFaces.get(i);
+            final DLibFace nFace = mNormalizedFaces.get(i);
             // The denormalized face.
-            final Face dFace = new Face68(nFace, bound.width(), bound.height());
+            final DLibFace dFace = new DLibFace68(nFace, bound.width(), bound.height());
 
             mDenormalizedFaces.add(dFace);
         }
@@ -107,103 +106,103 @@ public class FaceLandmarksImageView extends AppCompatImageView {
 
             // Render all faces.
             for (int i = 0; i < mDenormalizedFaces.size(); ++i) {
-                final Face face = mDenormalizedFaces.get(i);
+                final DLibFace face = mDenormalizedFaces.get(i);
 
                 // Render face's landmarks.
                 for (int j = 0; j < face.getAllLandmarks().size(); ++j) {
-                    final Face.Landmark landmark = face.getAllLandmarks().get(j);
+                    final DLibFace.Landmark landmark = face.getAllLandmarks().get(j);
 
                     // Render chin.
-                    final List<Face.Landmark> chinMarks = face.getChinLandmarks();
+                    final List<DLibFace.Landmark> chinMarks = face.getChinLandmarks();
                     for (int k = 1; k < chinMarks.size(); ++k) {
-                        final Face.Landmark prev = chinMarks.get(k - 1);
-                        final Face.Landmark current = chinMarks.get(k);
+                        final DLibFace.Landmark prev = chinMarks.get(k - 1);
+                        final DLibFace.Landmark current = chinMarks.get(k);
 
                         canvas.drawLine(prev.x, prev.y, current.x, current.y, mPaint);
                     }
 
                     // Render left eyebrow.
-                    final List<Face.Landmark> leftEyebrowMarks = face.getLeftEyebrowLandmarks();
+                    final List<DLibFace.Landmark> leftEyebrowMarks = face.getLeftEyebrowLandmarks();
                     for (int k = 1; k < leftEyebrowMarks.size(); ++k) {
-                        final Face.Landmark prev = leftEyebrowMarks.get(k - 1);
-                        final Face.Landmark current = leftEyebrowMarks.get(k);
+                        final DLibFace.Landmark prev = leftEyebrowMarks.get(k - 1);
+                        final DLibFace.Landmark current = leftEyebrowMarks.get(k);
 
                         canvas.drawLine(prev.x, prev.y, current.x, current.y, mPaint);
                     }
 
                     // Render right eyebrow.
-                    final List<Face.Landmark> rightEyebrowMarks = face.getRightEyebrowLandmarks();
+                    final List<DLibFace.Landmark> rightEyebrowMarks = face.getRightEyebrowLandmarks();
                     for (int k = 1; k < rightEyebrowMarks.size(); ++k) {
-                        final Face.Landmark prev = rightEyebrowMarks.get(k - 1);
-                        final Face.Landmark current = rightEyebrowMarks.get(k);
+                        final DLibFace.Landmark prev = rightEyebrowMarks.get(k - 1);
+                        final DLibFace.Landmark current = rightEyebrowMarks.get(k);
 
                         canvas.drawLine(prev.x, prev.y, current.x, current.y, mPaint);
                     }
 
                     // Render left eye.
-                    final List<Face.Landmark> leftEyeMarks = face.getLeftEyeLandmarks();
+                    final List<DLibFace.Landmark> leftEyeMarks = face.getLeftEyeLandmarks();
                     for (int k = 1; k < leftEyeMarks.size(); ++k) {
-                        final Face.Landmark prev = leftEyeMarks.get(k - 1);
-                        final Face.Landmark current = leftEyeMarks.get(k);
+                        final DLibFace.Landmark prev = leftEyeMarks.get(k - 1);
+                        final DLibFace.Landmark current = leftEyeMarks.get(k);
 
                         canvas.drawLine(prev.x, prev.y, current.x, current.y, mPaint);
 
                         if (k == leftEyeMarks.size() - 1) {
-                            final Face.Landmark first = leftEyeMarks.get(0);
+                            final DLibFace.Landmark first = leftEyeMarks.get(0);
                             canvas.drawLine(current.x, current.y,
                                             first.x, first.y, mPaint);
                         }
                     }
 
                     // Render right eye.
-                    final List<Face.Landmark> rightEyeMarks = face.getRightEyeLandmarks();
+                    final List<DLibFace.Landmark> rightEyeMarks = face.getRightEyeLandmarks();
                     for (int k = 1; k < rightEyeMarks.size(); ++k) {
-                        final Face.Landmark prev = rightEyeMarks.get(k - 1);
-                        final Face.Landmark current = rightEyeMarks.get(k);
+                        final DLibFace.Landmark prev = rightEyeMarks.get(k - 1);
+                        final DLibFace.Landmark current = rightEyeMarks.get(k);
 
                         canvas.drawLine(prev.x, prev.y, current.x, current.y, mPaint);
 
                         if (k == rightEyeMarks.size() - 1) {
-                            final Face.Landmark first = rightEyeMarks.get(0);
+                            final DLibFace.Landmark first = rightEyeMarks.get(0);
                             canvas.drawLine(current.x, current.y,
                                             first.x, first.y, mPaint);
                         }
                     }
 
                     // Render nose.
-                    final List<Face.Landmark> noseMarks = face.getNoseLandmarks();
+                    final List<DLibFace.Landmark> noseMarks = face.getNoseLandmarks();
                     for (int k = 1; k < noseMarks.size(); ++k) {
-                        final Face.Landmark prev = noseMarks.get(k - 1);
-                        final Face.Landmark current = noseMarks.get(k);
+                        final DLibFace.Landmark prev = noseMarks.get(k - 1);
+                        final DLibFace.Landmark current = noseMarks.get(k);
 
                         canvas.drawLine(prev.x, prev.y, current.x, current.y, mPaint);
                     }
 
                     // Render inner lips.
-                    final List<Face.Landmark> innerLipsMarks = face.getInnerLipsLandmarks();
+                    final List<DLibFace.Landmark> innerLipsMarks = face.getInnerLipsLandmarks();
                     for (int k = 1; k < innerLipsMarks.size(); ++k) {
-                        final Face.Landmark prev = innerLipsMarks.get(k - 1);
-                        final Face.Landmark current = innerLipsMarks.get(k);
+                        final DLibFace.Landmark prev = innerLipsMarks.get(k - 1);
+                        final DLibFace.Landmark current = innerLipsMarks.get(k);
 
                         canvas.drawLine(prev.x, prev.y, current.x, current.y, mPaint);
 
                         if (k == innerLipsMarks.size() - 1) {
-                            final Face.Landmark first = innerLipsMarks.get(0);
+                            final DLibFace.Landmark first = innerLipsMarks.get(0);
                             canvas.drawLine(current.x, current.y,
                                             first.x, first.y, mPaint);
                         }
                     }
 
                     // Render outer lips.
-                    final List<Face.Landmark> outerLipsMarks = face.getOuterLipsLandmarks();
+                    final List<DLibFace.Landmark> outerLipsMarks = face.getOuterLipsLandmarks();
                     for (int k = 1; k < outerLipsMarks.size(); ++k) {
-                        final Face.Landmark prev = outerLipsMarks.get(k - 1);
-                        final Face.Landmark current = outerLipsMarks.get(k);
+                        final DLibFace.Landmark prev = outerLipsMarks.get(k - 1);
+                        final DLibFace.Landmark current = outerLipsMarks.get(k);
 
                         canvas.drawLine(prev.x, prev.y, current.x, current.y, mPaint);
 
                         if (k == outerLipsMarks.size() - 1) {
-                            final Face.Landmark first = outerLipsMarks.get(0);
+                            final DLibFace.Landmark first = outerLipsMarks.get(0);
                             canvas.drawLine(current.x, current.y,
                                             first.x, first.y, mPaint);
                         }

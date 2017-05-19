@@ -24,7 +24,7 @@ import android.graphics.RectF;
 
 import java.util.List;
 
-public abstract class Face {
+public abstract class DLibFace {
 
     public abstract RectF getBound();
 

@@ -18,7 +18,7 @@
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:titleTextColor="@color/textColorPrimary"/>
 
-    <com.my.demo.dlib.view.FaceLandmarksImageView
+    <com.my.demo.dlib.view.FaceLandmarksOverlayView
         android:id="@+id/img_preview"
         android:layout_width="0dp"
         android:layout_height="0dp"

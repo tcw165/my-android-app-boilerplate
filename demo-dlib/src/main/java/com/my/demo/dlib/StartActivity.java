@@ -122,7 +122,7 @@ public class StartActivity
                         }
                     }),
                 new SampleMenuItem(
-                    "Feed the landmarks detector with image buffer from a camera",
+                    "Detect face landmarks only in the camera preview",
                     "There're two steps of a complete face landmarks detection:\n" +
                     "(1) Detect face boundaries;\n" +
                     "(2) Given the face boundaries, align the landmarks to the " +
@@ -136,6 +136,22 @@ public class StartActivity
                             startActivity(
                                 new Intent(StartActivity.this,
                                            SampleOfLandmarksOnlyActivity.class));
+                        }
+                    }),
+                new SampleMenuItem(
+                    "Detect faces and landmarks in the camera preview",
+                    "Use 3rd party faces detection to boost finding the face " +
+                    "rectangles. \n" +
+                    "There're two steps of a complete face landmarks detection:\n" +
+                    "(1) Detect face boundaries;\n" +
+                    "(2) Given the face boundaries, align the landmarks to the " +
+                    "faces;",
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startActivity(
+                                new Intent(StartActivity.this,
+                                           SampleOfFacesAndLandmarksActivity.class));
                         }
                     })
             });
