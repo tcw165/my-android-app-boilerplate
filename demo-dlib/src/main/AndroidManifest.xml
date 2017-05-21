@@ -45,16 +45,11 @@
 
         <!-- Examples -->
         <activity
-            android:name=".SampleOfBasicUsageActivity"
-            android:label="@string/title_sample_of_basic_usage">
+            android:name=".SampleOfFacesAndLandmarksActivity1">
         </activity>
 
         <activity
-            android:name=".SampleOfLandmarksOnlyActivity">
-        </activity>
-
-        <activity
-            android:name=".SampleOfFacesAndLandmarksActivity">
+            android:name=".SampleOfFacesAndLandmarksActivity2">
         </activity>
     </application>
 </manifest>

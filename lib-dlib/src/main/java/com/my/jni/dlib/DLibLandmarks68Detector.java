@@ -105,7 +105,6 @@ public class DLibLandmarks68Detector implements IDLibFaceDetector {
         // Call detector JNI.
         final byte[] rawData = detectFaces(bitmap);
         final Messages.FaceList rawFaces = Messages.FaceList.parseFrom(rawData);
-        Log.d("xyz", "Detect " + rawFaces.getFacesCount() + " faces.");
 
         // Convert raw data to my data structure.
         final List<DLibFace> faces = new ArrayList<>();
@@ -184,14 +183,12 @@ public class DLibLandmarks68Detector implements IDLibFaceDetector {
         // Do the face landmarks detection.
         final byte[] rawData = detectFacesAndLandmarks(bitmap);
         final Messages.FaceList rawFaces = Messages.FaceList.parseFrom(rawData);
-        Log.d("xyz", "Detect " + rawFaces.getFacesCount() + " faces");
 
         // Convert raw data to my data structure.
         final List<DLibFace> faces = new ArrayList<>();
         for (int i = 0; i < rawFaces.getFacesCount(); ++i) {
             final Messages.Face rawFace = rawFaces.getFaces(i);
             final DLibFace face = new DLibFace68(rawFace);
-            Log.d("xyz", "DLibFace #" + i + "=" + face);
 
             faces.add(face);
         }

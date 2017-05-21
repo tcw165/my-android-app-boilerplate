@@ -44,7 +44,10 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FaceLandmarksDetector extends Detector<DLibFace> {
+/**
+ * A detector using Google Vision face detector and DLib landmarks detector.
+ */
+public class VisionFaceAndDLibLandmarksDetector extends Detector<DLibFace> {
 
     // State.
     private final SparseArray<DLibFace> mDetFaces = new SparseArray<>();
@@ -53,10 +56,10 @@ public class FaceLandmarksDetector extends Detector<DLibFace> {
     private final Detector<Face> mFaceDetector;
     private final IDLibFaceDetector mLandmarksDetector;
 
-    public FaceLandmarksDetector(final ICameraMetadata cameraMetadata,
-                                 final Detector<Face> faceDetector,
-                                 final IDLibFaceDetector landmarksDetector,
-                                 final IDLibFaceOverlay overlay) {
+    public VisionFaceAndDLibLandmarksDetector(final ICameraMetadata cameraMetadata,
+                                              final Detector<Face> faceDetector,
+                                              final IDLibFaceDetector landmarksDetector,
+                                              final IDLibFaceOverlay overlay) {
         mCameraMetadata = cameraMetadata;
         mFaceDetector = faceDetector;
         mLandmarksDetector = landmarksDetector;
@@ -170,15 +173,16 @@ public class FaceLandmarksDetector extends Detector<DLibFace> {
             Log.d("xyz", String.format("Detect %d face with landmarks (took %.3f ms)",
                                        detFaces.size(),
                                        ProfilerUtil.stopProfiling()));
-            Log.d("xyz", String.format("input rect=%s, output rect=%s",
-                                       new RectF((float) faceBounds.get(0).left / ow,
-                                                 (float) faceBounds.get(0).top / oh,
-                                                 (float) faceBounds.get(0).right / ow,
-                                                 (float) faceBounds.get(0).bottom / oh),
-                                       detFaces.get(0).getBound()));
+//            Log.d("xyz", String.format("input rect=%s, output rect=%s",
+//                                       new RectF((float) faceBounds.get(0).left / ow,
+//                                                 (float) faceBounds.get(0).top / oh,
+//                                                 (float) faceBounds.get(0).right / ow,
+//                                                 (float) faceBounds.get(0).bottom / oh),
+//                                       detFaces.get(0).getBound()));
 
-            Log.d("xyz", String.format("Detect faces and landmarks done (took %.3f ms)",
-                                       ProfilerUtil.stopProfiling()));
+            Log.d("xyz", String.format(
+                "Process of detecting faces and landmarks done (took %.3f ms)",
+                ProfilerUtil.stopProfiling()));
 
             return mDetFaces;
         } catch (InvalidProtocolBufferException err) {
