@@ -64,6 +64,40 @@ public class BitmapUtil {
         }
     }
 
+    public static Bitmap flipBitmapV(final Bitmap bitmap) {
+        if (bitmap == null) {
+            throw new IllegalArgumentException("Null bitmap.");
+        }
+
+        final int bw = bitmap.getWidth();
+        final int bh = bitmap.getHeight();
+        final Matrix matrix = new Matrix();
+
+        // Flip vertically.
+        matrix.postScale(1, -1, bw / 2, bh / 2);
+
+        return Bitmap.createBitmap(bitmap, 0, 0,
+                                   bw, bh,
+                                   matrix, true);
+    }
+
+    public static Bitmap flipBitmapH(final Bitmap bitmap) {
+        if (bitmap == null) {
+            throw new IllegalArgumentException("Null bitmap.");
+        }
+
+        final int bw = bitmap.getWidth();
+        final int bh = bitmap.getHeight();
+        final Matrix matrix = new Matrix();
+
+        // Flip vertically.
+        matrix.postScale(-1, 1, bw / 2, 0);
+
+        return Bitmap.createBitmap(bitmap, 0, 0,
+                                   bw, bh,
+                                   matrix, true);
+    }
+
     /**
      * Decode image from a given URI, and resize according to the IMAGE_MAX_SIDE_LENGTH.
      * If expectedMaxImageSideLength is
@@ -120,7 +154,7 @@ public class BitmapUtil {
 
     public static Bitmap getFullSizeBitmapFromUri(ContentResolver resolver,
                                                   Uri imgUri)
-    throws IOException {
+        throws IOException {
         return getSizeLimitedBitmapFromUri(resolver, imgUri, IMAGE_FULL_SIZE_LENGTH);
     }
 

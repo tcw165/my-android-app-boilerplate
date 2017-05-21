@@ -24,9 +24,9 @@ import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -37,6 +37,7 @@ import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.face.FaceDetector;
 import com.my.core.protocol.IProgressBarView;
 import com.my.demo.dlib.detector.FaceLandmarksDetector;
+import com.my.demo.dlib.protocol.ICameraMetadata;
 import com.my.demo.dlib.util.DlibModelHelper;
 import com.my.demo.dlib.view.CameraSourcePreview;
 import com.my.demo.dlib.view.FaceLandmarksOverlayView;
@@ -60,24 +61,14 @@ import io.reactivex.schedulers.Schedulers;
 
 public class SampleOfFacesAndLandmarksActivity
     extends AppCompatActivity
-    implements IProgressBarView {
-
-//    private static final String ASSET_TEST_PHOTO = "boyw165-i-am-tyson-chandler.jpg";
-    private static final String ASSET_TEST_PHOTO = "5-ppl.jpg";
-    private static final String ASSET_SHAPE_DETECTOR_DATA = "shape_predictor_68_face_landmarks.dat";
-
-    private static final int MSG_TAKE_PHOTO = 1 << 1;
-    private static final int MSG_DETECT_LANDMARKS = 1 << 2;
+    implements ICameraMetadata,
+               IProgressBarView {
 
     // View.
-    @BindView(R.id.btn_back)
-    FloatingActionButton mBtnBack;
-    @BindView(R.id.btn_take_photo)
-    FloatingActionButton mBtnTakePhoto;
-    @BindView(R.id.landmarks_preview)
-    FaceLandmarksOverlayView mLandmarksPreview;
     @BindView(R.id.camera)
     CameraSourcePreview mCameraView;
+    @BindView(R.id.overlay)
+    FaceLandmarksOverlayView mOverlayView;
     ProgressDialog mProgressDialog;
 
     // Butter Knife.
@@ -100,12 +91,6 @@ public class SampleOfFacesAndLandmarksActivity
 
         // The progress bar.
         mProgressDialog = new ProgressDialog(this);
-
-        // Back button.
-        mBtnBack.setOnClickListener(onClickToBack());
-
-        // Camera view.
-//        mCameraView.addCallback(mCameraCallback);
 
         // Init the face detector.
         mLandmarksDetector = new DLibLandmarks68Detector();
@@ -140,23 +125,48 @@ public class SampleOfFacesAndLandmarksActivity
                         }
                     }
                 })
-                .observeOn(AndroidSchedulers.mainThread())
                 // Open the camera.
+                .observeOn(AndroidSchedulers.mainThread())
                 .map(new Function<Object, Object>() {
                     @Override
                     public Object apply(Object value) throws Exception {
+                        // Create Google Vision face detector with FAST mode.
                         final FaceDetector faceDetector = new FaceDetector.Builder(getContext())
                             .setClassificationType(FaceDetector.FAST_MODE)
+                            .setLandmarkType(FaceDetector.NO_LANDMARKS)
                             .build();
-                        final FaceLandmarksDetector faceLandmarksDetector = new FaceLandmarksDetector(
-                            faceDetector, mLandmarksDetector);
-                        // Set post-processor.
-                        faceLandmarksDetector.setProcessor(new FaceLandmarksDetector.PostProcessor());
+                        // Encapsulate the face detector with the landmarks detector.
+                        // The detector would directly draw the result onto the
+                        // given overlay view.
+                        final FaceLandmarksDetector landmarksDetector = new FaceLandmarksDetector(
+                            SampleOfFacesAndLandmarksActivity.this,
+                            faceDetector, mLandmarksDetector, mOverlayView);
 
-                        final CameraSource source = new CameraSource.Builder(getContext(), faceLandmarksDetector)
-                            .setRequestedPreviewSize(640, 480)
-                            .setFacing(CameraSource.CAMERA_FACING_FRONT)
-                            .setRequestedFps(30.0f)
+                        // The camera preview is 90 degree clockwise rotated.
+                        //  height
+                        // .------.
+                        // |      |
+                        // |      | width
+                        // |      |
+                        // '------'
+                        final int previewWidth = 320;
+                        final int previewHeight = 240;
+
+                        // Set the preview config.
+                        if (isPortraitMode()) {
+                            mOverlayView.setCameraPreviewSize(previewHeight,
+                                                              previewWidth);
+                        } else {
+                            mOverlayView.setCameraPreviewSize(previewWidth,
+                                                              previewHeight);
+                        }
+
+                        // Create camera source.
+                        final CameraSource source = new CameraSource.Builder(getContext(), landmarksDetector)
+                            .setRequestedPreviewSize(previewWidth, previewHeight)
+                            .setFacing(CameraSource.CAMERA_FACING_BACK)
+                            .setAutoFocusEnabled(true)
+                            .setRequestedFps(24.0f)
                             .build();
 
                         // Open the camera.
@@ -202,10 +212,36 @@ public class SampleOfFacesAndLandmarksActivity
 
         hideProgressBar();
 
-        mDisposables.clear();
-
         // Close camera.
-        mCameraView.stop();
+        mCameraView.release();
+
+        mDisposables.clear();
+    }
+
+    @Override
+    public boolean isFacingFront() {
+        return CameraSource.CAMERA_FACING_FRONT ==
+               mCameraView.getCameraSource()
+                          .getCameraFacing();
+    }
+
+    @Override
+    public boolean isFacingBack() {
+        return CameraSource.CAMERA_FACING_BACK ==
+               mCameraView.getCameraSource()
+                          .getCameraFacing();
+    }
+
+    @Override
+    public boolean isPortraitMode() {
+        int orientation = getResources().getConfiguration().orientation;
+        return orientation == Configuration.ORIENTATION_PORTRAIT;
+    }
+
+    @Override
+    public boolean isLandscapeMode() {
+        int orientation = getResources().getConfiguration().orientation;
+        return orientation == Configuration.ORIENTATION_LANDSCAPE;
     }
 
     @Override
@@ -233,96 +269,6 @@ public class SampleOfFacesAndLandmarksActivity
         mProgressDialog.show();
     }
 
-//    @Override
-//    public boolean handleMessage(Message msg) {
-//        if (!mCameraView.isCameraOpened() || isFinishing()) return true;
-//
-//        switch (msg.what) {
-//            case MSG_TAKE_PHOTO:
-//                // Will lead to onPictureTaken callback.
-//                mCameraView.takePicture();
-//                return true;
-//            case MSG_DETECT_LANDMARKS:
-//                final BitmapFactory.Options options = new BitmapFactory.Options();
-//                options.inSampleSize = 4;
-//
-//                final Bitmap rawBitmap = BitmapFactory
-//                    .decodeByteArray(mData, 0, mData.length, options);
-//                // Optimized bitmap.
-//                Bitmap optBitmap;
-//
-//                // FIXME: It's a workaround because I can't get rotation info
-//                // FIXME: from the CameraView.
-//                if (mCameraView.getFacing() == CameraView.FACING_FRONT) {
-//                    final int bw = rawBitmap.getWidth();
-//                    final int bh = rawBitmap.getHeight();
-//                    final Matrix matrix = new Matrix();
-//
-//                    // Flip vertically.
-//                    matrix.postScale(1, -1, bw / 2, bh / 2);
-//                    // Adjust the width and height because shape of buffer
-//                    // doesn't match of the visible shape.
-//                    final int vw = mCameraView.getWidth();
-//                    final int vh = mCameraView.getHeight();
-//                    final float scale = Math.min((float) bw / vw,
-//                                                 (float) bh / vh);
-//
-//                    optBitmap = Bitmap.createBitmap(rawBitmap, 0, 0,
-//                                                    (int) (scale * vw),
-//                                                    (int) (scale * vh),
-//                                                    matrix, true);
-//                } else {
-//                    optBitmap = Bitmap.createBitmap(rawBitmap, 0, 0,
-//                                                    rawBitmap.getWidth(),
-//                                                    rawBitmap.getHeight());
-//                }
-//
-//                try {
-//                    // Do landmarks detection only
-//                    // Call detector JNI.
-//                    final int bw = optBitmap.getWidth();
-//                    final int bh = optBitmap.getHeight();
-//                    final Rect bound = new Rect(
-//                        (int) (mFaceBound.left * bw),
-//                        (int) (mFaceBound.top * bh),
-//                        (int) (mFaceBound.right * bw),
-//                        (int) (mFaceBound.bottom * bh));
-//                    final List<DLibFace.Landmark> landmarks =
-//                        mFaceDetector.findLandmarksInFace(optBitmap, bound);
-//
-//                    // Display the landmarks.
-//                    List<DLibFace> faces = new ArrayList<>();
-//                    faces.add(new DLibFace68(landmarks));
-//                    if (mLandmarksPreview != null) {
-//                        mLandmarksPreview.setFaces(faces);
-//                    }
-//
-////                    // Do face detection and then landmarks detection.
-////                    // Call detector JNI.
-////                    final List<DLibFace> faces =
-////                        mFaceDetector.findFacesAndLandmarks(optBitmap);
-////
-////                    // Display the faces.
-////                    if (mLandmarksPreview != null) {
-////                        mLandmarksPreview.setFaces(faces);
-////                    }
-//                } catch (InvalidProtocolBufferException err) {
-//                    Log.e("xyz", err.getMessage());
-//                }
-//
-//                optBitmap.recycle();
-//                rawBitmap.recycle();
-//
-//                // Schedule next take-photo.
-//                if (mCameraView.isCameraOpened()) {
-//                    mDetectorHandler.sendEmptyMessageDelayed(MSG_TAKE_PHOTO, 200);
-//                }
-//                return true;
-//        }
-//
-//        return false;
-//    }
-
     ///////////////////////////////////////////////////////////////////////////
     // Protected / Private Methods ////////////////////////////////////////////
 
@@ -349,21 +295,18 @@ public class SampleOfFacesAndLandmarksActivity
                 .getInstance(this)
                 .request(Manifest.permission.READ_EXTERNAL_STORAGE,
                          Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                         Manifest.permission.ACCESS_NETWORK_STATE,
                          Manifest.permission.CAMERA);
         } else {
-            int check1 = ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.READ_EXTERNAL_STORAGE);
-            int check2 = ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE);
-            int check3 = ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.CAMERA);
-
-            return Observable.just(check1 == PackageManager.PERMISSION_GRANTED &&
-                                   check2 == PackageManager.PERMISSION_GRANTED &&
-                                   check3 == PackageManager.PERMISSION_GRANTED);
+            return Observable.just(
+                ContextCompat.checkSelfPermission(
+                    this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(
+                    this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(
+                    this, Manifest.permission.ACCESS_NETWORK_STATE) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(
+                    this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED);
         }
     }
 

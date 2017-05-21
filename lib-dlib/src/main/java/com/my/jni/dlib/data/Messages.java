@@ -796,8 +796,8 @@ public final class Messages {
     }
   }
 
-  public interface RectangleOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:com.my.jni.dlib.data.Rectangle)
+  public interface RectFOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:com.my.jni.dlib.data.RectF)
       com.google.protobuf.MessageLiteOrBuilder {
 
     /**
@@ -822,17 +822,17 @@ public final class Messages {
   }
   /**
    * <pre>
-   * Normalized rectangle.
+   * Normalized Rectangles.
    * </pre>
    *
-   * Protobuf type {@code com.my.jni.dlib.data.Rectangle}
+   * Protobuf type {@code com.my.jni.dlib.data.RectF}
    */
-  public  static final class Rectangle extends
+  public  static final class RectF extends
       com.google.protobuf.GeneratedMessageLite<
-          Rectangle, Rectangle.Builder> implements
-      // @@protoc_insertion_point(message_implements:com.my.jni.dlib.data.Rectangle)
-      RectangleOrBuilder {
-    private Rectangle() {
+          RectF, RectF.Builder> implements
+      // @@protoc_insertion_point(message_implements:com.my.jni.dlib.data.RectF)
+      RectFOrBuilder {
+    private RectF() {
     }
     public static final int LEFT_FIELD_NUMBER = 1;
     private float left_;
@@ -967,60 +967,60 @@ public final class Messages {
       return size;
     }
 
-    public static com.my.jni.dlib.data.Messages.Rectangle parseFrom(
+    public static com.my.jni.dlib.data.Messages.RectF parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, data);
     }
-    public static com.my.jni.dlib.data.Messages.Rectangle parseFrom(
+    public static com.my.jni.dlib.data.Messages.RectF parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, data, extensionRegistry);
     }
-    public static com.my.jni.dlib.data.Messages.Rectangle parseFrom(byte[] data)
+    public static com.my.jni.dlib.data.Messages.RectF parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, data);
     }
-    public static com.my.jni.dlib.data.Messages.Rectangle parseFrom(
+    public static com.my.jni.dlib.data.Messages.RectF parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, data, extensionRegistry);
     }
-    public static com.my.jni.dlib.data.Messages.Rectangle parseFrom(java.io.InputStream input)
+    public static com.my.jni.dlib.data.Messages.RectF parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, input);
     }
-    public static com.my.jni.dlib.data.Messages.Rectangle parseFrom(
+    public static com.my.jni.dlib.data.Messages.RectF parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, input, extensionRegistry);
     }
-    public static com.my.jni.dlib.data.Messages.Rectangle parseDelimitedFrom(java.io.InputStream input)
+    public static com.my.jni.dlib.data.Messages.RectF parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return parseDelimitedFrom(DEFAULT_INSTANCE, input);
     }
-    public static com.my.jni.dlib.data.Messages.Rectangle parseDelimitedFrom(
+    public static com.my.jni.dlib.data.Messages.RectF parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return parseDelimitedFrom(DEFAULT_INSTANCE, input, extensionRegistry);
     }
-    public static com.my.jni.dlib.data.Messages.Rectangle parseFrom(
+    public static com.my.jni.dlib.data.Messages.RectF parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, input);
     }
-    public static com.my.jni.dlib.data.Messages.Rectangle parseFrom(
+    public static com.my.jni.dlib.data.Messages.RectF parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -1031,23 +1031,23 @@ public final class Messages {
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
     }
-    public static Builder newBuilder(com.my.jni.dlib.data.Messages.Rectangle prototype) {
+    public static Builder newBuilder(com.my.jni.dlib.data.Messages.RectF prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
 
     /**
      * <pre>
-     * Normalized rectangle.
+     * Normalized Rectangles.
      * </pre>
      *
-     * Protobuf type {@code com.my.jni.dlib.data.Rectangle}
+     * Protobuf type {@code com.my.jni.dlib.data.RectF}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageLite.Builder<
-          com.my.jni.dlib.data.Messages.Rectangle, Builder> implements
-        // @@protoc_insertion_point(builder_implements:com.my.jni.dlib.data.Rectangle)
-        com.my.jni.dlib.data.Messages.RectangleOrBuilder {
-      // Construct using com.my.jni.dlib.data.Messages.Rectangle.newBuilder()
+          com.my.jni.dlib.data.Messages.RectF, Builder> implements
+        // @@protoc_insertion_point(builder_implements:com.my.jni.dlib.data.RectF)
+        com.my.jni.dlib.data.Messages.RectFOrBuilder {
+      // Construct using com.my.jni.dlib.data.Messages.RectF.newBuilder()
       private Builder() {
         super(DEFAULT_INSTANCE);
       }
@@ -1145,14 +1145,14 @@ public final class Messages {
         return this;
       }
 
-      // @@protoc_insertion_point(builder_scope:com.my.jni.dlib.data.Rectangle)
+      // @@protoc_insertion_point(builder_scope:com.my.jni.dlib.data.RectF)
     }
     protected final Object dynamicMethod(
         com.google.protobuf.GeneratedMessageLite.MethodToInvoke method,
         Object arg0, Object arg1) {
       switch (method) {
         case NEW_MUTABLE_INSTANCE: {
-          return new com.my.jni.dlib.data.Messages.Rectangle();
+          return new com.my.jni.dlib.data.Messages.RectF();
         }
         case IS_INITIALIZED: {
           return DEFAULT_INSTANCE;
@@ -1165,7 +1165,7 @@ public final class Messages {
         }
         case VISIT: {
           Visitor visitor = (Visitor) arg0;
-          com.my.jni.dlib.data.Messages.Rectangle other = (com.my.jni.dlib.data.Messages.Rectangle) arg1;
+          com.my.jni.dlib.data.Messages.RectF other = (com.my.jni.dlib.data.Messages.RectF) arg1;
           left_ = visitor.visitFloat(left_ != 0F, left_,
               other.left_ != 0F, other.left_);
           top_ = visitor.visitFloat(top_ != 0F, top_,
@@ -1233,7 +1233,7 @@ public final class Messages {
           return DEFAULT_INSTANCE;
         }
         case GET_PARSER: {
-          if (PARSER == null) {    synchronized (com.my.jni.dlib.data.Messages.Rectangle.class) {
+          if (PARSER == null) {    synchronized (com.my.jni.dlib.data.Messages.RectF.class) {
               if (PARSER == null) {
                 PARSER = new DefaultInstanceBasedParser(DEFAULT_INSTANCE);
               }
@@ -1246,20 +1246,470 @@ public final class Messages {
     }
 
 
-    // @@protoc_insertion_point(class_scope:com.my.jni.dlib.data.Rectangle)
-    private static final com.my.jni.dlib.data.Messages.Rectangle DEFAULT_INSTANCE;
+    // @@protoc_insertion_point(class_scope:com.my.jni.dlib.data.RectF)
+    private static final com.my.jni.dlib.data.Messages.RectF DEFAULT_INSTANCE;
     static {
-      DEFAULT_INSTANCE = new Rectangle();
+      DEFAULT_INSTANCE = new RectF();
       DEFAULT_INSTANCE.makeImmutable();
     }
 
-    public static com.my.jni.dlib.data.Messages.Rectangle getDefaultInstance() {
+    public static com.my.jni.dlib.data.Messages.RectF getDefaultInstance() {
       return DEFAULT_INSTANCE;
     }
 
-    private static volatile com.google.protobuf.Parser<Rectangle> PARSER;
+    private static volatile com.google.protobuf.Parser<RectF> PARSER;
 
-    public static com.google.protobuf.Parser<Rectangle> parser() {
+    public static com.google.protobuf.Parser<RectF> parser() {
+      return DEFAULT_INSTANCE.getParserForType();
+    }
+  }
+
+  public interface RectFListOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:com.my.jni.dlib.data.RectFList)
+      com.google.protobuf.MessageLiteOrBuilder {
+
+    /**
+     * <code>repeated .com.my.jni.dlib.data.RectF rects = 1;</code>
+     */
+    java.util.List<com.my.jni.dlib.data.Messages.RectF> 
+        getRectsList();
+    /**
+     * <code>repeated .com.my.jni.dlib.data.RectF rects = 1;</code>
+     */
+    com.my.jni.dlib.data.Messages.RectF getRects(int index);
+    /**
+     * <code>repeated .com.my.jni.dlib.data.RectF rects = 1;</code>
+     */
+    int getRectsCount();
+  }
+  /**
+   * Protobuf type {@code com.my.jni.dlib.data.RectFList}
+   */
+  public  static final class RectFList extends
+      com.google.protobuf.GeneratedMessageLite<
+          RectFList, RectFList.Builder> implements
+      // @@protoc_insertion_point(message_implements:com.my.jni.dlib.data.RectFList)
+      RectFListOrBuilder {
+    private RectFList() {
+      rects_ = emptyProtobufList();
+    }
+    public static final int RECTS_FIELD_NUMBER = 1;
+    private com.google.protobuf.Internal.ProtobufList<com.my.jni.dlib.data.Messages.RectF> rects_;
+    /**
+     * <code>repeated .com.my.jni.dlib.data.RectF rects = 1;</code>
+     */
+    public java.util.List<com.my.jni.dlib.data.Messages.RectF> getRectsList() {
+      return rects_;
+    }
+    /**
+     * <code>repeated .com.my.jni.dlib.data.RectF rects = 1;</code>
+     */
+    public java.util.List<? extends com.my.jni.dlib.data.Messages.RectFOrBuilder> 
+        getRectsOrBuilderList() {
+      return rects_;
+    }
+    /**
+     * <code>repeated .com.my.jni.dlib.data.RectF rects = 1;</code>
+     */
+    public int getRectsCount() {
+      return rects_.size();
+    }
+    /**
+     * <code>repeated .com.my.jni.dlib.data.RectF rects = 1;</code>
+     */
+    public com.my.jni.dlib.data.Messages.RectF getRects(int index) {
+      return rects_.get(index);
+    }
+    /**
+     * <code>repeated .com.my.jni.dlib.data.RectF rects = 1;</code>
+     */
+    public com.my.jni.dlib.data.Messages.RectFOrBuilder getRectsOrBuilder(
+        int index) {
+      return rects_.get(index);
+    }
+    private void ensureRectsIsMutable() {
+      if (!rects_.isModifiable()) {
+        rects_ =
+            com.google.protobuf.GeneratedMessageLite.mutableCopy(rects_);
+       }
+    }
+
+    /**
+     * <code>repeated .com.my.jni.dlib.data.RectF rects = 1;</code>
+     */
+    private void setRects(
+        int index, com.my.jni.dlib.data.Messages.RectF value) {
+      if (value == null) {
+        throw new NullPointerException();
+      }
+      ensureRectsIsMutable();
+      rects_.set(index, value);
+    }
+    /**
+     * <code>repeated .com.my.jni.dlib.data.RectF rects = 1;</code>
+     */
+    private void setRects(
+        int index, com.my.jni.dlib.data.Messages.RectF.Builder builderForValue) {
+      ensureRectsIsMutable();
+      rects_.set(index, builderForValue.build());
+    }
+    /**
+     * <code>repeated .com.my.jni.dlib.data.RectF rects = 1;</code>
+     */
+    private void addRects(com.my.jni.dlib.data.Messages.RectF value) {
+      if (value == null) {
+        throw new NullPointerException();
+      }
+      ensureRectsIsMutable();
+      rects_.add(value);
+    }
+    /**
+     * <code>repeated .com.my.jni.dlib.data.RectF rects = 1;</code>
+     */
+    private void addRects(
+        int index, com.my.jni.dlib.data.Messages.RectF value) {
+      if (value == null) {
+        throw new NullPointerException();
+      }
+      ensureRectsIsMutable();
+      rects_.add(index, value);
+    }
+    /**
+     * <code>repeated .com.my.jni.dlib.data.RectF rects = 1;</code>
+     */
+    private void addRects(
+        com.my.jni.dlib.data.Messages.RectF.Builder builderForValue) {
+      ensureRectsIsMutable();
+      rects_.add(builderForValue.build());
+    }
+    /**
+     * <code>repeated .com.my.jni.dlib.data.RectF rects = 1;</code>
+     */
+    private void addRects(
+        int index, com.my.jni.dlib.data.Messages.RectF.Builder builderForValue) {
+      ensureRectsIsMutable();
+      rects_.add(index, builderForValue.build());
+    }
+    /**
+     * <code>repeated .com.my.jni.dlib.data.RectF rects = 1;</code>
+     */
+    private void addAllRects(
+        java.lang.Iterable<? extends com.my.jni.dlib.data.Messages.RectF> values) {
+      ensureRectsIsMutable();
+      com.google.protobuf.AbstractMessageLite.addAll(
+          values, rects_);
+    }
+    /**
+     * <code>repeated .com.my.jni.dlib.data.RectF rects = 1;</code>
+     */
+    private void clearRects() {
+      rects_ = emptyProtobufList();
+    }
+    /**
+     * <code>repeated .com.my.jni.dlib.data.RectF rects = 1;</code>
+     */
+    private void removeRects(int index) {
+      ensureRectsIsMutable();
+      rects_.remove(index);
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      for (int i = 0; i < rects_.size(); i++) {
+        output.writeMessage(1, rects_.get(i));
+      }
+    }
+
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      for (int i = 0; i < rects_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1, rects_.get(i));
+      }
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    public static com.my.jni.dlib.data.Messages.RectFList parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static com.my.jni.dlib.data.Messages.RectFList parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static com.my.jni.dlib.data.Messages.RectFList parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static com.my.jni.dlib.data.Messages.RectFList parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static com.my.jni.dlib.data.Messages.RectFList parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input);
+    }
+    public static com.my.jni.dlib.data.Messages.RectFList parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+    public static com.my.jni.dlib.data.Messages.RectFList parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return parseDelimitedFrom(DEFAULT_INSTANCE, input);
+    }
+    public static com.my.jni.dlib.data.Messages.RectFList parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return parseDelimitedFrom(DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+    public static com.my.jni.dlib.data.Messages.RectFList parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input);
+    }
+    public static com.my.jni.dlib.data.Messages.RectFList parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(com.my.jni.dlib.data.Messages.RectFList prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+
+    /**
+     * Protobuf type {@code com.my.jni.dlib.data.RectFList}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageLite.Builder<
+          com.my.jni.dlib.data.Messages.RectFList, Builder> implements
+        // @@protoc_insertion_point(builder_implements:com.my.jni.dlib.data.RectFList)
+        com.my.jni.dlib.data.Messages.RectFListOrBuilder {
+      // Construct using com.my.jni.dlib.data.Messages.RectFList.newBuilder()
+      private Builder() {
+        super(DEFAULT_INSTANCE);
+      }
+
+
+      /**
+       * <code>repeated .com.my.jni.dlib.data.RectF rects = 1;</code>
+       */
+      public java.util.List<com.my.jni.dlib.data.Messages.RectF> getRectsList() {
+        return java.util.Collections.unmodifiableList(
+            instance.getRectsList());
+      }
+      /**
+       * <code>repeated .com.my.jni.dlib.data.RectF rects = 1;</code>
+       */
+      public int getRectsCount() {
+        return instance.getRectsCount();
+      }/**
+       * <code>repeated .com.my.jni.dlib.data.RectF rects = 1;</code>
+       */
+      public com.my.jni.dlib.data.Messages.RectF getRects(int index) {
+        return instance.getRects(index);
+      }
+      /**
+       * <code>repeated .com.my.jni.dlib.data.RectF rects = 1;</code>
+       */
+      public Builder setRects(
+          int index, com.my.jni.dlib.data.Messages.RectF value) {
+        copyOnWrite();
+        instance.setRects(index, value);
+        return this;
+      }
+      /**
+       * <code>repeated .com.my.jni.dlib.data.RectF rects = 1;</code>
+       */
+      public Builder setRects(
+          int index, com.my.jni.dlib.data.Messages.RectF.Builder builderForValue) {
+        copyOnWrite();
+        instance.setRects(index, builderForValue);
+        return this;
+      }
+      /**
+       * <code>repeated .com.my.jni.dlib.data.RectF rects = 1;</code>
+       */
+      public Builder addRects(com.my.jni.dlib.data.Messages.RectF value) {
+        copyOnWrite();
+        instance.addRects(value);
+        return this;
+      }
+      /**
+       * <code>repeated .com.my.jni.dlib.data.RectF rects = 1;</code>
+       */
+      public Builder addRects(
+          int index, com.my.jni.dlib.data.Messages.RectF value) {
+        copyOnWrite();
+        instance.addRects(index, value);
+        return this;
+      }
+      /**
+       * <code>repeated .com.my.jni.dlib.data.RectF rects = 1;</code>
+       */
+      public Builder addRects(
+          com.my.jni.dlib.data.Messages.RectF.Builder builderForValue) {
+        copyOnWrite();
+        instance.addRects(builderForValue);
+        return this;
+      }
+      /**
+       * <code>repeated .com.my.jni.dlib.data.RectF rects = 1;</code>
+       */
+      public Builder addRects(
+          int index, com.my.jni.dlib.data.Messages.RectF.Builder builderForValue) {
+        copyOnWrite();
+        instance.addRects(index, builderForValue);
+        return this;
+      }
+      /**
+       * <code>repeated .com.my.jni.dlib.data.RectF rects = 1;</code>
+       */
+      public Builder addAllRects(
+          java.lang.Iterable<? extends com.my.jni.dlib.data.Messages.RectF> values) {
+        copyOnWrite();
+        instance.addAllRects(values);
+        return this;
+      }
+      /**
+       * <code>repeated .com.my.jni.dlib.data.RectF rects = 1;</code>
+       */
+      public Builder clearRects() {
+        copyOnWrite();
+        instance.clearRects();
+        return this;
+      }
+      /**
+       * <code>repeated .com.my.jni.dlib.data.RectF rects = 1;</code>
+       */
+      public Builder removeRects(int index) {
+        copyOnWrite();
+        instance.removeRects(index);
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:com.my.jni.dlib.data.RectFList)
+    }
+    protected final Object dynamicMethod(
+        com.google.protobuf.GeneratedMessageLite.MethodToInvoke method,
+        Object arg0, Object arg1) {
+      switch (method) {
+        case NEW_MUTABLE_INSTANCE: {
+          return new com.my.jni.dlib.data.Messages.RectFList();
+        }
+        case IS_INITIALIZED: {
+          return DEFAULT_INSTANCE;
+        }
+        case MAKE_IMMUTABLE: {
+          rects_.makeImmutable();
+          return null;
+        }
+        case NEW_BUILDER: {
+          return new Builder();
+        }
+        case VISIT: {
+          Visitor visitor = (Visitor) arg0;
+          com.my.jni.dlib.data.Messages.RectFList other = (com.my.jni.dlib.data.Messages.RectFList) arg1;
+          rects_= visitor.visitList(rects_, other.rects_);
+          if (visitor == com.google.protobuf.GeneratedMessageLite.MergeFromVisitor
+              .INSTANCE) {
+          }
+          return this;
+        }
+        case MERGE_FROM_STREAM: {
+          com.google.protobuf.CodedInputStream input =
+              (com.google.protobuf.CodedInputStream) arg0;
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry =
+              (com.google.protobuf.ExtensionRegistryLite) arg1;
+          try {
+            boolean done = false;
+            while (!done) {
+              int tag = input.readTag();
+              switch (tag) {
+                case 0:
+                  done = true;
+                  break;
+                default: {
+                  if (!input.skipField(tag)) {
+                    done = true;
+                  }
+                  break;
+                }
+                case 10: {
+                  if (!rects_.isModifiable()) {
+                    rects_ =
+                        com.google.protobuf.GeneratedMessageLite.mutableCopy(rects_);
+                  }
+                  rects_.add(
+                      input.readMessage(com.my.jni.dlib.data.Messages.RectF.parser(), extensionRegistry));
+                  break;
+                }
+              }
+            }
+          } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+            throw new RuntimeException(e.setUnfinishedMessage(this));
+          } catch (java.io.IOException e) {
+            throw new RuntimeException(
+                new com.google.protobuf.InvalidProtocolBufferException(
+                    e.getMessage()).setUnfinishedMessage(this));
+          } finally {
+          }
+        }
+        case GET_DEFAULT_INSTANCE: {
+          return DEFAULT_INSTANCE;
+        }
+        case GET_PARSER: {
+          if (PARSER == null) {    synchronized (com.my.jni.dlib.data.Messages.RectFList.class) {
+              if (PARSER == null) {
+                PARSER = new DefaultInstanceBasedParser(DEFAULT_INSTANCE);
+              }
+            }
+          }
+          return PARSER;
+        }
+      }
+      throw new UnsupportedOperationException();
+    }
+
+
+    // @@protoc_insertion_point(class_scope:com.my.jni.dlib.data.RectFList)
+    private static final com.my.jni.dlib.data.Messages.RectFList DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new RectFList();
+      DEFAULT_INSTANCE.makeImmutable();
+    }
+
+    public static com.my.jni.dlib.data.Messages.RectFList getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static volatile com.google.protobuf.Parser<RectFList> PARSER;
+
+    public static com.google.protobuf.Parser<RectFList> parser() {
       return DEFAULT_INSTANCE.getParserForType();
     }
   }
@@ -1269,13 +1719,13 @@ public final class Messages {
       com.google.protobuf.MessageLiteOrBuilder {
 
     /**
-     * <code>.com.my.jni.dlib.data.Rectangle bound = 1;</code>
+     * <code>.com.my.jni.dlib.data.RectF bound = 1;</code>
      */
     boolean hasBound();
     /**
-     * <code>.com.my.jni.dlib.data.Rectangle bound = 1;</code>
+     * <code>.com.my.jni.dlib.data.RectF bound = 1;</code>
      */
-    com.my.jni.dlib.data.Messages.Rectangle getBound();
+    com.my.jni.dlib.data.Messages.RectF getBound();
 
     /**
      * <code>repeated .com.my.jni.dlib.data.Landmark landmarks = 2;</code>
@@ -1304,23 +1754,23 @@ public final class Messages {
     }
     private int bitField0_;
     public static final int BOUND_FIELD_NUMBER = 1;
-    private com.my.jni.dlib.data.Messages.Rectangle bound_;
+    private com.my.jni.dlib.data.Messages.RectF bound_;
     /**
-     * <code>.com.my.jni.dlib.data.Rectangle bound = 1;</code>
+     * <code>.com.my.jni.dlib.data.RectF bound = 1;</code>
      */
     public boolean hasBound() {
       return bound_ != null;
     }
     /**
-     * <code>.com.my.jni.dlib.data.Rectangle bound = 1;</code>
+     * <code>.com.my.jni.dlib.data.RectF bound = 1;</code>
      */
-    public com.my.jni.dlib.data.Messages.Rectangle getBound() {
-      return bound_ == null ? com.my.jni.dlib.data.Messages.Rectangle.getDefaultInstance() : bound_;
+    public com.my.jni.dlib.data.Messages.RectF getBound() {
+      return bound_ == null ? com.my.jni.dlib.data.Messages.RectF.getDefaultInstance() : bound_;
     }
     /**
-     * <code>.com.my.jni.dlib.data.Rectangle bound = 1;</code>
+     * <code>.com.my.jni.dlib.data.RectF bound = 1;</code>
      */
-    private void setBound(com.my.jni.dlib.data.Messages.Rectangle value) {
+    private void setBound(com.my.jni.dlib.data.Messages.RectF value) {
       if (value == null) {
         throw new NullPointerException();
       }
@@ -1328,28 +1778,28 @@ public final class Messages {
       
       }
     /**
-     * <code>.com.my.jni.dlib.data.Rectangle bound = 1;</code>
+     * <code>.com.my.jni.dlib.data.RectF bound = 1;</code>
      */
     private void setBound(
-        com.my.jni.dlib.data.Messages.Rectangle.Builder builderForValue) {
+        com.my.jni.dlib.data.Messages.RectF.Builder builderForValue) {
       bound_ = builderForValue.build();
       
     }
     /**
-     * <code>.com.my.jni.dlib.data.Rectangle bound = 1;</code>
+     * <code>.com.my.jni.dlib.data.RectF bound = 1;</code>
      */
-    private void mergeBound(com.my.jni.dlib.data.Messages.Rectangle value) {
+    private void mergeBound(com.my.jni.dlib.data.Messages.RectF value) {
       if (bound_ != null &&
-          bound_ != com.my.jni.dlib.data.Messages.Rectangle.getDefaultInstance()) {
+          bound_ != com.my.jni.dlib.data.Messages.RectF.getDefaultInstance()) {
         bound_ =
-          com.my.jni.dlib.data.Messages.Rectangle.newBuilder(bound_).mergeFrom(value).buildPartial();
+          com.my.jni.dlib.data.Messages.RectF.newBuilder(bound_).mergeFrom(value).buildPartial();
       } else {
         bound_ = value;
       }
       
     }
     /**
-     * <code>.com.my.jni.dlib.data.Rectangle bound = 1;</code>
+     * <code>.com.my.jni.dlib.data.RectF bound = 1;</code>
      */
     private void clearBound() {  bound_ = null;
       
@@ -1585,44 +2035,44 @@ public final class Messages {
 
 
       /**
-       * <code>.com.my.jni.dlib.data.Rectangle bound = 1;</code>
+       * <code>.com.my.jni.dlib.data.RectF bound = 1;</code>
        */
       public boolean hasBound() {
         return instance.hasBound();
       }
       /**
-       * <code>.com.my.jni.dlib.data.Rectangle bound = 1;</code>
+       * <code>.com.my.jni.dlib.data.RectF bound = 1;</code>
        */
-      public com.my.jni.dlib.data.Messages.Rectangle getBound() {
+      public com.my.jni.dlib.data.Messages.RectF getBound() {
         return instance.getBound();
       }
       /**
-       * <code>.com.my.jni.dlib.data.Rectangle bound = 1;</code>
+       * <code>.com.my.jni.dlib.data.RectF bound = 1;</code>
        */
-      public Builder setBound(com.my.jni.dlib.data.Messages.Rectangle value) {
+      public Builder setBound(com.my.jni.dlib.data.Messages.RectF value) {
         copyOnWrite();
         instance.setBound(value);
         return this;
         }
       /**
-       * <code>.com.my.jni.dlib.data.Rectangle bound = 1;</code>
+       * <code>.com.my.jni.dlib.data.RectF bound = 1;</code>
        */
       public Builder setBound(
-          com.my.jni.dlib.data.Messages.Rectangle.Builder builderForValue) {
+          com.my.jni.dlib.data.Messages.RectF.Builder builderForValue) {
         copyOnWrite();
         instance.setBound(builderForValue);
         return this;
       }
       /**
-       * <code>.com.my.jni.dlib.data.Rectangle bound = 1;</code>
+       * <code>.com.my.jni.dlib.data.RectF bound = 1;</code>
        */
-      public Builder mergeBound(com.my.jni.dlib.data.Messages.Rectangle value) {
+      public Builder mergeBound(com.my.jni.dlib.data.Messages.RectF value) {
         copyOnWrite();
         instance.mergeBound(value);
         return this;
       }
       /**
-       * <code>.com.my.jni.dlib.data.Rectangle bound = 1;</code>
+       * <code>.com.my.jni.dlib.data.RectF bound = 1;</code>
        */
       public Builder clearBound() {  copyOnWrite();
         instance.clearBound();
@@ -1776,11 +2226,11 @@ public final class Messages {
                   break;
                 }
                 case 10: {
-                  com.my.jni.dlib.data.Messages.Rectangle.Builder subBuilder = null;
+                  com.my.jni.dlib.data.Messages.RectF.Builder subBuilder = null;
                   if (bound_ != null) {
                     subBuilder = bound_.toBuilder();
                   }
-                  bound_ = input.readMessage(com.my.jni.dlib.data.Messages.Rectangle.parser(), extensionRegistry);
+                  bound_ = input.readMessage(com.my.jni.dlib.data.Messages.RectF.parser(), extensionRegistry);
                   if (subBuilder != null) {
                     subBuilder.mergeFrom(bound_);
                     bound_ = subBuilder.buildPartial();

@@ -86,7 +86,7 @@ public class SampleOfLandmarksOnlyActivity
     FloatingActionButton mBtnTakePhoto;
     @BindView(R.id.face_bound)
     View mFaceBoundView;
-    @BindView(R.id.landmarks_preview)
+    @BindView(R.id.overlay)
     FaceLandmarksOverlayView mLandmarksPreview;
     @BindView(R.id.camera)
     CameraView mCameraView;
@@ -294,7 +294,7 @@ public class SampleOfLandmarksOnlyActivity
                         (int) (mFaceBound.right * bw),
                         (int) (mFaceBound.bottom * bh));
                     final List<DLibFace.Landmark> landmarks =
-                        mFaceDetector.findLandmarksInFace(optBitmap, bound);
+                        mFaceDetector.findLandmarksFromFace(optBitmap, bound);
 
                     // Display the landmarks.
                     List<DLibFace> faces = new ArrayList<>();

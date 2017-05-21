@@ -20,6 +20,7 @@
 
 package com.my.jni.dlib.data;
 
+import android.graphics.Rect;
 import android.graphics.RectF;
 
 import java.util.List;
@@ -64,6 +65,10 @@ public class DLibFace68 extends DLibFace {
 
             mLandmarks.add(new Landmark(rawLandmark));
         }
+    }
+
+    public DLibFace68(RectF bound) {
+        mBound.set(bound);
     }
 
     public DLibFace68(DLibFace other) {
