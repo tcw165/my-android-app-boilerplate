@@ -1,0 +1,97 @@
+apply plugin: "com.android.application"
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "25.0.3"
+
+    defaultConfig {
+        applicationId "my.demo.dlib"
+        minSdkVersion 21
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        multiDexEnabled true
+        vectorDrawables.useSupportLibrary = true
+
+        ndk {
+            // "x86", "x86_64", "armeabi", "armeabi-v7a", "arm64-v8a"
+            abiFilters "armeabi-v7a"
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+        }
+    }
+
+    lintOptions {
+        disable "MissingTranslation"
+    }
+
+    // Pick first STL shared library if there're duplicate files in the
+    // dependent module.
+    packagingOptions {
+        pickFirst  "**/libc++_shared.so"
+    }
+}
+
+repositories {
+    maven { url "https://maven.fabric.io/public" }
+    // Support AAR file.
+    flatDir { dirs "libs" }
+}
+
+dependencies {
+    compile fileTree(dir: "libs", include: ["*.jar"])
+
+    // Google Support Library.
+    def SUPPORT_LIB_VER = "25.3.1"
+    compile "com.android.support:appcompat-v7:${SUPPORT_LIB_VER}"
+    compile "com.android.support:support-vector-drawable:${SUPPORT_LIB_VER}"
+    compile "com.android.support:recyclerview-v7:${SUPPORT_LIB_VER}"
+    compile "com.android.support.constraint:constraint-layout:1.0.2"
+    // Multi-dex.
+    compile "com.android.support:multidex:1.0.1"
+    // Google CameraView.
+    compile(name: "google-cameraview", ext:"aar")
+    // Google Vision.
+    compile 'com.google.android.gms:play-services-vision:10.2.6'
+
+    // Rx-Android.
+    compile "io.reactivex.rxjava2:rxandroid:2.0.1"
+    compile "io.reactivex.rxjava2:rxjava:2.0.1"
+    // Rx-Permissions.
+    compile "com.tbruyelle.rxpermissions2:rxpermissions:0.8.2@aar"
+    // Rx-Binding.
+    compile "com.jakewharton.rxbinding2:rxbinding:2.0.0"
+//    // Rx-HTTP.
+//    def RETROFIT_VER = "2.2.0"
+//    compile "com.squareup.retrofit2:retrofit:${RETROFIT_VER}"
+//    compile "com.squareup.retrofit2:adapter-rxjava2:2.2.0"
+//    compile "com.squareup.retrofit2:converter-gson:${RETROFIT_VER}"
+//    compile "com.squareup.okhttp3:okhttp:3.6.0"
+
+    // View Binding.
+    def BUTTER_KNIFE_VER = "8.5.1"
+    compile "com.jakewharton:butterknife:${BUTTER_KNIFE_VER}"
+    annotationProcessor "com.jakewharton:butterknife-compiler:${BUTTER_KNIFE_VER}"
+
+    // Image loader.
+    compile "com.github.bumptech.glide:glide:3.7.0"
+
+    // My Libraries
+    compile project(":lib-core")
+    compile project(":lib-widget")
+    compile project(":lib-dlib")
+
+    testCompile "junit:junit:4.12"
+
+    androidTestCompile("com.android.support.test.espresso:espresso-core:2.2.2", {
+        exclude group: "com.android.support", module: "support-annotations"
+    })
+}

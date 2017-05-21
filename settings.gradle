@@ -1,6 +1,7 @@
 include ':app',
         ':demo-widget',
         ':demo-dlib',
+        ':demo-big-bite',
         ':demo-doodle',
         ':demo-news-feed',
         ':lib-core',
