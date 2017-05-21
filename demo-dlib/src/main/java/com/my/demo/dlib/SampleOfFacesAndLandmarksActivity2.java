@@ -34,15 +34,18 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.vision.CameraSource;
+import com.google.android.gms.vision.Detector;
+import com.google.android.gms.vision.face.Face;
 import com.google.android.gms.vision.face.FaceDetector;
 import com.my.core.protocol.IProgressBarView;
-import com.my.demo.dlib.detector.FaceLandmarksDetector;
+import com.my.demo.dlib.detector.VisionFaceAndDLibLandmarksDetector;
 import com.my.demo.dlib.protocol.ICameraMetadata;
 import com.my.demo.dlib.util.DlibModelHelper;
 import com.my.demo.dlib.view.CameraSourcePreview;
 import com.my.demo.dlib.view.FaceLandmarksOverlayView;
 import com.my.jni.dlib.DLibLandmarks68Detector;
 import com.my.jni.dlib.IDLibFaceDetector;
+import com.my.jni.dlib.data.DLibFace;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.io.File;
@@ -59,7 +62,7 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
-public class SampleOfFacesAndLandmarksActivity
+public class SampleOfFacesAndLandmarksActivity2
     extends AppCompatActivity
     implements ICameraMetadata,
                IProgressBarView {
@@ -84,7 +87,7 @@ public class SampleOfFacesAndLandmarksActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_sample_of_faces_and_landmarks);
+        setContentView(R.layout.activity_sample_of_faces_and_landmarks_2);
 
         // Init view binding.
         mUnbinder = ButterKnife.bind(this);
@@ -131,15 +134,15 @@ public class SampleOfFacesAndLandmarksActivity
                     @Override
                     public Object apply(Object value) throws Exception {
                         // Create Google Vision face detector with FAST mode.
-                        final FaceDetector faceDetector = new FaceDetector.Builder(getContext())
+                        final Detector<Face> faceDetector = new FaceDetector.Builder(getContext())
                             .setClassificationType(FaceDetector.FAST_MODE)
                             .setLandmarkType(FaceDetector.NO_LANDMARKS)
                             .build();
                         // Encapsulate the face detector with the landmarks detector.
                         // The detector would directly draw the result onto the
                         // given overlay view.
-                        final FaceLandmarksDetector landmarksDetector = new FaceLandmarksDetector(
-                            SampleOfFacesAndLandmarksActivity.this,
+                        final Detector<DLibFace> landmarksDetector = new VisionFaceAndDLibLandmarksDetector(
+                            SampleOfFacesAndLandmarksActivity2.this,
                             faceDetector, mLandmarksDetector, mOverlayView);
 
                         // The camera preview is 90 degree clockwise rotated.
@@ -193,7 +196,7 @@ public class SampleOfFacesAndLandmarksActivity
 
                             hideProgressBar();
 
-                            Toast.makeText(SampleOfFacesAndLandmarksActivity.this,
+                            Toast.makeText(SampleOfFacesAndLandmarksActivity2.this,
                                            err.getMessage(), Toast.LENGTH_SHORT)
                                  .show();
                         }
