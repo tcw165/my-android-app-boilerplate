@@ -20,12 +20,13 @@
 
 package com.my.jni.dlib.data;
 
+import android.graphics.Rect;
 import android.graphics.RectF;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class Face68 extends Face {
+public class DLibFace68 extends DLibFace {
 
     private static final int CHIN_START = 0;
     private static final int CHIN_END = 16;
@@ -51,7 +52,7 @@ public class Face68 extends Face {
     private final RectF mBound = new RectF();
     private final List<Landmark> mLandmarks = new CopyOnWriteArrayList<>();
 
-    public Face68(Messages.Face rawFace) {
+    public DLibFace68(Messages.Face rawFace) {
         // Bound.
         mBound.set(rawFace.getBound().getLeft(),
                    rawFace.getBound().getTop(),
@@ -66,11 +67,15 @@ public class Face68 extends Face {
         }
     }
 
-    public Face68(Face other) {
+    public DLibFace68(RectF bound) {
+        mBound.set(bound);
+    }
+
+    public DLibFace68(DLibFace other) {
         this(other, 1f, 1f);
     }
 
-    public Face68(Face other, float scaleX, float scaleY) {
+    public DLibFace68(DLibFace other, float scaleX, float scaleY) {
         // Bound.
         mBound.set(other.getBound().left * scaleX,
                    other.getBound().top * scaleY,
@@ -79,14 +84,14 @@ public class Face68 extends Face {
 
         // Landmarks.
         for (int i = 0; i < other.getAllLandmarks().size(); ++i) {
-            final Face68.Landmark landmark = other.getAllLandmarks().get(i);
-            mLandmarks.add(new Face68.Landmark(
+            final DLibFace68.Landmark landmark = other.getAllLandmarks().get(i);
+            mLandmarks.add(new DLibFace68.Landmark(
                 landmark.x * scaleX,
                 landmark.y * scaleY));
         }
     }
 
-    public Face68(List<Landmark> landmarks) {
+    public DLibFace68(List<Landmark> landmarks) {
         // Landmarks.
         mLandmarks.clear();
         mLandmarks.addAll(landmarks);
@@ -97,7 +102,7 @@ public class Face68 extends Face {
         float right = Float.MIN_VALUE;
         float bottom = Float.MIN_VALUE;
         for (int i = 0; i < landmarks.size(); ++i) {
-            final Face68.Landmark landmark = landmarks.get(i);
+            final DLibFace68.Landmark landmark = landmarks.get(i);
 
             left = Math.min(left, landmark.x);
             top = Math.min(top, landmark.y);
@@ -163,7 +168,7 @@ public class Face68 extends Face {
 
     @Override
     public String toString() {
-        return "Face{" +
+        return "DLibFace{" +
                "mBound=" + mBound +
                ", mLandmarks=" + mLandmarks +
                '}';

@@ -38,9 +38,9 @@ import com.bumptech.glide.Glide;
 import com.my.core.protocol.IProgressBarView;
 import com.my.core.util.FileUtil;
 import com.my.demo.dlib.util.DlibModelHelper;
-import com.my.demo.dlib.view.FaceLandmarksImageView;
-import com.my.jni.dlib.FaceLandmarksDetector68;
-import com.my.jni.dlib.data.Face;
+import com.my.demo.dlib.view.FaceLandmarksOverlayView;
+import com.my.jni.dlib.DLibLandmarks68Detector;
+import com.my.jni.dlib.data.DLibFace;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.io.File;
@@ -61,7 +61,6 @@ import io.reactivex.functions.Action;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
-import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
 public class SampleOfBasicUsageActivity extends AppCompatActivity
@@ -73,14 +72,14 @@ public class SampleOfBasicUsageActivity extends AppCompatActivity
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
     @BindView(R.id.img_preview)
-    FaceLandmarksImageView mImgPreview;
+    FaceLandmarksOverlayView mImgPreview;
     ProgressDialog mProgressDialog;
 
     // Butter Knife.
     Unbinder mUnbinder;
 
     // Face Detector.
-    FaceLandmarksDetector68 mFaceDetector;
+    DLibLandmarks68Detector mFaceDetector;
 
     // Data.
     CompositeDisposable mComposition;
@@ -110,7 +109,7 @@ public class SampleOfBasicUsageActivity extends AppCompatActivity
              .into(mImgPreview);
 
         // Init the face detector.
-        mFaceDetector = new FaceLandmarksDetector68();
+        mFaceDetector = new DLibLandmarks68Detector();
     }
 
     @Override
@@ -328,9 +327,9 @@ public class SampleOfBasicUsageActivity extends AppCompatActivity
             })
             // Detect face and landmarks.
             .observeOn(Schedulers.io())
-            .map(new Function<DetectorParams, List<Face>>() {
+            .map(new Function<DetectorParams, List<DLibFace>>() {
                 @Override
-                public List<Face> apply(DetectorParams params) throws Exception {
+                public List<DLibFace> apply(DetectorParams params) throws Exception {
                     final BitmapFactory.Options options = new BitmapFactory.Options();
                     options.inPreferredConfig = Bitmap.Config.ARGB_8888;
                     options.inJustDecodeBounds = true;
@@ -354,9 +353,9 @@ public class SampleOfBasicUsageActivity extends AppCompatActivity
             })
             // Update message of the progress bar.
             .observeOn(AndroidSchedulers.mainThread())
-            .map(new Function<List<Face>, Boolean>() {
+            .map(new Function<List<DLibFace>, Boolean>() {
                 @Override
-                public Boolean apply(List<Face> faces) throws Exception {
+                public Boolean apply(List<DLibFace> faces) throws Exception {
                     showProgressBar("Rendering...");
 
                     // Render the landmarks.

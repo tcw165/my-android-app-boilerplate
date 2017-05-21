@@ -11,7 +11,7 @@ android {
     defaultConfig {
         // Overwrite the "package" attribute defined in the
         // AndroidManifest.xml.
-        applicationId "com.my.demo.widget"
+        applicationId "my.demo.widget"
         minSdkVersion 16
         targetSdkVersion 25
         versionCode 1

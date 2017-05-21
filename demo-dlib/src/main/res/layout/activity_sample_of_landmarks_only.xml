@@ -20,8 +20,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
-    <com.my.demo.dlib.view.FaceLandmarksImageView
-        android:id="@+id/landmarks_preview"
+    <com.my.demo.dlib.view.FaceLandmarksOverlayView
+        android:id="@+id/overlay"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"

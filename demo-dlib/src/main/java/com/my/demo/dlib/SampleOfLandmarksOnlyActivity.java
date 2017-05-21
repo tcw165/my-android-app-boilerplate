@@ -45,10 +45,10 @@ import com.google.android.cameraview.CameraView;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.my.core.protocol.IProgressBarView;
 import com.my.demo.dlib.util.DlibModelHelper;
-import com.my.demo.dlib.view.FaceLandmarksImageView;
-import com.my.jni.dlib.FaceLandmarksDetector68;
-import com.my.jni.dlib.data.Face;
-import com.my.jni.dlib.data.Face68;
+import com.my.demo.dlib.view.FaceLandmarksOverlayView;
+import com.my.jni.dlib.DLibLandmarks68Detector;
+import com.my.jni.dlib.data.DLibFace;
+import com.my.jni.dlib.data.DLibFace68;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.io.File;
@@ -65,7 +65,6 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
-import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
 public class SampleOfLandmarksOnlyActivity
@@ -87,8 +86,8 @@ public class SampleOfLandmarksOnlyActivity
     FloatingActionButton mBtnTakePhoto;
     @BindView(R.id.face_bound)
     View mFaceBoundView;
-    @BindView(R.id.landmarks_preview)
-    FaceLandmarksImageView mLandmarksPreview;
+    @BindView(R.id.overlay)
+    FaceLandmarksOverlayView mLandmarksPreview;
     @BindView(R.id.camera)
     CameraView mCameraView;
     ProgressDialog mProgressDialog;
@@ -98,7 +97,7 @@ public class SampleOfLandmarksOnlyActivity
 
     // Face Detector.
     Handler mDetectorHandler;
-    FaceLandmarksDetector68 mFaceDetector;
+    DLibLandmarks68Detector mFaceDetector;
 
     // Data.
     RectF mFaceBound;
@@ -124,7 +123,7 @@ public class SampleOfLandmarksOnlyActivity
         mCameraView.addCallback(mCameraCallback);
 
         // Init the face detector.
-        mFaceDetector = new FaceLandmarksDetector68();
+        mFaceDetector = new DLibLandmarks68Detector();
     }
 
     @Override
@@ -294,19 +293,19 @@ public class SampleOfLandmarksOnlyActivity
                         (int) (mFaceBound.top * bh),
                         (int) (mFaceBound.right * bw),
                         (int) (mFaceBound.bottom * bh));
-                    final List<Face.Landmark> landmarks =
-                        mFaceDetector.findLandmarksInFace(optBitmap, bound);
+                    final List<DLibFace.Landmark> landmarks =
+                        mFaceDetector.findLandmarksFromFace(optBitmap, bound);
 
                     // Display the landmarks.
-                    List<Face> faces = new ArrayList<>();
-                    faces.add(new Face68(landmarks));
+                    List<DLibFace> faces = new ArrayList<>();
+                    faces.add(new DLibFace68(landmarks));
                     if (mLandmarksPreview != null) {
                         mLandmarksPreview.setFaces(faces);
                     }
 
 //                    // Do face detection and then landmarks detection.
 //                    // Call detector JNI.
-//                    final List<Face> faces =
+//                    final List<DLibFace> faces =
 //                        mFaceDetector.findFacesAndLandmarks(optBitmap);
 //
 //                    // Display the faces.

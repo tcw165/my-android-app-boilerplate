@@ -16,16 +16,20 @@ message LandmarkList {
     repeated Landmark landmarks = 1;
 }
 
-// Normalized rectangle.
-message Rectangle {
+// Normalized Rectangles.
+message RectF {
     float left = 1;
     float top = 2;
     float right = 3;
     float bottom = 4;
 }
 
+message RectFList {
+    repeated RectF rects = 1;
+}
+
 message Face {
-    Rectangle bound = 1;
+    RectF bound = 1;
     repeated Landmark landmarks = 2;
 }
 
