@@ -75,6 +75,8 @@ public class FaceLandmarksDetector extends Detector<DLibFace> {
 
         mDetFaces.clear();
 
+        ProfilerUtil.startProfiling();
+
         // Use Google Vision face detector to get face bounds.
         ProfilerUtil.startProfiling();
         final SparseArray<Face> faces = mFaceDetector.detect(frame);
@@ -102,13 +104,34 @@ public class FaceLandmarksDetector extends Detector<DLibFace> {
                                    bitmap.getWidth(), bitmap.getHeight(),
                                    ProfilerUtil.stopProfiling()));
 
-        // FIXME: It works for the facing-back preview, not facing-front one.
         // Translate the face bounds into something that DLib detector knows.
         final List<Rect> faceBounds = new ArrayList<>();
         for (int i = 0; i < faces.size(); ++i) {
             final Face face = faces.get(faces.keyAt(i));
 
-            final float x = face.getPosition().x;
+            final float x;
+            if (mCameraMetadata.isFacingFront()) {
+                // The facing-front preview is horizontally mirrored and it's
+                // no harm for the algorithm to find the face bound, but it's
+                // critical for the algorithm to align the landmarks. I need
+                // to mirror it again.
+                //
+                // For example:
+                //
+                // <-------------+ (1) The mirrored coordinate.
+                // +-------------> (2) The not-mirrored coordinate.
+                // |       |-----| This is x in the (1) system.
+                // |   |---|       This is w in both (1) and (2) systems.
+                // |   ?           This is what I want in the (2) system.
+                // |   .---.
+                // |   | F |
+                // |   '---'
+                // |
+                // v
+                x = ow - face.getPosition().x - face.getWidth();
+            } else {
+                x = face.getPosition().x;
+            }
             final float y = face.getPosition().y;
             final float w = face.getWidth();
             final float h = face.getHeight();
@@ -153,6 +176,9 @@ public class FaceLandmarksDetector extends Detector<DLibFace> {
                                                  (float) faceBounds.get(0).right / ow,
                                                  (float) faceBounds.get(0).bottom / oh),
                                        detFaces.get(0).getBound()));
+
+            Log.d("xyz", String.format("Detect faces and landmarks done (took %.3f ms)",
+                                       ProfilerUtil.stopProfiling()));
 
             return mDetFaces;
         } catch (InvalidProtocolBufferException err) {
@@ -228,11 +254,6 @@ public class FaceLandmarksDetector extends Detector<DLibFace> {
         } else {
             return frame.getMetadata().getHeight();
         }
-    }
-
-    public float translateValue(final Matrix transform,
-                                final float value) {
-        return transform.mapRadius(value);
     }
 
     ///////////////////////////////////////////////////////////////////////////
