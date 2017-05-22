@@ -4,6 +4,9 @@
     <!-- Activity title -->
     <string name="title_sample_of_basic_usage">Asset Input</string>
 
+    <!-- Start Page -->
+    <string name="best_score">BEST SCORE</string>
+
     <!-- Warning -->
     <string name="warning_not_support_hardware_acceleration">Cannot preview the camera because it needs hardware acceleration support.</string>
 </resources>

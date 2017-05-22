@@ -24,10 +24,10 @@ android {
 }
 
 dependencies {
-    def SUPPORT_LIB_VER = "25.3.1"
-
     compile fileTree(dir: "libs", include: ["*.jar"])
 
+    // Google Support Library.
+    def SUPPORT_LIB_VER = "25.3.1"
     compile "com.android.support:appcompat-v7:${SUPPORT_LIB_VER}"
     compile "com.android.support:design:${SUPPORT_LIB_VER}"
     compile "com.android.support:support-vector-drawable:${SUPPORT_LIB_VER}"
@@ -41,8 +41,9 @@ dependencies {
 //    compile(name: "lib-core-release", ext: "aar")
 
     // Rx-Android.
-    compile "io.reactivex.rxjava2:rxandroid:2.0.1"
-    compile "io.reactivex.rxjava2:rxjava:2.0.1"
+    def RX_JAVA_VER = "2.0.1"
+    compile "io.reactivex.rxjava2:rxandroid:${RX_JAVA_VER}"
+    compile "io.reactivex.rxjava2:rxjava:${RX_JAVA_VER}"
 
     // Rx-Permissions.
     compile "com.tbruyelle.rxpermissions2:rxpermissions:0.8.2@aar"

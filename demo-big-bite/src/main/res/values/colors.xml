@@ -1,3 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Common -->
+    <color name="colorPrimary">@color/navy_blue</color>
+    <color name="colorPrimaryDark">@color/navy_blue</color>
+    <color name="colorAccent">@color/white</color>
+    <color name="textColorPrimary">@color/white</color>
+    <color name="textColorSecondary">@color/black_70</color>
+    <color name="windowBackground">@color/navy_blue</color>
+    <color name="colorControlNormal">@color/white</color>
+    <color name="navigationBarColor">@android:color/black</color>
+
+    <!-- Big Bite Palette -->
+    <color name="navy_blue">#1CA7FC</color>
 </resources>

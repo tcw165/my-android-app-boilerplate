@@ -23,12 +23,14 @@
         android:supportsRtl="false"
         android:theme="@style/AppTheme.CustomToolbar">
 
-        <meta-data android:name="com.google.android.gms.vision.DEPENDENCIES"
-                   android:value="barcode,face,ocr"/>
+        <meta-data
+            android:name="com.google.android.gms.vision.DEPENDENCIES"
+            android:value="face"/>
 
         <activity
             android:name="com.my.demo.bigbite.SplashScreenActivity"
             android:label="@string/app_name"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.SplashScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -39,17 +41,15 @@
 
         <!-- Start Page -->
         <activity
-            android:name="com.my.demo.bigbite.StartActivity"
-            android:label="@string/app_name">
+            android:name="com.my.demo.bigbite.start.StartActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait">
         </activity>
 
         <!-- Examples -->
         <activity
-            android:name="com.my.demo.bigbite.SampleOfFacesAndLandmarksActivity1">
-        </activity>
-
-        <activity
-            android:name="com.my.demo.bigbite.SampleOfFacesAndLandmarksActivity2">
+            android:name="com.my.demo.bigbite.SampleOfFacesAndLandmarksActivity2"
+            android:screenOrientation="portrait">
         </activity>
     </application>
 </manifest>
