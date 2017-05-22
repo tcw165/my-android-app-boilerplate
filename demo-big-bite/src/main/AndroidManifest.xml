@@ -48,7 +48,7 @@
 
         <!-- Examples -->
         <activity
-            android:name="com.my.demo.bigbite.SampleOfFacesAndLandmarksActivity2"
+            android:name="com.my.demo.bigbite.game.GameActivity"
             android:screenOrientation="portrait">
         </activity>
     </application>

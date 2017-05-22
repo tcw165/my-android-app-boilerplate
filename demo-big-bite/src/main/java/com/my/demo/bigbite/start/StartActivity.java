@@ -33,7 +33,7 @@ import com.google.gson.Gson;
 import com.jakewharton.rxbinding2.view.RxView;
 import com.my.core.protocol.IProgressBarView;
 import com.my.demo.bigbite.R;
-import com.my.demo.bigbite.SampleOfFacesAndLandmarksActivity2;
+import com.my.demo.bigbite.game.GameActivity;
 import com.my.demo.bigbite.protocol.Common;
 import com.my.demo.bigbite.start.data.ChallengeAdapter;
 import com.my.demo.bigbite.start.data.ChallengeItem;
@@ -215,7 +215,7 @@ public class StartActivity
             .getItem(mChallengeMenu.getCurrentItem());
 
         startActivity(
-            new Intent(this, SampleOfFacesAndLandmarksActivity2.class)
+            new Intent(this, GameActivity.class)
                 .putExtra(Common.PARAMS_DATA, item));
     }
 

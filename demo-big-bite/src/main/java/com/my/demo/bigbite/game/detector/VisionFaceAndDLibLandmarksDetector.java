@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.demo.bigbite.detector;
+package com.my.demo.bigbite.game.detector;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -31,10 +31,11 @@ import android.util.SparseArray;
 
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.Frame;
+import com.google.android.gms.vision.face.Face;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.my.core.util.ProfilerUtil;
-import com.my.demo.bigbite.protocol.ICameraMetadata;
-import com.my.demo.bigbite.protocol.IDLibFaceOverlay;
+import com.my.demo.bigbite.game.data.ICameraMetadata;
+import com.my.demo.bigbite.game.data.IDLibFaceOverlay;
 import com.my.jni.dlib.IDLibFaceDetector;
 import com.my.jni.dlib.data.DLibFace;
 
@@ -43,21 +44,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A detector using DLib face detector and DLib landmarks detector.
+ * A detector using Google Vision face detector and DLib landmarks detector.
  */
-public class DLibFaceAndLandmarksDetector extends Detector<DLibFace> {
+public class VisionFaceAndDLibLandmarksDetector extends Detector<DLibFace> {
 
     // State.
     private final SparseArray<DLibFace> mDetFaces = new SparseArray<>();
 
     private final ICameraMetadata mCameraMetadata;
-    private final IDLibFaceDetector mFaceDetector;
+    private final Detector<Face> mFaceDetector;
+    private final IDLibFaceDetector mLandmarksDetector;
 
-    public DLibFaceAndLandmarksDetector(final ICameraMetadata cameraMetadata,
-                                        final IDLibFaceDetector faceDetector,
-                                        final IDLibFaceOverlay overlay) {
+    public VisionFaceAndDLibLandmarksDetector(final ICameraMetadata cameraMetadata,
+                                              final Detector<Face> faceDetector,
+                                              final IDLibFaceDetector landmarksDetector,
+                                              final IDLibFaceOverlay overlay) {
         mCameraMetadata = cameraMetadata;
         mFaceDetector = faceDetector;
+        mLandmarksDetector = landmarksDetector;
 
         setProcessor(new PostProcessor(overlay));
     }
@@ -65,7 +69,8 @@ public class DLibFaceAndLandmarksDetector extends Detector<DLibFace> {
     @Override
     public SparseArray<DLibFace> detect(Frame frame) {
         if (mCameraMetadata == null ||
-            mFaceDetector == null) {
+            mFaceDetector == null ||
+            mLandmarksDetector == null) {
             throw new IllegalStateException(
                 "Invalid detector.");
         }
@@ -73,6 +78,14 @@ public class DLibFaceAndLandmarksDetector extends Detector<DLibFace> {
         mDetFaces.clear();
 
         ProfilerUtil.startProfiling();
+
+        // Use Google Vision face detector to get face bounds.
+        ProfilerUtil.startProfiling();
+        final SparseArray<Face> faces = mFaceDetector.detect(frame);
+        Log.d("xyz", String.format("Detect %d faces (took %.3f ms)",
+                                   faces.size(),
+                                   ProfilerUtil.stopProfiling()));
+        if (faces.size() == 0) return mDetFaces;
 
         // Camera preview dimension.
         final int fw = frame.getMetadata().getWidth();
@@ -93,10 +106,65 @@ public class DLibFaceAndLandmarksDetector extends Detector<DLibFace> {
                                    bitmap.getWidth(), bitmap.getHeight(),
                                    ProfilerUtil.stopProfiling()));
 
-        // Detect faces and landmarks.
+        // Translate the face bounds into something that DLib detector knows.
+        final List<Rect> faceBounds = new ArrayList<>();
+        for (int i = 0; i < faces.size(); ++i) {
+            final Face face = faces.get(faces.keyAt(i));
+
+            final float x;
+            if (mCameraMetadata.isFacingFront()) {
+                // The facing-front preview is horizontally mirrored and it's
+                // no harm for the algorithm to find the face bound, but it's
+                // critical for the algorithm to align the landmarks. I need
+                // to mirror it again.
+                //
+                // For example:
+                //
+                // <-------------+ (1) The mirrored coordinate.
+                // +-------------> (2) The not-mirrored coordinate.
+                // |       |-----| This is x in the (1) system.
+                // |   |---|       This is w in both (1) and (2) systems.
+                // |   ?           This is what I want in the (2) system.
+                // |   .---.
+                // |   | F |
+                // |   '---'
+                // |
+                // v
+                x = ow - face.getPosition().x - face.getWidth();
+            } else {
+                x = face.getPosition().x;
+            }
+            final float y = face.getPosition().y;
+            final float w = face.getWidth();
+            final float h = face.getHeight();
+            final Rect bound = new Rect((int) (x),
+                                        (int) (y),
+                                        (int) (x + w),
+                                        (int) (y + h));
+
+            // The face bound that DLib landmarks algorithm needs is slightly
+            // different from the one given by Google Vision API, so I change
+            // it a bit from the experience of try-and-error.
+            bound.inset(bound.width() / 10,
+                        bound.height() / 6);
+            bound.offset(0, bound.height() / 4);
+
+//            Log.d("xyz", String.format("#%d face x=%f, y=%f, w=%f, h=%f",
+//                                       faces.keyAt(i),
+//                                       face.getPosition().x,
+//                                       face.getPosition().y,
+//                                       face.getWidth(),
+//                                       face.getHeight()));
+            faceBounds.add(bound);
+        }
+
+
+        // Detect landmarks.
         try {
             ProfilerUtil.startProfiling();
-            List<DLibFace> detFaces = mFaceDetector.findFacesAndLandmarks(bitmap);
+            List<DLibFace> detFaces = mLandmarksDetector.findLandmarksFromFaces(
+                bitmap,
+                faceBounds);
             mDetFaces.clear();
             for (int i = 0; i < detFaces.size(); ++i) {
                 mDetFaces.put(i, detFaces.get(i));
@@ -104,6 +172,12 @@ public class DLibFaceAndLandmarksDetector extends Detector<DLibFace> {
             Log.d("xyz", String.format("Detect %d face with landmarks (took %.3f ms)",
                                        detFaces.size(),
                                        ProfilerUtil.stopProfiling()));
+//            Log.d("xyz", String.format("input rect=%s, output rect=%s",
+//                                       new RectF((float) faceBounds.get(0).left / ow,
+//                                                 (float) faceBounds.get(0).top / oh,
+//                                                 (float) faceBounds.get(0).right / ow,
+//                                                 (float) faceBounds.get(0).bottom / oh),
+//                                       detFaces.get(0).getBound()));
 
             Log.d("xyz", String.format(
                 "Process of detecting faces and landmarks done (took %.3f ms)",
@@ -188,7 +262,7 @@ public class DLibFaceAndLandmarksDetector extends Detector<DLibFace> {
     ///////////////////////////////////////////////////////////////////////////
     // Clazz //////////////////////////////////////////////////////////////////
 
-    private static class PostProcessor implements Processor<DLibFace> {
+    private static class PostProcessor implements Detector.Processor<DLibFace> {
 
         final IDLibFaceOverlay mOverlay;
 

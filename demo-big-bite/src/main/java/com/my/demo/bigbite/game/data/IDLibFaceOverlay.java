@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.demo.bigbite.protocol;
+package com.my.demo.bigbite.game.data;
 
 import com.my.jni.dlib.data.DLibFace;
 

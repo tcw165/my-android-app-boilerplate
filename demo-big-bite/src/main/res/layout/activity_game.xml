@@ -5,9 +5,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SampleOfFacesAndLandmarksActivity1">
+    tools:context="com.my.demo.bigbite.game.GameActivity">
 
-    <com.my.demo.bigbite.view.CameraSourcePreview
+    <com.my.demo.bigbite.game.view.CameraSourcePreview
         android:id="@+id/camera"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -20,7 +20,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
-    <com.my.demo.bigbite.view.FaceLandmarksOverlayView
+    <com.my.demo.bigbite.game.view.FaceLandmarksOverlayView
         android:id="@+id/overlay"
         android:layout_width="0dp"
         android:layout_height="0dp"

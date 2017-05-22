@@ -1,4 +1,4 @@
-package com.my.demo.bigbite.protocol;
+package com.my.demo.bigbite.game.data;
 
 public interface ICameraMetadata {
 

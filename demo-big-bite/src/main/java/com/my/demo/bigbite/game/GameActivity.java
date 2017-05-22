@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.demo.bigbite;
+package com.my.demo.bigbite.game;
 
 import android.Manifest;
 import android.app.ProgressDialog;
@@ -38,11 +38,12 @@ import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.face.Face;
 import com.google.android.gms.vision.face.FaceDetector;
 import com.my.core.protocol.IProgressBarView;
-import com.my.demo.bigbite.detector.VisionFaceAndDLibLandmarksDetector;
-import com.my.demo.bigbite.protocol.ICameraMetadata;
+import com.my.demo.bigbite.R;
+import com.my.demo.bigbite.game.detector.VisionFaceAndDLibLandmarksDetector;
+import com.my.demo.bigbite.game.data.ICameraMetadata;
 import com.my.demo.bigbite.util.DlibModelHelper;
-import com.my.demo.bigbite.view.CameraSourcePreview;
-import com.my.demo.bigbite.view.FaceLandmarksOverlayView;
+import com.my.demo.bigbite.game.view.CameraSourcePreview;
+import com.my.demo.bigbite.game.view.FaceLandmarksOverlayView;
 import com.my.jni.dlib.DLibLandmarks68Detector;
 import com.my.jni.dlib.IDLibFaceDetector;
 import com.my.jni.dlib.data.DLibFace;
@@ -62,7 +63,7 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
-public class SampleOfFacesAndLandmarksActivity2
+public class GameActivity
     extends AppCompatActivity
     implements ICameraMetadata,
                IProgressBarView {
@@ -87,7 +88,7 @@ public class SampleOfFacesAndLandmarksActivity2
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_sample_of_faces_and_landmarks_2);
+        setContentView(R.layout.activity_game);
 
         // Init view binding.
         mUnbinder = ButterKnife.bind(this);
@@ -142,7 +143,7 @@ public class SampleOfFacesAndLandmarksActivity2
                         // The detector would directly draw the result onto the
                         // given overlay view.
                         final Detector<DLibFace> landmarksDetector = new VisionFaceAndDLibLandmarksDetector(
-                            SampleOfFacesAndLandmarksActivity2.this,
+                            GameActivity.this,
                             faceDetector, mLandmarksDetector, mOverlayView);
 
                         // The camera preview is 90 degree clockwise rotated.
@@ -196,7 +197,7 @@ public class SampleOfFacesAndLandmarksActivity2
 
                             hideProgressBar();
 
-                            Toast.makeText(SampleOfFacesAndLandmarksActivity2.this,
+                            Toast.makeText(GameActivity.this,
                                            err.getMessage(), Toast.LENGTH_SHORT)
                                  .show();
                         }

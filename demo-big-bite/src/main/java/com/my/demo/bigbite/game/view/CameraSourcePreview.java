@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.my.demo.bigbite.view;
+package com.my.demo.bigbite.game.view;
 
 import android.content.Context;
 import android.content.res.Configuration;

@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.demo.bigbite.view;
+package com.my.demo.bigbite.game.view;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -28,7 +28,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 
-import com.my.demo.bigbite.protocol.IDLibFaceOverlay;
+import com.my.demo.bigbite.game.data.IDLibFaceOverlay;
 import com.my.jni.dlib.data.DLibFace;
 import com.my.jni.dlib.data.DLibFace68;
 
