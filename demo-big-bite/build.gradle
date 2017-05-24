@@ -1,13 +1,13 @@
 apply plugin: "com.android.application"
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.3"
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
         applicationId "my.demo.bigbite"
-        minSdkVersion 21
-        targetSdkVersion 25
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
 
@@ -50,34 +50,32 @@ dependencies {
     compile fileTree(dir: "libs", include: ["*.jar"])
 
     // Google Support Library.
-    def SUPPORT_LIB_VER = "25.3.1"
-    compile "com.android.support:appcompat-v7:${SUPPORT_LIB_VER}"
-    compile "com.android.support:support-vector-drawable:${SUPPORT_LIB_VER}"
-    compile "com.android.support:recyclerview-v7:${SUPPORT_LIB_VER}"
-    compile "com.android.support.constraint:constraint-layout:1.0.2"
+    compile rootProject.ext.dep.supportAppcompatV7
+    compile rootProject.ext.dep.supportVectorDrawable
+    compile rootProject.ext.dep.supportRecyclerViewV7
+    compile rootProject.ext.dep.supportConstraintLayout
     // Multi-dex.
-    compile "com.android.support:multidex:1.0.1"
+    compile rootProject.ext.dep.supportMultidex
     // Google CameraView.
     compile(name: "google-cameraview", ext:"aar")
     // Google Vision.
-    compile 'com.google.android.gms:play-services-vision:10.2.6'
+    compile rootProject.ext.dep.playServicesVision
 
     // JSON.
-    compile 'com.google.code.gson:gson:2.7'
+    compile rootProject.ext.dep.gson
 
     // View Binding.
-    def BUTTER_KNIFE_VER = "8.5.1"
-    compile "com.jakewharton:butterknife:${BUTTER_KNIFE_VER}"
-    annotationProcessor "com.jakewharton:butterknife-compiler:${BUTTER_KNIFE_VER}"
+    compile rootProject.ext.dep.butterKnife
+    annotationProcessor rootProject.ext.dep.butterKnifeCompiler
 
     // Image loader.
-    compile "com.github.bumptech.glide:glide:3.7.0"
+    compile rootProject.ext.dep.glide
 
     // Animation.
-    compile 'com.airbnb.android:lottie:2.0.0-rc1'
+    compile rootProject.ext.dep.lottie
 
     // RecyclerView with beautiful layout.
-    compile 'com.yarolegovich:discrete-scrollview:1.2.0'
+    compile rootProject.ext.dep.discreteScrollView
 
     // My Libraries
     compile project(":lib-core")
@@ -85,9 +83,10 @@ dependencies {
     compile project(":lib-dlib")
     compile project(":lib-reactive")
 
-    testCompile "junit:junit:4.12"
+    testCompile rootProject.ext.dep.testJunit
+    testCompile rootProject.ext.dep.testMockito
 
-    androidTestCompile("com.android.support.test.espresso:espresso-core:2.2.2", {
+    androidTestCompile(rootProject.ext.dep.testEspressoCore, {
         exclude group: "com.android.support", module: "support-annotations"
     })
 }
