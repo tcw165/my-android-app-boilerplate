@@ -39,7 +39,9 @@ import com.google.android.gms.vision.face.Face;
 import com.google.android.gms.vision.face.FaceDetector;
 import com.my.core.protocol.IProgressBarView;
 import com.my.demo.bigbite.R;
-import com.my.demo.bigbite.game.detector.VisionFaceAndDLibLandmarksDetector;
+import com.my.demo.bigbite.game.data.IBiteDetector;
+import com.my.demo.bigbite.game.detector.DLibBiteDetector;
+import com.my.demo.bigbite.game.detector.DLibLandmarksDetector;
 import com.my.demo.bigbite.game.data.ICameraMetadata;
 import com.my.demo.bigbite.util.DlibModelHelper;
 import com.my.demo.bigbite.game.view.CameraSourcePreview;
@@ -72,7 +74,7 @@ public class GameActivity
     @BindView(R.id.camera)
     CameraSourcePreview mCameraView;
     @BindView(R.id.overlay)
-    FaceLandmarksOverlayView mOverlayView;
+    FaceLandmarksOverlayView mDebugOverlayView;
     ProgressDialog mProgressDialog;
 
     // Butter Knife.
@@ -80,6 +82,7 @@ public class GameActivity
 
     // DLibFace Detector.
     IDLibFaceDetector mLandmarksDetector;
+    private IBiteDetector mBiteDetector;
 
     // Data.
     CompositeDisposable mDisposables;
@@ -96,8 +99,9 @@ public class GameActivity
         // The progress bar.
         mProgressDialog = new ProgressDialog(this);
 
-        // Init the face detector.
+        // Init the detectors.
         mLandmarksDetector = new DLibLandmarks68Detector();
+        mBiteDetector = new DLibBiteDetector();
     }
 
     @Override
@@ -139,12 +143,14 @@ public class GameActivity
                             .setClassificationType(FaceDetector.FAST_MODE)
                             .setLandmarkType(FaceDetector.NO_LANDMARKS)
                             .build();
+                        // TODO: Can encapsulate the detectors into different observables?
                         // Encapsulate the face detector with the landmarks detector.
                         // The detector would directly draw the result onto the
                         // given overlay view.
-                        final Detector<DLibFace> landmarksDetector = new VisionFaceAndDLibLandmarksDetector(
+                        final Detector<DLibFace> landmarksDetector = new DLibLandmarksDetector(
                             GameActivity.this,
-                            faceDetector, mLandmarksDetector, mOverlayView);
+                            faceDetector, mLandmarksDetector,
+                            mBiteDetector, mDebugOverlayView);
 
                         // The camera preview is 90 degree clockwise rotated.
                         //  height
@@ -158,11 +164,11 @@ public class GameActivity
 
                         // Set the preview config.
                         if (isPortraitMode()) {
-                            mOverlayView.setCameraPreviewSize(previewHeight,
-                                                              previewWidth);
+                            mDebugOverlayView.setCameraPreviewSize(
+                                previewHeight, previewWidth);
                         } else {
-                            mOverlayView.setCameraPreviewSize(previewWidth,
-                                                              previewHeight);
+                            mDebugOverlayView.setCameraPreviewSize(
+                                previewWidth, previewHeight);
                         }
 
                         // Create camera source.

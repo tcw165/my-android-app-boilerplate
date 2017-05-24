@@ -28,4 +28,29 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
+
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/tutorial_img_1"
+        android:layout_width="125dp"
+        android:layout_height="125dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/warning_1"/>
+
+    <TextView
+        android:id="@+id/tutorial_txt_1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/tutorial_get_ready_for_game"
+        android:textColor="@color/white"
+        android:textSize="32sp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tutorial_img_1"/>
 </android.support.constraint.ConstraintLayout>
