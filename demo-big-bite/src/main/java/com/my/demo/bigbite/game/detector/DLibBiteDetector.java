@@ -269,9 +269,10 @@ public class DLibBiteDetector implements IBiteDetector {
             final boolean isABite;
             if (mLastMouthState == MOUTH_OPENED &&
                 mouthState == MOUTH_CLOSED) {
-                isABite = true;
                 ++mBiteCount;
                 Log.d("mouth", String.format("bite count=%d", mBiteCount));
+
+                isABite = true;
             } else {
                 isABite = false;
             }
