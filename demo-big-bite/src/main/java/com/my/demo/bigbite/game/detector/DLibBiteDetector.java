@@ -31,7 +31,9 @@ import java.util.List;
 
 public class DLibBiteDetector implements IBiteDetector {
 
-    private static final double TWO_PI = 2f * Math.PI;
+    private static final double DEGREE_150 = 150;
+    private static final double DEGREE_180 = 180;
+    private static final double DEGREE_360 = 360;
 
     //
     // Landmarks of inner lip.
@@ -65,16 +67,16 @@ public class DLibBiteDetector implements IBiteDetector {
     private float[] mRightUpVec = new float[]{0f, 0f};
     private float[] mRightLowVec = new float[]{0f, 0f};
 
-    // Mouth state.
+    // mouth state.
     private static final int MOUTH_UNDEFINED = 0;
     private static final int MOUTH_OPENED = 1;
     private static final int MOUTH_CLOSED = 2;
     private int mLastMouthState = MOUTH_UNDEFINED;
 
     // Records.
-    private static final double ALPHA = 0.5f;
-    private static final double DEGREE_FOR_MOUTH_OPENED = 18;
-    private static final double DEGREE_FOR_MOUTH_CLOSED = 12;
+    private static final double ALPHA = 0.3f;
+    private static final double DEGREE_FOR_MOUTH_OPENED = 30;
+    private static final double DEGREE_FOR_MOUTH_CLOSED = 3;
     private static final int MAX_RECORDS = 10;
     private static final int CHECK_PAST_N_RECORDS = 2;
     private final List<Record> mRecords = new ArrayList<>();
@@ -94,6 +96,8 @@ public class DLibBiteDetector implements IBiteDetector {
         synchronized (mMutex) {
             final List<DLibFace.Landmark> marks = face.getInnerLipsLandmarks();
 
+//            Log.d("mouth", "----------");
+
             // Update the vectors.
             mLeftUpVec[0] = marks.get(L_UP[1]).x - marks.get(L_UP[0]).x;
             mLeftUpVec[1] = marks.get(L_UP[1]).y - marks.get(L_UP[0]).y;
@@ -103,44 +107,50 @@ public class DLibBiteDetector implements IBiteDetector {
             mRightUpVec[1] = marks.get(R_UP[1]).y - marks.get(R_UP[0]).y;
             mRightLowVec[0] = marks.get(R_LOW[1]).x - marks.get(R_LOW[0]).x;
             mRightLowVec[1] = marks.get(R_LOW[1]).y - marks.get(R_LOW[0]).y;
-//        Log.d("Mouth", String.format("mLeftUpVec=(x=%.5f, y=%.5f), mLeftLowVec=(x=%.5f, y=%.5f), " +
-//                                      "mRightUpVec=(x=%.5f, y=%.5f), mRightLowVec=(x=%.5f, y=%.5f)",
-//                                      mLeftUpVec[0], mLeftUpVec[1],
-//                                      mLeftLowVec[0], mLeftLowVec[1],
-//                                      mRightUpVec[0], mRightUpVec[1],
-//                                      mRightLowVec[0], mRightLowVec[1]));
+//            Log.d("mouth", String.format("mLeftUpVec=(x=%.5f, y=%.5f), mLeftLowVec=(x=%.5f, y=%.5f), " +
+//                                          "mRightUpVec=(x=%.5f, y=%.5f), mRightLowVec=(x=%.5f, y=%.5f)",
+//                                          mLeftUpVec[0], mLeftUpVec[1],
+//                                          mLeftLowVec[0], mLeftLowVec[1],
+//                                          mRightUpVec[0], mRightUpVec[1],
+//                                          mRightLowVec[0], mRightLowVec[1]));
 
             // Calculate the angles of both left and right side.
-            double leftUpAngle = Math.atan2((double) mLeftUpVec[1], (double) mLeftUpVec[0]);
-            double leftLowAngle = Math.atan2((double) mLeftLowVec[1], (double) mLeftLowVec[0]);
-            double rightUpAngle = Math.atan2((double) mRightUpVec[1], (double) mRightUpVec[0]);
-            double rightLowAngle = Math.atan2((double) mRightLowVec[1], (double) mRightLowVec[0]);
-//        Log.d("Mouth", String.format("leftUpAngle=%.5f, leftLowAngle=%.5f, " +
-//                                      "rightUpAngle=%.5f, rightLowAngle=%.5f",
-//                                      Math.toDegrees(leftUpAngle),
-//                                      Math.toDegrees(leftLowAngle),
-//                                      Math.toDegrees(rightUpAngle),
-//                                      Math.toDegrees(rightLowAngle)));
+            double leftUpDegree = Math.toDegrees(Math.atan2((double) mLeftUpVec[1], (double) mLeftUpVec[0]));
+            double leftLowDegree = Math.toDegrees(Math.atan2((double) mLeftLowVec[1], (double) mLeftLowVec[0]));
+            double rightUpDegree = Math.toDegrees(Math.atan2((double) mRightUpVec[1], (double) mRightUpVec[0]));
+            double rightLowDegree = Math.toDegrees(Math.atan2((double) mRightLowVec[1], (double) mRightLowVec[0]));
+//            Log.d("mouth", String.format("leftUpDegree=%.5f, leftLowDegree=%.5f, " +
+//                                          "rightUpDegree=%.5f, rightLowDegree=%.5f",
+//                                          leftUpDegree, leftLowDegree,
+//                                          rightUpDegree, rightLowDegree));
 
             // Calculate the left and right angle of the mouth.
-            double leftAngle = Math.abs(leftUpAngle - leftLowAngle);
+            double leftDegree = Math.abs(leftUpDegree - leftLowDegree);
             // It's possible to get a large angle, but what I want is a small angle.
-            if (leftAngle > Math.PI) {
-                leftAngle = TWO_PI - leftAngle;
+            if (leftDegree > DEGREE_180) {
+                leftDegree = DEGREE_360 - leftDegree;
             }
-            double rightAngle = Math.abs(rightUpAngle - rightLowAngle);
-            if (rightAngle > Math.PI) {
-                rightAngle = TWO_PI - rightAngle;
+            double rightDegree = Math.abs(rightUpDegree - rightLowDegree);
+            if (rightDegree > DEGREE_180) {
+                rightDegree = DEGREE_360 - rightDegree;
             }
+//            Log.d("mouth", String.format("leftDegree=%.5f, rightDegree=%.5f",
+//                                         leftDegree, rightDegree));
 
             // Calculate the min/max angle of the mouth.
-            final double minDegrees = Math.toDegrees(Math.min(leftAngle, rightAngle));
-            final double maxDegrees = Math.toDegrees(Math.max(leftAngle, rightAngle));
-            final double openingDegrees = Math.max(minDegrees, maxDegrees);
+            final double minDegrees = Math.min(leftDegree, rightDegree);
+            final double maxDegrees = Math.max(leftDegree, rightDegree);
+            double openingDegrees = Math.max(minDegrees, maxDegrees);
 
-//            Log.d("Mouth", String.format("Mouth opening degrees, min=%.3ff, max=%.3f (ts=%d)",
+            if (openingDegrees > DEGREE_150) {
+                openingDegrees = DEGREE_150;
+            } else if (openingDegrees < 0f) {
+                openingDegrees = 0f;
+            }
+
+//            Log.d("mouth", String.format("mouth opening degrees, min=%.3ff, max=%.3f (ts=%d)",
 //                                          minDegrees, maxDegrees,
-//                                          SystemClock.currentThreadTimeMillis()));
+//                                          getTimestamp()));
 
             // Record the opening degree.
             record(openingDegrees);
@@ -168,15 +178,18 @@ public class DLibBiteDetector implements IBiteDetector {
         final int size = mRecords.size();
         final Record record = new Record();
 
+        record.timestamp = getTimestamp();
+
         // Determine the degree velocity.
         if (mRecords.isEmpty()) {
             record.mouthOpeningVelocity = 0;
             record.mouthOpeningDegree = mouthOpeningDegree;
-            record.timestamp = SystemClock.currentThreadTimeMillis();
         } else {
             final Record last = mRecords.get(size - 1);
 
-            record.timestamp = getTimestamp();
+            // For unknown reason, there would be very close two records
+            // recorded.
+            if (last.timestamp == record.timestamp) return;
 
             if (mRecords.size() >= 2) {
                 // Because there are noises like...
@@ -212,15 +225,14 @@ public class DLibBiteDetector implements IBiteDetector {
                 final double dOffset = mouthOpeningDegree - last.mouthOpeningDegree;
                 final long tOffset = record.timestamp - last.timestamp;
 
-                record.mouthOpeningDegree = mouthOpeningDegree >= 0f ?
-                    mouthOpeningDegree : 0f;
+                record.mouthOpeningDegree = mouthOpeningDegree;
                 record.mouthOpeningVelocity = dOffset / tOffset;
             }
         }
 
         // Add it.
         mRecords.add(record);
-        Log.d("mouth", "" + record);
+        Log.d("mouth", String.format("Given %.3f, Save %s", mouthOpeningDegree, record));
 
         // Discard the old records.
         while (mRecords.size() > MAX_RECORDS) {
@@ -231,35 +243,23 @@ public class DLibBiteDetector implements IBiteDetector {
     private boolean detectBiteFromRecords() {
         final int size = mRecords.size();
 
-        if (mRecords.size() > 2) {
+        if (mRecords.size() > CHECK_PAST_N_RECORDS) {
             // Step 1: Determine the mouth state: OPENING or CLOSING?
             // Tell if mouth is opening by checking the past 3 frames.
-            int openingCount = 0;
-            int closingCount = 0;
+            double accumulatedVelocity = 0f;
             for (int i = size - 1; i >= Math.max(0, size - CHECK_PAST_N_RECORDS); --i) {
                 final Record record = mRecords.get(i);
 
-                if (record.mouthOpeningVelocity > 0f) {
-                    ++openingCount;
-                    closingCount = 0;
-                } else if (record.mouthOpeningVelocity < 0f) {
-                    openingCount = 0;
-                    ++closingCount;
-                }
+                accumulatedVelocity += record.mouthOpeningVelocity;
             }
-//            Log.d("mouth", String.format("openingCount=%d, closingCount=%d",
-//                                         openingCount,
-//                                         closingCount));
             final int mouthState;
             final Record latest = mRecords.get(size - 1);
-            if (latest.mouthOpeningDegree > DEGREE_FOR_MOUTH_OPENED &&
-                openingCount == CHECK_PAST_N_RECORDS) {
+            if (latest.mouthOpeningDegree > DEGREE_FOR_MOUTH_OPENED) {
                 mouthState = MOUTH_OPENED;
-//                Log.d("mouth", "mouthState = MOUTH_OPENED");
-            } else if (latest.mouthOpeningDegree < DEGREE_FOR_MOUTH_CLOSED &&
-                       closingCount == CHECK_PAST_N_RECORDS) {
+                Log.d("mouth", "mouthState = MOUTH_OPENED");
+            } else if (latest.mouthOpeningDegree < DEGREE_FOR_MOUTH_CLOSED) {
                 mouthState = MOUTH_CLOSED;
-//                Log.d("mouth", "mouthState = MOUTH_CLOSED");
+                Log.d("mouth", "mouthState = MOUTH_CLOSED");
             } else {
                 mouthState = MOUTH_UNDEFINED;
             }
@@ -270,7 +270,9 @@ public class DLibBiteDetector implements IBiteDetector {
             if (mLastMouthState == MOUTH_OPENED &&
                 mouthState == MOUTH_CLOSED) {
                 ++mBiteCount;
+
                 Log.d("mouth", String.format("bite count=%d", mBiteCount));
+                mLastMouthState = MOUTH_UNDEFINED;
 
                 isABite = true;
             } else {

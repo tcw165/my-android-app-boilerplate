@@ -34,9 +34,7 @@ import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.face.Face;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.my.core.util.ProfilerUtil;
-import com.my.demo.bigbite.game.data.IBiteDetector;
 import com.my.demo.bigbite.game.data.ICameraMetadata;
-import com.my.demo.bigbite.game.data.IDLibFaceOverlay;
 import com.my.jni.dlib.IDLibFaceDetector;
 import com.my.jni.dlib.data.DLibFace;
 
@@ -49,8 +47,7 @@ import java.util.List;
  */
 public class DLibLandmarksDetector extends Detector<DLibFace> {
 
-    // State.
-    private final SparseArray<DLibFace> mDetFaces = new SparseArray<>();
+    private static final SparseArray<DLibFace> EMPTY_ARRAY = new SparseArray<>(0);
 
     private final ICameraMetadata mCameraMetadata;
     private final Detector<Face> mFaceDetector;
@@ -58,14 +55,22 @@ public class DLibLandmarksDetector extends Detector<DLibFace> {
 
     public DLibLandmarksDetector(final ICameraMetadata cameraMetadata,
                                  final Detector<Face> faceDetector,
-                                 final IDLibFaceDetector landmarksDetector,
-                                 final IBiteDetector biteDetector,
-                                 final IDLibFaceOverlay overlay) {
+                                 final IDLibFaceDetector landmarksDetector) {
         mCameraMetadata = cameraMetadata;
         mFaceDetector = faceDetector;
         mLandmarksDetector = landmarksDetector;
 
-        setProcessor(new PostProcessor(biteDetector, overlay));
+        setProcessor(new Processor<DLibFace>() {
+            @Override
+            public void release() {
+                // DUMMY IMPL.
+            }
+
+            @Override
+            public void receiveDetections(Detections<DLibFace> detections) {
+                // DUMMY IMPL.
+            }
+        });
     }
 
     @Override
@@ -77,17 +82,14 @@ public class DLibLandmarksDetector extends Detector<DLibFace> {
                 "Invalid detector.");
         }
 
-        mDetFaces.clear();
+        Log.d("xyz", "----------");
 
         ProfilerUtil.startProfiling();
 
         // Use Google Vision face detector to get face bounds.
         ProfilerUtil.startProfiling();
         final SparseArray<Face> faces = mFaceDetector.detect(frame);
-        Log.d("xyz", String.format("Detect %d faces (took %.3f ms)",
-                                   faces.size(),
-                                   ProfilerUtil.stopProfiling()));
-        if (faces.size() == 0) return mDetFaces;
+        if (faces.size() == 0) return EMPTY_ARRAY;
 
         // Camera preview dimension.
         final int fw = frame.getMetadata().getWidth();
@@ -100,6 +102,9 @@ public class DLibLandmarksDetector extends Detector<DLibFace> {
         Log.d("xyz", String.format("frame (w=%d, h=%d), preview (w=%d, h=%d)",
                                    fw, fh,
                                    ow, oh));
+        Log.d("xyz", String.format("Detect %d faces (took %.3f ms)",
+                                   faces.size(),
+                                   ProfilerUtil.stopProfiling()));
 
         // Get bitmap from YUV frame.
         ProfilerUtil.startProfiling();
@@ -167,9 +172,9 @@ public class DLibLandmarksDetector extends Detector<DLibFace> {
             List<DLibFace> detFaces = mLandmarksDetector.findLandmarksFromFaces(
                 bitmap,
                 faceBounds);
-            mDetFaces.clear();
+            SparseArray<DLibFace> retFaces = new SparseArray<>(detFaces.size());
             for (int i = 0; i < detFaces.size(); ++i) {
-                mDetFaces.put(i, detFaces.get(i));
+                retFaces.put(i, detFaces.get(i));
             }
             Log.d("xyz", String.format("Detect %d face with landmarks (took %.3f ms)",
                                        detFaces.size(),
@@ -185,7 +190,7 @@ public class DLibLandmarksDetector extends Detector<DLibFace> {
                 "Process of detecting faces and landmarks done (took %.3f ms)",
                 ProfilerUtil.stopProfiling()));
 
-            return mDetFaces;
+            return retFaces;
         } catch (InvalidProtocolBufferException err) {
             err.printStackTrace();
             return null;
@@ -258,55 +263,6 @@ public class DLibLandmarksDetector extends Detector<DLibFace> {
             return frame.getMetadata().getWidth();
         } else {
             return frame.getMetadata().getHeight();
-        }
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Clazz //////////////////////////////////////////////////////////////////
-
-    private static class PostProcessor implements Detector.Processor<DLibFace> {
-
-        final IBiteDetector mBiteDetector;
-        final IDLibFaceOverlay mOverlay;
-
-        // Data.
-        final List<DLibFace> mFaces = new ArrayList<>();
-
-        PostProcessor(final IBiteDetector biteDetector,
-                      final IDLibFaceOverlay overlay) {
-            mBiteDetector = biteDetector;
-            mOverlay = overlay;
-        }
-
-        @Override
-        public void release() {
-            // DO NOTHING.
-        }
-
-        @Override
-        public void receiveDetections(Detections<DLibFace> detections) {
-            mFaces.clear();
-            if (detections == null) {
-                mOverlay.setFaces(mFaces);
-                return;
-            }
-
-            final SparseArray<DLibFace> faces = detections.getDetectedItems();
-            if (faces == null) return;
-
-            // Convert sparse array to normal array.
-            for (int i = 0; i < faces.size(); ++i) {
-                mFaces.add(faces.get(faces.keyAt(i)));
-            }
-
-            // Detect bite pose.
-            if (mFaces.size() > 0) {
-                mBiteDetector.detect(mFaces.get(0));
-            }
-
-            // Render it on the overlay.
-            Log.d("xyz", String.format("Ready to render %d faces", faces.size()));
-            mOverlay.setFaces(mFaces);
         }
     }
 }

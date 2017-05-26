@@ -29,8 +29,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import android.util.SparseArray;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.vision.CameraSource;
@@ -40,18 +41,21 @@ import com.google.android.gms.vision.face.FaceDetector;
 import com.my.core.protocol.IProgressBarView;
 import com.my.demo.bigbite.R;
 import com.my.demo.bigbite.game.data.IBiteDetector;
+import com.my.demo.bigbite.game.data.ICameraMetadata;
 import com.my.demo.bigbite.game.detector.DLibBiteDetector;
 import com.my.demo.bigbite.game.detector.DLibLandmarksDetector;
-import com.my.demo.bigbite.game.data.ICameraMetadata;
-import com.my.demo.bigbite.util.DlibModelHelper;
+import com.my.demo.bigbite.game.reactive.CameraObservable;
 import com.my.demo.bigbite.game.view.CameraSourcePreview;
 import com.my.demo.bigbite.game.view.FaceLandmarksOverlayView;
+import com.my.demo.bigbite.util.DlibModelHelper;
 import com.my.jni.dlib.DLibLandmarks68Detector;
 import com.my.jni.dlib.IDLibFaceDetector;
 import com.my.jni.dlib.data.DLibFace;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -60,10 +64,11 @@ import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.PublishSubject;
+import io.reactivex.subjects.Subject;
 
 public class GameActivity
     extends AppCompatActivity
@@ -75,6 +80,8 @@ public class GameActivity
     CameraSourcePreview mCameraView;
     @BindView(R.id.overlay)
     FaceLandmarksOverlayView mDebugOverlayView;
+    @BindView(R.id.txt_bite_count)
+    TextView mBiteCountView;
     ProgressDialog mProgressDialog;
 
     // Butter Knife.
@@ -82,7 +89,6 @@ public class GameActivity
 
     // DLibFace Detector.
     IDLibFaceDetector mLandmarksDetector;
-    private IBiteDetector mBiteDetector;
 
     // Data.
     CompositeDisposable mDisposables;
@@ -101,7 +107,6 @@ public class GameActivity
 
         // Init the detectors.
         mLandmarksDetector = new DLibLandmarks68Detector();
-        mBiteDetector = new DLibBiteDetector();
     }
 
     @Override
@@ -110,110 +115,174 @@ public class GameActivity
 
         // TODO: Check if the Google Play Service is present.
         mDisposables = new CompositeDisposable();
+
+        // TODO: Can subject be canceled?
+        // Define the preparation stream including granting permission and
+        // initializing the DLib model.
+        final Subject<UniverseEvent> preparationSub = PublishSubject.create();
         mDisposables.add(
             grantPermission()
-                // Show the progress-bar.
-                .map(new Function<Boolean, Boolean>() {
-                    @Override
-                    public Boolean apply(Boolean granted) throws Exception {
-                        showProgressBar("Preparing the model...");
-                        return granted;
-                    }
-                })
-                // DLib Face landmarks detection.
+                // Init DLib model.
                 .observeOn(Schedulers.io())
-                .flatMap(new Function<Boolean, ObservableSource<?>>() {
+                .flatMap(new Function<Boolean, ObservableSource<UniverseEvent>>() {
                     @Override
-                    public ObservableSource<?> apply(Boolean granted)
+                    public ObservableSource<UniverseEvent> apply(Boolean granted)
                         throws Exception {
                         if (granted) {
-                            return initFaceLandmarksDetector();
+                            return initFaceLandmarksDetector()
+                                .startWith(false)
+                                .map(new Function<Boolean, UniverseEvent>() {
+                                    @Override
+                                    public UniverseEvent apply(Boolean initialized)
+                                        throws Exception {
+                                        if (initialized) {
+                                            return new UniverseEvent(UniverseEvent.MODEL_INITIALIZED);
+                                        } else {
+                                            return new UniverseEvent(UniverseEvent.MODEL_NOT_INITIALIZED);
+                                        }
+                                    }
+                                });
                         } else {
-                            return Observable.just(false);
+                            return Observable.just(
+                                new UniverseEvent(UniverseEvent.PERM_NOT_GRANTED));
                         }
                     }
                 })
-                // Open the camera.
+                // Init camera preview source.
                 .observeOn(AndroidSchedulers.mainThread())
-                .map(new Function<Object, Object>() {
+                .subscribe(new Consumer<UniverseEvent>() {
                     @Override
-                    public Object apply(Object value) throws Exception {
-                        // Create Google Vision face detector with FAST mode.
-                        final Detector<Face> faceDetector = new FaceDetector.Builder(getContext())
-                            .setClassificationType(FaceDetector.FAST_MODE)
-                            .setLandmarkType(FaceDetector.NO_LANDMARKS)
-                            .build();
-                        // TODO: Can encapsulate the detectors into different observables?
-                        // Encapsulate the face detector with the landmarks detector.
-                        // The detector would directly draw the result onto the
-                        // given overlay view.
-                        final Detector<DLibFace> landmarksDetector = new DLibLandmarksDetector(
-                            GameActivity.this,
-                            faceDetector, mLandmarksDetector,
-                            mBiteDetector, mDebugOverlayView);
+                    public void accept(UniverseEvent event)
+                        throws Exception {
+                        preparationSub.onNext(event);
+                    }
+                }));
 
-                        // The camera preview is 90 degree clockwise rotated.
-                        //  height
-                        // .------.
-                        // |      |
-                        // |      | width
-                        // |      |
-                        // '------'
-                        final int previewWidth = 320;
-                        final int previewHeight = 240;
-
-                        // Set the preview config.
-                        if (isPortraitMode()) {
-                            mDebugOverlayView.setCameraPreviewSize(
-                                previewHeight, previewWidth);
+        // Observe the preparation stream.
+        mDisposables.add(
+            preparationSub
+                // Update UI.
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<UniverseEvent>() {
+                    @Override
+                    public void accept(UniverseEvent event)
+                        throws Exception {
+                        if (event.status == UniverseEvent.PERM_NOT_GRANTED) {
+                            Toast.makeText(getApplicationContext(),
+                                           R.string.warning_permission_not_granted,
+                                           Toast.LENGTH_SHORT)
+                                 .show();
+                            finish();
+                        } else if (event.status == UniverseEvent.MODEL_NOT_INITIALIZED) {
+                            showProgressBar();
                         } else {
-                            mDebugOverlayView.setCameraPreviewSize(
-                                previewWidth, previewHeight);
+                            hideProgressBar();
                         }
+                    }
+                }));
 
-                        // Create camera source.
-                        final CameraSource source = new CameraSource.Builder(getContext(), landmarksDetector)
-                            .setRequestedPreviewSize(previewWidth, previewHeight)
-                            .setFacing(CameraSource.CAMERA_FACING_FRONT)
-                            .setAutoFocusEnabled(true)
-                            .setRequestedFps(30f)
-                            .build();
 
-                        // Open the camera.
-                        mCameraView.start(source);
+        // The camera preview is 90 degree clockwise rotated.
+        //  height
+        // .------.
+        // |      |
+        // |      | width
+        // |      |
+        // '------'
+        final int previewWidth = 320;
+        final int previewHeight = 240;
 
-                        return value;
+        // Define the camera detection stream.
+        final SparseArray<DLibFace> EMPTY_FACES = new SparseArray<>();
+        final Subject<SparseArray<DLibFace>> detectionSub = PublishSubject.create();
+        mDisposables.add(
+            preparationSub
+                // Camera.
+                .flatMap(new Function<UniverseEvent, ObservableSource<SparseArray<DLibFace>>>() {
+                    @Override
+                    public ObservableSource<SparseArray<DLibFace>> apply(UniverseEvent event)
+                        throws Exception {
+                        if (event.status == UniverseEvent.MODEL_INITIALIZED) {
+                            // Set the preview config.
+                            if (isPortraitMode()) {
+                                mDebugOverlayView.setCameraPreviewSize(
+                                    previewHeight, previewWidth);
+                            } else {
+                                mDebugOverlayView.setCameraPreviewSize(
+                                    previewWidth, previewHeight);
+                            }
+
+                            // Create camera observable.
+                            return CameraObservable.create(
+                                GameActivity.this,
+                                mCameraView,
+                                previewWidth, previewHeight,
+                                getFaceDetector());
+                        } else {
+                            return Observable.just(EMPTY_FACES);
+                        }
                     }
                 })
-                // Back to UI.
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                    new Consumer<Object>() {
-                        @Override
-                        public void accept(Object o)
-                            throws Exception {
-                            // DO NOTHING.
-                        }
-                    },
-                    new Consumer<Throwable>() {
-                        @Override
-                        public void accept(Throwable err)
-                            throws Exception {
-                            Log.e("xyz", err.getMessage());
+                .subscribe(new Consumer<SparseArray<DLibFace>>() {
+                    @Override
+                    public void accept(SparseArray<DLibFace> faces)
+                        throws Exception {
+                        detectionSub.onNext(faces);
+                    }
+                }));
 
-                            hideProgressBar();
+        // Observe the stream of face detection to render the landmarks for
+        // debugging.
+        mDisposables.add(
+            detectionSub
+                // Update UI.
+                .subscribe(new Consumer<SparseArray<DLibFace>>() {
+                    @Override
+                    public void accept(SparseArray<DLibFace> faceSparseArray)
+                        throws Exception {
+                        // Convert sparse array to array list.
+                        final List<DLibFace> faces = new ArrayList<>();
+                        for (int i = 0; i < faceSparseArray.size(); ++i) {
+                            faces.add(faceSparseArray.get(faceSparseArray.keyAt(i)));
+                        }
 
-                            Toast.makeText(GameActivity.this,
-                                           err.getMessage(), Toast.LENGTH_SHORT)
-                                 .show();
+                        mDebugOverlayView.setFaces(faces);
+                    }
+                }));
+
+        // Observe the stream of face detection to detect bite gesture and
+        // react the result on the UI.
+        final IBiteDetector biteDetector = new DLibBiteDetector();
+        mDisposables.add(
+            detectionSub
+                // Detect bite pose.
+                .map(new Function<SparseArray<DLibFace>, Integer>() {
+                    @Override
+                    public Integer apply(SparseArray<DLibFace> faces)
+                        throws Exception {
+                        if (faces.size() == 0) {
+                            return 0;
+                        } else {
+                            biteDetector.detect(faces.get(faces.keyAt(0)));
+                            return biteDetector.getBiteCount();
                         }
-                    },
-                    new Action() {
-                        @Override
-                        public void run() throws Exception {
-                            hideProgressBar();
+                    }
+                })
+                // Update UI.
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<Integer>() {
+                    @Override
+                    public void accept(Integer bitesCount)
+                        throws Exception {
+                        final int count = Integer.parseInt(
+                            mBiteCountView.getText().toString());
+
+                        if (bitesCount != count) {
+                            mBiteCountView.setText(String.valueOf(bitesCount));
                         }
-                    }));
+                    }
+                }));
     }
 
     @Override
@@ -320,7 +389,7 @@ public class GameActivity
         }
     }
 
-    private Observable<?> initFaceLandmarksDetector() {
+    private Observable<Boolean> initFaceLandmarksDetector() {
         return DlibModelHelper
             .getService()
             // Download the trained model.
@@ -364,6 +433,38 @@ public class GameActivity
         return this;
     }
 
+    public Detector<DLibFace> getFaceDetector() {
+        // Create Google Vision face detector with FAST mode.
+        final Detector<Face> faceDetector = new FaceDetector.Builder(getContext())
+            .setClassificationType(FaceDetector.FAST_MODE)
+            .setLandmarkType(FaceDetector.NO_LANDMARKS)
+            .build();
+        // Encapsulate the face detector with the landmarks detector.
+        // The detector would directly draw the result onto the
+        // given overlay view.
+        return new DLibLandmarksDetector(
+            this, faceDetector, mLandmarksDetector);
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // Clazz //////////////////////////////////////////////////////////////////
+
+    private static final class UniverseEvent {
+
+        static final int UNDEFINED = -1;
+
+        static final int PERM_GRANTED = 1001;
+        static final int PERM_NOT_GRANTED = 1002;
+
+        static final int MODEL_NOT_INITIALIZED = 2001;
+        static final int MODEL_INITIALIZED = 2002;
+
+        static final int ON_DETECTING_BITE = 3001;
+
+        int status = UNDEFINED;
+
+        UniverseEvent(int status) {
+            this.status = status;
+        }
+    }
 }

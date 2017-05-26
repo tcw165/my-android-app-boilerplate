@@ -105,7 +105,7 @@ public class FaceLandmarksOverlayView
             }
         }
 
-        postInvalidate();
+        invalidate();
     }
 
     @Override

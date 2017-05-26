@@ -7,6 +7,7 @@
     android:layout_height="match_parent"
     tools:context="com.my.demo.bigbite.game.GameActivity">
 
+    <!-- Camera -->
     <com.my.demo.bigbite.game.view.CameraSourcePreview
         android:id="@+id/camera"
         android:layout_width="0dp"
@@ -29,6 +30,21 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
+    <TextView
+        android:id="@+id/txt_bite_count"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/bg_translucent_black"
+        android:gravity="center"
+        android:text="@string/number_0"
+        android:textColor="@color/white"
+        android:textSize="32sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="17"/>
+
+    <!-- Tutorial -->
     <android.support.v7.widget.AppCompatImageView
         android:id="@+id/tutorial_img_1"
         android:layout_width="125dp"

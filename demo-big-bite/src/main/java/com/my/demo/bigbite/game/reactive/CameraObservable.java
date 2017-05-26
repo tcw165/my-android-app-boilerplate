@@ -39,9 +39,8 @@ import io.reactivex.disposables.Disposable;
  * <br/>
  * Usage:
  * <pre>
- * CameraObservable.create(getContext(),
- *                         view, 320, 240,
- *                         getDetector())
+ * CameraObservable
+ *     .create(getContext(), view, 320, 240, getFaceDetector())
  *     .subscribe(() -> {
  *         // DO SOMETHING.
  *     })
@@ -95,7 +94,7 @@ public final class CameraObservable<T> extends Observable<SparseArray<T>> {
                 .setRequestedPreviewSize(mPreviewWidth, mPreviewHeight)
                 .setFacing(CameraSource.CAMERA_FACING_FRONT)
                 .setAutoFocusEnabled(true)
-                .setRequestedFps(30f)
+                .setRequestedFps(24f)
                 .build();
 
             mCameraView.start(source);
