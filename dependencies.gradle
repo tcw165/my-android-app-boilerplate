@@ -9,7 +9,8 @@ ext {
     SUPPORT_LIB_VER = '25.2.0'
     PLAY_SERVICES_VER = '9.8.0'
     FIREBASE_VER = '9.8.0'
-    RX_JAVA_VER = '1.1.0'
+    RX_JAVA_VER = '2.0.1'
+    RX_BINDING_VER = '2.0.0'
     BOLTS_VER = '1.4.0'
     OKHTTP_VER = '3.0.1'
     BUTTER_KNIFE_VER = '8.5.1'
@@ -51,8 +52,11 @@ ext {
             adobeFoundation        : 'com.adobe.creativesdk.foundation:auth:0.9.1251',
             adobeImage             : 'com.adobe.creativesdk:image:4.8.3',
             // RxJava.
-            rxAndroid              : "io.reactivex:rxandroid:${RX_JAVA_VER}",
-            rxJava                 : "io.reactivex:rxjava:${RX_JAVA_VER}",
+            rxAndroid              : "io.reactivex.rxjava2:rxandroid:${RX_JAVA_VER}",
+            rxJava                 : "io.reactivex.rxjava2:rxjava:${RX_JAVA_VER}",
+            rxRelay                : 'com.jakewharton.rxrelay2:rxrelay:2.0.0',
+            rxBinding              : "com.jakewharton.rxbinding2:rxbinding:${RX_BINDING_VER}",
+            rxBindingRecyclerViewV7: "com.jakewharton.rxbinding2:rxbinding-recyclerview-v7:${RX_BINDING_VER}",
             rxPermissions          : 'com.tbruyelle.rxpermissions2:rxpermissions:0.9.4@aar',
             // View Binding.
             butterKnife            : "com.jakewharton:butterknife:${BUTTER_KNIFE_VER}",

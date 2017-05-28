@@ -28,15 +28,13 @@ dependencies {
 //    compile "com.android.support:appcompat-v7:${SUPPORT_LIB_VER}"
 
     // Rx-Java.
-    def RX_JAVA_VER = "2.0.1"
-    compile "io.reactivex.rxjava2:rxandroid:${RX_JAVA_VER}"
-    compile "io.reactivex.rxjava2:rxjava:${RX_JAVA_VER}"
+    compile rootProject.ext.dep.rxJava
+    compile rootProject.ext.dep.rxAndroid
     // Rx-Binding.
-    def RX_BINDING_VER = "2.0.0"
-    compile "com.jakewharton.rxbinding2:rxbinding:${RX_BINDING_VER}"
-    compile "com.jakewharton.rxbinding2:rxbinding-recyclerview-v7:${RX_BINDING_VER}"
+    compile rootProject.ext.dep.rxBinding
+    compile rootProject.ext.dep.rxBindingRecyclerViewV7
     // Rx-Permissions.
-    compile "com.tbruyelle.rxpermissions2:rxpermissions:0.8.2@aar"
+    compile rootProject.ext.dep.rxPermissions
 
     testCompile 'junit:junit:4.12'
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
