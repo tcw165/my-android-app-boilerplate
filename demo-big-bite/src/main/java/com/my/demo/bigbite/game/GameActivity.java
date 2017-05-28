@@ -93,8 +93,11 @@ public class GameActivity
     TextView mBiteCountView;
     @BindView(R.id.food_view)
     AppCompatImageView mFoodView;
-    @BindView(R.id.animation_view)
+    @BindView(R.id.food_scrap_view)
+    LottieAnimationView mFoodScrapView;
+    @BindView(R.id.count_down_view)
     LottieAnimationView mCountDownView;
+
     ProgressDialog mProgressDialog;
 
     // Butter Knife.
@@ -108,6 +111,7 @@ public class GameActivity
 
     // Data.
     CompositeDisposable mDisposables;
+    RxPermissions mRxPermissions;
     ChallengeItem mChallengeItem;
 
     @Override
@@ -119,7 +123,7 @@ public class GameActivity
         // Init view binding.
         mUnbinder = ButterKnife.bind(this);
 
-        // The progress bar.
+        // Init progress bar.
         mProgressDialog = new ProgressDialog(this);
 
         // Init the detectors.
@@ -127,6 +131,9 @@ public class GameActivity
 
         // Init the image loader.
         mGlide = Glide.with(this);
+
+        // Init rx-permissions.
+        mRxPermissions = new RxPermissions(this);
 
         // Get the challenge.
         mChallengeItem = getIntent().getExtras().getParcelable(Common.PARAMS_DATA);
@@ -443,8 +450,7 @@ public class GameActivity
 
     private Observable<Boolean> grantPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return RxPermissions
-                .getInstance(this)
+            return mRxPermissions
                 .request(Manifest.permission.READ_EXTERNAL_STORAGE,
                          Manifest.permission.WRITE_EXTERNAL_STORAGE,
                          Manifest.permission.ACCESS_NETWORK_STATE,

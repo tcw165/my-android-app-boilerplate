@@ -21,6 +21,7 @@
 package com.my.widget;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -343,8 +344,7 @@ public class PhotoPickerView extends CoordinatorLayout
         // Ask for read/write permission first.
         showProgressBar();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            RxPermissions
-                .getInstance(getContext())
+            new RxPermissions((Activity) getContext())
                 .request(Manifest.permission.READ_EXTERNAL_STORAGE,
                          Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 .observeOn(AndroidSchedulers.mainThread())

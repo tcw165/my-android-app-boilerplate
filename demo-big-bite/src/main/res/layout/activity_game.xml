@@ -54,9 +54,22 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
+    <!-- Food Scrap Particle View -->
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/food_scrap_view"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true"
+        app:lottie_fileName="animation/food_scrap_particle.json"/>
+
     <!-- Count Down Animation -->
     <com.airbnb.lottie.LottieAnimationView
-        android:id="@+id/animation_view"
+        android:id="@+id/count_down_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="visible"

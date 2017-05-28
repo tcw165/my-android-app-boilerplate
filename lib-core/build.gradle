@@ -52,13 +52,12 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
     // Google Support Library.
-    def SUPPORT_LIB_VER = "25.3.1"
-    compile "com.android.support:appcompat-v7:${SUPPORT_LIB_VER}"
-    compile "com.android.support:recyclerview-v7:${SUPPORT_LIB_VER}"
+    compile rootProject.ext.dep.supportAppcompatV7
+    compile rootProject.ext.dep.supportRecyclerViewV7
 
-    testCompile 'junit:junit:4.12'
+    testCompile rootProject.ext.dep.testJunit
 
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
+    androidTestCompile(rootProject.ext.dep.testEspressoCore, {
+        exclude group: "com.android.support", module: "support-annotations"
     })
 }
