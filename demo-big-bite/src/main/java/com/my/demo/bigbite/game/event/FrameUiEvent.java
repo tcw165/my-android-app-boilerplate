@@ -18,15 +18,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.demo.bigbite.event;
+package com.my.demo.bigbite.game.event;
 
-public abstract class UiEvent<T> {
+import android.util.SparseArray;
 
-    public final int state;
-    public final T data;
+import com.my.demo.bigbite.event.UiEvent;
 
-    public UiEvent(int state, T data) {
-        this.state = state;
-        this.data = data;
+public final class FrameUiEvent<T> extends UiEvent<SparseArray<T>> {
+
+    private static final int FIRST_FRAME = 0;
+    private static final int REPEATED_FRAME = 1;
+
+    public static <T> FrameUiEvent<T> firstFrame(SparseArray<T> data) {
+        return new FrameUiEvent<>(FIRST_FRAME, data);
+    }
+
+    public static <T> FrameUiEvent<T> repeatedFrame(SparseArray<T> data) {
+        return new FrameUiEvent<>(REPEATED_FRAME, data);
+    }
+
+    public boolean isFirstFrame() {
+        return state == FIRST_FRAME;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Protected / Private Methods ////////////////////////////////////////////
+
+    private FrameUiEvent(int state, SparseArray<T> data) {
+        super(state, data);
     }
 }

@@ -204,11 +204,11 @@ public class FaceLandmarksOverlayView
 
                         canvas.drawLine(prev.x, prev.y, current.x, current.y, mStrokePaint);
 
-                        if (k == 1) {
-                            canvas.drawText(String.valueOf(k - 1),
-                                            prev.x, prev.y,
-                                            mStrokePaint);
-                        }
+//                        if (k == 1) {
+//                            canvas.drawText(String.valueOf(k - 1),
+//                                            prev.x, prev.y,
+//                                            mStrokePaint);
+//                        }
 
                         if (k == innerLipsMarks.size() - 1) {
                             final DLibFace.Landmark first = innerLipsMarks.get(0);

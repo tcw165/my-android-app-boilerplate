@@ -26,6 +26,8 @@ import android.util.SparseArray;
 import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.Frame;
+import com.my.demo.bigbite.event.UiEvent;
+import com.my.demo.bigbite.game.event.FrameUiEvent;
 import com.my.demo.bigbite.game.view.CameraSourcePreview;
 
 import io.reactivex.Observable;
@@ -41,12 +43,13 @@ import io.reactivex.disposables.Disposable;
  * <pre>
  * CameraObservable
  *     .create(getContext(), view, 320, 240, getFaceDetector())
- *     .subscribe(() -> {
+ *     .subscribe((UiEvent event) -> {
  *         // DO SOMETHING.
  *     })
  * </pre>
  */
-public final class CameraObservable<T> extends Observable<SparseArray<T>> {
+public final class CameraObservable<T>
+    extends Observable<FrameUiEvent<T>> {
 
     private final Context mContext;
 
@@ -81,7 +84,7 @@ public final class CameraObservable<T> extends Observable<SparseArray<T>> {
     }
 
     @Override
-    protected void subscribeActual(Observer<? super SparseArray<T>> observer) {
+    protected void subscribeActual(Observer<? super FrameUiEvent<T>> observer) {
         try {
             // Give the observer a disposable.
             final Disposable disposable = new CameraPreviewDisposable(mCameraView);
@@ -122,12 +125,14 @@ public final class CameraObservable<T> extends Observable<SparseArray<T>> {
 
     private static final class ObserverDetector<T> extends Detector<T> {
 
+        boolean mIsFirstFrame = true;
+
         final Disposable mDisposable;
-        final Observer<? super SparseArray<T>> mObserver;
+        final Observer<? super FrameUiEvent<T>> mObserver;
         final Detector<T> mDelegateDetector;
 
         ObserverDetector(final Disposable disposable,
-                         final Observer<? super SparseArray<T>> observer,
+                         final Observer<? super FrameUiEvent<T>> observer,
                          final Detector<T> other) {
             mDisposable = disposable;
             mObserver = observer;
@@ -154,7 +159,12 @@ public final class CameraObservable<T> extends Observable<SparseArray<T>> {
             try {
                 final SparseArray<T> res = mDelegateDetector.detect(frame);
 
-                mObserver.onNext(res);
+                if (mIsFirstFrame) {
+                    mIsFirstFrame = false;
+                    mObserver.onNext(FrameUiEvent.firstFrame(res));
+                } else {
+                    mObserver.onNext(FrameUiEvent.repeatedFrame(res));
+                }
 
                 return res;
             } catch (Throwable err) {

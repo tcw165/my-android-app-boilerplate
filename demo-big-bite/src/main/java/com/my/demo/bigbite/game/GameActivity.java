@@ -34,6 +34,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.face.Face;
@@ -44,7 +45,9 @@ import com.my.demo.bigbite.game.data.IBiteDetector;
 import com.my.demo.bigbite.game.data.ICameraMetadata;
 import com.my.demo.bigbite.game.detector.DLibBiteDetector;
 import com.my.demo.bigbite.game.detector.DLibLandmarksDetector;
+import com.my.demo.bigbite.game.event.FrameUiEvent;
 import com.my.demo.bigbite.game.reactive.CameraObservable;
+import com.my.demo.bigbite.game.reactive.LottieAnimObservable;
 import com.my.demo.bigbite.game.view.CameraSourcePreview;
 import com.my.demo.bigbite.game.view.FaceLandmarksOverlayView;
 import com.my.demo.bigbite.util.DlibModelHelper;
@@ -66,6 +69,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
+import io.reactivex.functions.Predicate;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
@@ -82,6 +86,8 @@ public class GameActivity
     FaceLandmarksOverlayView mDebugOverlayView;
     @BindView(R.id.txt_bite_count)
     TextView mBiteCountView;
+    @BindView(R.id.animation_view)
+    LottieAnimationView mCountDownView;
     ProgressDialog mProgressDialog;
 
     // Butter Knife.
@@ -131,6 +137,7 @@ public class GameActivity
                         if (granted) {
                             return initFaceLandmarksDetector()
                                 .startWith(false)
+                                .onErrorReturnItem(false)
                                 .map(new Function<Boolean, UniverseEvent>() {
                                     @Override
                                     public UniverseEvent apply(Boolean initialized)
@@ -193,58 +200,92 @@ public class GameActivity
         final int previewHeight = 240;
 
         // Define the camera detection stream.
-        final SparseArray<DLibFace> EMPTY_FACES = new SparseArray<>();
-        final Subject<SparseArray<DLibFace>> detectionSub = PublishSubject.create();
+        final Subject<FrameUiEvent<DLibFace>> frameSub = PublishSubject.create();
         mDisposables.add(
             preparationSub
                 // Camera.
-                .flatMap(new Function<UniverseEvent, ObservableSource<SparseArray<DLibFace>>>() {
+                .skipWhile(new Predicate<UniverseEvent>() {
                     @Override
-                    public ObservableSource<SparseArray<DLibFace>> apply(UniverseEvent event)
+                    public boolean test(UniverseEvent event)
                         throws Exception {
-                        if (event.status == UniverseEvent.MODEL_INITIALIZED) {
-                            // Set the preview config.
-                            if (isPortraitMode()) {
-                                mDebugOverlayView.setCameraPreviewSize(
-                                    previewHeight, previewWidth);
-                            } else {
-                                mDebugOverlayView.setCameraPreviewSize(
-                                    previewWidth, previewHeight);
-                            }
+                        return event.status != UniverseEvent.MODEL_INITIALIZED;
+                    }
+                })
+                .switchMap(new Function<UniverseEvent, CameraObservable<DLibFace>>() {
+                    @Override
+                    public CameraObservable<DLibFace> apply(UniverseEvent event)
+                        throws Exception {
+                        // Set the preview config.
+                        if (isPortraitMode()) {
+                            mDebugOverlayView.setCameraPreviewSize(
+                                previewHeight, previewWidth);
+                        } else {
+                            mDebugOverlayView.setCameraPreviewSize(
+                                previewWidth, previewHeight);
+                        }
 
-                            // Create camera observable.
-                            return CameraObservable.create(
+                        // Create camera observable.
+                        return CameraObservable.create(
                                 GameActivity.this,
                                 mCameraView,
                                 previewWidth, previewHeight,
                                 getFaceDetector());
-                        } else {
-                            return Observable.just(EMPTY_FACES);
-                        }
                     }
                 })
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<SparseArray<DLibFace>>() {
+                .subscribe(new Consumer<FrameUiEvent<DLibFace>>() {
                     @Override
-                    public void accept(SparseArray<DLibFace> faces)
+                    public void accept(FrameUiEvent<DLibFace> event)
                         throws Exception {
-                        detectionSub.onNext(faces);
+                        frameSub.onNext(event);
                     }
                 }));
+
+        // Observe the stream of camera first frame to count down.
+        final LottieAnimObservable countDownAnim = new LottieAnimObservable(mCountDownView);
+        mDisposables.add(
+            frameSub
+                // Start to play the count down animation at first frame emitted.
+                .filter(new Predicate<FrameUiEvent<DLibFace>>() {
+                    @Override
+                    public boolean test(FrameUiEvent<DLibFace> event)
+                        throws Exception {
+                        return event.isFirstFrame();
+                    }
+                })
+                // Update UI.
+                .flatMap(new Function<FrameUiEvent<DLibFace>, ObservableSource<?>>() {
+                    @Override
+                    public ObservableSource<?> apply(FrameUiEvent<DLibFace> event) throws Exception {
+                        mCountDownView.setVisibility(View.VISIBLE);
+                        mCountDownView.setAnimation("animation/count_down_321.json");
+                        return countDownAnim;
+                    }
+                })
+                .subscribe());
 
         // Observe the stream of face detection to render the landmarks for
         // debugging.
         mDisposables.add(
-            detectionSub
-                // Update UI.
-                .subscribe(new Consumer<SparseArray<DLibFace>>() {
+            frameSub
+                // Wait for the count down.
+                .skipWhile(new Predicate<FrameUiEvent<DLibFace>>() {
                     @Override
-                    public void accept(SparseArray<DLibFace> faceSparseArray)
+                    public boolean test(FrameUiEvent<DLibFace> event)
+                        throws Exception {
+                        return countDownAnim.isAnimating();
+                    }
+                })
+                // Update UI.
+                .subscribe(new Consumer<FrameUiEvent<DLibFace>>() {
+                    @Override
+                    public void accept(FrameUiEvent<DLibFace> event)
                         throws Exception {
                         // Convert sparse array to array list.
+                        final SparseArray<DLibFace> data = event.data;
                         final List<DLibFace> faces = new ArrayList<>();
-                        for (int i = 0; i < faceSparseArray.size(); ++i) {
-                            faces.add(faceSparseArray.get(faceSparseArray.keyAt(i)));
+                        for (int i = 0; i < data.size(); ++i) {
+                            faces.add(data.get(data.keyAt(i)));
                         }
 
                         mDebugOverlayView.setFaces(faces);
@@ -255,18 +296,25 @@ public class GameActivity
         // react the result on the UI.
         final IBiteDetector biteDetector = new DLibBiteDetector();
         mDisposables.add(
-            detectionSub
-                // Detect bite pose.
-                .map(new Function<SparseArray<DLibFace>, Integer>() {
+            frameSub
+                // Wait for the count down.
+                .skipWhile(new Predicate<FrameUiEvent<DLibFace>>() {
                     @Override
-                    public Integer apply(SparseArray<DLibFace> faces)
+                    public boolean test(FrameUiEvent<DLibFace> event)
                         throws Exception {
-                        if (faces.size() == 0) {
-                            return 0;
-                        } else {
+                        return countDownAnim.isAnimating();
+                    }
+                })
+                // Detect bite pose.
+                .map(new Function<FrameUiEvent<DLibFace>, Integer>() {
+                    @Override
+                    public Integer apply(FrameUiEvent<DLibFace> event)
+                        throws Exception {
+                        final SparseArray<DLibFace> faces = event.data;
+                        if (faces.size() > 0) {
                             biteDetector.detect(faces.get(faces.keyAt(0)));
-                            return biteDetector.getBiteCount();
                         }
+                        return biteDetector.getBiteCount();
                     }
                 })
                 // Update UI.
@@ -275,9 +323,9 @@ public class GameActivity
                     @Override
                     public void accept(Integer bitesCount)
                         throws Exception {
+                        // Update count.
                         final int count = Integer.parseInt(
                             mBiteCountView.getText().toString());
-
                         if (bitesCount != count) {
                             mBiteCountView.setText(String.valueOf(bitesCount));
                         }
