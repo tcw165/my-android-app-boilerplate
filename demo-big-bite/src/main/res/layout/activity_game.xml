@@ -30,20 +30,29 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
-    <!-- Score -->
+    <!-- Score View -->
     <TextView
         android:id="@+id/txt_bite_count"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@color/bg_translucent_black"
         android:gravity="center"
-        android:text="@string/number_0"
         android:textColor="@color/white"
         android:textSize="32sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="17"/>
+
+    <!-- Food View -->
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/food_view"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <!-- Count Down Animation -->
     <com.airbnb.lottie.LottieAnimationView

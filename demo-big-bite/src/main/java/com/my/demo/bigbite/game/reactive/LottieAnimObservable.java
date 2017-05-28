@@ -21,11 +21,11 @@
 package com.my.demo.bigbite.game.reactive;
 
 import android.animation.Animator;
-import android.util.Log;
 import android.view.View;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.my.demo.bigbite.event.UiEvent;
+import com.my.demo.bigbite.game.event.AnimUiEvent;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -60,7 +60,6 @@ public class LottieAnimObservable extends Observable<UiEvent> {
         mView.playAnimation();
 
         mIsAnimating.set(true);
-        Log.d("xyz", "fucking is animating=" + mView.isAnimating());
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -89,23 +88,20 @@ public class LottieAnimObservable extends Observable<UiEvent> {
 
         @Override
         public void onAnimationStart(Animator animation) {
-//            mObserver.onNext(AnimUiEvent.start());
-            Log.d("anim", "onAnimationStart");
+            mObserver.onNext(AnimUiEvent.start());
         }
 
         @Override
         public void onAnimationEnd(Animator animation) {
-//            mObserver.onNext(AnimUiEvent.end());
+            mObserver.onNext(AnimUiEvent.end());
 
-            Log.d("anim", "onAnimationEnd");
             mIsAnimating.set(false);
-            mObserver.onComplete();
             mView.setVisibility(View.GONE);
         }
 
         @Override
         public void onAnimationCancel(Animator animation) {
-//            mObserver.onNext(AnimUiEvent.cancel());
+            mObserver.onNext(AnimUiEvent.cancel());
         }
 
         @Override

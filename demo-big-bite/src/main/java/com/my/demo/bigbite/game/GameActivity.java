@@ -29,12 +29,15 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatImageView;
 import android.util.SparseArray;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.airbnb.lottie.LottieAnimationView;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestManager;
 import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.face.Face;
@@ -50,6 +53,8 @@ import com.my.demo.bigbite.game.reactive.CameraObservable;
 import com.my.demo.bigbite.game.reactive.LottieAnimObservable;
 import com.my.demo.bigbite.game.view.CameraSourcePreview;
 import com.my.demo.bigbite.game.view.FaceLandmarksOverlayView;
+import com.my.demo.bigbite.protocol.Common;
+import com.my.demo.bigbite.start.data.ChallengeItem;
 import com.my.demo.bigbite.util.DlibModelHelper;
 import com.my.jni.dlib.DLibLandmarks68Detector;
 import com.my.jni.dlib.IDLibFaceDetector;
@@ -86,6 +91,8 @@ public class GameActivity
     FaceLandmarksOverlayView mDebugOverlayView;
     @BindView(R.id.txt_bite_count)
     TextView mBiteCountView;
+    @BindView(R.id.food_view)
+    AppCompatImageView mFoodView;
     @BindView(R.id.animation_view)
     LottieAnimationView mCountDownView;
     ProgressDialog mProgressDialog;
@@ -93,11 +100,15 @@ public class GameActivity
     // Butter Knife.
     Unbinder mUnbinder;
 
+    // Image Loader.
+    RequestManager mGlide;
+
     // DLibFace Detector.
     IDLibFaceDetector mLandmarksDetector;
 
     // Data.
     CompositeDisposable mDisposables;
+    ChallengeItem mChallengeItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,6 +124,12 @@ public class GameActivity
 
         // Init the detectors.
         mLandmarksDetector = new DLibLandmarks68Detector();
+
+        // Init the image loader.
+        mGlide = Glide.with(this);
+
+        // Get the challenge.
+        mChallengeItem = getIntent().getExtras().getParcelable(Common.PARAMS_DATA);
     }
 
     @Override
@@ -292,6 +309,8 @@ public class GameActivity
                     }
                 }));
 
+        // Load the default image of the challenge item.
+
         // Observe the stream of face detection to detect bite gesture and
         // react the result on the UI.
         final IBiteDetector biteDetector = new DLibBiteDetector();
@@ -323,10 +342,9 @@ public class GameActivity
                     @Override
                     public void accept(Integer bitesCount)
                         throws Exception {
-                        // Update count.
-                        final int count = Integer.parseInt(
-                            mBiteCountView.getText().toString());
-                        if (bitesCount != count) {
+                        if (!Integer.toString(bitesCount).equalsIgnoreCase(
+                            mBiteCountView.getText().toString())) {
+                            updateFoodViewByBiteCount(bitesCount);
                             mBiteCountView.setText(String.valueOf(bitesCount));
                         }
                     }
@@ -405,6 +423,9 @@ public class GameActivity
 
         // View binding.
         mUnbinder.unbind();
+
+        // Image Loader.
+        mGlide.onDestroy();
     }
 
     private View.OnClickListener onClickToBack() {
@@ -414,6 +435,10 @@ public class GameActivity
                 onBackPressed();
             }
         };
+    }
+
+    private Context getContext() {
+        return this;
     }
 
     private Observable<Boolean> grantPermission() {
@@ -477,11 +502,7 @@ public class GameActivity
             });
     }
 
-    private Context getContext() {
-        return this;
-    }
-
-    public Detector<DLibFace> getFaceDetector() {
+    private Detector<DLibFace> getFaceDetector() {
         // Create Google Vision face detector with FAST mode.
         final Detector<Face> faceDetector = new FaceDetector.Builder(getContext())
             .setClassificationType(FaceDetector.FAST_MODE)
@@ -492,6 +513,14 @@ public class GameActivity
         // given overlay view.
         return new DLibLandmarksDetector(
             this, faceDetector, mLandmarksDetector);
+    }
+
+    private void updateFoodViewByBiteCount(int count) {
+        if (mChallengeItem.getSpriteUrls().isEmpty()) return;
+
+        final int size = mChallengeItem.getSpriteUrls().size();
+        mGlide.load(mChallengeItem.getSpriteUrls().get(count % size))
+              .into(mFoodView);
     }
 
     ///////////////////////////////////////////////////////////////////////////

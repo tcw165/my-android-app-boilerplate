@@ -6,7 +6,8 @@
                 "challenge_items/item_hamburger_preview.png",
                 "challenge_items/item_hamburger_preview.png",
                 "challenge_items/item_hamburger_preview.png",
-                "challenge_items/item_hamburger_preview.png"
+                "challenge_items/item_hamburger_preview.png",
+                "challenge_items/item_blank_common.png"
             ]
         },
         {
@@ -15,7 +16,8 @@
                 "challenge_items/item_hotdog_1.png",
                 "challenge_items/item_hotdog_2.png",
                 "challenge_items/item_hotdog_3.png",
-                "challenge_items/item_hotdog_4.png"
+                "challenge_items/item_hotdog_4.png",
+                "challenge_items/item_blank_common.png"
             ]
         },
         {
@@ -24,7 +26,8 @@
                 "challenge_items/item_pizza_preview.png",
                 "challenge_items/item_pizza_preview.png",
                 "challenge_items/item_pizza_preview.png",
-                "challenge_items/item_pizza_preview.png"
+                "challenge_items/item_pizza_preview.png",
+                "challenge_items/item_blank_common.png"
             ]
         },
         {
@@ -33,7 +36,8 @@
                 "challenge_items/item_bread_preview.png",
                 "challenge_items/item_bread_preview.png",
                 "challenge_items/item_bread_preview.png",
-                "challenge_items/item_bread_preview.png"
+                "challenge_items/item_bread_preview.png",
+                "challenge_items/item_blank_common.png"
             ]
         },
         {
@@ -42,7 +46,8 @@
                 "challenge_items/item_riceball_preview.png",
                 "challenge_items/item_riceball_preview.png",
                 "challenge_items/item_riceball_preview.png",
-                "challenge_items/item_riceball_preview.png"
+                "challenge_items/item_riceball_preview.png",
+                "challenge_items/item_blank_common.png"
             ]
         },
         {
@@ -51,7 +56,8 @@
                 "challenge_items/item_donut_preview.png",
                 "challenge_items/item_donut_preview.png",
                 "challenge_items/item_donut_preview.png",
-                "challenge_items/item_donut_preview.png"
+                "challenge_items/item_donut_preview.png",
+                "challenge_items/item_blank_common.png"
             ]
         },
         {
@@ -60,7 +66,8 @@
                 "challenge_items/item_icypole_preview.png",
                 "challenge_items/item_icypole_preview.png",
                 "challenge_items/item_icypole_preview.png",
-                "challenge_items/item_icypole_preview.png"
+                "challenge_items/item_icypole_preview.png",
+                "challenge_items/item_blank_common.png"
             ]
         },
         {
@@ -69,7 +76,8 @@
                 "challenge_items/item_watermelon_preview.png",
                 "challenge_items/item_watermelon_preview.png",
                 "challenge_items/item_watermelon_preview.png",
-                "challenge_items/item_watermelon_preview.png"
+                "challenge_items/item_watermelon_preview.png",
+                "challenge_items/item_blank_common.png"
             ]
         }
     ]
