@@ -129,9 +129,10 @@ public class StartActivity
             LayoutInflater.from(this), mGlide);
         mChallengeMenu.setAdapter(mChallengeMenuAdapter);
         mChallengeMenu.setItemTransformer(
-            new ScaleTransformer.Builder()
+            new AlphaScaleTransformer.Builder()
                 .setMaxScale(1.05f)
                 .setMinScale(0.7f)
+                .setMinAlpha(0.3f)
                 .setPivotX(Pivot.X.CENTER)
                 .setPivotY(Pivot.Y.CENTER)
                 .build());

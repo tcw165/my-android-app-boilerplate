@@ -54,12 +54,18 @@ dependencies {
     compile rootProject.ext.dep.supportVectorDrawable
     compile rootProject.ext.dep.supportRecyclerViewV7
     compile rootProject.ext.dep.supportConstraintLayout
+    compile rootProject.ext.dep.supportTransition
     // Multi-dex.
     compile rootProject.ext.dep.supportMultidex
     // Google CameraView.
     compile(name: "google-cameraview", ext:"aar")
     // Google Vision.
     compile rootProject.ext.dep.playServicesVision
+
+    // Dependency Injection.
+    compile rootProject.ext.dep.dagger2
+//    compile rootProject.ext.dep.dagger2Support
+    annotationProcessor rootProject.ext.dep.dagger2Compiler
 
     // JSON.
     compile rootProject.ext.dep.gson

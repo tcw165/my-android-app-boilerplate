@@ -11,6 +11,7 @@ ext {
     FIREBASE_VER = '9.8.0'
     RX_JAVA_VER = '2.0.1'
     RX_BINDING_VER = '2.0.0'
+    DAGGER2_VER = '2.11-rc2'
     BOLTS_VER = '1.4.0'
     OKHTTP_VER = '3.0.1'
     BUTTER_KNIFE_VER = '8.5.1'
@@ -26,6 +27,7 @@ ext {
             supportGridLayoutV7    : "com.android.support:gridlayout-v7:${SUPPORT_LIB_VER}",
             supportVectorDrawable  : "com.android.support:support-vector-drawable:${SUPPORT_LIB_VER}",
             supportPercent         : "com.android.support:percent:${SUPPORT_LIB_VER}",
+            supportTransition      : "com.android.support:transition:${SUPPORT_LIB_VER}",
             supportConstraintLayout: "com.android.support.constraint:constraint-layout:1.0.2",
             supportMultidex        : 'com.android.support:multidex:1.0.1',
             // Google Play Service.
@@ -61,6 +63,10 @@ ext {
             // View Binding.
             butterKnife            : "com.jakewharton:butterknife:${BUTTER_KNIFE_VER}",
             butterKnifeCompiler    : "com.jakewharton:butterknife-compiler:${BUTTER_KNIFE_VER}",
+            // Dependency Injection.
+            dagger2                : "com.google.dagger:dagger:${DAGGER2_VER}",
+            dagger2Support         : "com.google.dagger:dagger-android-support:${DAGGER2_VER}",
+            dagger2Compiler        : "com.google.dagger:dagger-compiler:${DAGGER2_VER}",
             // Custom View.
             discreteScrollView     : 'com.yarolegovich:discrete-scrollview:1.2.0',
             // ASYNC.

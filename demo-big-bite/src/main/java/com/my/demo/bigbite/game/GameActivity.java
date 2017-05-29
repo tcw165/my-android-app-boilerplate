@@ -27,6 +27,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageView;
@@ -85,6 +86,8 @@ public class GameActivity
                IProgressBarView {
 
     // View.
+    @BindView(R.id.main)
+    ConstraintLayout mMainView;
     @BindView(R.id.camera)
     CameraSourcePreview mCameraView;
     @BindView(R.id.overlay)
