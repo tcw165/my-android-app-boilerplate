@@ -23,12 +23,11 @@ package com.my.demo.bigbite.game;
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.os.Build;
+import android.graphics.RectF;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
-import android.support.v4.content.ContextCompat;
+import android.support.constraint.ConstraintSet;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.SparseArray;
@@ -45,12 +44,15 @@ import com.google.android.gms.vision.face.Face;
 import com.google.android.gms.vision.face.FaceDetector;
 import com.my.core.protocol.IProgressBarView;
 import com.my.demo.bigbite.R;
-import com.my.demo.bigbite.game.data.IBiteDetector;
 import com.my.demo.bigbite.game.data.ICameraMetadata;
 import com.my.demo.bigbite.game.detector.DLibBiteDetector;
 import com.my.demo.bigbite.game.detector.DLibLandmarksDetector;
+import com.my.demo.bigbite.game.event.BiteUiModel;
+import com.my.demo.bigbite.game.event.DetectBiteAction;
+import com.my.demo.bigbite.game.event.DetectBiteResult;
 import com.my.demo.bigbite.game.event.FrameUiEvent;
 import com.my.demo.bigbite.game.reactive.CameraObservable;
+import com.my.demo.bigbite.game.reactive.DLibBiteDetectorTransformer;
 import com.my.demo.bigbite.game.reactive.LottieAnimObservable;
 import com.my.demo.bigbite.game.view.CameraSourcePreview;
 import com.my.demo.bigbite.game.view.FaceLandmarksOverlayView;
@@ -85,6 +87,9 @@ public class GameActivity
     implements ICameraMetadata,
                IProgressBarView {
 
+    private static final int PREVIEW_WIDTH = 320;
+    private static final int PREVIEW_HEIGHT = 240;
+
     // View.
     @BindView(R.id.main)
     ConstraintLayout mMainView;
@@ -102,6 +107,8 @@ public class GameActivity
     LottieAnimationView mCountDownView;
 
     ProgressDialog mProgressDialog;
+
+    ConstraintSet mConstraintSet;
 
     // Butter Knife.
     Unbinder mUnbinder;
@@ -137,6 +144,10 @@ public class GameActivity
 
         // Init rx-permissions.
         mRxPermissions = new RxPermissions(this);
+
+        // Init constraint set.
+        mConstraintSet = new ConstraintSet();
+        mConstraintSet.clone(mMainView);
 
         // Get the challenge.
         mChallengeItem = getIntent().getExtras().getParcelable(Common.PARAMS_DATA);
@@ -223,9 +234,6 @@ public class GameActivity
         // |      | width
         // |      |
         // '------'
-        final int previewWidth = 320;
-        final int previewHeight = 240;
-
         // Define the camera detection stream.
         final Subject<FrameUiEvent<DLibFace>> frameSub = PublishSubject.create();
         mDisposables.add(
@@ -245,17 +253,17 @@ public class GameActivity
                         // Set the preview config.
                         if (isPortraitMode()) {
                             mDebugOverlayView.setCameraPreviewSize(
-                                previewHeight, previewWidth);
+                                PREVIEW_HEIGHT, PREVIEW_WIDTH);
                         } else {
                             mDebugOverlayView.setCameraPreviewSize(
-                                previewWidth, previewHeight);
+                                PREVIEW_WIDTH, PREVIEW_HEIGHT);
                         }
 
                         // Create camera observable.
                         return CameraObservable.create(
                                 GameActivity.this,
                                 mCameraView,
-                                previewWidth, previewHeight,
+                                PREVIEW_WIDTH, PREVIEW_HEIGHT,
                                 getFaceDetector());
                     }
                 })
@@ -268,6 +276,7 @@ public class GameActivity
                     }
                 }));
 
+        // FIXME: This will cause UI race condition.
         // Observe the stream of camera first frame to count down.
         final LottieAnimObservable countDownAnim = new LottieAnimObservable(mCountDownView);
         mDisposables.add(
@@ -296,11 +305,11 @@ public class GameActivity
         mDisposables.add(
             frameSub
                 // Wait for the count down.
-                .skipWhile(new Predicate<FrameUiEvent<DLibFace>>() {
+                .filter(new Predicate<FrameUiEvent<DLibFace>>() {
                     @Override
                     public boolean test(FrameUiEvent<DLibFace> event)
                         throws Exception {
-                        return countDownAnim.isAnimating();
+                        return !countDownAnim.isAnimating();
                     }
                 })
                 // Update UI.
@@ -319,46 +328,28 @@ public class GameActivity
                     }
                 }));
 
-        // Load the default image of the challenge item.
-
         // Observe the stream of face detection to detect bite gesture and
         // react the result on the UI.
-        final IBiteDetector biteDetector = new DLibBiteDetector();
         mDisposables.add(
             frameSub
                 // Wait for the count down.
-                .skipWhile(new Predicate<FrameUiEvent<DLibFace>>() {
+                .filter(new Predicate<FrameUiEvent<DLibFace>>() {
                     @Override
                     public boolean test(FrameUiEvent<DLibFace> event)
                         throws Exception {
-                        return countDownAnim.isAnimating();
+                        return !countDownAnim.isAnimating() &&
+                               event.data.size() > 0;
                     }
                 })
                 // Detect bite pose.
-                .map(new Function<FrameUiEvent<DLibFace>, Integer>() {
-                    @Override
-                    public Integer apply(FrameUiEvent<DLibFace> event)
-                        throws Exception {
-                        final SparseArray<DLibFace> faces = event.data;
-                        if (faces.size() > 0) {
-                            biteDetector.detect(faces.get(faces.keyAt(0)));
-                        }
-                        return biteDetector.getBiteCount();
-                    }
-                })
+                .map(toDetectBiteAction())
+                .compose(new DLibBiteDetectorTransformer(
+                    new DLibBiteDetector(),
+                    Schedulers.computation()))
+                .map(toBiteUiModel())
                 // Update UI.
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<Integer>() {
-                    @Override
-                    public void accept(Integer bitesCount)
-                        throws Exception {
-                        if (!Integer.toString(bitesCount).equalsIgnoreCase(
-                            mBiteCountView.getText().toString())) {
-                            updateFoodViewByBiteCount(bitesCount);
-                            mBiteCountView.setText(String.valueOf(bitesCount));
-                        }
-                    }
-                }));
+                .subscribe(onBiteDetected()));
     }
 
     @Override
@@ -447,28 +438,56 @@ public class GameActivity
         };
     }
 
+    private Consumer<? super BiteUiModel> onBiteDetected() {
+        return new Consumer<BiteUiModel>() {
+            @Override
+            public void accept(BiteUiModel model)
+                throws Exception {
+
+                // Update the food position.
+                if (isPortraitMode()) {
+                    final float scale = Math.min((float) mMainView.getWidth() / PREVIEW_HEIGHT,
+                                                 (float) mMainView.getHeight() / PREVIEW_WIDTH);
+                    final int canvasWidth = (int) (scale * PREVIEW_HEIGHT);
+                    final int canvasHeight = (int) (scale * PREVIEW_WIDTH);
+                    final RectF mouthBound = model.mouthBound;
+
+                    final int width = (int) (mouthBound.width() * canvasWidth);
+                    final int left = (int) (mouthBound.left * canvasWidth);
+                    final int top = (int) (mouthBound.top * canvasHeight);
+
+                    mConstraintSet.setGuidelineBegin(
+                        R.id.guideline_food_left, left + (width - mFoodView.getWidth()) / 2);
+                    mConstraintSet.setGuidelineBegin(
+                        R.id.guideline_food_top, top);
+                    mConstraintSet.applyTo(mMainView);
+                }
+
+                // Update the text and food image.
+                if (!Integer.toString(model.biteCount).equalsIgnoreCase(
+                    mBiteCountView.getText().toString())) {
+                    final int size = mChallengeItem.getSpriteUrls().size();
+                    if (size > 0) {
+                        mGlide.load(mChallengeItem.getSpriteUrls().get(model.biteCount % size))
+                              .into(mFoodView);
+                    }
+
+                    mBiteCountView.setText(String.valueOf(model.biteCount));
+                }
+            }
+        };
+    }
+
     private Context getContext() {
         return this;
     }
 
     private Observable<Boolean> grantPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return mRxPermissions
-                .request(Manifest.permission.READ_EXTERNAL_STORAGE,
-                         Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                         Manifest.permission.ACCESS_NETWORK_STATE,
-                         Manifest.permission.CAMERA);
-        } else {
-            return Observable.just(
-                ContextCompat.checkSelfPermission(
-                    this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(
-                    this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(
-                    this, Manifest.permission.ACCESS_NETWORK_STATE) == PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(
-                    this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED);
-        }
+        return mRxPermissions
+            .request(Manifest.permission.READ_EXTERNAL_STORAGE,
+                     Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                     Manifest.permission.ACCESS_NETWORK_STATE,
+                     Manifest.permission.CAMERA);
     }
 
     private Observable<Boolean> initFaceLandmarksDetector() {
@@ -524,12 +543,25 @@ public class GameActivity
             this, faceDetector, mLandmarksDetector);
     }
 
-    private void updateFoodViewByBiteCount(int count) {
-        if (mChallengeItem.getSpriteUrls().isEmpty()) return;
+    private Function<FrameUiEvent<DLibFace>, DetectBiteAction> toDetectBiteAction() {
+        return new Function<FrameUiEvent<DLibFace>, DetectBiteAction>() {
+            @Override
+            public DetectBiteAction apply(FrameUiEvent<DLibFace> event)
+                throws Exception {
+                final SparseArray<DLibFace> faces = event.data;
+                return new DetectBiteAction(faces.get(faces.keyAt(0)));
+            }
+        };
+    }
 
-        final int size = mChallengeItem.getSpriteUrls().size();
-        mGlide.load(mChallengeItem.getSpriteUrls().get(count % size))
-              .into(mFoodView);
+    private Function<? super DetectBiteResult, BiteUiModel> toBiteUiModel() {
+        return new Function<DetectBiteResult, BiteUiModel>() {
+            @Override
+            public BiteUiModel apply(DetectBiteResult result)
+                throws Exception {
+                return new BiteUiModel(result.mouthBound, result.biteCount);
+            }
+        };
     }
 
     ///////////////////////////////////////////////////////////////////////////

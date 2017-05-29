@@ -18,7 +18,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.demo.bigbite.event;
+package com.my.demo.bigbite.game.event;
 
-public abstract class Result {
+import android.graphics.RectF;
+
+public class BiteUiModel {
+
+    final public RectF mouthBound;
+    final public int biteCount;
+
+    public BiteUiModel(RectF mouthBound,
+                       int biteCount) {
+        this.mouthBound = mouthBound;
+        this.biteCount = biteCount;
+    }
 }

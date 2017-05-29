@@ -20,5 +20,11 @@
 
 package com.my.demo.bigbite.event;
 
-public class Action {
+public abstract class Action<T> {
+
+    public T message;
+
+    public Action(T message) {
+        this.message = message;
+    }
 }

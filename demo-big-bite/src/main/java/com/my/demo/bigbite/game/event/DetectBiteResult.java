@@ -18,30 +18,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.demo.bigbite.game.reactive;
+package com.my.demo.bigbite.game.event;
 
-import android.util.SparseArray;
+import android.graphics.RectF;
 
-import com.my.jni.dlib.data.DLibFace;
+import com.my.demo.bigbite.event.Result;
 
-import java.util.List;
+public class DetectBiteResult extends Result {
 
-import io.reactivex.Observable;
-import io.reactivex.Observer;
+    public final RectF mouthBound;
+    public final int biteCount;
 
-public class DLibBiteDetectorObservable extends Observable<Object> {
-
-    public DLibBiteDetectorObservable(final List<DLibFace> faces) {
-
+    public DetectBiteResult(final RectF mouthBound,
+                            final int biteCount) {
+        this.mouthBound = mouthBound;
+        this.biteCount = biteCount;
     }
-
-    @Override
-    protected void subscribeActual(Observer<? super Object> observer) {
-
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Clazz //////////////////////////////////////////////////////////////////
-
-
 }
