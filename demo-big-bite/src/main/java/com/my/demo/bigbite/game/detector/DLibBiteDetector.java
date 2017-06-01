@@ -67,18 +67,12 @@ public class DLibBiteDetector implements IBiteDetector {
     private float[] mRightUpVec = new float[]{0f, 0f};
     private float[] mRightLowVec = new float[]{0f, 0f};
 
-    // mouth state.
-    private static final int MOUTH_UNDEFINED = 0;
-    private static final int MOUTH_OPENED = 1;
-    private static final int MOUTH_CLOSED = 2;
-    private int mLastMouthState = MOUTH_UNDEFINED;
-
     // Records.
     private static final double ALPHA = 0.3f;
-    private static final double DEGREE_FOR_MOUTH_OPENED = 30;
-    private static final double DEGREE_FOR_MOUTH_CLOSED = 3;
+    private static final double DEGREE_FOR_MOUTH_OPENED = 18;
+    private static final double DEGREE_FOR_MOUTH_CLOSED = 18;
     private static final int MAX_RECORDS = 10;
-    private static final int CHECK_PAST_N_RECORDS = 2;
+    private static final int CHECK_LATEST_N_RECORDS = 4;
     private final List<Record> mRecords = new ArrayList<>();
 
     // Bite count.
@@ -212,9 +206,11 @@ public class DLibBiteDetector implements IBiteDetector {
                 // Apply the smooth algorithm to fix the noise if there were
                 // already two records.
                 final long tOffset = record.timestamp - last.timestamp;
-                final double projectDegree = last.mouthOpeningDegree +
-                                             last.mouthOpeningVelocity * tOffset;
-                final double smoothDegree = ALPHA * projectDegree +
+//                final double projectDegree = last.mouthOpeningDegree +
+//                                             last.mouthOpeningVelocity * tOffset;
+//                final double smoothDegree = ALPHA * projectDegree +
+//                                            (1f - ALPHA) * mouthOpeningDegree;
+                final double smoothDegree = ALPHA * last.mouthOpeningDegree +
                                             (1f - ALPHA) * mouthOpeningDegree;
 
                 record.mouthOpeningDegree = smoothDegree >= 0f ? smoothDegree : 0f;
@@ -228,11 +224,26 @@ public class DLibBiteDetector implements IBiteDetector {
                 record.mouthOpeningDegree = mouthOpeningDegree;
                 record.mouthOpeningVelocity = dOffset / tOffset;
             }
+
+            // Determine the mouth state.
+            if (record.mouthOpeningDegree >= DEGREE_FOR_MOUTH_OPENED &&
+                last.mouthOpeningVelocity > 0f) {
+                record.mouthState = Record.MOUTH_OPENED;
+            } else if (record.mouthOpeningDegree <= DEGREE_FOR_MOUTH_CLOSED &&
+                last.mouthOpeningVelocity < 0f) {
+                record.mouthState = Record.MOUTH_CLOSED;
+            } else {
+                // For the uncertain state, just follow the previous state.
+                record.mouthState = last.mouthState;
+            }
         }
 
         // Add it.
         mRecords.add(record);
-        Log.d("mouth", String.format("Given %.3f, Save %s", mouthOpeningDegree, record));
+//        Log.d("mouth", String.format("Given %.3f, Save %s", mouthOpeningDegree, record));
+        Log.d("mouth", String.format("mouth opening state = %s",
+                                     (record.mouthState == Record.MOUTH_OPENED ?
+                                     "OPENED" : "CLOSED")));
 
         // Discard the old records.
         while (mRecords.size() > MAX_RECORDS) {
@@ -242,58 +253,56 @@ public class DLibBiteDetector implements IBiteDetector {
 
     private boolean detectBiteFromRecords() {
         final int size = mRecords.size();
+        boolean isABite = false;
 
-        if (mRecords.size() > CHECK_PAST_N_RECORDS) {
-            // Step 1: Determine the mouth state: OPENING or CLOSING?
-            // Tell if mouth is opening by checking the past 3 frames.
-            double accumulatedVelocity = 0f;
-            for (int i = size - 1; i >= Math.max(0, size - CHECK_PAST_N_RECORDS); --i) {
-                final Record record = mRecords.get(i);
+        if (mRecords.size() >= CHECK_LATEST_N_RECORDS) {
+            //    mouth state.
+            //    ^
+            // +1 |   +  +     +     +  +
+            //    +-------------------------------------> t
+            // -1 |+        +     +        +  +  +
+            //                      |<-------->|
+            //                       This counts a bite.
 
-                accumulatedVelocity += record.mouthOpeningVelocity;
-            }
-            final int mouthState;
             final Record latest = mRecords.get(size - 1);
-            if (latest.mouthOpeningDegree > DEGREE_FOR_MOUTH_OPENED) {
-                mouthState = MOUTH_OPENED;
-                Log.d("mouth", "mouthState = MOUTH_OPENED");
-            } else if (latest.mouthOpeningDegree < DEGREE_FOR_MOUTH_CLOSED) {
-                mouthState = MOUTH_CLOSED;
-                Log.d("mouth", "mouthState = MOUTH_CLOSED");
-            } else {
-                mouthState = MOUTH_UNDEFINED;
+            if (latest.mouthState != Record.MOUTH_CLOSED) return false;
+
+            // According to the above figure, I want to find a pattern of an
+            // order sensitive sequence of [OPENED, OPENED, CLOSED, CLOSED].
+            // To make it order sensitive, I multiply the state value and the
+            // position index (start from 1) and then add them up.
+            int accumulatedStateCount = 0;
+            for (int i = 1; i <= CHECK_LATEST_N_RECORDS; ++i) {
+                final int index = size - i;
+                accumulatedStateCount += (i * mRecords.get(index).mouthState);
             }
 
-            // Step 2: Determine the bite according to the mouth state.
-            // A bite is counted as a closing along with a opening.
-            final boolean isABite;
-            if (mLastMouthState == MOUTH_OPENED &&
-                mouthState == MOUTH_CLOSED) {
-                ++mBiteCount;
-
-                Log.d("mouth", String.format("bite count=%d", mBiteCount));
-                mLastMouthState = MOUTH_UNDEFINED;
-
+            // If the sequence matches [OPENED, OPENED, CLOSED, CLOSED].
+            //                  value:    +1      +1      -1      -1
+            //         position index:     4       3       2       1
+            //            final value:    +4      +3      -2      -1
+            // --------------------------------------------------------
+            //                    sum:    +4
+            if (accumulatedStateCount == 4) {
                 isABite = true;
-            } else {
-                isABite = false;
+                ++mBiteCount;
             }
-
-            // Step 3: Record the valid mouth state.
-            if (mouthState != MOUTH_UNDEFINED) {
-                mLastMouthState = mouthState;
-            }
-
-            return isABite;
-        } else {
-            return false;
         }
+
+        return isABite;
     }
 
     ///////////////////////////////////////////////////////////////////////////
     // Clazz //////////////////////////////////////////////////////////////////
 
+    /**
+     * The mouth state record.
+     */
     private static class Record {
+
+        static final int MOUTH_CLOSED = -1;
+        static final int MOUTH_OPENED = 1;
+        int mouthState = MOUTH_CLOSED;
 
         double mouthOpeningDegree;
         double mouthOpeningVelocity;

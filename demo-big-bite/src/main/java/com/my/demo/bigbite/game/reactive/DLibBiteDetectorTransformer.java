@@ -67,7 +67,7 @@ public class DLibBiteDetectorTransformer implements ObservableTransformer<Detect
                         right = Math.max(right, landmark.x);
                         bottom = Math.max(bottom, landmark.y);
                     }
-                    Log.d("mouth", String.format("Lips bound=%s", new RectF(left, top, right, bottom)));
+//                    Log.d("mouth", String.format("Lips bound=%s", new RectF(left, top, right, bottom)));
 
                     mBiteDetector.detect(action.message);
 

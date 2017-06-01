@@ -54,8 +54,8 @@ ext {
             adobeFoundation        : 'com.adobe.creativesdk.foundation:auth:0.9.1251',
             adobeImage             : 'com.adobe.creativesdk:image:4.8.3',
             // RxJava.
-            rxAndroid              : "io.reactivex.rxjava2:rxandroid:${RX_JAVA_VER}",
-            rxJava                 : "io.reactivex.rxjava2:rxjava:${RX_JAVA_VER}",
+            rxJava                 : 'io.reactivex.rxjava2:rxjava:2.1.0',
+            rxAndroid              : 'io.reactivex.rxjava2:rxandroid:2.0.1',
             rxRelay                : 'com.jakewharton.rxrelay2:rxrelay:2.0.0',
             rxBinding              : "com.jakewharton.rxbinding2:rxbinding:${RX_BINDING_VER}",
             rxBindingRecyclerViewV7: "com.jakewharton.rxbinding2:rxbinding-recyclerview-v7:${RX_BINDING_VER}",
