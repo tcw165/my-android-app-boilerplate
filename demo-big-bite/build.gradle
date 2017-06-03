@@ -62,6 +62,10 @@ dependencies {
     // Google Vision.
     compile rootProject.ext.dep.playServicesVision
 
+    // Leak Detection.
+    compile rootProject.ext.dep.leakcanary
+    releaseCompile rootProject.ext.dep.leakcanaryNoOp
+
     // Dependency Injection.
     compile rootProject.ext.dep.dagger2
 //    compile rootProject.ext.dep.dagger2Support
@@ -91,6 +95,7 @@ dependencies {
 
     testCompile rootProject.ext.dep.testJunit
     testCompile rootProject.ext.dep.testMockito
+    testCompile rootProject.ext.dep.leakcanaryNoOp
 
     androidTestCompile(rootProject.ext.dep.testEspressoCore, {
         exclude group: "com.android.support", module: "support-annotations"
