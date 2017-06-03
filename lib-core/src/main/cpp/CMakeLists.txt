@@ -28,12 +28,10 @@ target_link_libraries(${TARGET_NAME}
 
 # Make install directory.
 file(MAKE_DIRECTORY ${INSTALL_DIR}/${TARGET_NAME})
-file(MAKE_DIRECTORY ${INSTALL_DIR}/${TARGET_NAME}/include/)
-file(MAKE_DIRECTORY ${INSTALL_DIR}/${TARGET_NAME}/lib)
 
 # Copy out project header file...
-file(COPY "${CMAKE_SOURCE_DIR}/include/"
-     DESTINATION "${INSTALL_DIR}/${TARGET_NAME}/include/")
+file(COPY "${CMAKE_SOURCE_DIR}/include"
+     DESTINATION "${INSTALL_DIR}/${TARGET_NAME}/")
 
 # Copy out the lib binary.
 # FIXME: ExternalNativeBuild breaks on copying STL. It might be fixed in the

@@ -35,15 +35,15 @@ file(MAKE_DIRECTORY ${INSTALL_DIR}/${TARGET_NAME})
 
 # Copy out lib header file...
 file(COPY "${LIB_DIR}/protobuf/include"
-     DESTINATION "${INSTALL_DIR}/${TARGET_NAME}")
+     DESTINATION "${INSTALL_DIR}/${TARGET_NAME}/")
 
 # Copy out the lib binary.
 file(COPY "${LIB_DIR}/protobuf/lib"
-     DESTINATION "${INSTALL_DIR}/${TARGET_NAME}")
+     DESTINATION "${INSTALL_DIR}/${TARGET_NAME}/")
 
 # Copy out project header file...
-file(COPY "${CMAKE_SOURCE_DIR}/include/"
-     DESTINATION "${INSTALL_DIR}/${TARGET_NAME}/include/")
+file(COPY "${CMAKE_SOURCE_DIR}/include"
+     DESTINATION "${INSTALL_DIR}/${TARGET_NAME}/")
 
 # Copy out the project binary.
 add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
