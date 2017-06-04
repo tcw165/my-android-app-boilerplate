@@ -15,8 +15,6 @@
         android:layout_height="0dp"
         android:adjustViewBounds="true"
         android:background="@android:color/black"
-        app:facing="front"
-        app:flash="off"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

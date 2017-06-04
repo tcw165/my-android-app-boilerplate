@@ -191,7 +191,7 @@ public class DLibLandmarksDetector extends Detector<DLibFace> {
                 ProfilerUtil.stopProfiling()));
 
             return retFaces;
-        } catch (InvalidProtocolBufferException err) {
+        } catch (Throwable err) {
             err.printStackTrace();
             return null;
         }

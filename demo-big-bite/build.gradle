@@ -1,5 +1,10 @@
 apply plugin: "com.android.application"
 
+// Prepare the keystore for signing the APK.
+def keystorePropertiesFile = rootProject.file("../my-google-play-certs/bigbite-keystore.properties")
+def keystoreProperties = new Properties()
+keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -22,13 +27,6 @@ android {
         }
     }
 
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
-        }
-    }
-
     lintOptions {
         disable "MissingTranslation"
     }
@@ -36,7 +34,30 @@ android {
     // Pick first STL shared library if there're duplicate files in the
     // dependent module.
     packagingOptions {
-        pickFirst  "**/libc++_shared.so"
+        pickFirst "**/libc++_shared.so"
+    }
+
+    // How to sign the APK.
+    signingConfigs {
+        release {
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile rootProject.file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+        }
+    }
+
+    buildTypes {
+        debug {
+            minifyEnabled false
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+
+            // Enable the sign process.
+            signingConfig signingConfigs.release
+        }
     }
 }
 
@@ -57,8 +78,8 @@ dependencies {
     compile rootProject.ext.dep.supportTransition
     // Multi-dex.
     compile rootProject.ext.dep.supportMultidex
-    // Google CameraView.
-    compile(name: "google-cameraview", ext:"aar")
+//    // Google CameraView.
+//    compile(name: "google-cameraview", ext:"aar")
     // Google Vision.
     compile rootProject.ext.dep.playServicesVision
 
