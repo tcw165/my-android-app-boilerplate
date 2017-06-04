@@ -40,10 +40,13 @@ android {
     // Pick first STL shared library if there're duplicate files in the
     // dependent module.
     packagingOptions {
-        pickFirst  "**/libc++_shared.so"
+        pickFirst "**/libc++_shared.so"
     }
 
     buildTypes {
+        debug {
+            minifyEnabled false
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
@@ -58,5 +61,5 @@ dependencies {
     compile project(":lib-core")
     compile project(":lib-protobuf")
 
-    testCompile "junit:junit:4.12"
+    testCompile rootProject.ext.dep.testJunit
 }
