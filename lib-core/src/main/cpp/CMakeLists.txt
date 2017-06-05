@@ -28,6 +28,8 @@ target_link_libraries(${TARGET_NAME}
 
 # Make install directory.
 file(MAKE_DIRECTORY ${INSTALL_DIR}/${TARGET_NAME})
+file(MAKE_DIRECTORY ${INSTALL_DIR}/${TARGET_NAME}/include)
+file(MAKE_DIRECTORY ${INSTALL_DIR}/${TARGET_NAME}/lib)
 
 # Copy out project header file...
 file(COPY "${CMAKE_SOURCE_DIR}/include"
@@ -45,7 +47,7 @@ add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
                    "${INSTALL_DIR}/${TARGET_NAME}/lib/${ANDROID_ABI}"
 
                    COMMENT "Copying ${TARGET_NAME} shared library to output directory")
-# set_target_properties(${TARGET_NAME}
-#                       PROPERTIES
-#                       LIBRARY_OUTPUT_DIRECTORY
-#                       "${INSTALL_DIR}/${TARGET_NAME}/lib/${ANDROID_ABI}")
+#set_target_properties(${TARGET_NAME}
+#                      PROPERTIES
+#                      LIBRARY_OUTPUT_DIRECTORY
+#                      "${INSTALL_DIR}/${TARGET_NAME}/lib/${ANDROID_ABI}")

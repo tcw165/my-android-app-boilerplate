@@ -52,6 +52,8 @@ target_link_libraries(${TARGET_NAME}
 
 # Make install directory.
 file(MAKE_DIRECTORY ${INSTALL_DIR}/${TARGET_NAME})
+file(MAKE_DIRECTORY ${INSTALL_DIR}/${TARGET_NAME}/include)
+file(MAKE_DIRECTORY ${INSTALL_DIR}/${TARGET_NAME}/lib)
 
 # Copy out 3rd party library header file.
 file(COPY "${LIB_DIR}/tensorflow/include"
