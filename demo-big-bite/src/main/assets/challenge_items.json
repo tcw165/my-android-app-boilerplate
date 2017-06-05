@@ -1,0 +1,84 @@
+{
+    "items": [
+        {
+            "preview": "challenge_items/item_hamburger_preview.png",
+            "sprites": [
+                "challenge_items/item_hamburger_1.png",
+                "challenge_items/item_hamburger_2.png",
+                "challenge_items/item_hamburger_3.png",
+                "challenge_items/item_hamburger_4.png",
+                "challenge_items/item_blank_common.png"
+            ]
+        },
+        {
+            "preview": "challenge_items/item_hotdog_preview.png",
+            "sprites": [
+                "challenge_items/item_hotdog_1.png",
+                "challenge_items/item_hotdog_2.png",
+                "challenge_items/item_hotdog_3.png",
+                "challenge_items/item_hotdog_4.png",
+                "challenge_items/item_blank_common.png"
+            ]
+        },
+        {
+            "preview": "challenge_items/item_pizza_preview.png",
+            "sprites": [
+                "challenge_items/item_pizza_1.png",
+                "challenge_items/item_pizza_2.png",
+                "challenge_items/item_pizza_3.png",
+                "challenge_items/item_pizza_4.png",
+                "challenge_items/item_blank_common.png"
+            ]
+        },
+        {
+            "preview": "challenge_items/item_bread_preview.png",
+            "sprites": [
+                "challenge_items/item_bread_1.png",
+                "challenge_items/item_bread_2.png",
+                "challenge_items/item_bread_3.png",
+                "challenge_items/item_bread_4.png",
+                "challenge_items/item_blank_common.png"
+            ]
+        },
+        {
+            "preview": "challenge_items/item_riceball_preview.png",
+            "sprites": [
+                "challenge_items/item_riceball_1.png",
+                "challenge_items/item_riceball_2.png",
+                "challenge_items/item_riceball_3.png",
+                "challenge_items/item_riceball_4.png",
+                "challenge_items/item_blank_common.png"
+            ]
+        },
+        {
+            "preview": "challenge_items/item_donut_preview.png",
+            "sprites": [
+                "challenge_items/item_donut_1.png",
+                "challenge_items/item_donut_2.png",
+                "challenge_items/item_donut_3.png",
+                "challenge_items/item_donut_4.png",
+                "challenge_items/item_blank_common.png"
+            ]
+        },
+        {
+            "preview": "challenge_items/item_icypole_preview.png",
+            "sprites": [
+                "challenge_items/item_icypole_1.png",
+                "challenge_items/item_icypole_2.png",
+                "challenge_items/item_icypole_3.png",
+                "challenge_items/item_icypole_4.png",
+                "challenge_items/item_blank_common.png"
+            ]
+        },
+        {
+            "preview": "challenge_items/item_watermelon_preview.png",
+            "sprites": [
+                "challenge_items/item_watermelon_1.png",
+                "challenge_items/item_watermelon_2.png",
+                "challenge_items/item_watermelon_3.png",
+                "challenge_items/item_watermelon_4.png",
+                "challenge_items/item_blank_common.png"
+            ]
+        }
+    ]
+}

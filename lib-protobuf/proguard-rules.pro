@@ -23,3 +23,11 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-dontwarn sun.misc.Unsafe
+-keep class com.google.** {
+    public *;
+}
+-keep public class google.protobuf.** {
+    public *;
+}

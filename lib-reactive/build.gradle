@@ -1,0 +1,44 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "25.0.3"
+
+    defaultConfig {
+        minSdkVersion 16
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+
+//    // Google support library.
+//    def SUPPORT_LIB_VER = "25.3.1"
+//    compile "com.android.support:appcompat-v7:${SUPPORT_LIB_VER}"
+
+    // Rx-Java.
+    compile rootProject.ext.dep.rxJava
+    compile rootProject.ext.dep.rxAndroid
+    // Rx-Binding.
+    compile rootProject.ext.dep.rxBinding
+    compile rootProject.ext.dep.rxBindingRecyclerViewV7
+    // Rx-Permissions.
+    compile rootProject.ext.dep.rxPermissions
+
+    testCompile rootProject.ext.dep.testJunit
+
+    androidTestCompile(rootProject.ext.dep.testEspressoCore, {
+        exclude group: "com.android.support", module: "support-annotations"
+    })
+}

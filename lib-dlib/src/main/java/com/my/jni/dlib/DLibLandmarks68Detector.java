@@ -34,6 +34,8 @@ import java.util.List;
 
 public class DLibLandmarks68Detector implements IDLibFaceDetector {
 
+    private boolean mIsEnabled = true;
+
     public DLibLandmarks68Detector() {
         // TODO: Load library in worker thread?
         try {
@@ -84,6 +86,16 @@ public class DLibLandmarks68Detector implements IDLibFaceDetector {
                 "\"dlib_jni\" not found; check that the correct native " +
                 "libraries are present in the APK.");
         }
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return mIsEnabled;
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        mIsEnabled = enabled;
     }
 
     @Override

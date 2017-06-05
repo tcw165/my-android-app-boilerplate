@@ -20,7 +20,6 @@
 
 package com.my.jni.dlib.data;
 
-import android.graphics.Rect;
 import android.graphics.RectF;
 
 import java.util.List;

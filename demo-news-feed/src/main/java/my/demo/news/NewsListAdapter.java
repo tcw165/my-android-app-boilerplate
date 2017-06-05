@@ -14,6 +14,7 @@ import com.facebook.drawee.interfaces.DraweeController;
 import com.facebook.drawee.view.DraweeView;
 import com.facebook.imagepipeline.request.ImageRequest;
 import com.jakewharton.rxbinding2.view.RxView;
+import com.my.reactive.IOnClickObservable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +26,6 @@ import io.reactivex.functions.Function;
 import io.reactivex.subjects.PublishSubject;
 import my.demo.news.news.IMediaEntity;
 import my.demo.news.news.INewsEntity;
-import my.demo.news.reactive.IOnClickObservable;
 
 public class NewsListAdapter
     extends RecyclerView.Adapter<RecyclerView.ViewHolder>

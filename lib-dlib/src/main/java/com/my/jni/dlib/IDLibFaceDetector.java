@@ -30,6 +30,10 @@ import java.util.List;
 
 public interface IDLibFaceDetector {
 
+    boolean isEnabled();
+
+    void setEnabled(boolean enabled);
+
     boolean isFaceDetectorReady();
 
     boolean isFaceLandmarksDetectorReady();

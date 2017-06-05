@@ -51,17 +51,20 @@ dependencies {
     compile "com.jakewharton.retrofit:retrofit2-rxjava2-adapter:1.0.0"
     compile "com.squareup.okhttp3:okhttp:3.6.0"
 
-    // RxJava.
-    compile "io.reactivex.rxjava2:rxandroid:2.0.1"
-    compile "io.reactivex.rxjava2:rxjava:2.0.1"
-    def RX_BINDING_VER = "2.0.0"
-    compile "com.jakewharton.rxbinding2:rxbinding:${RX_BINDING_VER}"
-    compile "com.jakewharton.rxbinding2:rxbinding-recyclerview-v7:${RX_BINDING_VER}"
+//    // RxJava.
+//    compile "io.reactivex.rxjava2:rxandroid:2.0.1"
+//    compile "io.reactivex.rxjava2:rxjava:2.0.1"
+//    def RX_BINDING_VER = "2.0.0"
+//    compile "com.jakewharton.rxbinding2:rxbinding:${RX_BINDING_VER}"
+//    compile "com.jakewharton.rxbinding2:rxbinding-recyclerview-v7:${RX_BINDING_VER}"
 
     // View binding.
     def BUTTER_KNIFE_VER = "8.5.1"
     compile "com.jakewharton:butterknife:${BUTTER_KNIFE_VER}"
     annotationProcessor "com.jakewharton:butterknife-compiler:${BUTTER_KNIFE_VER}"
+
+    // My Library.
+    compile project(":lib-reactive")
 
     // Unit test.
     testCompile 'junit:junit:4.12'

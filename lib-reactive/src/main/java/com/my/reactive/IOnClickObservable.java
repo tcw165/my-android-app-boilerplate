@@ -1,4 +1,4 @@
-package my.demo.news.reactive;
+package com.my.reactive;
 
 import io.reactivex.Observable;
 

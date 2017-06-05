@@ -3,12 +3,12 @@ apply plugin: "com.android.library"
 // Gradle doc:
 // http://google.github.io/android-gradle-dsl/
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.3"
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
         minSdkVersion 16
-        targetSdkVersion 25
+        targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
 
@@ -16,6 +16,9 @@ android {
     }
 
     buildTypes {
+        debug {
+            minifyEnabled false
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
@@ -24,29 +27,22 @@ android {
 }
 
 dependencies {
-    def SUPPORT_LIB_VER = "25.3.1"
-
     compile fileTree(dir: "libs", include: ["*.jar"])
 
-    compile "com.android.support:appcompat-v7:${SUPPORT_LIB_VER}"
-    compile "com.android.support:design:${SUPPORT_LIB_VER}"
-    compile "com.android.support:support-vector-drawable:${SUPPORT_LIB_VER}"
-    compile "com.android.support:recyclerview-v7:${SUPPORT_LIB_VER}"
-    compile "com.android.support:percent:${SUPPORT_LIB_VER}"
-    compile "com.android.support:cardview-v7:${SUPPORT_LIB_VER}"
-    compile "com.android.support:gridlayout-v7:${SUPPORT_LIB_VER}"
+    // Google Support Library.
+    compile rootProject.ext.dep.supportAppcompatV7
+    compile rootProject.ext.dep.supportRecyclerViewV7
+    compile rootProject.ext.dep.supportGridLayoutV7
+    compile rootProject.ext.dep.supportCardViewV7
+    compile rootProject.ext.dep.supportDesign
+    compile rootProject.ext.dep.supportVectorDrawable
+    compile rootProject.ext.dep.supportPercent
 
     // My Library.
     compile project(":lib-core")
+    compile project(":lib-reactive")
 //    compile(name: "lib-core-release", ext: "aar")
 
-    // Rx-Android.
-    compile "io.reactivex.rxjava2:rxandroid:2.0.1"
-    compile "io.reactivex.rxjava2:rxjava:2.0.1"
-
-    // Rx-Permissions.
-    compile "com.tbruyelle.rxpermissions2:rxpermissions:0.8.2@aar"
-
     // Image loader.
-    compile "com.github.bumptech.glide:glide:3.7.0"
+    compile rootProject.ext.dep.glide
 }

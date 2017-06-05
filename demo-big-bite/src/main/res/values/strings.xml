@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">Big Bite</string>
+
+    <!-- Common -->
+    <string name="number_0">0</string>
+
+    <!-- Activity title -->
+    <string name="title_sample_of_basic_usage">Asset Input</string>
+
+    <!-- Start Page -->
+    <string name="best_score">BEST SCORE</string>
+
+    <!-- Game Page -->
+    <string name="tutorial_get_ready_for_game">Please open your mouth\\n and get ready</string>
+
+    <!-- Warning -->
+    <string name="warning_not_support_hardware_acceleration">Cannot preview the camera because it needs hardware acceleration support.</string>
+    <string name="warning_permission_not_granted">Required permissions are not granted.</string>
+</resources>

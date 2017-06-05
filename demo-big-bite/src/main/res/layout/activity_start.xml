@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".start.StartActivity">
+
+    <TextView
+        android:id="@+id/label_best_score"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:padding="6dp"
+        android:text="@string/best_score"
+        android:textColor="@color/white"
+        android:textSize="30sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/txt_best_score"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textSize="38sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/label_best_score"
+        tools:text="20"/>
+
+    <com.yarolegovich.discretescrollview.DiscreteScrollView
+        android:id="@+id/challenge_menu"
+        android:layout_width="0dp"
+        android:layout_height="358dp"
+        android:minHeight="280dp"
+        app:dsv_orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/txt_best_score"/>
+
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/btn_start"
+        android:layout_width="215dp"
+        android:layout_height="64dp"
+        android:scaleType="fitCenter"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/challenge_menu"
+        app:srcCompat="@drawable/sel_btn_start"/>
+
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/btn_settings"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginBottom="6dp"
+        android:layout_marginEnd="6dp"
+        android:padding="15dp"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/sel_btn_settings"/>
+</android.support.constraint.ConstraintLayout>

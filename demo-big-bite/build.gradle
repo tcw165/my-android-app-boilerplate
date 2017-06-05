@@ -1,0 +1,124 @@
+apply plugin: "com.android.application"
+
+// Prepare the keystore for signing the APK.
+def keystorePropertiesFile = rootProject.file("../my-google-play-certs/bigbite-keystore.properties")
+def keystoreProperties = new Properties()
+keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    defaultConfig {
+        applicationId "my.demo.bigbite"
+        minSdkVersion 21
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 2
+        versionName "0.0.2-alpha"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        multiDexEnabled true
+        vectorDrawables.useSupportLibrary = true
+
+        ndk {
+            // "x86", "x86_64", "armeabi", "armeabi-v7a", "arm64-v8a"
+            abiFilters "x86", "armeabi-v7a"
+        }
+    }
+
+    lintOptions {
+        disable "MissingTranslation"
+    }
+
+    // Pick first STL shared library if there're duplicate files in the
+    // dependent module.
+    packagingOptions {
+        pickFirst "**/libc++_shared.so"
+    }
+
+    // How to sign the APK.
+    signingConfigs {
+        release {
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile rootProject.file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+        }
+    }
+
+    buildTypes {
+        debug {
+            minifyEnabled false
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+
+            // Enable the sign process.
+            signingConfig signingConfigs.release
+        }
+    }
+}
+
+repositories {
+    maven { url "https://maven.fabric.io/public" }
+    // Support AAR file.
+    flatDir { dirs "libs" }
+}
+
+dependencies {
+    compile fileTree(dir: "libs", include: ["*.jar"])
+
+    // Google Support Library.
+    compile rootProject.ext.dep.supportAppcompatV7
+    compile rootProject.ext.dep.supportVectorDrawable
+    compile rootProject.ext.dep.supportRecyclerViewV7
+    compile rootProject.ext.dep.supportConstraintLayout
+    compile rootProject.ext.dep.supportTransition
+    // Multi-dex.
+    compile rootProject.ext.dep.supportMultidex
+//    // Google CameraView.
+//    compile(name: "google-cameraview", ext:"aar")
+    // Google Vision.
+    compile rootProject.ext.dep.playServicesVision
+
+    // Leak Detection.
+    compile rootProject.ext.dep.leakcanary
+    releaseCompile rootProject.ext.dep.leakcanaryNoOp
+
+    // Dependency Injection.
+    compile rootProject.ext.dep.dagger2
+//    compile rootProject.ext.dep.dagger2Support
+    annotationProcessor rootProject.ext.dep.dagger2Compiler
+
+    // JSON.
+    compile rootProject.ext.dep.gson
+
+    // View Binding.
+    compile rootProject.ext.dep.butterKnife
+    annotationProcessor rootProject.ext.dep.butterKnifeCompiler
+
+    // Image loader.
+    compile rootProject.ext.dep.glide
+
+    // Animation.
+    compile rootProject.ext.dep.lottie
+
+    // RecyclerView with beautiful layout.
+    compile rootProject.ext.dep.discreteScrollView
+
+    // My Libraries
+    compile project(":lib-core")
+    compile project(":lib-widget")
+    compile project(":lib-dlib")
+    compile project(":lib-reactive")
+
+    testCompile rootProject.ext.dep.testJunit
+    testCompile rootProject.ext.dep.testMockito
+    testCompile rootProject.ext.dep.leakcanaryNoOp
+
+    androidTestCompile(rootProject.ext.dep.testEspressoCore, {
+        exclude group: "com.android.support", module: "support-annotations"
+    })
+}
