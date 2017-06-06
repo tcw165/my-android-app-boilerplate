@@ -20,12 +20,13 @@
 
 package com.my.demo.bigbite.game.event;
 
-import com.my.demo.bigbite.event.RxAction;
-import com.my.jni.dlib.data.DLibFace;
+import com.my.demo.bigbite.event.UiEvent;
 
-public final class DetectBiteAction extends RxAction<DLibFace> {
+public final class PermUiEvent extends UiEvent<Boolean> {
 
-    public DetectBiteAction(DLibFace msg) {
-        super(msg);
+    private static int IGNORED_STATE = 0;
+
+    public PermUiEvent(boolean granted) {
+        super(IGNORED_STATE, granted);
     }
 }

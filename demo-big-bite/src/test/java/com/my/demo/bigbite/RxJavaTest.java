@@ -10,12 +10,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.ObservableTransformer;
+import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.functions.Predicate;
+import io.reactivex.internal.functions.Functions;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.schedulers.TestScheduler;
 
@@ -77,6 +79,58 @@ public class RxJavaTest {
         System.out.println(String.format("disposable %s disposed.",
                                          (disposable.isDisposed() ?
                                              "is" : "isn't")));
+    }
+
+    /**
+     * To see if {@link Observable#onErrorReturn(Function)} can catch error.
+     */
+    @Test
+    public void errorTest() throws Exception {
+        final CountDownLatch latch = new CountDownLatch(1);
+        final CompositeDisposable disposables = new CompositeDisposable();
+        disposables.add(
+            Observable
+                .interval(1, TimeUnit.SECONDS)
+                .map(new Function<Long, Long>() {
+                    @Override
+                    public Long apply(@NonNull Long value)
+                        throws Exception {
+                        System.out.format("Emit(%d)\n", value);
+                        // Throw exception periodically.
+                        if (value > 0 && value % 3 == 0) {
+                            throw new RuntimeException("Random fault.");
+                        } else {
+                            return value;
+                        }
+                    }
+                })
+                .onErrorReturn(new Function<Throwable, Long>() {
+                    @Override
+                    public Long apply(Throwable throwable)
+                        throws Exception {
+                        return -1L;
+                    }
+                })
+                .subscribe(
+                    new Consumer<Long>() {
+                        @Override
+                        public void accept(Long value) throws Exception {
+                            System.out.format("onNext(%d)\n", value);
+                            if (value == 10) {
+                                disposables.clear();
+                            }
+                        }
+                    },
+                    Functions.ON_ERROR_MISSING,
+                    new Action() {
+                        @Override
+                        public void run() throws Exception {
+                            System.out.println("onComplete()");
+                        }
+                    }));
+
+        latch.await(10, TimeUnit.SECONDS);
+        disposables.clear();
     }
 
     @Test

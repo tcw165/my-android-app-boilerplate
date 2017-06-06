@@ -20,40 +20,40 @@
 
 package com.my.demo.bigbite.event;
 
-public final class UiModel<B> {
-
-    public static final UiModel<Object> IDLE = new UiModel<>(false, false, null, null);
+public class RxResult {
 
     public final boolean isSuccessful, isInProgress;
-    public final Throwable error;
-    public final B bundle;
+    public final Throwable err;
 
-    public static <B> UiModel<B> idle(B bundle) {
-        return new UiModel<>(false, false, bundle, null);
+    public static RxResult inProgress() {
+        return new RxResult(true, false, null);
     }
 
-    public static <B> UiModel<B> inProgress(B bundle) {
-        return new UiModel<>(true, false, bundle, null);
+    public static RxResult succeed() {
+        return new RxResult(false, true, null);
     }
 
-    public static <B> UiModel<B> succeed(B bundle) {
-        return new UiModel<>(false, true, bundle, null);
+    public static RxResult failed(Throwable err) {
+        return new RxResult(false, false, err);
     }
 
-    public static <B> UiModel<B> failed(Throwable error) {
-        return new UiModel<>(false, false, null, error);
+    @Override
+    public String toString() {
+        return "RxResult{" +
+               "isInProgress=" + isInProgress +
+               ", isSuccessful=" + isSuccessful +
+               ", err=" + err +
+               '}';
     }
 
     ///////////////////////////////////////////////////////////////////////////
     // Protected / Private Methods ////////////////////////////////////////////
 
-    private UiModel(boolean isInProgress,
-                    boolean isSuccessful,
-                    B bundle,
-                    Throwable error) {
+    protected RxResult(boolean isInProgress,
+                       boolean isSuccessful,
+                       Throwable err) {
         this.isInProgress = isInProgress;
         this.isSuccessful = isSuccessful;
-        this.bundle = bundle;
-        this.error = error;
+        this.err = err;
     }
 }

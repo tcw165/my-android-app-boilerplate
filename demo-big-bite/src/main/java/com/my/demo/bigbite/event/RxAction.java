@@ -20,11 +20,11 @@
 
 package com.my.demo.bigbite.event;
 
-public abstract class Action<T> {
+public abstract class RxAction<T> {
 
     public T message;
 
-    public Action(T message) {
+    public RxAction(T message) {
         this.message = message;
     }
 }

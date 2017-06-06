@@ -22,15 +22,16 @@ package com.my.demo.bigbite.game.event;
 
 import android.graphics.RectF;
 
-import com.my.demo.bigbite.event.Result;
+import com.my.demo.bigbite.event.RxResult;
 
-public class DetectBiteResult extends Result {
+public class DetectBiteResult extends RxResult {
 
     public final RectF mouthBound;
     public final int biteCount;
 
     public DetectBiteResult(final RectF mouthBound,
                             final int biteCount) {
+        super(true, false, null);
         this.mouthBound = mouthBound;
         this.biteCount = biteCount;
     }

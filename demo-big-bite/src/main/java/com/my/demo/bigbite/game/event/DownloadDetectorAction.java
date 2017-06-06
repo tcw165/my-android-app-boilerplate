@@ -21,11 +21,10 @@
 package com.my.demo.bigbite.game.event;
 
 import com.my.demo.bigbite.event.RxAction;
-import com.my.jni.dlib.data.DLibFace;
 
-public final class DetectBiteAction extends RxAction<DLibFace> {
+public final class DownloadDetectorAction extends RxAction<Void> {
 
-    public DetectBiteAction(DLibFace msg) {
-        super(msg);
+    public DownloadDetectorAction() {
+        super(null);
     }
 }

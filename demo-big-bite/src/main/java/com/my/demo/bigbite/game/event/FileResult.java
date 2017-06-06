@@ -18,42 +18,46 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.demo.bigbite.event;
+package com.my.demo.bigbite.game.event;
 
-public final class UiModel<B> {
+import com.my.demo.bigbite.event.RxResult;
 
-    public static final UiModel<Object> IDLE = new UiModel<>(false, false, null, null);
+import java.io.File;
 
-    public final boolean isSuccessful, isInProgress;
-    public final Throwable error;
-    public final B bundle;
+public class FileResult extends RxResult {
 
-    public static <B> UiModel<B> idle(B bundle) {
-        return new UiModel<>(false, false, bundle, null);
+    public final File file;
+
+    public static FileResult inProgress() {
+        return new FileResult(true, false, null, null);
     }
 
-    public static <B> UiModel<B> inProgress(B bundle) {
-        return new UiModel<>(true, false, bundle, null);
+    public static FileResult succeed(File file) {
+        return new FileResult(false, true, file, null);
     }
 
-    public static <B> UiModel<B> succeed(B bundle) {
-        return new UiModel<>(false, true, bundle, null);
+    public static FileResult failed(Throwable err) {
+        return new FileResult(false, false, null, err);
     }
 
-    public static <B> UiModel<B> failed(Throwable error) {
-        return new UiModel<>(false, false, null, error);
+    @Override
+    public String toString() {
+        return "FileResult{" +
+               ", isInProgress=" + isInProgress +
+               ", isSuccessful=" + isSuccessful +
+               ", file=" + file +
+               ", err=" + err +
+               '}';
     }
 
     ///////////////////////////////////////////////////////////////////////////
     // Protected / Private Methods ////////////////////////////////////////////
 
-    private UiModel(boolean isInProgress,
-                    boolean isSuccessful,
-                    B bundle,
-                    Throwable error) {
-        this.isInProgress = isInProgress;
-        this.isSuccessful = isSuccessful;
-        this.bundle = bundle;
-        this.error = error;
+    protected FileResult(boolean isInProgress,
+                         boolean isSuccessful,
+                         File file,
+                         Throwable err) {
+        super(isInProgress, isSuccessful, err);
+        this.file = file;
     }
 }

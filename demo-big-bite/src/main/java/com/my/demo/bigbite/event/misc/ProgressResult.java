@@ -18,42 +18,44 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.demo.bigbite.event;
+package com.my.demo.bigbite.event.misc;
 
-public final class UiModel<B> {
+import com.my.demo.bigbite.event.RxResult;
 
-    public static final UiModel<Object> IDLE = new UiModel<>(false, false, null, null);
+public class ProgressResult extends RxResult {
 
-    public final boolean isSuccessful, isInProgress;
-    public final Throwable error;
-    public final B bundle;
+    public final int progress;
 
-    public static <B> UiModel<B> idle(B bundle) {
-        return new UiModel<>(false, false, bundle, null);
+    public static ProgressResult inProgress(int progress) {
+        return new ProgressResult(true, false, 0, null);
     }
 
-    public static <B> UiModel<B> inProgress(B bundle) {
-        return new UiModel<>(true, false, bundle, null);
+    public static ProgressResult succeed() {
+        return new ProgressResult(false, true, 100, null);
     }
 
-    public static <B> UiModel<B> succeed(B bundle) {
-        return new UiModel<>(false, true, bundle, null);
+    public static ProgressResult failed(Throwable err) {
+        return new ProgressResult(false, false, 0, err);
     }
 
-    public static <B> UiModel<B> failed(Throwable error) {
-        return new UiModel<>(false, false, null, error);
+    @Override
+    public String toString() {
+        return "ProgressResult{" +
+               ", isInProgress=" + isInProgress +
+               ", isSuccessful=" + isSuccessful +
+               ", progress=" + progress +
+               ", err=" + err +
+               '}';
     }
 
     ///////////////////////////////////////////////////////////////////////////
     // Protected / Private Methods ////////////////////////////////////////////
 
-    private UiModel(boolean isInProgress,
-                    boolean isSuccessful,
-                    B bundle,
-                    Throwable error) {
-        this.isInProgress = isInProgress;
-        this.isSuccessful = isSuccessful;
-        this.bundle = bundle;
-        this.error = error;
+    protected ProgressResult(boolean isInProgress,
+                             boolean isSuccessful,
+                             int progress,
+                             Throwable err) {
+        super(isInProgress, isSuccessful, err);
+        this.progress = progress;
     }
 }

@@ -30,6 +30,7 @@ import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageView;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.widget.TextView;
@@ -44,12 +45,16 @@ import com.google.android.gms.vision.face.Face;
 import com.google.android.gms.vision.face.FaceDetector;
 import com.my.core.protocol.IProgressBarView;
 import com.my.demo.bigbite.R;
+import com.my.demo.bigbite.event.RxResult;
+import com.my.demo.bigbite.event.UiModel;
+import com.my.demo.bigbite.event.misc.MsgProgressResult;
 import com.my.demo.bigbite.game.data.ICameraMetadata;
 import com.my.demo.bigbite.game.detector.DLibBiteDetector;
 import com.my.demo.bigbite.game.detector.DLibLandmarksDetector;
 import com.my.demo.bigbite.game.event.BiteUiModel;
 import com.my.demo.bigbite.game.event.DetectBiteAction;
 import com.my.demo.bigbite.game.event.DetectBiteResult;
+import com.my.demo.bigbite.game.event.FileResult;
 import com.my.demo.bigbite.game.event.FrameUiEvent;
 import com.my.demo.bigbite.game.reactive.CameraObservable;
 import com.my.demo.bigbite.game.reactive.DLibBiteDetectorTransformer;
@@ -58,7 +63,7 @@ import com.my.demo.bigbite.game.view.CameraSourcePreview;
 import com.my.demo.bigbite.game.view.FaceLandmarksOverlayView;
 import com.my.demo.bigbite.protocol.Common;
 import com.my.demo.bigbite.start.data.ChallengeItem;
-import com.my.demo.bigbite.util.DlibModelHelper;
+import com.my.demo.bigbite.util.DLibModelHelper;
 import com.my.jni.dlib.DLibLandmarks68Detector;
 import com.my.jni.dlib.IDLibFaceDetector;
 import com.my.jni.dlib.data.DLibFace;
@@ -67,14 +72,20 @@ import com.tbruyelle.rxpermissions2.RxPermissions;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.Callable;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
+import io.reactivex.ObservableTransformer;
+import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.functions.Predicate;
@@ -165,43 +176,29 @@ public class GameActivity
         // initializing the DLib model.
         final Subject<UniverseEvent> preparationSub = PublishSubject.create();
         mDisposables.add(
+            // Stream starts from granting for permissions.
             grantPermission()
-                // Init DLib model.
-                .observeOn(Schedulers.io())
-                .flatMap(new Function<Boolean, ObservableSource<UniverseEvent>>() {
-                    @Override
-                    public ObservableSource<UniverseEvent> apply(Boolean granted)
-                        throws Exception {
-                        if (granted) {
-                            return initFaceLandmarksDetector()
-                                .startWith(false)
-                                .onErrorReturnItem(false)
-                                .map(new Function<Boolean, UniverseEvent>() {
-                                    @Override
-                                    public UniverseEvent apply(Boolean initialized)
-                                        throws Exception {
-                                        if (initialized) {
-                                            return new UniverseEvent(UniverseEvent.MODEL_INITIALIZED);
-                                        } else {
-                                            return new UniverseEvent(UniverseEvent.MODEL_NOT_INITIALIZED);
-                                        }
-                                    }
-                                });
-                        } else {
-                            return Observable.just(
-                                new UniverseEvent(UniverseEvent.PERM_NOT_GRANTED));
-                        }
-                    }
-                })
-                // Init camera preview source.
+                // Download DLib detector.
+                .compose(downloadFaceDetector(Schedulers.io()))
+                // Load DLib detector into memory.
+                .compose(loadFaceDetector(Schedulers.io()))
+                // Start camera.
+//                .compose(startCamera())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<UniverseEvent>() {
+                .subscribe(new Consumer<RxResult>() {
                     @Override
-                    public void accept(UniverseEvent event)
+                    public void accept(RxResult result)
                         throws Exception {
-                        preparationSub.onNext(event);
+                        Log.d("xyz", result.toString());
                     }
                 }));
+//                .subscribe(new Consumer<UniverseEvent>() {
+//                    @Override
+//                    public void accept(UniverseEvent event)
+//                        throws Exception {
+//                        preparationSub.onNext(event);
+//                    }
+//                }));
 
         // Observe the preparation stream.
         mDisposables.add(
@@ -261,10 +258,10 @@ public class GameActivity
 
                         // Create camera observable.
                         return CameraObservable.create(
-                                GameActivity.this,
-                                mCameraView,
-                                PREVIEW_WIDTH, PREVIEW_HEIGHT,
-                                getFaceDetector());
+                            GameActivity.this,
+                            mCameraView,
+                            PREVIEW_WIDTH, PREVIEW_HEIGHT,
+                            getFaceDetector());
                     }
                 })
                 .observeOn(AndroidSchedulers.mainThread())
@@ -482,52 +479,159 @@ public class GameActivity
         return this;
     }
 
-    private Observable<Boolean> grantPermission() {
+    private Observable<RxResult> grantPermission() {
         return mRxPermissions
             .request(Manifest.permission.READ_EXTERNAL_STORAGE,
                      Manifest.permission.WRITE_EXTERNAL_STORAGE,
                      Manifest.permission.ACCESS_NETWORK_STATE,
-                     Manifest.permission.CAMERA);
-    }
-
-    private Observable<Boolean> initFaceLandmarksDetector() {
-        return DlibModelHelper
-            .getService()
-            // Download the trained model.
-            .downloadFace68Model(
-                this,
-                getApplicationContext().getPackageName())
-            // Update progressbar message.
-            .observeOn(AndroidSchedulers.mainThread())
-            .map(new Function<File, File>() {
+                     Manifest.permission.CAMERA)
+            .map(new Function<Boolean, RxResult>() {
                 @Override
-                public File apply(File face68ModelPath) throws Exception {
-                    showProgressBar("Initializing face detectors...");
-                    return face68ModelPath;
-                }
-            })
-            // Deserialize the detector.
-            .observeOn(Schedulers.io())
-            .map(new Function<File, Boolean>() {
-                @Override
-                public Boolean apply(File face68ModelPath)
+                public RxResult apply(Boolean granted)
                     throws Exception {
-                    if (face68ModelPath == null || !face68ModelPath.exists()) {
-                        throw new RuntimeException(
-                            "The face68 model is invalid.");
+                    if (granted) {
+                        return RxResult.succeed();
+                    } else {
+                        return RxResult.failed(new RuntimeException(
+                            "Permissions denied."));
                     }
-
-                    if (!mLandmarksDetector.isFaceDetectorReady()) {
-                        mLandmarksDetector.prepareFaceDetector();
-                    }
-                    if (!mLandmarksDetector.isFaceLandmarksDetectorReady()) {
-                        mLandmarksDetector.prepareFaceLandmarksDetector(
-                            face68ModelPath.getAbsolutePath());
-                    }
-
-                    return true;
                 }
             });
+    }
+
+    private ObservableTransformer<RxResult, RxResult> downloadFaceDetector(final Scheduler worker) {
+        return new ObservableTransformer<RxResult, RxResult>() {
+            @Override
+            public ObservableSource<RxResult> apply(Observable<RxResult> upstream) {
+                return upstream
+                    .flatMap(new Function<RxResult, ObservableSource<RxResult>>() {
+                        @Override
+                        public ObservableSource<RxResult> apply(RxResult result)
+                            throws Exception {
+                            if (result.isSuccessful) {
+                                return DLibModelHelper
+                                    .getService()
+                                    .downloadFace68Model(
+                                        getApplicationContext(),
+                                        getApplicationContext().getPackageName())
+                                    .subscribeOn(worker)
+                                    .map(new Function<File, RxResult>() {
+                                        @Override
+                                        public RxResult apply(File file) throws Exception {
+                                            if (file.exists()) {
+                                                return FileResult.succeed(file);
+                                            } else {
+                                                throw new RuntimeException(
+                                                    "Failed to download the detector");
+                                            }
+                                        }
+                                    })
+                                    .startWith(MsgProgressResult.inProgress(
+                                        "Downloading the face detector...", 0))
+                                    .onErrorReturn(new Function<Throwable, RxResult>() {
+                                        @Override
+                                        public RxResult apply(Throwable err)
+                                            throws Exception {
+                                            return FileResult.failed(err);
+                                        }
+                                    });
+                            } else {
+                                return Observable.just(result);
+                            }
+                        }
+                    });
+            }
+        };
+    }
+
+    private ObservableTransformer<RxResult, RxResult> loadFaceDetector(final Scheduler worker) {
+        return new ObservableTransformer<RxResult, RxResult>() {
+            @Override
+            public ObservableSource<RxResult> apply(final Observable<RxResult> upstream) {
+                return upstream
+                    // TODO: It's like a mapper mapping from result to another observable.
+                    .flatMap(new Function<RxResult, ObservableSource<RxResult>>() {
+                        @Override
+                        public ObservableSource<RxResult> apply(final RxResult result)
+                            throws Exception {
+                            if (result.isSuccessful &&
+                                result instanceof FileResult) {
+                                // Load the detector into memory.
+                                final File file = ((FileResult) result).file;
+                                return Observable
+                                    .fromCallable(new Callable<RxResult>() {
+                                        @Override
+                                        public RxResult call() throws Exception {
+                                            if (file == null || !file.exists()) {
+                                                throw new RuntimeException(
+                                                    "The face68 model is invalid.");
+                                            }
+
+                                            if (!mLandmarksDetector.isFaceDetectorReady()) {
+                                                mLandmarksDetector.prepareFaceDetector();
+                                            }
+                                            if (!mLandmarksDetector.isFaceLandmarksDetectorReady()) {
+                                                mLandmarksDetector.prepareFaceLandmarksDetector(
+                                                    file.getAbsolutePath());
+                                            }
+
+                                            return MsgProgressResult.succeed(
+                                                "Loading detector... done");
+                                        }
+                                    })
+                                    .subscribeOn(worker)
+                                    .startWith(MsgProgressResult.inProgress(
+                                        "Loading detector...", 0))
+                                    .onErrorReturn(new Function<Throwable, RxResult>() {
+                                        @Override
+                                        public RxResult apply(Throwable err)
+                                            throws Exception {
+                                            return MsgProgressResult.failed(err);
+                                        }
+                                    });
+                            } else {
+                                return Observable.just(result);
+                            }
+                        }
+                    });
+            }
+        };
+    }
+
+    private ObservableTransformer<RxResult, RxResult> startCamera() {
+        return new ObservableTransformer<RxResult, RxResult>() {
+            @Override
+            public ObservableSource<RxResult> apply(Observable<RxResult> upstream) {
+                return upstream
+                    .flatMap(new Function<RxResult, ObservableSource<RxResult>>() {
+                        @Override
+                        public ObservableSource<RxResult> apply(RxResult result)
+                            throws Exception {
+                            if (result.isSuccessful) {
+                                // Set the preview config.
+                                if (isPortraitMode()) {
+                                    mDebugOverlayView.setCameraPreviewSize(
+                                        PREVIEW_HEIGHT, PREVIEW_WIDTH);
+                                } else {
+                                    mDebugOverlayView.setCameraPreviewSize(
+                                        PREVIEW_WIDTH, PREVIEW_HEIGHT);
+                                }
+
+                                // Create camera observable.
+                                return CameraObservable
+                                    .create(
+                                        GameActivity.this,
+                                        mCameraView,
+                                        PREVIEW_WIDTH, PREVIEW_HEIGHT,
+                                        getFaceDetector());
+                            } else {
+                                return Observable.just(result);
+                            }
+                        }
+                    });
+                // TODO: error handling.
+            }
+        };
     }
 
     private Detector<DLibFace> getFaceDetector() {
