@@ -3,12 +3,12 @@ apply plugin: "com.android.library"
 // Gradle doc:
 // http://google.github.io/android-gradle-dsl/
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.3"
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
-        minSdkVersion 16
-        targetSdkVersion 25
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
 
@@ -20,8 +20,8 @@ android {
 //        release {
 //            keyAlias 'pc-release'
 //            storeFile new File(project.ANDROID_SIGNING_CONFIG_PATH)
-//            storePassword "cogini"
-//            keyPassword "cogini"
+//            storePassword ""
+//            keyPassword ""
 //        }
 //    }
 
@@ -44,18 +44,18 @@ repositories {
 }
 
 dependencies {
-    def SUPPORT_LIB_VER = "25.3.1"
-
     compile fileTree(dir: "libs", include: ["*.jar"])
 
-    compile "com.android.support:appcompat-v7:${SUPPORT_LIB_VER}"
-    compile "com.android.support:transition:${SUPPORT_LIB_VER}"
-    compile "com.android.support:design:${SUPPORT_LIB_VER}"
-    compile "com.android.support:support-vector-drawable:${SUPPORT_LIB_VER}"
-    compile "com.android.support:recyclerview-v7:${SUPPORT_LIB_VER}"
-    compile "com.android.support:percent:${SUPPORT_LIB_VER}"
-    compile "com.android.support:cardview-v7:${SUPPORT_LIB_VER}"
-    compile "com.android.support:gridlayout-v7:${SUPPORT_LIB_VER}"
+    // Google Support Library.
+    compile rootProject.ext.dep.supportAppcompatV7
+    compile rootProject.ext.dep.supportRecyclerViewV7
+    compile rootProject.ext.dep.supportCardViewV7
+    compile rootProject.ext.dep.supportGridLayoutV7
+    compile rootProject.ext.dep.supportPercent
+    compile rootProject.ext.dep.supportDesign
+    compile rootProject.ext.dep.supportVectorDrawable
+    compile rootProject.ext.dep.supportConstraintLayout
+    compile rootProject.ext.dep.supportTransition
 
     // My lib-widget
     compile project(":lib-widget")
