@@ -293,24 +293,11 @@ public class SampleOfFacesAndLandmarksActivity2
     }
 
     private Observable<Boolean> grantPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return RxPermissions
-                .getInstance(this)
-                .request(Manifest.permission.READ_EXTERNAL_STORAGE,
-                         Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                         Manifest.permission.ACCESS_NETWORK_STATE,
-                         Manifest.permission.CAMERA);
-        } else {
-            return Observable.just(
-                ContextCompat.checkSelfPermission(
-                    this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(
-                    this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(
-                    this, Manifest.permission.ACCESS_NETWORK_STATE) == PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(
-                    this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED);
-        }
+        return new RxPermissions(this)
+            .request(Manifest.permission.READ_EXTERNAL_STORAGE,
+                     Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                     Manifest.permission.ACCESS_NETWORK_STATE,
+                     Manifest.permission.CAMERA);
     }
 
     private Observable<?> initFaceLandmarksDetector() {

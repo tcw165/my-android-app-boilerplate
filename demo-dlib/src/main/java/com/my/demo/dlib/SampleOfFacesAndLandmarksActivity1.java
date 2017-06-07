@@ -23,11 +23,8 @@ package com.my.demo.dlib;
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -35,10 +32,8 @@ import android.widget.Toast;
 
 import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
-import com.google.android.gms.vision.face.FaceDetector;
 import com.my.core.protocol.IProgressBarView;
 import com.my.demo.dlib.detector.DLibFaceAndLandmarksDetector;
-import com.my.demo.dlib.detector.VisionFaceAndDLibLandmarksDetector;
 import com.my.demo.dlib.protocol.ICameraMetadata;
 import com.my.demo.dlib.util.DlibModelHelper;
 import com.my.demo.dlib.view.CameraSourcePreview;
@@ -285,24 +280,11 @@ public class SampleOfFacesAndLandmarksActivity1
     }
 
     private Observable<Boolean> grantPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return RxPermissions
-                .getInstance(this)
-                .request(Manifest.permission.READ_EXTERNAL_STORAGE,
-                         Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                         Manifest.permission.ACCESS_NETWORK_STATE,
-                         Manifest.permission.CAMERA);
-        } else {
-            return Observable.just(
-                ContextCompat.checkSelfPermission(
-                    this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(
-                    this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(
-                    this, Manifest.permission.ACCESS_NETWORK_STATE) == PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(
-                    this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED);
-        }
+        return new RxPermissions(this)
+            .request(Manifest.permission.READ_EXTERNAL_STORAGE,
+                     Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                     Manifest.permission.ACCESS_NETWORK_STATE,
+                     Manifest.permission.CAMERA);
     }
 
     private Observable<?> initFaceLandmarksDetector() {
