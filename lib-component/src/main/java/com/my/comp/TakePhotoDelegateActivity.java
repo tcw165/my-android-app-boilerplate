@@ -161,8 +161,7 @@ public class TakePhotoDelegateActivity extends AppCompatActivity {
 
     void grantPermAndDispatchTakePhotoIntent() {
         if (Build.VERSION.SDK_INT >= 23) {
-            RxPermissions
-                .getInstance(this)
+            new RxPermissions(this)
                 .request(Manifest.permission.WRITE_EXTERNAL_STORAGE,
                          Manifest.permission.CAMERA)
                 .observeOn(AndroidSchedulers.mainThread())

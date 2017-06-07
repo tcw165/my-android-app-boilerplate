@@ -17,14 +17,14 @@ ext {
 
     dep = [
             // Google Support Library.
-            supportDesign          : "com.android.support:design:${SUPPORT_LIB_VER}",
             supportV4              : "com.android.support:support-v4:$SUPPORT_LIB_VER",
             supportV4CoreUtils     : "com.android.support:support-core-utils:$SUPPORT_LIB_VER",
             supportAppcompatV7     : "com.android.support:appcompat-v7:$SUPPORT_LIB_VER",
-            supportAnnotations     : "com.android.support:support-annotations:$SUPPORT_LIB_VER",
             supportRecyclerViewV7  : "com.android.support:recyclerview-v7:${SUPPORT_LIB_VER}",
             supportCardViewV7      : "com.android.support:cardview-v7:${SUPPORT_LIB_VER}",
             supportGridLayoutV7    : "com.android.support:gridlayout-v7:${SUPPORT_LIB_VER}",
+            supportAnnotations     : "com.android.support:support-annotations:$SUPPORT_LIB_VER",
+            supportDesign          : "com.android.support:design:${SUPPORT_LIB_VER}",
             supportVectorDrawable  : "com.android.support:support-vector-drawable:${SUPPORT_LIB_VER}",
             supportPercent         : "com.android.support:percent:${SUPPORT_LIB_VER}",
             supportTransition      : "com.android.support:transition:${SUPPORT_LIB_VER}",
