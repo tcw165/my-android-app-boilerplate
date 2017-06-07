@@ -18,7 +18,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.demo.bigbite.event;
+package com.my.demo.bigbite.game.event.result;
 
-public class UiModel {
+import com.my.reactive.result.RxResult;
+
+public class LoadDetectorResult extends RxResult {
+
+    public static RxResult inProgress() {
+        return new LoadDetectorResult(true, false, null);
+    }
+
+    public static RxResult succeed() {
+        return new LoadDetectorResult(false, true, null);
+    }
+
+    public static RxResult failed(Throwable err) {
+        return new LoadDetectorResult(false, false, err);
+    }
+
+    @Override
+    public String toString() {
+        return "LoadDetectorResult{" +
+               "isInProgress=" + isInProgress +
+               ", isSuccessful=" + isSuccessful +
+               ", err=" + err +
+               '}';
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Protected / Private Methods ////////////////////////////////////////////
+
+    protected LoadDetectorResult(boolean isInProgress,
+                                 boolean isSuccessful,
+                                 Throwable err) {
+        super(isInProgress, isSuccessful, err);
+    }
 }

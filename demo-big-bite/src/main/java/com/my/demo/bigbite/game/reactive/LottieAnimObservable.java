@@ -24,8 +24,8 @@ import android.animation.Animator;
 import android.view.View;
 
 import com.airbnb.lottie.LottieAnimationView;
-import com.my.demo.bigbite.event.UiEvent;
-import com.my.demo.bigbite.game.event.AnimUiEvent;
+import com.my.reactive.uiEvent.UiEvent;
+import com.my.reactive.uiEvent.AnimUiEvent;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -37,9 +37,12 @@ public class LottieAnimObservable extends Observable<UiEvent> {
 
     final AtomicBoolean mIsAnimating = new AtomicBoolean(false);
     final LottieAnimationView mView;
+    final String mAnimationFilePath;
 
-    public LottieAnimObservable(final LottieAnimationView view) {
+    public LottieAnimObservable(final LottieAnimationView view,
+                                final String animation) {
         mView = view;
+        mAnimationFilePath = animation;
     }
 
     public boolean isAnimating() {
@@ -56,7 +59,9 @@ public class LottieAnimObservable extends Observable<UiEvent> {
 
         observer.onSubscribe(disposable);
 
+        mView.setAnimation(mAnimationFilePath);
         mView.addAnimatorListener(disposable);
+        mView.setVisibility(View.VISIBLE);
         mView.playAnimation();
 
         mIsAnimating.set(true);

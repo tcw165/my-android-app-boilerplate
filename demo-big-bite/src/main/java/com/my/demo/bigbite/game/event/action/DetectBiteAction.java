@@ -18,18 +18,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.demo.bigbite.game.event;
+package com.my.demo.bigbite.game.event.action;
 
-import android.graphics.RectF;
+import com.my.reactive.action.RxAction;
+import com.my.jni.dlib.data.DLibFace;
 
-public class BiteUiModel {
+public final class DetectBiteAction extends RxAction<DLibFace> {
 
-    final public RectF mouthBound;
-    final public int biteCount;
-
-    public BiteUiModel(RectF mouthBound,
-                       int biteCount) {
-        this.mouthBound = mouthBound;
-        this.biteCount = biteCount;
+    public DetectBiteAction(DLibFace msg) {
+        super(msg);
     }
 }

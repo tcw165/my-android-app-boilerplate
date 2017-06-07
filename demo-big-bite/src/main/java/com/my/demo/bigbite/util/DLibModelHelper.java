@@ -30,18 +30,13 @@ import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
 
-import com.my.core.util.FileUtil;
 import com.my.core.util.PrefUtil;
 
-import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
-
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.util.concurrent.Callable;
 
 import io.reactivex.Observable;
+import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
@@ -49,21 +44,20 @@ import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 
-public class DlibModelHelper {
+public class DLibModelHelper {
 
-    private static final String BASE_URL = "http://dlib.net/files/";
-    private static final String FACE68_ZIP_FILE = "shape_predictor_68_face_landmarks.dat.bz2";
+    private static final String BASE_URL = "https://dl.dropboxusercontent.com/s/lutcszuf9yere6f/";
     private static final String FACE68_FILE = "shape_predictor_68_face_landmarks.dat";
 
-    private static final String PREF_KEY_FACE68_ZIP = FACE68_ZIP_FILE;
+    private static final String PREF_KEY_FACE68_FILE = FACE68_FILE;
 
-    private static DlibModelHelper sSingleton = null;
+    private static DLibModelHelper sSingleton = null;
 
-    public static DlibModelHelper getService() {
+    public static DLibModelHelper getService() {
         if (sSingleton == null) {
-            synchronized (DlibModelHelper.class) {
+            synchronized (DLibModelHelper.class) {
                 if (sSingleton == null) {
-                    sSingleton = new DlibModelHelper();
+                    sSingleton = new DLibModelHelper();
                 }
             }
         }
@@ -77,7 +71,7 @@ public class DlibModelHelper {
         final DownloadManager downloadManager = (DownloadManager)
             context.getSystemService(Context.DOWNLOAD_SERVICE);
         // Get the task ID from shared-preference.
-        long downloadId = PrefUtil.getLong(context, PREF_KEY_FACE68_ZIP);
+        long downloadId = PrefUtil.getLong(context, PREF_KEY_FACE68_FILE);
         // Create a subject for later emitting the download status.
         final PublishSubject<File> subject = PublishSubject.create();
 
@@ -87,7 +81,7 @@ public class DlibModelHelper {
 
             // Set the task in the share-preference.
             Log.d("xyz", "Set new downloadId=" + downloadId);
-            PrefUtil.setLong(context, PREF_KEY_FACE68_ZIP, downloadId);
+            PrefUtil.setLong(context, PREF_KEY_FACE68_FILE, downloadId);
         }
 
         // Register a new download broadcast receiver.
@@ -122,37 +116,37 @@ public class DlibModelHelper {
                     throws Exception {
                     // Set the task in the share-preference.
                     Log.d("xyz", "Unset download task ID.");
-                    PrefUtil.setLong(context, PREF_KEY_FACE68_ZIP, -1);
-                }
-            })
-            // Unpack the bz2 file.
-            // TODO: Run the unpacking in a IntentService so that the process
-            // TODO: continues when app enters background.
-            .observeOn(Schedulers.io())
-            .map(new Function<File, File>() {
-                @Override
-                public File apply(File downloadFile)
-                    throws Exception {
-                    final File unpackFile = new File(downloadFile.getParent(), FACE68_FILE);
-
-                    if (!unpackFile.exists()) {
-                        Log.d("xyz", "Unpacking the archived model...");
-                        final BZip2CompressorInputStream bzIs =
-                            new BZip2CompressorInputStream(
-                                new BufferedInputStream(
-                                    new FileInputStream(downloadFile)));
-                        FileUtil.copy(bzIs, new FileOutputStream(unpackFile));
-                        Log.d("xyz", "Unpacking the archived model... done");
-
-                        // Register the unpacked file to DownloadManager.
-                        downloadManager.addCompletedDownload(
-                            unpackFile.getName(), unpackFile.getName(), true, "*/*",
-                            unpackFile.getAbsolutePath(), unpackFile.length(), true);
-                    }
-
-                    return unpackFile;
+                    PrefUtil.setLong(context, PREF_KEY_FACE68_FILE, -1);
                 }
             });
+//            // Unpack the bz2 file.
+//            // TODO: Run the unpacking in a IntentService so that the process
+//            // TODO: continues when app enters background.
+//            .observeOn(Schedulers.io())
+//            .map(new Function<File, File>() {
+//                @Override
+//                public File apply(File downloadFile)
+//                    throws Exception {
+//                    final File unpackFile = new File(downloadFile.getParent(), FACE68_FILE);
+//
+//                    if (!unpackFile.exists()) {
+//                        Log.d("xyz", "Unpacking the archived model...");
+//                        final BZip2CompressorInputStream bzIs =
+//                            new BZip2CompressorInputStream(
+//                                new BufferedInputStream(
+//                                    new FileInputStream(downloadFile)));
+//                        FileUtil.copy(bzIs, new FileOutputStream(unpackFile));
+//                        Log.d("xyz", "Unpacking the archived model... done");
+//
+//                        // Register the unpacked file to DownloadManager.
+//                        downloadManager.addCompletedDownload(
+//                            unpackFile.getName(), unpackFile.getName(), true, "*/*",
+//                            unpackFile.getAbsolutePath(), unpackFile.length(), true);
+//                    }
+//
+//                    return unpackFile;
+//                }
+//            });
 
         if (downloadId != -1) {
             // Check the download task if the task ID is present:
@@ -169,7 +163,7 @@ public class DlibModelHelper {
     ///////////////////////////////////////////////////////////////////////////
     // Protected / Private Methods ////////////////////////////////////////////
 
-    private DlibModelHelper() {
+    private DLibModelHelper() {
         // DO NOTHING.
     }
 
@@ -186,7 +180,7 @@ public class DlibModelHelper {
                     final Cursor cursor = downloadManager.query(
                         new DownloadManager.Query().setFilterById(taskId));
 
-                    if (cursor != null && cursor.moveToFirst()) {
+                    if (cursor != null && cursor.getCount() > 0 && cursor.moveToFirst()) {
                         try {
                             final int statusCol = cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS);
                             final int uriCol = cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_LOCAL_URI);
@@ -194,7 +188,6 @@ public class DlibModelHelper {
                             if (DownloadManager.STATUS_SUCCESSFUL == cursor.getInt(statusCol)) {
                                 final File file = new File(Uri.parse(cursor.getString(uriCol))
                                                               .getPath());
-                                Log.d("xyz", "" + file + " is downloaded.");
                                 subject.onNext(file);
                                 subject.onComplete();
                             }
@@ -216,15 +209,8 @@ public class DlibModelHelper {
                     return true;
                 }
             })
+            // TODO: Inject this.
             .subscribeOn(Schedulers.io())
-            // Capture any error where the callable block doesn't catch.
-            .doOnError(new Consumer<Throwable>() {
-                @Override
-                public void accept(Throwable err)
-                    throws Exception {
-                    subject.onError(err);
-                }
-            })
             .subscribe();
     }
 
@@ -232,12 +218,12 @@ public class DlibModelHelper {
      * Get {@link DownloadManager.Request} for getting face68 model.
      */
     private DownloadManager.Request getFace68Request(final String dirName) {
-        return new DownloadManager.Request(Uri.parse(BASE_URL + FACE68_ZIP_FILE))
+        return new DownloadManager.Request(Uri.parse(BASE_URL + FACE68_FILE))
             .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,
-                                               dirName + File.separator + FACE68_ZIP_FILE)
+                                               dirName + File.separator + FACE68_FILE)
             .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE |
                                     DownloadManager.Request.NETWORK_WIFI)
-            .setTitle("Downloading " + FACE68_ZIP_FILE)
+            .setTitle("Downloading " + FACE68_FILE)
             .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
             .setVisibleInDownloadsUi(true);
     }
@@ -266,7 +252,7 @@ public class DlibModelHelper {
             final long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0L);
             if (mTaskId != id) return;
 
-            DlibModelHelper.checkDownloadTask(downloadManager, id, mSubject);
+            DLibModelHelper.checkDownloadTask(downloadManager, id, mSubject);
         }
     }
 }

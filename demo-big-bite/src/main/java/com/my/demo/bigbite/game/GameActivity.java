@@ -30,6 +30,7 @@ import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageView;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.widget.TextView;
@@ -44,43 +45,53 @@ import com.google.android.gms.vision.face.Face;
 import com.google.android.gms.vision.face.FaceDetector;
 import com.my.core.protocol.IProgressBarView;
 import com.my.demo.bigbite.R;
+import com.my.reactive.result.AnimResult;
+import com.my.demo.bigbite.game.event.result.LoadDetectorResult;
+import com.my.reactive.result.RxResult;
+import com.my.reactive.uiModel.UiModel;
+import com.my.reactive.uiEvent.AnimUiEvent;
+import com.my.reactive.result.MsgProgressResult;
 import com.my.demo.bigbite.game.data.ICameraMetadata;
-import com.my.demo.bigbite.game.detector.DLibBiteDetector;
 import com.my.demo.bigbite.game.detector.DLibLandmarksDetector;
-import com.my.demo.bigbite.game.event.BiteUiModel;
-import com.my.demo.bigbite.game.event.DetectBiteAction;
-import com.my.demo.bigbite.game.event.DetectBiteResult;
-import com.my.demo.bigbite.game.event.FrameUiEvent;
+import com.my.demo.bigbite.game.uiModel.BiteUiModel;
+import com.my.demo.bigbite.game.event.action.DetectBiteAction;
+import com.my.demo.bigbite.game.event.result.DetectBiteResult;
+import com.my.demo.bigbite.game.event.result.FileResult;
+import com.my.demo.bigbite.game.event.uiEvent.FrameUiEvent;
 import com.my.demo.bigbite.game.reactive.CameraObservable;
-import com.my.demo.bigbite.game.reactive.DLibBiteDetectorTransformer;
 import com.my.demo.bigbite.game.reactive.LottieAnimObservable;
 import com.my.demo.bigbite.game.view.CameraSourcePreview;
 import com.my.demo.bigbite.game.view.FaceLandmarksOverlayView;
 import com.my.demo.bigbite.protocol.Common;
 import com.my.demo.bigbite.start.data.ChallengeItem;
-import com.my.demo.bigbite.util.DlibModelHelper;
+import com.my.demo.bigbite.util.DLibModelHelper;
 import com.my.jni.dlib.DLibLandmarks68Detector;
 import com.my.jni.dlib.IDLibFaceDetector;
 import com.my.jni.dlib.data.DLibFace;
+import com.my.reactive.result.PermResult;
+import com.my.reactive.result.TickResult;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
+import io.reactivex.ObservableTransformer;
+import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.functions.Predicate;
 import io.reactivex.schedulers.Schedulers;
-import io.reactivex.subjects.PublishSubject;
-import io.reactivex.subjects.Subject;
 
 public class GameActivity
     extends AppCompatActivity
@@ -160,196 +171,231 @@ public class GameActivity
         // TODO: Check if the Google Play Service is present.
         mDisposables = new CompositeDisposable();
 
-        // TODO: Can subject be canceled?
-        // Define the preparation stream including granting permission and
-        // initializing the DLib model.
-        final Subject<UniverseEvent> preparationSub = PublishSubject.create();
+//        // TODO: Can subject be canceled?
+//        // Define the preparation stream including granting permission and
+//        // initializing the DLib model.
+//        final Subject<UniverseEvent> preparationSub = PublishSubject.create();
         mDisposables.add(
+            // Stream starts from granting for permissions.
             grantPermission()
-                // Init DLib model.
-                .observeOn(Schedulers.io())
-                .flatMap(new Function<Boolean, ObservableSource<UniverseEvent>>() {
+                // Download DLib detector.
+                .compose(downloadFaceDetectorIfOk(Schedulers.io()))
+                // Load DLib detector into memory.
+                .compose(loadFaceDetectorIfOk(Schedulers.io()))
+                // Start game.
+                .compose(startGameIfOk())
+                // State accumulator (from result to UI model).
+                .scan(UiModel.idle(new Object()), new BiFunction<UiModel<Object>, RxResult, UiModel<Object>>() {
                     @Override
-                    public ObservableSource<UniverseEvent> apply(Boolean granted)
+                    public UiModel<Object> apply(UiModel<Object> model,
+                                                 RxResult result)
                         throws Exception {
-                        if (granted) {
-                            return initFaceLandmarksDetector()
-                                .startWith(false)
-                                .onErrorReturnItem(false)
-                                .map(new Function<Boolean, UniverseEvent>() {
-                                    @Override
-                                    public UniverseEvent apply(Boolean initialized)
-                                        throws Exception {
-                                        if (initialized) {
-                                            return new UniverseEvent(UniverseEvent.MODEL_INITIALIZED);
-                                        } else {
-                                            return new UniverseEvent(UniverseEvent.MODEL_NOT_INITIALIZED);
-                                        }
-                                    }
-                                });
-                        } else {
-                            return Observable.just(
-                                new UniverseEvent(UniverseEvent.PERM_NOT_GRANTED));
+                        Log.d("yyy", result.toString());
+
+                        if (result instanceof MsgProgressResult) {
+                            final String msg = ((MsgProgressResult) result).message;
+
+                            if (result.isSuccessful) {
+                                return UiModel.succeed((Object) msg);
+                            } else if (result.isInProgress) {
+                                return UiModel.inProgress((Object) msg);
+                            } else {
+                                return UiModel.failed(result.err);
+                            }
                         }
+
+                        return model;
                     }
                 })
-                // Init camera preview source.
+                // React to the UI model.
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<UniverseEvent>() {
+                .doOnDispose(new Action() {
                     @Override
-                    public void accept(UniverseEvent event)
-                        throws Exception {
-                        preparationSub.onNext(event);
-                    }
-                }));
-
-        // Observe the preparation stream.
-        mDisposables.add(
-            preparationSub
-                // Update UI.
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<UniverseEvent>() {
-                    @Override
-                    public void accept(UniverseEvent event)
-                        throws Exception {
-                        if (event.status == UniverseEvent.PERM_NOT_GRANTED) {
-                            Toast.makeText(getApplicationContext(),
-                                           R.string.warning_permission_not_granted,
-                                           Toast.LENGTH_SHORT)
-                                 .show();
-                            finish();
-                        } else if (event.status == UniverseEvent.MODEL_NOT_INITIALIZED) {
-                            showProgressBar();
-                        } else {
-                            hideProgressBar();
-                        }
-                    }
-                }));
-
-
-        // The camera preview is 90 degree clockwise rotated.
-        //  height
-        // .------.
-        // |      |
-        // |      | width
-        // |      |
-        // '------'
-        // Define the camera detection stream.
-        final Subject<FrameUiEvent<DLibFace>> frameSub = PublishSubject.create();
-        mDisposables.add(
-            preparationSub
-                // Camera.
-                .skipWhile(new Predicate<UniverseEvent>() {
-                    @Override
-                    public boolean test(UniverseEvent event)
-                        throws Exception {
-                        return event.status != UniverseEvent.MODEL_INITIALIZED;
-                    }
-                })
-                .switchMap(new Function<UniverseEvent, CameraObservable<DLibFace>>() {
-                    @Override
-                    public CameraObservable<DLibFace> apply(UniverseEvent event)
-                        throws Exception {
-                        // Set the preview config.
-                        if (isPortraitMode()) {
-                            mDebugOverlayView.setCameraPreviewSize(
-                                PREVIEW_HEIGHT, PREVIEW_WIDTH);
-                        } else {
-                            mDebugOverlayView.setCameraPreviewSize(
-                                PREVIEW_WIDTH, PREVIEW_HEIGHT);
-                        }
-
-                        // Create camera observable.
-                        return CameraObservable.create(
-                                GameActivity.this,
-                                mCameraView,
-                                PREVIEW_WIDTH, PREVIEW_HEIGHT,
-                                getFaceDetector());
+                    public void run() throws Exception {
+                        hideProgressBar();
                     }
                 })
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<FrameUiEvent<DLibFace>>() {
+                .subscribe(new Consumer<UiModel<Object>>() {
                     @Override
-                    public void accept(FrameUiEvent<DLibFace> event)
+                    public void accept(UiModel<Object> model)
                         throws Exception {
-                        frameSub.onNext(event);
-                    }
-                }));
+                        // If the bundle is a String, it must be for the progress bar.
+                        if (model.bundle instanceof String) {
+                            final String msg = (String) model.bundle;
 
-        // FIXME: This will cause UI race condition.
-        // Observe the stream of camera first frame to count down.
-        final LottieAnimObservable countDownAnim = new LottieAnimObservable(mCountDownView);
-        mDisposables.add(
-            frameSub
-                // Start to play the count down animation at first frame emitted.
-                .filter(new Predicate<FrameUiEvent<DLibFace>>() {
-                    @Override
-                    public boolean test(FrameUiEvent<DLibFace> event)
-                        throws Exception {
-                        return event.isFirstFrame();
-                    }
-                })
-                // Update UI.
-                .flatMap(new Function<FrameUiEvent<DLibFace>, ObservableSource<?>>() {
-                    @Override
-                    public ObservableSource<?> apply(FrameUiEvent<DLibFace> event) throws Exception {
-                        mCountDownView.setVisibility(View.VISIBLE);
-                        mCountDownView.setAnimation("animation/count_down_321.json");
-                        return countDownAnim;
-                    }
-                })
-                .subscribe());
-
-        // Observe the stream of face detection to render the landmarks for
-        // debugging.
-        mDisposables.add(
-            frameSub
-                // Wait for the count down.
-                .filter(new Predicate<FrameUiEvent<DLibFace>>() {
-                    @Override
-                    public boolean test(FrameUiEvent<DLibFace> event)
-                        throws Exception {
-                        return !countDownAnim.isAnimating();
-                    }
-                })
-                // Update UI.
-                .subscribe(new Consumer<FrameUiEvent<DLibFace>>() {
-                    @Override
-                    public void accept(FrameUiEvent<DLibFace> event)
-                        throws Exception {
-                        // Convert sparse array to array list.
-                        final SparseArray<DLibFace> data = event.data;
-                        final List<DLibFace> faces = new ArrayList<>();
-                        for (int i = 0; i < data.size(); ++i) {
-                            faces.add(data.get(data.keyAt(i)));
+                            if (model.isSuccessful) {
+                                hideProgressBar();
+                            } else if (model.isInProgress) {
+                                showProgressBar(msg);
+                            } else {
+                                Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
+                            }
                         }
-
-                        mDebugOverlayView.setFaces(faces);
                     }
                 }));
+//                .subscribe(new Consumer<RxResult>() {
+//                    @Override
+//                    public void accept(RxResult result)
+//                        throws Exception {
+//                        Log.d("xyz", result.toString());
+//                    }
+//                }));
+//                .subscribe(new Consumer<UniverseEvent>() {
+//                    @Override
+//                    public void accept(UniverseEvent event)
+//                        throws Exception {
+//                        preparationSub.onNext(event);
+//                    }
+//                }));
 
-        // Observe the stream of face detection to detect bite gesture and
-        // react the result on the UI.
-        mDisposables.add(
-            frameSub
-                // Wait for the count down.
-                .filter(new Predicate<FrameUiEvent<DLibFace>>() {
-                    @Override
-                    public boolean test(FrameUiEvent<DLibFace> event)
-                        throws Exception {
-                        return !countDownAnim.isAnimating() &&
-                               event.data.size() > 0;
-                    }
-                })
-                // Detect bite pose.
-                .map(toDetectBiteAction())
-                .compose(new DLibBiteDetectorTransformer(
-                    new DLibBiteDetector(),
-                    Schedulers.computation()))
-                .map(toBiteUiModel())
-                // Update UI.
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(onBiteDetected()));
+//        // Observe the preparation stream.
+//        mDisposables.add(
+//            preparationSub
+//                // Update UI.
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(new Consumer<UniverseEvent>() {
+//                    @Override
+//                    public void accept(UniverseEvent event)
+//                        throws Exception {
+//                        if (event.status == UniverseEvent.PERM_NOT_GRANTED) {
+//                            Toast.makeText(getApplicationContext(),
+//                                           R.string.warning_permission_not_granted,
+//                                           Toast.LENGTH_SHORT)
+//                                 .show();
+//                            finish();
+//                        } else if (event.status == UniverseEvent.MODEL_NOT_INITIALIZED) {
+//                            showProgressBar();
+//                        } else {
+//                            hideProgressBar();
+//                        }
+//                    }
+//                }));
+//
+//
+//        // The camera preview is 90 degree clockwise rotated.
+//        //  height
+//        // .------.
+//        // |      |
+//        // |      | width
+//        // |      |
+//        // '------'
+//        // Define the camera detection stream.
+//        final Subject<FrameUiEvent<DLibFace>> frameSub = PublishSubject.create();
+//        mDisposables.add(
+//            preparationSub
+//                // Camera.
+//                .skipWhile(new Predicate<UniverseEvent>() {
+//                    @Override
+//                    public boolean test(UniverseEvent event)
+//                        throws Exception {
+//                        return event.status != UniverseEvent.MODEL_INITIALIZED;
+//                    }
+//                })
+//                .switchMap(new Function<UniverseEvent, CameraObservable<DLibFace>>() {
+//                    @Override
+//                    public CameraObservable<DLibFace> apply(UniverseEvent event)
+//                        throws Exception {
+//                        // Set the preview config.
+//                        if (isPortraitMode()) {
+//                            mDebugOverlayView.setCameraPreviewSize(
+//                                PREVIEW_HEIGHT, PREVIEW_WIDTH);
+//                        } else {
+//                            mDebugOverlayView.setCameraPreviewSize(
+//                                PREVIEW_WIDTH, PREVIEW_HEIGHT);
+//                        }
+//
+//                        // Create camera observable.
+//                        return CameraObservable.create(
+//                            GameActivity.this,
+//                            mCameraView,
+//                            PREVIEW_WIDTH, PREVIEW_HEIGHT,
+//                            getFaceDetector());
+//                    }
+//                })
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(new Consumer<FrameUiEvent<DLibFace>>() {
+//                    @Override
+//                    public void accept(FrameUiEvent<DLibFace> event)
+//                        throws Exception {
+//                        frameSub.onNext(event);
+//                    }
+//                }));
+
+//        // FIXME: This will cause UI race condition.
+//        // Observe the stream of camera first frame to count down.
+//        final LottieAnimObservable countDownAnim = new LottieAnimObservable(mCountDownView);
+//        mDisposables.add(
+//            frameSub
+//                // Start to play the count down animation at first frame emitted.
+//                .filter(new Predicate<FrameUiEvent<DLibFace>>() {
+//                    @Override
+//                    public boolean test(FrameUiEvent<DLibFace> event)
+//                        throws Exception {
+//                        return event.isFirstFrame();
+//                    }
+//                })
+//                // Update UI.
+//                .flatMap(new Function<FrameUiEvent<DLibFace>, ObservableSource<?>>() {
+//                    @Override
+//                    public ObservableSource<?> apply(FrameUiEvent<DLibFace> event) throws Exception {
+//                        mCountDownView.setVisibility(View.VISIBLE);
+//                        mCountDownView.setAnimation("animation/count_down_321.json");
+//                        return countDownAnim;
+//                    }
+//                })
+//                .subscribe());
+//
+//        // Observe the stream of face detection to render the landmarks for
+//        // debugging.
+//        mDisposables.add(
+//            frameSub
+//                // Wait for the count down.
+//                .filter(new Predicate<FrameUiEvent<DLibFace>>() {
+//                    @Override
+//                    public boolean test(FrameUiEvent<DLibFace> event)
+//                        throws Exception {
+//                        return !countDownAnim.isAnimating();
+//                    }
+//                })
+//                // Update UI.
+//                .subscribe(new Consumer<FrameUiEvent<DLibFace>>() {
+//                    @Override
+//                    public void accept(FrameUiEvent<DLibFace> event)
+//                        throws Exception {
+//                        // Convert sparse array to array list.
+//                        final SparseArray<DLibFace> data = event.data;
+//                        final List<DLibFace> faces = new ArrayList<>();
+//                        for (int i = 0; i < data.size(); ++i) {
+//                            faces.add(data.get(data.keyAt(i)));
+//                        }
+//
+//                        mDebugOverlayView.setFaces(faces);
+//                    }
+//                }));
+//
+//        // Observe the stream of face detection to detect bite gesture and
+//        // react the result on the UI.
+//        mDisposables.add(
+//            frameSub
+//                // Wait for the count down.
+//                .filter(new Predicate<FrameUiEvent<DLibFace>>() {
+//                    @Override
+//                    public boolean test(FrameUiEvent<DLibFace> event)
+//                        throws Exception {
+//                        return !countDownAnim.isAnimating() &&
+//                               event.data.size() > 0;
+//                    }
+//                })
+//                // Detect bite pose.
+//                .map(toDetectBiteAction())
+//                .compose(new DLibBiteDetectorTransformer(
+//                    new DLibBiteDetector(),
+//                    Schedulers.computation()))
+//                .map(toBiteUiModel())
+//                // Update UI.
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(onBiteDetected()));
     }
 
     @Override
@@ -482,50 +528,253 @@ public class GameActivity
         return this;
     }
 
-    private Observable<Boolean> grantPermission() {
+    private Observable<RxResult> grantPermission() {
         return mRxPermissions
             .request(Manifest.permission.READ_EXTERNAL_STORAGE,
                      Manifest.permission.WRITE_EXTERNAL_STORAGE,
                      Manifest.permission.ACCESS_NETWORK_STATE,
-                     Manifest.permission.CAMERA);
-    }
-
-    private Observable<Boolean> initFaceLandmarksDetector() {
-        return DlibModelHelper
-            .getService()
-            // Download the trained model.
-            .downloadFace68Model(
-                this,
-                getApplicationContext().getPackageName())
-            // Update progressbar message.
-            .observeOn(AndroidSchedulers.mainThread())
-            .map(new Function<File, File>() {
+                     Manifest.permission.CAMERA)
+            .map(new Function<Boolean, RxResult>() {
                 @Override
-                public File apply(File face68ModelPath) throws Exception {
-                    showProgressBar("Initializing face detectors...");
-                    return face68ModelPath;
+                public RxResult apply(Boolean granted)
+                    throws Exception {
+                    if (granted) {
+                        return PermResult.succeed();
+                    } else {
+                        return PermResult.failed(new RuntimeException(
+                            "Permissions denied."));
+                    }
                 }
             })
-            // Deserialize the detector.
-            .observeOn(Schedulers.io())
-            .map(new Function<File, Boolean>() {
+            .startWith(PermResult.inProgress());
+    }
+
+    private ObservableTransformer<RxResult, RxResult> downloadFaceDetectorIfOk(final Scheduler worker) {
+        return new ObservableTransformer<RxResult, RxResult>() {
+            @Override
+            public ObservableSource<RxResult> apply(final Observable<RxResult> upstream) {
+                return upstream
+                    .flatMap(new Function<RxResult, ObservableSource<RxResult>>() {
+                        @Override
+                        public ObservableSource<RxResult> apply(RxResult result)
+                            throws Exception {
+                            // upstream   --[?]-[?]--[success]-----------------------------------
+                            //
+                            //                            -* transformer *-
+                            //
+                            // downstream --[?]-[?]--[success]-[in]-[0]-[1]-...-[success]-[file]-
+                            if (result.isSuccessful) {
+                                return Observable.merge(
+                                    Observable.just(result),
+                                    DLibModelHelper
+                                        .getService()
+                                        .downloadFace68Model(
+                                            getApplicationContext(),
+                                            getApplicationContext().getPackageName())
+                                        .subscribeOn(worker)
+                                        .flatMap(new Function<File, ObservableSource<RxResult>>() {
+                                            @Override
+                                            public ObservableSource<RxResult> apply(File file)
+                                                throws Exception {
+                                                return Observable.merge(
+                                                    Observable.just(MsgProgressResult.succeed(
+                                                        "Downloading the face detector...done")),
+                                                    Observable.just(FileResult.succeed(file))
+                                                );
+                                            }
+                                        })
+                                        .startWith(MsgProgressResult.inProgress(
+                                            "Downloading the face detector...", 0))
+                                        .onErrorReturn(new Function<Throwable, RxResult>() {
+                                            @Override
+                                            public RxResult apply(Throwable err)
+                                                throws Exception {
+                                                return FileResult.failed(err);
+                                            }
+                                        }));
+                            } else {
+                                return Observable.just(result);
+                            }
+                        }
+                    });
+            }
+        };
+    }
+
+    private ObservableTransformer<RxResult, RxResult> loadFaceDetectorIfOk(final Scheduler worker) {
+        return new ObservableTransformer<RxResult, RxResult>() {
+            @Override
+            public ObservableSource<RxResult> apply(Observable<RxResult> upstream) {
+                return upstream
+                    // TODO: It's like a mapper mapping from result to another observable.
+                    .flatMap(new Function<RxResult, ObservableSource<RxResult>>() {
+                        @Override
+                        public ObservableSource<RxResult> apply(final RxResult result)
+                            throws Exception {
+                            if (result.isSuccessful &&
+                                result instanceof FileResult) {
+                                // Load the detector into memory.
+                                final File file = ((FileResult) result).file;
+                                return Observable.merge(
+                                    Observable.just(result),
+                                    Observable
+                                        .fromCallable(new Callable<RxResult>() {
+                                            @Override
+                                            public RxResult call() throws Exception {
+                                                if (file == null || !file.exists()) {
+                                                    throw new RuntimeException(
+                                                        "The face68 model is invalid.");
+                                                }
+
+                                                if (!mLandmarksDetector.isFaceDetectorReady()) {
+                                                    mLandmarksDetector.prepareFaceDetector();
+                                                }
+                                                if (!mLandmarksDetector.isFaceLandmarksDetectorReady()) {
+                                                    mLandmarksDetector.prepareFaceLandmarksDetector(
+                                                        file.getAbsolutePath());
+                                                }
+
+                                                return MsgProgressResult.succeed("Loading detector... done");
+                                            }
+                                        })
+                                        .subscribeOn(worker)
+                                        .flatMap(new Function<RxResult, ObservableSource<RxResult>>() {
+                                            @Override
+                                            public ObservableSource<RxResult> apply(RxResult result)
+                                                throws Exception {
+                                                return Observable.merge(
+                                                    Observable.just(result),
+                                                    Observable.just(LoadDetectorResult.succeed()));
+                                            }
+                                        })
+                                        .startWith(MsgProgressResult.inProgress(
+                                            "Loading detector...", 0))
+                                        .onErrorReturn(new Function<Throwable, RxResult>() {
+                                            @Override
+                                            public RxResult apply(Throwable err)
+                                                throws Exception {
+                                                return MsgProgressResult.failed(err);
+                                            }
+                                        })
+                                );
+                            } else {
+                                return Observable.just(result);
+                            }
+                        }
+                    });
+            }
+        };
+    }
+
+    private ObservableTransformer<RxResult, RxResult> startGameIfOk() {
+        return new ObservableTransformer<RxResult, RxResult>() {
+            @Override
+            public ObservableSource<RxResult> apply(Observable<RxResult> upstream) {
+                return upstream
+                    .flatMap(new Function<RxResult, ObservableSource<RxResult>>() {
+                        @Override
+                        public ObservableSource<RxResult> apply(RxResult result)
+                            throws Exception {
+                            if (result.isSuccessful &&
+                                result instanceof LoadDetectorResult) {
+                                // Start the game when the given result is successful.
+                                final AtomicBoolean canDetect = new AtomicBoolean(false);
+                                final AtomicBoolean isGameOver = new AtomicBoolean(false);
+
+                                // FIXME: How to satisfy the lint?
+                                return Observable.mergeArray(
+                                    Observable.just(result),
+                                    startLifeTickTimer(),
+                                    startCameraDetection(canDetect),
+                                    startIntroAnimation());
+                            } else {
+                                return Observable.just(result);
+                            }
+                        }
+                    });
+            }
+        };
+    }
+
+    private Observable<RxResult> startCameraDetection(final AtomicBoolean canDetect) {
+        // Set the preview config.
+        if (isPortraitMode()) {
+            mDebugOverlayView.setCameraPreviewSize(
+                PREVIEW_HEIGHT, PREVIEW_WIDTH);
+        } else {
+            mDebugOverlayView.setCameraPreviewSize(
+                PREVIEW_WIDTH, PREVIEW_HEIGHT);
+        }
+
+        // Create camera observable.
+        return CameraObservable
+            .create(
+                GameActivity.this,
+                mCameraView,
+                PREVIEW_WIDTH, PREVIEW_HEIGHT,
+                getFaceDetector())
+            // Ready to detect if it is allowed to.
+            .filter(new Predicate<FrameUiEvent<DLibFace>>() {
                 @Override
-                public Boolean apply(File face68ModelPath)
+                public boolean test(FrameUiEvent<DLibFace> ignored)
                     throws Exception {
-                    if (face68ModelPath == null || !face68ModelPath.exists()) {
-                        throw new RuntimeException(
-                            "The face68 model is invalid.");
-                    }
+                    return canDetect.get();
+                }
+            })
+            // Detect the face and landmarks.
+            .observeOn(Schedulers.computation())
+            .flatMap(new Function<FrameUiEvent<DLibFace>, ObservableSource<RxResult>>() {
+                @Override
+                public ObservableSource<RxResult> apply(FrameUiEvent<DLibFace> event)
+                    throws Exception {
+                    // TODO: Do something with the data.
+//                    event.data
+                    return null;
+                }
+            });
+    }
 
-                    if (!mLandmarksDetector.isFaceDetectorReady()) {
-                        mLandmarksDetector.prepareFaceDetector();
-                    }
-                    if (!mLandmarksDetector.isFaceLandmarksDetectorReady()) {
-                        mLandmarksDetector.prepareFaceLandmarksDetector(
-                            face68ModelPath.getAbsolutePath());
-                    }
+    private Observable<RxResult> startIntroAnimation() {
+        return Observable
+            // I intentionally postpone the intro animation a bit late so that
+            // the camera preview is likely ready when the animation starts.
+            .timer(250, TimeUnit.MILLISECONDS)
+            .flatMap(new Function<Long, ObservableSource<RxResult>>() {
+                @Override
+                public ObservableSource<RxResult> apply(Long ignored)
+                    throws Exception {
+                    // Animation would automatically play when it subscribes to
+                    // the upstream.
+                    return new LottieAnimObservable(mCountDownView,
+                                                    "animation/count_down_321.json")
+                        .subscribeOn(AndroidSchedulers.mainThread())
+                        .ofType(AnimUiEvent.class)
+                        .map(new Function<AnimUiEvent, RxResult>() {
+                            @Override
+                            public RxResult apply(AnimUiEvent event)
+                                throws Exception {
+                                if (event.isJustStarted() ||
+                                    event.isAnimating()) {
+                                    return AnimResult.inProgress();
+                                } else if (event.isCancelled()) {
+                                    return AnimResult.failed(new Throwable(
+                                        "The intro animation is cancelled."));
+                                } else {
+                                    return AnimResult.succeed();
+                                }
+                            }
+                        });
+                }
+            });
+    }
 
-                    return true;
+    private Observable<RxResult> startLifeTickTimer() {
+        return Observable
+            .interval(1L, TimeUnit.SECONDS)
+            .map(new Function<Long, RxResult>() {
+                @Override
+                public RxResult apply(Long value) throws Exception {
+                    return TickResult.tick(value);
                 }
             });
     }
@@ -567,22 +816,22 @@ public class GameActivity
     ///////////////////////////////////////////////////////////////////////////
     // Clazz //////////////////////////////////////////////////////////////////
 
-    private static final class UniverseEvent {
-
-        static final int UNDEFINED = -1;
-
-        static final int PERM_GRANTED = 1001;
-        static final int PERM_NOT_GRANTED = 1002;
-
-        static final int MODEL_NOT_INITIALIZED = 2001;
-        static final int MODEL_INITIALIZED = 2002;
-
-        static final int ON_DETECTING_BITE = 3001;
-
-        int status = UNDEFINED;
-
-        UniverseEvent(int status) {
-            this.status = status;
-        }
-    }
+//    private static final class UniverseEvent {
+//
+//        static final int UNDEFINED = -1;
+//
+//        static final int PERM_GRANTED = 1001;
+//        static final int PERM_NOT_GRANTED = 1002;
+//
+//        static final int MODEL_NOT_INITIALIZED = 2001;
+//        static final int MODEL_INITIALIZED = 2002;
+//
+//        static final int ON_DETECTING_BITE = 3001;
+//
+//        int status = UNDEFINED;
+//
+//        UniverseEvent(int status) {
+//            this.status = status;
+//        }
+//    }
 }

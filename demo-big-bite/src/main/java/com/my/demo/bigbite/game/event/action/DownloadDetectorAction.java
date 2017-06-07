@@ -18,14 +18,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.demo.bigbite.game.event;
+package com.my.demo.bigbite.game.event.action;
 
-import com.my.demo.bigbite.event.Action;
-import com.my.jni.dlib.data.DLibFace;
+import com.my.reactive.action.RxAction;
 
-public final class DetectBiteAction extends Action<DLibFace> {
+public final class DownloadDetectorAction extends RxAction<Void> {
 
-    public DetectBiteAction(DLibFace msg) {
-        super(msg);
+    public DownloadDetectorAction() {
+        super(null);
     }
 }

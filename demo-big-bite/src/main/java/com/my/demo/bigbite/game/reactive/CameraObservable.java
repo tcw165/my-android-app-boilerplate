@@ -26,8 +26,7 @@ import android.util.SparseArray;
 import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.Frame;
-import com.my.demo.bigbite.event.UiEvent;
-import com.my.demo.bigbite.game.event.FrameUiEvent;
+import com.my.demo.bigbite.game.event.uiEvent.FrameUiEvent;
 import com.my.demo.bigbite.game.view.CameraSourcePreview;
 
 import io.reactivex.Observable;

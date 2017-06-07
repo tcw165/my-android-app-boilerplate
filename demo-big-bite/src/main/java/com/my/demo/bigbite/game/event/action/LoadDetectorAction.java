@@ -18,20 +18,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.demo.bigbite.game.event;
+package com.my.demo.bigbite.game.event.action;
 
-import android.graphics.RectF;
+import com.my.reactive.action.RxAction;
 
-import com.my.demo.bigbite.event.Result;
+import java.io.File;
 
-public class DetectBiteResult extends Result {
+public final class LoadDetectorAction extends RxAction<File> {
 
-    public final RectF mouthBound;
-    public final int biteCount;
-
-    public DetectBiteResult(final RectF mouthBound,
-                            final int biteCount) {
-        this.mouthBound = mouthBound;
-        this.biteCount = biteCount;
+    public LoadDetectorAction(File file) {
+        super(file);
     }
 }

@@ -18,15 +18,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.demo.bigbite.event;
+package com.my.reactive.result;
 
-public abstract class UiEvent<T> {
+public class AnimResult extends RxResult {
 
-    public final int state;
-    public final T data;
+    public static RxResult inProgress() {
+        return new AnimResult(true, false, null);
+    }
 
-    public UiEvent(int state, T data) {
-        this.state = state;
-        this.data = data;
+    public static RxResult succeed() {
+        return new AnimResult(false, true, null);
+    }
+
+    public static RxResult failed(Throwable err) {
+        return new AnimResult(false, false, err);
+    }
+
+    @Override
+    public String toString() {
+        return "AnimResult{" +
+               "isInProgress=" + isInProgress +
+               ", isSuccessful=" + isSuccessful +
+               ", err=" + err +
+               '}';
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Protected / Private Methods ////////////////////////////////////////////
+
+    protected AnimResult(boolean isInProgress,
+                         boolean isSuccessful,
+                         Throwable err) {
+        super(isInProgress, isSuccessful, err);
     }
 }

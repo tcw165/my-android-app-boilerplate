@@ -18,13 +18,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.demo.bigbite.event;
+package com.my.reactive.uiEvent;
 
-public abstract class Action<T> {
+public abstract class UiEvent<T> {
 
-    public T message;
+    public final int state;
+    public final T data;
 
-    public Action(T message) {
-        this.message = message;
+    public UiEvent(int state, T data) {
+        this.state = state;
+        this.data = data;
     }
 }
