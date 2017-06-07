@@ -21,13 +21,11 @@
 package com.my.demo.bigbite.game.reactive;
 
 import android.graphics.RectF;
-import android.util.Log;
 
 import com.my.demo.bigbite.game.data.IBiteDetector;
-import com.my.demo.bigbite.game.event.DetectBiteAction;
-import com.my.demo.bigbite.game.event.DetectBiteResult;
+import com.my.demo.bigbite.game.event.action.DetectBiteAction;
+import com.my.demo.bigbite.game.event.result.DetectBiteResult;
 import com.my.jni.dlib.data.DLibFace;
-import com.my.jni.dlib.data.Messages;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;

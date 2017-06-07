@@ -18,32 +18,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.demo.bigbite.event.misc;
+package com.my.reactive.result;
 
-public class MsgProgressResult extends ProgressResult {
+public class PermResult extends RxResult {
 
-    public final String message;
-
-    public static MsgProgressResult inProgress(String msg,
-                                               int progress) {
-        return new MsgProgressResult(true, false, msg, 0, null);
+    public static RxResult inProgress() {
+        return new PermResult(true, false, null);
     }
 
-    public static MsgProgressResult succeed(String msg) {
-        return new MsgProgressResult(false, true, msg, 100, null);
+    public static RxResult succeed() {
+        return new PermResult(false, true, null);
     }
 
-    public static MsgProgressResult failed(Throwable err) {
-        return new MsgProgressResult(false, false, err.getMessage(), 0, err);
+    public static RxResult failed(Throwable err) {
+        return new PermResult(false, false, err);
     }
 
     @Override
     public String toString() {
-        return "MsgProgressResult{" +
-               ", isInProgress=" + isInProgress +
+        return "PermResult{" +
+               "isInProgress=" + isInProgress +
                ", isSuccessful=" + isSuccessful +
-               ", message=" + message +
-               ", progress=" + progress +
                ", err=" + err +
                '}';
     }
@@ -51,12 +46,9 @@ public class MsgProgressResult extends ProgressResult {
     ///////////////////////////////////////////////////////////////////////////
     // Protected / Private Methods ////////////////////////////////////////////
 
-    protected MsgProgressResult(boolean isInProgress,
-                                boolean isSuccessful,
-                                String msg,
-                                int progress,
-                                Throwable err) {
-        super(isInProgress, isSuccessful, progress, err);
-        this.message = msg;
+    protected PermResult(boolean isInProgress,
+                         boolean isSuccessful,
+                         Throwable err) {
+        super(isInProgress, isSuccessful, err);
     }
 }

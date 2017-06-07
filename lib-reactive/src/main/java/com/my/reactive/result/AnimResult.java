@@ -18,15 +18,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.demo.bigbite.game.event;
+package com.my.reactive.result;
 
-import com.my.demo.bigbite.event.RxAction;
+public class AnimResult extends RxResult {
 
-import java.io.File;
+    public static RxResult inProgress() {
+        return new AnimResult(true, false, null);
+    }
 
-public final class LoadDetectorAction extends RxAction<File> {
+    public static RxResult succeed() {
+        return new AnimResult(false, true, null);
+    }
 
-    public LoadDetectorAction(File file) {
-        super(file);
+    public static RxResult failed(Throwable err) {
+        return new AnimResult(false, false, err);
+    }
+
+    @Override
+    public String toString() {
+        return "AnimResult{" +
+               "isInProgress=" + isInProgress +
+               ", isSuccessful=" + isSuccessful +
+               ", err=" + err +
+               '}';
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Protected / Private Methods ////////////////////////////////////////////
+
+    protected AnimResult(boolean isInProgress,
+                         boolean isSuccessful,
+                         Throwable err) {
+        super(isInProgress, isSuccessful, err);
     }
 }

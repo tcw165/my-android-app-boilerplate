@@ -18,13 +18,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.demo.bigbite.event;
+package com.my.demo.bigbite.game.event.action;
 
-public abstract class RxAction<T> {
+import com.my.reactive.action.RxAction;
 
-    public T message;
+import java.io.File;
 
-    public RxAction(T message) {
-        this.message = message;
+public final class LoadDetectorAction extends RxAction<File> {
+
+    public LoadDetectorAction(File file) {
+        super(file);
     }
 }

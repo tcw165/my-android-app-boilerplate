@@ -18,18 +18,42 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.demo.bigbite.game.event;
+package com.my.reactive.result;
 
-import android.graphics.RectF;
+public class RxResult {
 
-public class BiteUiModel {
+    public final boolean isSuccessful, isInProgress;
+    public final Throwable err;
 
-    final public RectF mouthBound;
-    final public int biteCount;
+    public static RxResult inProgress() {
+        return new RxResult(true, false, null);
+    }
 
-    public BiteUiModel(RectF mouthBound,
-                       int biteCount) {
-        this.mouthBound = mouthBound;
-        this.biteCount = biteCount;
+    public static RxResult succeed() {
+        return new RxResult(false, true, null);
+    }
+
+    public static RxResult failed(Throwable err) {
+        return new RxResult(false, false, err);
+    }
+
+    @Override
+    public String toString() {
+        return "RxResult{" +
+               "isInProgress=" + isInProgress +
+               ", isSuccessful=" + isSuccessful +
+               ", err=" + err +
+               '}';
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Protected / Private Methods ////////////////////////////////////////////
+
+    protected RxResult(boolean isInProgress,
+                       boolean isSuccessful,
+                       Throwable err) {
+        this.isInProgress = isInProgress;
+        this.isSuccessful = isSuccessful;
+        this.err = err;
     }
 }

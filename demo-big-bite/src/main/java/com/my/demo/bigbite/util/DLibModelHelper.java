@@ -36,8 +36,10 @@ import java.io.File;
 import java.util.concurrent.Callable;
 
 import io.reactivex.Observable;
+import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
@@ -178,7 +180,7 @@ public class DLibModelHelper {
                     final Cursor cursor = downloadManager.query(
                         new DownloadManager.Query().setFilterById(taskId));
 
-                    if (cursor != null && cursor.moveToFirst()) {
+                    if (cursor != null && cursor.getCount() > 0 && cursor.moveToFirst()) {
                         try {
                             final int statusCol = cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS);
                             final int uriCol = cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_LOCAL_URI);
@@ -186,7 +188,6 @@ public class DLibModelHelper {
                             if (DownloadManager.STATUS_SUCCESSFUL == cursor.getInt(statusCol)) {
                                 final File file = new File(Uri.parse(cursor.getString(uriCol))
                                                               .getPath());
-                                Log.d("xyz", "" + file + " is downloaded.");
                                 subject.onNext(file);
                                 subject.onComplete();
                             }
@@ -210,14 +211,6 @@ public class DLibModelHelper {
             })
             // TODO: Inject this.
             .subscribeOn(Schedulers.io())
-            // Capture any error where the callable block doesn't catch.
-            .doOnError(new Consumer<Throwable>() {
-                @Override
-                public void accept(Throwable err)
-                    throws Exception {
-                    subject.onError(err);
-                }
-            })
             .subscribe();
     }
 

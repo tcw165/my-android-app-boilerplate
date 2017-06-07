@@ -18,55 +18,42 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.demo.bigbite.game.event;
+package com.my.reactive.result;
 
-import com.my.demo.bigbite.event.UiEvent;
+public class ProgressResult extends RxResult {
 
-public final class AnimUiEvent extends UiEvent<Object> {
+    public final int progress;
 
-    private static final int START = 0;
-    private static final int ANIMATING = 1;
-    private static final int END = 2;
-    private static final int CANCEL = 3;
-
-    private static final Object DATA = new Object();
-
-    public static AnimUiEvent start() {
-        return new AnimUiEvent(START);
+    public static ProgressResult inProgress(int progress) {
+        return new ProgressResult(true, false, 0, null);
     }
 
-    public static AnimUiEvent animating() {
-        return new AnimUiEvent(ANIMATING);
+    public static ProgressResult succeed() {
+        return new ProgressResult(false, true, 100, null);
     }
 
-    public static AnimUiEvent end() {
-        return new AnimUiEvent(END);
+    public static ProgressResult failed(Throwable err) {
+        return new ProgressResult(false, false, 0, err);
     }
 
-    public static AnimUiEvent cancel() {
-        return new AnimUiEvent(CANCEL);
-    }
-
-    public boolean isStart() {
-        return this.state == START;
-    }
-
-    public boolean isAnimating(AnimUiEvent event) {
-        return this.state == ANIMATING;
-    }
-
-    public boolean isEnd() {
-        return this.state == END;
-    }
-
-    public boolean isCancel(AnimUiEvent event) {
-        return this.state == CANCEL;
+    @Override
+    public String toString() {
+        return "ProgressResult{" +
+               ", isInProgress=" + isInProgress +
+               ", isSuccessful=" + isSuccessful +
+               ", progress=" + progress +
+               ", err=" + err +
+               '}';
     }
 
     ///////////////////////////////////////////////////////////////////////////
     // Protected / Private Methods ////////////////////////////////////////////
 
-    private AnimUiEvent(int state) {
-        super(state, DATA);
+    protected ProgressResult(boolean isInProgress,
+                             boolean isSuccessful,
+                             int progress,
+                             Throwable err) {
+        super(isInProgress, isSuccessful, err);
+        this.progress = progress;
     }
 }

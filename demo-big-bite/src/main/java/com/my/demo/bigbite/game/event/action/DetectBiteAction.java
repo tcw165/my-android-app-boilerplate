@@ -18,33 +18,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.demo.bigbite.game.event;
+package com.my.demo.bigbite.game.event.action;
 
-import android.util.SparseArray;
+import com.my.reactive.action.RxAction;
+import com.my.jni.dlib.data.DLibFace;
 
-import com.my.demo.bigbite.event.UiEvent;
+public final class DetectBiteAction extends RxAction<DLibFace> {
 
-public final class FrameUiEvent<T> extends UiEvent<SparseArray<T>> {
-
-    private static final int FIRST_FRAME = 0;
-    private static final int REPEATED_FRAME = 1;
-
-    public static <T> FrameUiEvent<T> firstFrame(SparseArray<T> data) {
-        return new FrameUiEvent<>(FIRST_FRAME, data);
-    }
-
-    public static <T> FrameUiEvent<T> repeatedFrame(SparseArray<T> data) {
-        return new FrameUiEvent<>(REPEATED_FRAME, data);
-    }
-
-    public boolean isFirstFrame() {
-        return state == FIRST_FRAME;
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Protected / Private Methods ////////////////////////////////////////////
-
-    private FrameUiEvent(int state, SparseArray<T> data) {
-        super(state, data);
+    public DetectBiteAction(DLibFace msg) {
+        super(msg);
     }
 }

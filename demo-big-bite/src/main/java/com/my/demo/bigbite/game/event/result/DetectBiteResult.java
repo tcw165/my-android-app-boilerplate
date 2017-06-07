@@ -18,14 +18,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.demo.bigbite.game.event;
+package com.my.demo.bigbite.game.event.result;
 
-import com.my.demo.bigbite.event.RxAction;
-import com.my.jni.dlib.data.DLibFace;
+import android.graphics.RectF;
 
-public final class DetectBiteAction extends RxAction<DLibFace> {
+import com.my.reactive.result.RxResult;
 
-    public DetectBiteAction(DLibFace msg) {
-        super(msg);
+public class DetectBiteResult extends RxResult {
+
+    public final RectF mouthBound;
+    public final int biteCount;
+
+    public DetectBiteResult(final RectF mouthBound,
+                            final int biteCount) {
+        super(true, false, null);
+        this.mouthBound = mouthBound;
+        this.biteCount = biteCount;
     }
 }

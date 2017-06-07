@@ -18,32 +18,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.demo.bigbite.event.misc;
+package com.my.demo.bigbite.game.event.result;
 
-import com.my.demo.bigbite.event.RxResult;
+import com.my.reactive.result.RxResult;
 
-public class ProgressResult extends RxResult {
+public class LoadDetectorResult extends RxResult {
 
-    public final int progress;
-
-    public static ProgressResult inProgress(int progress) {
-        return new ProgressResult(true, false, 0, null);
+    public static RxResult inProgress() {
+        return new LoadDetectorResult(true, false, null);
     }
 
-    public static ProgressResult succeed() {
-        return new ProgressResult(false, true, 100, null);
+    public static RxResult succeed() {
+        return new LoadDetectorResult(false, true, null);
     }
 
-    public static ProgressResult failed(Throwable err) {
-        return new ProgressResult(false, false, 0, err);
+    public static RxResult failed(Throwable err) {
+        return new LoadDetectorResult(false, false, err);
     }
 
     @Override
     public String toString() {
-        return "ProgressResult{" +
-               ", isInProgress=" + isInProgress +
+        return "LoadDetectorResult{" +
+               "isInProgress=" + isInProgress +
                ", isSuccessful=" + isSuccessful +
-               ", progress=" + progress +
                ", err=" + err +
                '}';
     }
@@ -51,11 +48,9 @@ public class ProgressResult extends RxResult {
     ///////////////////////////////////////////////////////////////////////////
     // Protected / Private Methods ////////////////////////////////////////////
 
-    protected ProgressResult(boolean isInProgress,
-                             boolean isSuccessful,
-                             int progress,
-                             Throwable err) {
+    protected LoadDetectorResult(boolean isInProgress,
+                                 boolean isSuccessful,
+                                 Throwable err) {
         super(isInProgress, isSuccessful, err);
-        this.progress = progress;
     }
 }

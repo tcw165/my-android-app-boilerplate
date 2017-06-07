@@ -30,34 +30,19 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
     // Google Support Library.
-    def SUPPORT_LIB_VER = "25.3.1"
-    compile "com.android.support:appcompat-v7:${SUPPORT_LIB_VER}"
-    compile "com.android.support:recyclerview-v7:${SUPPORT_LIB_VER}"
-    compile "com.android.support.constraint:constraint-layout:1.0.2"
+    compile rootProject.ext.dep.supportAppcompatV7
+    compile rootProject.ext.dep.supportVectorDrawable
+    compile rootProject.ext.dep.supportRecyclerViewV7
+    compile rootProject.ext.dep.supportConstraintLayout
     // Multi-dex.
-    compile "com.android.support:multidex:1.0.1"
-
-    // Rx-Android.
-    compile "io.reactivex.rxjava2:rxandroid:2.0.1"
-    compile "io.reactivex.rxjava2:rxjava:2.0.1"
-    // Rx-Permissions.
-    compile "com.tbruyelle.rxpermissions2:rxpermissions:0.8.2@aar"
-    // Rx-Binding.
-    compile "com.jakewharton.rxbinding2:rxbinding:2.0.0"
-//    // Rx-HTTP.
-//    def RETROFIT_VER = "2.2.0"
-//    compile "com.squareup.retrofit2:retrofit:${RETROFIT_VER}"
-//    compile "com.squareup.retrofit2:adapter-rxjava2:2.2.0"
-//    compile "com.squareup.retrofit2:converter-gson:${RETROFIT_VER}"
-//    compile "com.squareup.okhttp3:okhttp:3.6.0"
+    compile rootProject.ext.dep.supportMultidex
 
     // View Binding.
-    def BUTTER_KNIFE_VER = "8.5.1"
-    compile "com.jakewharton:butterknife:${BUTTER_KNIFE_VER}"
-    annotationProcessor "com.jakewharton:butterknife-compiler:${BUTTER_KNIFE_VER}"
+    compile rootProject.ext.dep.butterKnife
+    annotationProcessor rootProject.ext.dep.butterKnifeCompiler
 
     // Image loader.
-    compile "com.github.bumptech.glide:glide:3.7.0"
+    compile rootProject.ext.dep.glide
 
     // Circle image view.
     compile "de.hdodenhof:circleimageview:2.1.0"
@@ -65,10 +50,11 @@ dependencies {
     // My Libraries
     compile project(":lib-core")
     compile project(":lib-widget")
+    compile project(":lib-reactive")
 
-    testCompile "junit:junit:4.12"
+    testCompile rootProject.ext.dep.testJunit
 
-    androidTestCompile("com.android.support.test.espresso:espresso-core:2.2.2", {
+    androidTestCompile(rootProject.ext.dep.testEspressoCore, {
         exclude group: "com.android.support", module: "support-annotations"
     })
 }

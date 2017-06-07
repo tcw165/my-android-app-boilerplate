@@ -18,15 +18,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.demo.bigbite.game.event;
+package com.my.reactive.uiEvent;
 
-import com.my.demo.bigbite.event.UiEvent;
+public abstract class UiEvent<T> {
 
-public final class PermUiEvent extends UiEvent<Boolean> {
+    public final int state;
+    public final T data;
 
-    private static int IGNORED_STATE = 0;
-
-    public PermUiEvent(boolean granted) {
-        super(IGNORED_STATE, granted);
+    public UiEvent(int state, T data) {
+        this.state = state;
+        this.data = data;
     }
 }

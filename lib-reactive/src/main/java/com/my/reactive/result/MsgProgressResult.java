@@ -18,34 +18,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.demo.bigbite.game.event;
+package com.my.reactive.result;
 
-import com.my.demo.bigbite.event.RxResult;
+public class MsgProgressResult extends ProgressResult {
 
-import java.io.File;
+    public final String message;
 
-public class FileResult extends RxResult {
-
-    public final File file;
-
-    public static FileResult inProgress() {
-        return new FileResult(true, false, null, null);
+    public static MsgProgressResult inProgress(String msg,
+                                               int progress) {
+        return new MsgProgressResult(true, false, msg, 0, null);
     }
 
-    public static FileResult succeed(File file) {
-        return new FileResult(false, true, file, null);
+    public static MsgProgressResult succeed(String msg) {
+        return new MsgProgressResult(false, true, msg, 100, null);
     }
 
-    public static FileResult failed(Throwable err) {
-        return new FileResult(false, false, null, err);
+    public static MsgProgressResult failed(Throwable err) {
+        return new MsgProgressResult(false, false, err.getMessage(), 0, err);
     }
 
     @Override
     public String toString() {
-        return "FileResult{" +
-               ", isInProgress=" + isInProgress +
+        return "MsgProgressResult{" +
+               "isInProgress=" + isInProgress +
                ", isSuccessful=" + isSuccessful +
-               ", file=" + file +
+               ", message=\"" + message + "\"" +
+               ", progress=" + progress +
                ", err=" + err +
                '}';
     }
@@ -53,11 +51,12 @@ public class FileResult extends RxResult {
     ///////////////////////////////////////////////////////////////////////////
     // Protected / Private Methods ////////////////////////////////////////////
 
-    protected FileResult(boolean isInProgress,
-                         boolean isSuccessful,
-                         File file,
-                         Throwable err) {
-        super(isInProgress, isSuccessful, err);
-        this.file = file;
+    protected MsgProgressResult(boolean isInProgress,
+                                boolean isSuccessful,
+                                String msg,
+                                int progress,
+                                Throwable err) {
+        super(isInProgress, isSuccessful, progress, err);
+        this.message = msg;
     }
 }

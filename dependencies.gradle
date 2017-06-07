@@ -7,9 +7,8 @@ ext {
     targetCompatibilityVersion = JavaVersion.VERSION_1_7
 
     SUPPORT_LIB_VER = '25.2.0'
-    PLAY_SERVICES_VER = '9.8.0'
-    FIREBASE_VER = '9.8.0'
-    RX_JAVA_VER = '2.0.1'
+    PLAY_SERVICES_VER = '10.2.6'
+    FIREBASE_VER = '10.2.6'
     RX_BINDING_VER = '2.0.0'
     DAGGER2_VER = '2.11-rc2'
     BOLTS_VER = '1.4.0'
@@ -20,6 +19,7 @@ ext {
             // Google Support Library.
             supportDesign          : "com.android.support:design:${SUPPORT_LIB_VER}",
             supportV4              : "com.android.support:support-v4:$SUPPORT_LIB_VER",
+            supportV4CoreUtils     : "com.android.support:support-core-utils:$SUPPORT_LIB_VER",
             supportAppcompatV7     : "com.android.support:appcompat-v7:$SUPPORT_LIB_VER",
             supportAnnotations     : "com.android.support:support-annotations:$SUPPORT_LIB_VER",
             supportRecyclerViewV7  : "com.android.support:recyclerview-v7:${SUPPORT_LIB_VER}",
@@ -42,6 +42,7 @@ ext {
             firebaseCrash          : "com.google.firebase:firebase-crash:${FIREBASE_VER}",
             firebaseMessaging      : "com.google.firebase:firebase-messaging:${FIREBASE_VER}",
             firebaseInvites        : "com.google.firebase:firebase-invites:${FIREBASE_VER}",
+            firebasePerf           : "com.google.firebase:firebase-perf:${FIREBASE_VER}",
             // Facebook.
             facebook               : 'com.facebook.android:facebook-android-sdk:4.18.0',
             facebookAudienceNetwork: 'com.facebook.android:audience-network-sdk:4.17.0',
