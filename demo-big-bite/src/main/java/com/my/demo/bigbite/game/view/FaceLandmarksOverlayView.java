@@ -25,10 +25,10 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.view.View;
 
+import com.my.demo.bigbite.R;
 import com.my.demo.bigbite.game.data.IDLibFaceOverlay;
 import com.my.jni.dlib.data.DLibFace;
 import com.my.jni.dlib.data.DLibFace68;
@@ -74,7 +74,7 @@ public class FaceLandmarksOverlayView
         mStrokeWidth = (int) (density * WIDTH);
         mStrokePaint = new Paint();
         mStrokePaint.setStrokeWidth(mStrokeWidth);
-        mStrokePaint.setColor(ContextCompat.getColor(getContext(), com.my.widget.R.color.accent));
+        mStrokePaint.setColor(ContextCompat.getColor(getContext(), R.color.accent));
         mStrokePaint.setStyle(Paint.Style.STROKE);
         mStrokePaint.setStrokeCap(Paint.Cap.ROUND);
     }

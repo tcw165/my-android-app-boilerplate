@@ -40,6 +40,7 @@ dependencies {
 
     // My Library.
     compile project(":lib-core")
+    compile project(":lib-common-theme")
     compile project(":lib-reactive")
 //    compile(name: "lib-core-release", ext: "aar")
 

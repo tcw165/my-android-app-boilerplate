@@ -27,6 +27,10 @@ Library
 
 The most common Java/JNI code used generally in the demo apps.
 
+### lib-common-theme
+
+The common theme widely used in the demo experiment.
+
 ### lib-widget
 
 The custom *View* fishpound. e.g. [ElasticDragLayout](lib-widget/src/main/java/com/my/widget/ElasticDragLayout.java)

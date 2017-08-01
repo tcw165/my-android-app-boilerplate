@@ -3,6 +3,7 @@
 
     <!-- Common -->
     <string name="number_0">0</string>
+    <string name="loading">Loading</string>
 
     <!-- Activity title -->
     <string name="title_sample_of_basic_usage">Asset Input</string>

@@ -110,7 +110,7 @@ dependencies {
 
     // My Libraries
     compile project(":lib-core")
-    compile project(":lib-widget")
+    compile project(":lib-common-theme")
     compile project(":lib-dlib")
     compile project(":lib-reactive")
 
