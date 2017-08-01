@@ -22,7 +22,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerInside"
-                app:srcCompat="@drawable/img_android_robot"/>
+                app:srcCompat="@drawable/svg_android_robot"/>
         </android.support.v7.widget.CardView>
 
         <android.support.v7.widget.CardView
@@ -35,7 +35,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerInside"
-                app:srcCompat="@drawable/img_android_robot"/>
+                app:srcCompat="@drawable/svg_android_robot"/>
         </android.support.v7.widget.CardView>
 
         <android.support.v7.widget.CardView
@@ -48,7 +48,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerInside"
-                app:srcCompat="@drawable/img_android_robot"/>
+                app:srcCompat="@drawable/svg_android_robot"/>
         </android.support.v7.widget.CardView>
 
         <android.support.v7.widget.CardView
@@ -61,7 +61,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerInside"
-                app:srcCompat="@drawable/img_android_robot"/>
+                app:srcCompat="@drawable/svg_android_robot"/>
         </android.support.v7.widget.CardView>
 
         <android.support.v7.widget.CardView
@@ -74,7 +74,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerInside"
-                app:srcCompat="@drawable/img_android_robot"/>
+                app:srcCompat="@drawable/svg_android_robot"/>
         </android.support.v7.widget.CardView>
 
         <android.support.v7.widget.CardView
@@ -87,7 +87,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerInside"
-                app:srcCompat="@drawable/img_android_robot"/>
+                app:srcCompat="@drawable/svg_android_robot"/>
         </android.support.v7.widget.CardView>
 
         <android.support.v7.widget.CardView
@@ -100,7 +100,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerInside"
-                app:srcCompat="@drawable/img_android_robot"/>
+                app:srcCompat="@drawable/svg_android_robot"/>
         </android.support.v7.widget.CardView>
     </LinearLayout>
 </android.support.v4.widget.NestedScrollView>
