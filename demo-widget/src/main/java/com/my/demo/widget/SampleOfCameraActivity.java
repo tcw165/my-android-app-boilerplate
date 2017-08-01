@@ -41,6 +41,8 @@ public class SampleOfCameraActivity
     //    CameraSurfaceView mCameraView;
     CameraClassifierView mCameraView;
 
+    RxPermissions mRxPermissions;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,6 +61,9 @@ public class SampleOfCameraActivity
         // Use TextureView.
         mCameraView = (CameraClassifierView) findViewById(R.id.cameraPreview);
         mCameraView.setOnClassifyPreviewListener(this);
+
+        // Init rx-permissions.
+        mRxPermissions = new RxPermissions(this);
     }
 
     @Override
@@ -137,8 +142,7 @@ public class SampleOfCameraActivity
                             @Override
                             public ObservableSource<Boolean> apply(Boolean ignored)
                                 throws Exception {
-                                return RxPermissions
-                                    .getInstance(SampleOfCameraActivity.this)
+                                return mRxPermissions
                                     .request(Manifest.permission.CAMERA);
                             }
                         })
