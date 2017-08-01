@@ -47,6 +47,8 @@ public class DownloadManagerSampleActivity extends AppCompatActivity {
 
     DownloadManager mDownloadManager;
 
+    RxPermissions mRxPermission;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,6 +67,9 @@ public class DownloadManagerSampleActivity extends AppCompatActivity {
 
         // Init the download manager.
         mDownloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+
+        // Init RxPermissions.
+        mRxPermission = new RxPermissions(this);
     }
 
     @Override
@@ -136,8 +141,7 @@ public class DownloadManagerSampleActivity extends AppCompatActivity {
     protected void startDownloading() {
         // FIXME: Might crash on API<21.
         // Ask for writing storage permission.
-        RxPermissions
-            .getInstance(this)
+        mRxPermission
             .request(Manifest.permission.WRITE_EXTERNAL_STORAGE)
             .subscribe(new DisposableObserver<Boolean>() {
                 @Override
