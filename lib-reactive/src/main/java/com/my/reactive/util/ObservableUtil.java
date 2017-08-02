@@ -1,4 +1,6 @@
-// Copyright (c) 2017-present boyw165
+// Copyright (c) 2017-present Cardinalblue
+//
+// Author: boy@cardinalblue.com
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,28 +20,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.demo.bigbite.game.event.uiEvent;
+package com.cardinalblue.reactive.util;
 
-import android.util.SparseArray;
+import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
+import io.reactivex.ObservableTransformer;
+import io.reactivex.functions.Predicate;
 
-import com.my.reactive.uiEvent.UiEvent;
+public final class ObservableUtil {
 
-public final class FrameUiEvent<T> extends UiEvent<SparseArray<T>> {
+    public static final Object IGNORED = new Object();
 
-    public static <T> FrameUiEvent<T> start(SparseArray<T> data) {
-        return new FrameUiEvent<>(true, false, data);
-    }
-
-    public static <T> FrameUiEvent<T> doing(SparseArray<T> data) {
-        return new FrameUiEvent<>(false, true, data);
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Protected / Private Methods ////////////////////////////////////////////
-
-    private FrameUiEvent(boolean justStart,
-                         boolean doing,
-                         SparseArray<T> data) {
-        super(justStart, doing, false, data);
-    }
+    public static final ObservableTransformer<Object, ?> FILTER_IGNORED =
+        new ObservableTransformer<Object, Object>() {
+            @Override
+            public ObservableSource<Object> apply(Observable<Object> upstream) {
+                return upstream.filter(new Predicate<Object>() {
+                    @Override
+                    public boolean test(Object o) throws Exception {
+                        return o != IGNORED;
+                    }
+                });
+            }
+        };
 }

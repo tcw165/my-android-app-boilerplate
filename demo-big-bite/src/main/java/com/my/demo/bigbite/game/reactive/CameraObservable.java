@@ -160,9 +160,9 @@ public final class CameraObservable<T>
 
                 if (mIsFirstFrame) {
                     mIsFirstFrame = false;
-                    mObserver.onNext(FrameUiEvent.firstFrame(res));
+                    mObserver.onNext(FrameUiEvent.start(res));
                 } else {
-                    mObserver.onNext(FrameUiEvent.repeatedFrame(res));
+                    mObserver.onNext(FrameUiEvent.doing(res));
                 }
 
                 return res;

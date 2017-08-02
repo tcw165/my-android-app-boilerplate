@@ -20,13 +20,37 @@
 
 package com.my.reactive.uiEvent;
 
-public abstract class UiEvent<T> {
+public class UiEvent<T> {
 
-    public final int state;
-    public final T data;
+    public final boolean justStart, doing;
+    public final boolean isTriggeredByUser;
+    public final T bundle;
 
-    public UiEvent(int state, T data) {
-        this.state = state;
-        this.data = data;
+    public static <T> UiEvent<T> start(T bundle) {
+        return new UiEvent<>(true, false, true, bundle);
+    }
+
+    public static <T> UiEvent<T> doing(boolean isTriggeredByUser,
+                                       T bundle) {
+        return new UiEvent<>(false, true,
+                             isTriggeredByUser,
+                             bundle);
+    }
+
+    public static <T> UiEvent<T> stop(T bundle) {
+        return new UiEvent<>(false, false, true, bundle);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Protected / Private Methods ////////////////////////////////////////////
+
+    protected UiEvent(boolean justStart,
+                      boolean doing,
+                      boolean isTriggeredByUser,
+                      T bundle) {
+        this.justStart = justStart;
+        this.doing = doing;
+        this.isTriggeredByUser = isTriggeredByUser;
+        this.bundle = bundle;
     }
 }

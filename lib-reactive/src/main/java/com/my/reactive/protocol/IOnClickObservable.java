@@ -1,4 +1,4 @@
-package com.my.reactive;
+package com.my.reactive.protocol;
 
 import io.reactivex.Observable;
 

@@ -29,7 +29,7 @@ import android.view.ViewGroup;
 import com.bumptech.glide.RequestManager;
 import com.jakewharton.rxbinding2.view.RxView;
 import com.my.demo.bigbite.R;
-import com.my.reactive.IOnClickObservable;
+import com.my.reactive.protocol.IOnClickObservable;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;

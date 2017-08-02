@@ -20,23 +20,23 @@
 
 package com.my.reactive.result;
 
-public class PermResult extends RxResult {
+public class PermissionResult extends RxResult {
 
     public static RxResult inProgress() {
-        return new PermResult(true, false, null);
+        return new PermissionResult(true, false, null);
     }
 
     public static RxResult succeed() {
-        return new PermResult(false, true, null);
+        return new PermissionResult(false, true, null);
     }
 
     public static RxResult failed(Throwable err) {
-        return new PermResult(false, false, err);
+        return new PermissionResult(false, false, err);
     }
 
     @Override
     public String toString() {
-        return "PermResult{" +
+        return "PermissionResult{" +
                "isInProgress=" + isInProgress +
                ", isSuccessful=" + isSuccessful +
                ", err=" + err +
@@ -46,9 +46,9 @@ public class PermResult extends RxResult {
     ///////////////////////////////////////////////////////////////////////////
     // Protected / Private Methods ////////////////////////////////////////////
 
-    protected PermResult(boolean isInProgress,
-                         boolean isSuccessful,
-                         Throwable err) {
+    protected PermissionResult(boolean isInProgress,
+                               boolean isSuccessful,
+                               Throwable err) {
         super(isInProgress, isSuccessful, err);
     }
 }

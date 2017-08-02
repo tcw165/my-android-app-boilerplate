@@ -98,7 +98,7 @@ public class LottieAnimObservable extends Observable<UiEvent> {
 
         @Override
         public void onAnimationEnd(Animator animation) {
-            mObserver.onNext(AnimUiEvent.end());
+            mObserver.onNext(AnimUiEvent.stop(null));
 
             mIsAnimating.set(false);
             mView.setVisibility(View.GONE);
@@ -106,7 +106,7 @@ public class LottieAnimObservable extends Observable<UiEvent> {
 
         @Override
         public void onAnimationCancel(Animator animation) {
-            mObserver.onNext(AnimUiEvent.cancel());
+            mObserver.onNext(AnimUiEvent.stop(null));
         }
 
         @Override

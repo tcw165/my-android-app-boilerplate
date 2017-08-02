@@ -47,6 +47,7 @@ import com.my.core.protocol.IProgressBarView;
 import com.my.demo.bigbite.R;
 import com.my.reactive.result.AnimResult;
 import com.my.demo.bigbite.game.event.result.LoadDetectorResult;
+import com.my.reactive.result.PermissionResult;
 import com.my.reactive.result.RxResult;
 import com.my.reactive.uiModel.UiModel;
 import com.my.reactive.uiEvent.AnimUiEvent;
@@ -68,7 +69,6 @@ import com.my.demo.bigbite.util.DLibModelHelper;
 import com.my.jni.dlib.DLibLandmarks68Detector;
 import com.my.jni.dlib.IDLibFaceDetector;
 import com.my.jni.dlib.data.DLibFace;
-import com.my.reactive.result.PermResult;
 import com.my.reactive.result.TickResult;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
@@ -539,14 +539,14 @@ public class GameActivity
                 public RxResult apply(Boolean granted)
                     throws Exception {
                     if (granted) {
-                        return PermResult.succeed();
+                        return PermissionResult.succeed();
                     } else {
-                        return PermResult.failed(new RuntimeException(
+                        return PermissionResult.failed(new RuntimeException(
                             "Permissions denied."));
                     }
                 }
             })
-            .startWith(PermResult.inProgress());
+            .startWith(PermissionResult.inProgress());
     }
 
     private ObservableTransformer<RxResult, RxResult> downloadFaceDetectorIfOk(final Scheduler worker) {
@@ -753,12 +753,9 @@ public class GameActivity
                             @Override
                             public RxResult apply(AnimUiEvent event)
                                 throws Exception {
-                                if (event.isJustStarted() ||
-                                    event.isAnimating()) {
+                                if (event.justStart ||
+                                    event.doing) {
                                     return AnimResult.inProgress();
-                                } else if (event.isCancelled()) {
-                                    return AnimResult.failed(new Throwable(
-                                        "The intro animation is cancelled."));
                                 } else {
                                     return AnimResult.succeed();
                                 }
@@ -797,7 +794,7 @@ public class GameActivity
             @Override
             public DetectBiteAction apply(FrameUiEvent<DLibFace> event)
                 throws Exception {
-                final SparseArray<DLibFace> faces = event.data;
+                final SparseArray<DLibFace> faces = event.bundle;
                 return new DetectBiteAction(faces.get(faces.keyAt(0)));
             }
         };

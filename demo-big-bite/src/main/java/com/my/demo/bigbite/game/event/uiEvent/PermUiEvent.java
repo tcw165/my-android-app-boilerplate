@@ -24,9 +24,7 @@ import com.my.reactive.uiEvent.UiEvent;
 
 public final class PermUiEvent extends UiEvent<Boolean> {
 
-    private static int IGNORED_STATE = 0;
-
     public PermUiEvent(boolean granted) {
-        super(IGNORED_STATE, granted);
+        super(false, false, false, granted);
     }
 }

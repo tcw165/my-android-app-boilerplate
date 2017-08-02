@@ -1,4 +1,6 @@
-// Copyright (c) 2017-present boyw165
+// Copyright (c) 2017-present Cardinalblue
+//
+// Author: boy@cardinalblue.com
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,28 +20,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.my.demo.bigbite.game.event.uiEvent;
+package com.cardinalblue.reactive.activity;
 
-import android.util.SparseArray;
+import android.support.v7.app.AppCompatActivity;
 
-import com.my.reactive.uiEvent.UiEvent;
+import com.cardinalblue.reactive.util.ObservableUtil;
 
-public final class FrameUiEvent<T> extends UiEvent<SparseArray<T>> {
+import io.reactivex.Observable;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.subjects.PublishSubject;
+import io.reactivex.subjects.Subject;
 
-    public static <T> FrameUiEvent<T> start(SparseArray<T> data) {
-        return new FrameUiEvent<>(true, false, data);
+public class RxAppCompatActivity extends AppCompatActivity {
+
+    // Subjects.
+    private final Subject<Object> onClickSystemBack = PublishSubject.create();
+
+    // Disposables.
+    protected final CompositeDisposable mDisposables = new CompositeDisposable();
+
+    @Override
+    public void onBackPressed() {
+        onClickSystemBack.onNext(ObservableUtil.IGNORED);
     }
 
-    public static <T> FrameUiEvent<T> doing(SparseArray<T> data) {
-        return new FrameUiEvent<>(false, true, data);
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Protected / Private Methods ////////////////////////////////////////////
-
-    private FrameUiEvent(boolean justStart,
-                         boolean doing,
-                         SparseArray<T> data) {
-        super(justStart, doing, false, data);
+    public Observable<Object> onClickSystemBack() {
+        return onClickSystemBack;
     }
 }

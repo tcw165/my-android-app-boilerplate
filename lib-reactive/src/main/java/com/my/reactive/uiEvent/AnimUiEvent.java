@@ -22,49 +22,23 @@ package com.my.reactive.uiEvent;
 
 public final class AnimUiEvent extends UiEvent<Object> {
 
-    private static final int START = 0;
-    private static final int ANIMATING = 1;
-    private static final int END = 2;
-    private static final int CANCEL = 3;
-
-    private static final Object DATA = new Object();
-
     public static AnimUiEvent start() {
-        return new AnimUiEvent(START);
+        return new AnimUiEvent(true, false);
     }
 
-    public static AnimUiEvent animating() {
-        return new AnimUiEvent(ANIMATING);
+    public static AnimUiEvent doing() {
+        return new AnimUiEvent(false, true);
     }
 
-    public static AnimUiEvent end() {
-        return new AnimUiEvent(END);
-    }
-
-    public static AnimUiEvent cancel() {
-        return new AnimUiEvent(CANCEL);
-    }
-
-    public boolean isJustStarted() {
-        return this.state == START;
-    }
-
-    public boolean isAnimating() {
-        return this.state == ANIMATING;
-    }
-
-    public boolean isEnd() {
-        return this.state == END;
-    }
-
-    public boolean isCancelled() {
-        return this.state == CANCEL;
+    public static AnimUiEvent stop() {
+        return new AnimUiEvent(false, false);
     }
 
     ///////////////////////////////////////////////////////////////////////////
     // Protected / Private Methods ////////////////////////////////////////////
 
-    private AnimUiEvent(int state) {
-        super(state, DATA);
+    private AnimUiEvent(boolean justStart,
+                        boolean doing) {
+        super(justStart, doing, false, null);
     }
 }

@@ -14,7 +14,7 @@ import com.facebook.drawee.interfaces.DraweeController;
 import com.facebook.drawee.view.DraweeView;
 import com.facebook.imagepipeline.request.ImageRequest;
 import com.jakewharton.rxbinding2.view.RxView;
-import com.my.reactive.IOnClickObservable;
+import com.my.reactive.protocol.IOnClickObservable;
 
 import java.util.ArrayList;
 import java.util.List;
