@@ -20,11 +20,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.cardinalblue.reactive.activity;
+package com.my.reactive.activity;
 
 import android.support.v7.app.AppCompatActivity;
 
-import com.cardinalblue.reactive.util.ObservableUtil;
+import com.my.reactive.util.ObservableConst;
 
 import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
@@ -41,7 +41,7 @@ public class RxAppCompatActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        onClickSystemBack.onNext(ObservableUtil.IGNORED);
+        onClickSystemBack.onNext(ObservableConst.IGNORED);
     }
 
     public Observable<Object> onClickSystemBack() {

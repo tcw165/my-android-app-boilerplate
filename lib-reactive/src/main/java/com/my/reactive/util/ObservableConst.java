@@ -20,14 +20,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.cardinalblue.reactive.util;
+package com.my.reactive.util;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.ObservableTransformer;
 import io.reactivex.functions.Predicate;
 
-public final class ObservableUtil {
+public final class ObservableConst {
 
     public static final Object IGNORED = new Object();
 
