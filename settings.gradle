@@ -1,5 +1,4 @@
-include ':app',
-        ':demo-widget',
+include ':demo-widget',
         ':demo-dlib',
         ':demo-big-bite',
         ':demo-doodle',

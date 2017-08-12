@@ -1,6 +1,0 @@
-{
-    "version": 1,
-    "urlOfBundleList": "http://pic-collage.com/api/sticker_bundles.json",
-    "encryptionKey": "nvdciuewkbnbdsgydsg",
-    "ruleOfBundleFile": "%s/resources/download/bundles/%s"
-}
